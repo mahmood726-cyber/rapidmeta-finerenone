@@ -115,22 +115,267 @@ def _json(url):
 
 # ------------------------------------------------------------------ concept derivation
 
-def candidate_intervention(obj):
-    """The intervention term, taken from the object's OWN title and question.
+# Words that describe a DOSE or a SCHEDULE and are never part of a drug name. Trailing runs
+# of these are stripped. Deliberately small and named: over-stripping loses real drug words.
+DOSE_WORDS = set("""target titrated tolerated once twice daily weekly bid od as to up
+oral orally intravenous intravenously subcutaneous infusion tablet capsule dose doses
+maximum tolerated-dose mg mcg g ml units administered given""".split())
 
-    Returns (term, how_it_was_derived). ⚠️ A CANDIDATE, not a fact -- surfaced in the
-    output because if it is wrong every count below is wrong.
+# ⛔ A SCHEDULE TOKEN IS NOT A WORD LIST, IT IS A PATTERN, AND THE WORD LIST MISSED IT.
+# Measured 2026-08-31 on the twenty: `Atorvastatin (Q2W)` yielded TWO seed terms --
+# `Atorvastatin` and `Q2W` -- because the parenthetical is lifted out as its own chunk and
+# `q2w` is in no list. The block sent to PubMed was `Atorvastatin OR Q2W OR Evolocumab`.
+# The family is generative (Q2W, Q4W, QM, QD, BID, TID, PRN, PO, SC), so it is matched as a
+# shape. Only a term that is ENTIRELY schedule tokens is dropped; a real drug name is never
+# wholly one of these.
+_SCHEDULE = re.compile(
+    r"(?i)^(?:q[0-9]*[dwmhy]|b\.?i\.?d|t\.?i\.?d|q\.?i\.?d|q\.?d|q\.?h\.?s|prn|"
+    r"p\.?o|i\.?v|s\.?c|s\.?q|ac|pc)\.?$")
+
+
+def _all_schedule(term):
+    words = [w for w in re.split(r"[\s/+,;:-]+", term) if w]
+    return bool(words) and all(_SCHEDULE.match(w) for w in words)
+
+
+# A control label naming placebo/sham/vehicle names what the arm is NOT: `colchicine
+# placebo` is not colchicine. Excluding these is safe; excluding a real background
+# co-intervention would not be, and is deliberately not attempted.
+_PLACEBO = re.compile(r"(?i)\b(placebo|sham|vehicle|dummy|matching|matched)\b")
+
+# Conjunction tokens that separate co-interventions within one arm label. `/` is NOT here:
+# `sacubitril/valsartan` is one agent and splitting it would invent a second drug.
+_CONJ = re.compile(r"(?i)\s*(?:\+|\bplus\b|\band\b)\s*")
+
+
+def _strip_dose(label):
+    """'dapagliflozin 10 mg once daily' -> 'dapagliflozin'.
+
+    ⛔ THE SPLIT IS AT A DIGIT THAT FOLLOWS WHITESPACE, NOT AT ANY DIGIT. Splitting at any
+    digit turned 'LCZ696 (sacubitril/valsartan) 200 mg twice daily' into 'LCZ' -- junk, and
+    it would have widened arni-hfref, a topic that was ALREADY CORRECT. Alphanumeric drug
+    codes (LCZ696, LX4211, AHU377, TMC120, R147681) all carry an internal digit.
+
+    ⛔ NO SPLITTING ON '/'. 'sacubitril/valsartan' is ONE agent; splitting it would add
+    'valsartan' -- a different drug, with its own literature -- and widen a correct block
+    into a wrong one. The combination is kept whole and any parenthetical beside it.
+
+    ⚠️ TRAILING DOSE/SCHEDULE WORDS ARE THEN STRIPPED, because cutting at the digit leaves
+    them behind: 'sacubitril/valsartan, target 200 mg' cut at the digit yields
+    'sacubitril/valsartan, target'.
     """
-    title = str(obj.get("title") or "")
-    q = str(obj.get("question") or "")
-    # The first content word of the title is the intervention in this corpus's naming
-    # convention ("Dapivirine vaginal ring versus placebo ring...").
-    for src, label in ((title, "object title"), (q, "object question")):
+    out = []
+    parens = re.findall(r"\(([^)]+)\)", label)
+    for chunk in [re.sub(r"\([^)]*\)", " ", label)] + parens:
+        head = re.split(r"(?:^|\s)\d", chunk)[0]
+        words = [w for w in re.split(r"[\s,;:]+", head.strip()) if w]
+        while words and words[-1].lower().strip("-") in DOSE_WORDS:
+            words.pop()
+        t = " ".join(words).strip(" ,;:-")
+        # ⚠️ `all([])` is True, so `_all_schedule` guards on a non-empty word list first.
+        # Without that guard an empty chunk would be classified as "entirely schedule" and
+        # the branch would be unreachable for the case it exists to catch.
+        if 2 < len(t) < 60 and not _all_schedule(t):
+            out.append(t)
+    return out
+
+
+def arm_role_conflicts(obj):
+    """Terms that appear in BOTH a treatment-arm label and a control-arm label.
+
+    ⛔⛔ THE SEED FIX MOVED THE SEED FROM THE TITLE TO THE ARMS, AND THE ARMS CAN BE WRONG.
+    Measured 2026-08-31 on `evolocumab-mixed-dyslipidemia-auto-full-review`, NCT02662569:
+
+        role=treatment   'Atorvastatin (Q2W)'
+        role=control     'Evolocumab QM + Atorvastatin'
+
+    The roles are INVERTED on that trial -- the review is of evolocumab -- so the arms path
+    seeded the COMPARATOR as the intervention and PubMed went from 1,558 records to 15,370.
+    ⚠️ AND 15,370 IS A PLAUSIBLE SIZE FOR THE STATIN LITERATURE, which is the whole reason
+    this needs a detector rather than a reader.
+
+    ⇒ THE SIGNAL IS MECHANICAL AND NEEDS NO DRUG KNOWLEDGE: a term cannot be this review's
+    intervention and this review's comparator at once. Terms are NAMED, never silently
+    dropped -- an add-on design legitimately puts a background drug in both arms, and
+    deleting it would be a repair made by a machine that cannot tell the two apart.
+
+    ⚠️ TWO INNOCENT CAUSES WERE FOUND BY RUNNING IT ON THE CORPUS, AND ONLY ONE CAN BE
+    EXCLUDED MECHANICALLY. Both were discovered by a live-corpus plant failing, not by
+    reading the code:
+
+      * A PLACEBO LABEL THAT NAMES THE DRUG. `colchicine-cvd-review` NCT02551094 labels its
+        control `colchicine placebo`. That is not colchicine, and a control label carrying a
+        placebo/sham/vehicle marker is EXCLUDED here -- exclusion is safe because such a
+        label names what the arm is NOT.
+      * A GENUINE BACKGROUND CO-INTERVENTION. The same review's NCT03048825 has
+        `Colchicine + Spironolactone +/- SYNERGY Stent` against `Placebo +/- SYNERGY Stent`.
+        `SYNERGY Stent` really is in both arms. That is CORRECT data and is still reported,
+        because no mechanical test separates a background co-intervention from an inverted
+        role without knowing which drug the review is about.
+
+    ⇒ SO THE ACTIONABLE FLAG IS NOT "A CONFLICT EXISTS" BUT "THE SEED LEADS WITH ONE".
+    `seed_leads_with_conflicted_term` is the discriminating signal: colchicine's seed leads
+    with `colchicine`, its own titular drug, and is fine; evolocumab-mixed's leads with
+    `Atorvastatin`, a conflicted term, and is the inversion.
+    """
+    inputs = obj.get("inputs")
+    trials = (inputs or {}).get("trials") if isinstance(inputs, dict) else None
+    if not isinstance(trials, list):
+        return []
+    treat, ctrl, where = set(), set(), {}
+    for t in trials:
+        for a in ((t or {}).get("arms") or []) if isinstance(t, dict) else []:
+            if not isinstance(a, dict):
+                continue
+            label = str(a.get("label") or "")
+            # ⛔ THE PLACEBO MARKER BINDS TO ITS OWN CONJUNCT, NOT TO THE WHOLE LABEL.
+            # Dropping the whole label was the first attempt and it was WRONG in a way only
+            # the corpus showed: `Placebo +/- SYNERGY Stent` (colchicine-cvd-review
+            # NCT03048825) would have lost `SYNERGY Stent`, a REAL co-intervention that is
+            # genuinely in both arms -- an over-exclusion that would have hidden the one
+            # case the detector cannot decide mechanically.
+            #
+            #   colchicine placebo        one conjunct, marked  -> dropped whole
+            #   Placebo +/- SYNERGY Stent 'Placebo' | 'SYNERGY Stent' -> only the first
+            #
+            # The conjunction token IS the mechanical difference between "placebo OF X" and
+            # "placebo PLUS X", and it needs no drug knowledge.
+            chunks = ([c for c in _CONJ.split(label) if not _PLACEBO.search(c)]
+                      if a.get("role") == "control" else [label])
+            for term in [t for c in chunks for t in _strip_dose(c)]:
+                for w in re.split(r"[\s/+,;:()-]+", term):
+                    if len(w) < 4 or w.lower() in STOP:
+                        continue
+                    (treat if a.get("role") == "treatment" else
+                     ctrl if a.get("role") == "control" else set()).add(w.lower())
+                    where.setdefault(w.lower(), set()).add(
+                        "%s:%s" % (t.get("id") or t.get("name") or "?", a.get("role")))
+    return [{"term": w, "seen_as": sorted(where.get(w, ()))}
+            for w in sorted(treat & ctrl)]
+
+
+def seed_role_state(obj):
+    """-> (state, conflicts, terms). A NAMED state, never a silent pass.
+
+      SEED_ROLE_OK               no conflicted term, or the seed does not lead with one
+      SEED_LEADS_WITH_CONFLICT   the FIRST seed term appears in both roles -- the shape of
+                                 an inverted arm role, and the block that widened
+                                 evolocumab-mixed from 1,558 PubMed records to 15,370
+      SEED_ROLE_NOT_APPLICABLE   the seed did not come from the arms, so arm roles cannot
+                                 have chosen it
+    """
+    terms, how = intervention_terms(obj)
+    conflicts = arm_role_conflicts(obj)
+    if not how.startswith("inputs.trials[*].arms"):
+        return "SEED_ROLE_NOT_APPLICABLE", conflicts, terms
+    names = {c["term"] for c in conflicts}
+    if terms and terms[0].lower() in names:
+        return "SEED_LEADS_WITH_CONFLICT", conflicts, terms
+    return "SEED_ROLE_OK", conflicts, terms
+
+
+def intervention_terms(obj):
+    """The intervention terms, from the object's OWN RECORD OF WHAT ITS TRIALS GAVE.
+
+    Returns (terms, how_it_was_derived).
+
+    ⛔⛔ THE FIRST CONTENT WORD OF THE TITLE IS THE LAST RESORT NOW, NOT THE FIRST CHOICE,
+    AND THIS IS WHY. Measured 2026-08-31 on the four topics of the nct_pmid join:
+
+        arni-hfref        'Sacubitril'    -> Entresto, LCZ696, AHU-377        CORRECT
+        sotagliflozin-hf  'Sotagliflozin' -> Inpefa, LX4211                   CORRECT
+        iv-iron-hf        'Intravenous'   -> Intravenous Administration(s)    THE ROUTE
+        sglt2-hf          'SGLT2'         -> SGLT2 Protein, SLC5A2 Protein,
+                                             'Sglt2 protein, mouse'           THE PROTEIN
+
+    The title convention holds for 'Sacubitril/valsartan in adults with...' and breaks for
+    'Intravenous iron against placebo...' and 'SGLT2 inhibitors against placebo...'. MeSH
+    then expanded each wrong seed CONFIDENTLY, into route terms and into rodent transporter
+    records, and the searches that came back were complete-looking: PubMed reported 475,723
+    for iron and 16,917 for SGLT2.
+
+    ⚠️ AND THE DANGEROUS ONE IS THE PLAUSIBLE ONE. 475,723 announced itself. 16,917 is an
+    entirely believable size for the SGLT2 literature, so nothing flagged it -- and sglt2-hf
+    carries 9 of the join's 13 pairs. A plausible wrong number survives every check we own.
+
+    ⭐ IT IS ALSO OUR OWN STANDING RULE, BROKEN BY THE HARNESS: search by DRUG NAME, never by
+    CLASS. The rule was written down and the code did the opposite, unprompted.
+
+    ⇒ THE RIGHT ANSWER WAS IN THE OBJECT THE WHOLE TIME. This is a rendering gap in
+    miniature: the treatment arms name their drug, and the code read the title instead.
+    """
+    inputs = obj.get("inputs")
+    trials = (inputs or {}).get("trials") if isinstance(inputs, dict) else None
+
+    # 1  THE OBJECT'S OWN EXECUTED DRUG QUERY, and it ranks FIRST for a reason that is not
+    #    convenience.
+    #
+    # ⛔⛔ A BLOCK BUILT FROM THE INCLUDED TRIALS CAN ONLY FIND DRUGS ALREADY INCLUDED.
+    # sglt2-hf pools four trials naming TWO gliflozins; its own executed query names FIVE --
+    # dapagliflozin OR empagliflozin OR sotagliflozin OR canagliflozin OR ertugliflozin.
+    # Seeding from the arms would search two, so a canagliflozin trial this review is
+    # missing could never be surfaced by the search meant to find it. That is this corpus's
+    # own standing warning, written on azilsartan: "a query built from the included set
+    # cannot discover anything the included set does not already contain."
+    #
+    # ⇒ THE HUMAN-WRITTEN DRUG BLOCK OUTRANKS THE ARMS. It was written FOR this topic and is
+    # deliberately wider than what was included. The arms are the fallback, not the source.
+    for e in ((obj.get("search") or {}).get("databases") or []):
+        m = re.search(r'(?:query\.intr|intervention)\s*=\s*"([^"]+)"',
+                      str((e or {}).get("query_as_executed") or ""))
+        if m:
+            terms = [t.strip() for t in re.split(r"\bOR\b", m.group(1)) if t.strip()]
+            if terms:
+                return terms, ("search.databases[].query_as_executed query.intr -- the drug "
+                               "block already written and executed for this topic, WIDER "
+                               "than the included set on purpose")
+
+    # 2  AN EXPLICIT DRUG FIELD, where a trial carries one.
+    if isinstance(trials, list):
+        drugs = []
+        for t in trials:
+            if isinstance(t, dict) and isinstance(t.get("drug"), str) and t["drug"].strip():
+                for d in _strip_dose(t["drug"]):
+                    if d.lower() not in [x.lower() for x in drugs]:
+                        drugs.append(d)
+        if drugs:
+            return drugs, "inputs.trials[*].drug, the object's own explicit drug field"
+
+    # 2  THE TREATMENT ARMS' OWN LABELS. Present on every object checked, and it is the
+    #    thing the review actually pooled rather than the thing its title is called.
+    if isinstance(trials, list):
+        terms = []
+        for t in trials:
+            for a in ((t or {}).get("arms") or []) if isinstance(t, dict) else []:
+                if isinstance(a, dict) and a.get("role") == "treatment":
+                    for d in _strip_dose(str(a.get("label") or "")):
+                        if d.lower() not in [x.lower() for x in terms]:
+                            terms.append(d)
+        if terms:
+            return terms, ("inputs.trials[*].arms[role=treatment].label, dose stripped -- "
+                           "what the trials actually gave. NARROWER THAN A SEARCH SHOULD "
+                           "BE: it can only name drugs this review already includes, so it "
+                           "cannot surface a trial of a sibling drug that was missed.")
+
+    # 4  LAST RESORT: the title's first content word. RECORDED AS A LAST RESORT, because it
+    #    is the path that produced 'Intravenous' and 'SGLT2'.
+    for src, label in ((str(obj.get("title") or ""), "object title"),
+                       (str(obj.get("question") or ""), "object question")):
         for w in re.findall(r"[A-Za-z][A-Za-z0-9-]{3,}", src):
             if w.lower() in STOP:
                 continue
-            return w, "first content word of the %s: %r" % (label, src[:80])
-    return None, "no title or question on this object"
+            return [w], ("LAST RESORT -- first content word of the %s, because the object "
+                         "records no trial arms, no drug field and no executed drug query. "
+                         "This is the path that searched a ROUTE on iv-iron-hf and a "
+                         "PROTEIN on sglt2-hf. Treat the block below as unverified."
+                         % label)
+    return [], "no trials, no executed query, no title or question on this object"
+
+
+def candidate_intervention(obj):
+    """Back-compatible single-term view of intervention_terms(). Kept for callers."""
+    terms, how = intervention_terms(obj)
+    return (terms[0] if terms else None), how
 
 
 # Words that describe a study rather than a population, stripped before the population
@@ -226,21 +471,35 @@ def mesh_entry_terms(term):
 
 
 def build_concept_block(obj):
-    term, how = candidate_intervention(obj)
-    rec = {"candidate_intervention": term, "derived_how": how,
-           "warning": ("A CANDIDATE, not a fact. If this term is wrong every count below "
-                       "is wrong, so it is reported rather than assumed.")}
-    if not term:
+    """Expand EVERY seed term, not one. A review of five SGLT2 drugs has five seeds.
+
+    ⚠️ THE SEED PROVENANCE IS CARRIED PER SEED, in `seeds`, and `derived_how` says which
+    source produced them. That is the render-gap fix: the block was always in the artefact
+    and was never in front of the reader, so a route-term block and a drug block looked the
+    same from outside.
+    """
+    seeds, how = intervention_terms(obj)
+    rec = {"candidate_intervention": (seeds[0] if seeds else None),
+           "intervention_terms": seeds, "derived_how": how,
+           "derived_from_last_resort": how.startswith("LAST RESORT"),
+           "warning": ("CANDIDATES, not facts. If these terms are wrong every count below "
+                       "is wrong, so they are reported rather than assumed.")}
+    if not seeds:
         rec["status"] = "NO_INTERVENTION_DERIVED"
         rec["terms"] = []
         return rec
-    rx, rx_st = rxnorm_synonyms(term)
-    mesh, mesh_st = mesh_entry_terms(term)
-    terms = {term}
-    terms |= {t for t in rx if re.search(r"[A-Za-z]", t)}
-    terms |= {t for t in mesh if re.search(r"[A-Za-z]", t)}
-    rec.update({"rxnorm_status": rx_st, "rxnorm_names": rx,
-                "mesh_status": mesh_st, "mesh_entry_terms": mesh,
+    terms, per_seed = set(seeds), []
+    for seed in seeds:
+        rx, rx_st = rxnorm_synonyms(seed)
+        mesh, mesh_st = mesh_entry_terms(seed)
+        terms |= {t for t in rx if re.search(r"[A-Za-z]", t)}
+        terms |= {t for t in mesh if re.search(r"[A-Za-z]", t)}
+        per_seed.append({"seed": seed, "rxnorm_status": rx_st, "rxnorm_names": rx,
+                         "mesh_status": mesh_st, "mesh_entry_terms": mesh})
+    rec.update({"seeds": per_seed,
+                # kept flat for the existing callers that print these two
+                "rxnorm_status": ",".join(sorted({s["rxnorm_status"] for s in per_seed})),
+                "mesh_status": ",".join(sorted({s["mesh_status"] for s in per_seed})),
                 "terms": sorted(terms), "status": "OK"})
     return rec
 

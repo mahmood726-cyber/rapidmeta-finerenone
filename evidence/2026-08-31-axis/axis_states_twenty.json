@@ -1,0 +1,1282 @@
+{
+ "ref": {
+  "matcher": "axis_match v1",
+  "rule_fingerprint": "604ed6957a1adf17c1dbddb459f6fa3428817a615e8fc8bb0a2dcc6152be8152",
+  "frame_path": "F:/claude-temp/pend/cdsr_frame_cardiology.jsonl",
+  "frame_bytes": 2693862,
+  "frame_rows": 1216,
+  "frame_base_set_sha256": "a0d44914a5ef99e3ac826e9e11da13c4309cbf6549c385114405280e014349a9",
+  "frame_kinds": {
+   "review": 1186,
+   "protocol": 30
+  },
+  "twenty_path": "../../evidence/2026-08-31-rekey/corrected/twenty.json",
+  "twenty_bytes": 15453,
+  "twenty_app_id_set_sha256": "cbb0ff163082050924b37f7475da665f2b1a4cefca2373806cb81c55e86b4b05",
+  "twenty_n": 20
+ },
+ "topics": [
+  {
+   "intervention_terms": [
+    "antithrombotic",
+    "apixaban",
+    "blood coagulation factor xa inhibitor",
+    "xa inhibitor"
+   ],
+   "condition_terms": [
+    "atrial",
+    "fibrillation"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "AMBIGUOUS",
+   "reason": "2 row(s) carry both axes in title+objectives and NONE re-verifies in objectives_verbatim alone. Retrieval found a candidate; verification cannot settle it",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 15,
+    "sha256": "66f701a1f4b6959da05bb7f05b88adb2e9134de0789a629780786030cbbe6975",
+    "liveness": {
+     "antithrombotic": 9,
+     "apixaban": 1,
+     "blood coagulation factor xa inhibitor": 0,
+     "xa inhibitor": 5
+    }
+   },
+   "axis_condition": {
+    "n": 22,
+    "sha256": "19523267117c1fcfe70a212a1eb6d32022b55f059990ae5137942225129112a8",
+    "liveness": {
+     "atrial": 23,
+     "fibrillation": 23
+    }
+   },
+   "both": {
+    "n": 2,
+    "sha256": "0be0a49ca369e53bf905815bb3371a130764f47bcd24843c7735b7bdca4fdc6b",
+    "bases": [
+     "CD008980",
+     "CD011373"
+    ]
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD008980",
+    "CD011373"
+   ],
+   "app_id": "apixaban-af-review",
+   "title": "Apixaban in atrial fibrillation",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "apixaban"
+   ],
+   "class_terms": [
+    "antithrombotic",
+    "blood coagulation factor xa inhibitor",
+    "xa inhibitor"
+   ],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "antithrombotic",
+    "apixaban",
+    "blood coagulation factor xa inhibitor",
+    "xa inhibitor"
+   ],
+   "condition_terms": [],
+   "have_intervention_terms": true,
+   "have_condition_terms": false,
+   "state": "REFUSED_NO_TERMS",
+   "reason": "the condition term list is EMPTY, so no search was performed on that axis. The zero this topic would otherwise report is vacuous, not measured",
+   "vacuous": true,
+   "axis_intervention": null,
+   "axis_condition": null,
+   "both": null,
+   "verified": null,
+   "vacuous_axes": [
+    "condition"
+   ],
+   "app_id": "apixaban-vte-prophylaxis",
+   "title": "Apixaban thromboprophylaxis: four trials, four different primary composites, and one estimand all four register below the primary",
+   "rule_outcome": "F1_NO_CONDITION",
+   "class_refusal": null,
+   "drug_terms": [
+    "apixaban"
+   ],
+   "class_terms": [
+    "antithrombotic",
+    "blood coagulation factor xa inhibitor",
+    "xa inhibitor"
+   ],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "bosentan",
+    "endothelin receptor antagonist",
+    "receptor antagonist"
+   ],
+   "condition_terms": [
+    "pulmonary",
+    "arterial",
+    "hypertension"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "MATCHED",
+   "reason": "2 row(s) carry both axes and re-verify in objectives_verbatim alone",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 9,
+    "sha256": "1f07298fccd15eeaaac5e89e7e9f38e7cc3c86d6f768963e93988ef0cb925543",
+    "liveness": {
+     "bosentan": 0,
+     "endothelin receptor antagonist": 4,
+     "receptor antagonist": 9
+    }
+   },
+   "axis_condition": {
+    "n": 19,
+    "sha256": "6a4574af172e461c372417e0adf5875e7aae5714df28f8174fb05acdb6eeddb2",
+    "liveness": {
+     "pulmonary": 35,
+     "arterial": 51,
+     "hypertension": 95
+    }
+   },
+   "both": {
+    "n": 3,
+    "sha256": "fc91a2403737df2e7395be7d2821a8aafb845f3bcb7ae6810a482f6ccbcceedd",
+    "bases": [
+     "CD004434",
+     "CD010531",
+     "CD015824"
+    ]
+   },
+   "verified": {
+    "n": 2,
+    "sha256": "00b545cac4d09e98d9a42cf18bfd340dd8a32b2d215ae02c102da9f409d05bd6",
+    "bases": [
+     "CD004434",
+     "CD015824"
+    ]
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD010531"
+   ],
+   "app_id": "bosentan-pah",
+   "title": "Bosentan in pulmonary arterial hypertension",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "bosentan"
+   ],
+   "class_terms": [
+    "endothelin receptor antagonist",
+    "receptor antagonist"
+   ],
+   "judged": [
+    {
+     "cd_base": "CD004434",
+     "label": "COUNTERPART"
+    },
+    {
+     "cd_base": "CD015824",
+     "label": "UNDECIDABLE_BY_RULE"
+    }
+   ],
+   "n_judged_counterpart": 1
+  },
+  {
+   "intervention_terms": [
+    "bosentan",
+    "endothelin receptor antagonist",
+    "receptor antagonist"
+   ],
+   "condition_terms": [
+    "pulmonary",
+    "hypertension"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "MATCHED",
+   "reason": "2 row(s) carry both axes and re-verify in objectives_verbatim alone",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 9,
+    "sha256": "1f07298fccd15eeaaac5e89e7e9f38e7cc3c86d6f768963e93988ef0cb925543",
+    "liveness": {
+     "bosentan": 0,
+     "endothelin receptor antagonist": 4,
+     "receptor antagonist": 9
+    }
+   },
+   "axis_condition": {
+    "n": 14,
+    "sha256": "c193cf6d15a0d2aab36389522732dc2bfe81ce284b63cf7a9b3f874377e7f779",
+    "liveness": {
+     "pulmonary": 35,
+     "hypertension": 95
+    }
+   },
+   "both": {
+    "n": 3,
+    "sha256": "fc91a2403737df2e7395be7d2821a8aafb845f3bcb7ae6810a482f6ccbcceedd",
+    "bases": [
+     "CD004434",
+     "CD010531",
+     "CD015824"
+    ]
+   },
+   "verified": {
+    "n": 2,
+    "sha256": "00b545cac4d09e98d9a42cf18bfd340dd8a32b2d215ae02c102da9f409d05bd6",
+    "bases": [
+     "CD004434",
+     "CD015824"
+    ]
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD010531"
+   ],
+   "app_id": "bosentan-pah-children",
+   "title": "Bosentan in children with pulmonary hypertension: two trials have reported, and they measure different things",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "bosentan"
+   ],
+   "class_terms": [
+    "endothelin receptor antagonist",
+    "receptor antagonist"
+   ],
+   "judged": [
+    {
+     "cd_base": "CD004434",
+     "label": "COUNTERPART"
+    },
+    {
+     "cd_base": "CD015824",
+     "label": "NOT_COUNTERPART"
+    }
+   ],
+   "n_judged_counterpart": 1
+  },
+  {
+   "intervention_terms": [
+    "bosentan",
+    "endothelin receptor antagonist",
+    "receptor antagonist"
+   ],
+   "condition_terms": [
+    "pulmonary",
+    "arterial",
+    "hypertension"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "MATCHED",
+   "reason": "2 row(s) carry both axes and re-verify in objectives_verbatim alone",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 9,
+    "sha256": "1f07298fccd15eeaaac5e89e7e9f38e7cc3c86d6f768963e93988ef0cb925543",
+    "liveness": {
+     "bosentan": 0,
+     "endothelin receptor antagonist": 4,
+     "receptor antagonist": 9
+    }
+   },
+   "axis_condition": {
+    "n": 19,
+    "sha256": "6a4574af172e461c372417e0adf5875e7aae5714df28f8174fb05acdb6eeddb2",
+    "liveness": {
+     "pulmonary": 35,
+     "arterial": 51,
+     "hypertension": 95
+    }
+   },
+   "both": {
+    "n": 3,
+    "sha256": "fc91a2403737df2e7395be7d2821a8aafb845f3bcb7ae6810a482f6ccbcceedd",
+    "bases": [
+     "CD004434",
+     "CD010531",
+     "CD015824"
+    ]
+   },
+   "verified": {
+    "n": 2,
+    "sha256": "00b545cac4d09e98d9a42cf18bfd340dd8a32b2d215ae02c102da9f409d05bd6",
+    "bases": [
+     "CD004434",
+     "CD015824"
+    ]
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD010531"
+   ],
+   "app_id": "bosentan-pah-monotherapy",
+   "title": "Bosentan alone against an inactive control in pulmonary arterial hypertension: four eligible trials, and not one registering an endpoint this review could pool",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "bosentan"
+   ],
+   "class_terms": [
+    "endothelin receptor antagonist",
+    "receptor antagonist"
+   ],
+   "judged": [
+    {
+     "cd_base": "CD004434",
+     "label": "COUNTERPART"
+    },
+    {
+     "cd_base": "CD015824",
+     "label": "NOT_COUNTERPART"
+    }
+   ],
+   "n_judged_counterpart": 1
+  },
+  {
+   "intervention_terms": [
+    "colchicine"
+   ],
+   "condition_terms": [
+    "cardiovascular",
+    "prevention"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "MATCHED",
+   "reason": "2 row(s) carry both axes and re-verify in objectives_verbatim alone",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 5,
+    "sha256": "33bfb8f91fdf7e15b460f67e0e08f4027b38df171cebb2626c963ae2730c89b6",
+    "liveness": {
+     "colchicine": 5
+    }
+   },
+   "axis_condition": {
+    "n": 51,
+    "sha256": "3294d33404a763e892c57e67ad2be26b7317886d8ea376731ce414682b44080c",
+    "liveness": {
+     "cardiovascular": 111,
+     "prevention": 157
+    }
+   },
+   "both": {
+    "n": 3,
+    "sha256": "e4bb72a212366216e601e412e5cc4795fe09d30d202b35a28da182e93c6cc8e2",
+    "bases": [
+     "CD011047",
+     "CD014808",
+     "CD015003"
+    ]
+   },
+   "verified": {
+    "n": 2,
+    "sha256": "375953bf48be7efa37f2855077ec9f548b0bf8e2482a1a143a0bb7266a56dd3c",
+    "bases": [
+     "CD014808",
+     "CD015003"
+    ]
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD011047"
+   ],
+   "app_id": "colchicine-cvd-review",
+   "title": "Colchicine for cardiovascular prevention",
+   "rule_outcome": "F4_NO_CLASS",
+   "class_refusal": "F4_NO_CLASS",
+   "drug_terms": [
+    "colchicine"
+   ],
+   "class_terms": [],
+   "judged": [
+    {
+     "cd_base": "CD014808",
+     "label": "COUNTERPART"
+    },
+    {
+     "cd_base": "CD015003",
+     "label": "COUNTERPART"
+    }
+   ],
+   "n_judged_counterpart": 2
+  },
+  {
+   "intervention_terms": [
+    "argatroban type",
+    "dabigatran",
+    "thrombin inhibitor"
+   ],
+   "condition_terms": [
+    "atrial",
+    "fibrillation"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "AMBIGUOUS",
+   "reason": "2 row(s) carry both axes in title+objectives and NONE re-verifies in objectives_verbatim alone. Retrieval found a candidate; verification cannot settle it",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 5,
+    "sha256": "bdf35be62925825450651986ae1688c10bc1c82d42e7df4e26bad6939143779a",
+    "liveness": {
+     "argatroban type": 0,
+     "dabigatran": 1,
+     "thrombin inhibitor": 4
+    }
+   },
+   "axis_condition": {
+    "n": 22,
+    "sha256": "19523267117c1fcfe70a212a1eb6d32022b55f059990ae5137942225129112a8",
+    "liveness": {
+     "atrial": 23,
+     "fibrillation": 23
+    }
+   },
+   "both": {
+    "n": 2,
+    "sha256": "83f694232b6f44e663b15f924a3a3e2eda4f7769a140c67988516759cf2cdeda",
+    "bases": [
+     "CD009893",
+     "CD011373"
+    ]
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD009893",
+    "CD011373"
+   ],
+   "app_id": "dabigatran-af",
+   "title": "Dabigatran in atrial fibrillation",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "dabigatran"
+   ],
+   "class_terms": [
+    "thrombin inhibitor",
+    "argatroban type"
+   ],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "argatroban type",
+    "dabigatran",
+    "thrombin inhibitor"
+   ],
+   "condition_terms": [
+    "stroke"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "AMBIGUOUS",
+   "reason": "2 row(s) carry both axes in title+objectives and NONE re-verifies in objectives_verbatim alone. Retrieval found a candidate; verification cannot settle it",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 5,
+    "sha256": "bdf35be62925825450651986ae1688c10bc1c82d42e7df4e26bad6939143779a",
+    "liveness": {
+     "argatroban type": 0,
+     "dabigatran": 1,
+     "thrombin inhibitor": 4
+    }
+   },
+   "axis_condition": {
+    "n": 198,
+    "sha256": "bd0e1a1426d4cff350e688768aaee77f8cbbadc972171709ccbfaa78d945dc70",
+    "liveness": {
+     "stroke": 198
+    }
+   },
+   "both": {
+    "n": 2,
+    "sha256": "83f694232b6f44e663b15f924a3a3e2eda4f7769a140c67988516759cf2cdeda",
+    "bases": [
+     "CD009893",
+     "CD011373"
+    ]
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD009893",
+    "CD011373"
+   ],
+   "app_id": "dabigatran-stroke",
+   "title": "Dabigatran etexilate in adults with stroke",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "dabigatran"
+   ],
+   "class_terms": [
+    "thrombin inhibitor",
+    "argatroban type"
+   ],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "enoxaparin sodium",
+    "heparin",
+    "heparin derivative and low molecular weight",
+    "molecular weight",
+    "or depolymerized"
+   ],
+   "condition_terms": [
+    "venou",
+    "thromboembolism"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "MATCHED",
+   "reason": "4 row(s) carry both axes and re-verify in objectives_verbatim alone",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 33,
+    "sha256": "db037832e8ba5e0c407bf958a17bc612867b594750cd095f0713ea99962f3eb2",
+    "liveness": {
+     "enoxaparin sodium": 0,
+     "heparin": 33,
+     "heparin derivative and low molecular weight": 0,
+     "molecular weight": 19,
+     "or depolymerized": 0
+    }
+   },
+   "axis_condition": {
+    "n": 37,
+    "sha256": "19fdef2614cca6b13dc2cfc93a2a39099e7c4aac88ac4770e29e1fc505c12961",
+    "liveness": {
+     "venou": 91,
+     "thromboembolism": 41
+    }
+   },
+   "both": {
+    "n": 11,
+    "sha256": "5f7b4eefdf8d34d106963dbd5c6215b6bc5aafdc52b655501d5890abba9f2086",
+    "bases": [
+     "CD001100",
+     "CD002001",
+     "CD003074",
+     "CD003747",
+     "CD005981",
+     "CD006649",
+     "CD006650",
+     "CD006681",
+     "CD006771",
+     "CD007557",
+     "CD011762"
+    ]
+   },
+   "verified": {
+    "n": 4,
+    "sha256": "583df24413759b1fd0cb05d88de60937ac3d79daaeece2d360297f9687e097ea",
+    "bases": [
+     "CD001100",
+     "CD006650",
+     "CD006681",
+     "CD007557"
+    ]
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD002001",
+    "CD003074",
+    "CD003747",
+    "CD005981",
+    "CD006649",
+    "CD006771",
+    "CD011762"
+   ],
+   "app_id": "enoxaparin-vte",
+   "title": "Enoxaparin for prevention of venous thromboembolism",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "enoxaparin sodium"
+   ],
+   "class_terms": [
+    "heparin derivative and low molecular weight",
+    "molecular weight",
+    "or depolymerized",
+    "heparin"
+   ],
+   "judged": [
+    {
+     "cd_base": "CD001100",
+     "label": "NOT_COUNTERPART"
+    },
+    {
+     "cd_base": "CD006650",
+     "label": "NOT_COUNTERPART"
+    },
+    {
+     "cd_base": "CD006681",
+     "label": "COUNTERPART"
+    },
+    {
+     "cd_base": "CD007557",
+     "label": "NOT_COUNTERPART"
+    }
+   ],
+   "n_judged_counterpart": 1
+  },
+  {
+   "intervention_terms": [
+    "coronary vasodilator",
+    "etripamil",
+    "verapamil type"
+   ],
+   "condition_terms": [
+    "paroxysmal",
+    "supraventricular",
+    "tachycardia"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "INTERVENTION_MISMATCH",
+   "reason": "the condition axis matches 3 rows and the intervention axis matches NONE. The frame holds this disease and holds no review of this drug or its class",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "coronary vasodilator": 0,
+     "etripamil": 0,
+     "verapamil type": 0
+    }
+   },
+   "axis_condition": {
+    "n": 3,
+    "sha256": "8734f5208ef202086f41d65efe6cd0def97103a25eaf4305e98a0c7033ec03b2",
+    "liveness": {
+     "paroxysmal": 2,
+     "supraventricular": 3,
+     "tachycardia": 6
+    }
+   },
+   "both": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [],
+   "app_id": "etripamil-psvt",
+   "title": "Etripamil in adults with paroxysmal supraventricular tachycardia versus placebo",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "etripamil"
+   ],
+   "class_terms": [
+    "coronary vasodilator",
+    "verapamil type"
+   ],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "evolocumab"
+   ],
+   "condition_terms": [],
+   "have_intervention_terms": true,
+   "have_condition_terms": false,
+   "state": "REFUSED_NO_TERMS",
+   "reason": "the condition term list is EMPTY, so no search was performed on that axis. The zero this topic would otherwise report is vacuous, not measured",
+   "vacuous": true,
+   "axis_intervention": null,
+   "axis_condition": null,
+   "both": null,
+   "verified": null,
+   "vacuous_axes": [
+    "condition"
+   ],
+   "app_id": "evolocumab-ascvd-auto2",
+   "title": "Evolocumab Ascvd Auto2",
+   "rule_outcome": "F1_NO_CONDITION",
+   "class_refusal": "F5_MODALITY_CLASS",
+   "drug_terms": [
+    "evolocumab"
+   ],
+   "class_terms": [],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "evolocumab"
+   ],
+   "condition_terms": [
+    "dyslipidemia"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "NO_CANDIDATE_RETRIEVED",
+   "reason": "neither axis matches any row. Both term lists were non-empty and both were searched; the frame holds nothing on either. There is nothing here to tune",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "evolocumab": 0
+    }
+   },
+   "axis_condition": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "dyslipidemia": 0
+    }
+   },
+   "both": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [],
+   "app_id": "evolocumab-dyslipidemia-review",
+   "title": "Evolocumab in dyslipidaemia",
+   "rule_outcome": "F5_MODALITY_CLASS",
+   "class_refusal": "F5_MODALITY_CLASS",
+   "drug_terms": [
+    "evolocumab"
+   ],
+   "class_terms": [],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "evolocumab"
+   ],
+   "condition_terms": [
+    "mixed",
+    "dyslipidemia"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "NO_CANDIDATE_RETRIEVED",
+   "reason": "neither axis matches any row. Both term lists were non-empty and both were searched; the frame holds nothing on either. There is nothing here to tune",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "evolocumab": 0
+    }
+   },
+   "axis_condition": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "mixed": 6,
+     "dyslipidemia": 0
+    }
+   },
+   "both": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [],
+   "app_id": "evolocumab-mixed-dyslipidemia-auto-full-review",
+   "title": "Evolocumab in adults with mixed dyslipidemia",
+   "rule_outcome": "F5_MODALITY_CLASS",
+   "class_refusal": "F5_MODALITY_CLASS",
+   "drug_terms": [
+    "evolocumab"
+   ],
+   "class_terms": [],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "allosteric cardiac myosin modulator",
+    "cardiac myosin inhibitor",
+    "mavacamten",
+    "myosin inhibitor",
+    "myosin modulator"
+   ],
+   "condition_terms": [
+    "hypertrophic",
+    "cardiomyopathy"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "INTERVENTION_MISMATCH",
+   "reason": "the condition axis matches 1 rows and the intervention axis matches NONE. The frame holds this disease and holds no review of this drug or its class",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "allosteric cardiac myosin modulator": 0,
+     "cardiac myosin inhibitor": 0,
+     "mavacamten": 0,
+     "myosin inhibitor": 0,
+     "myosin modulator": 0
+    }
+   },
+   "axis_condition": {
+    "n": 1,
+    "sha256": "195b8f1d89edf48e99dcfbc5c24f84553c625e56f6dd6263fdf28456934f6f2c",
+    "liveness": {
+     "hypertrophic": 2,
+     "cardiomyopathy": 7
+    }
+   },
+   "both": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [],
+   "app_id": "mavacamten-hcm-review",
+   "title": "Mavacamten in hypertrophic cardiomyopathy",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "mavacamten"
+   ],
+   "class_terms": [
+    "allosteric cardiac myosin modulator",
+    "myosin modulator",
+    "cardiac myosin inhibitor",
+    "myosin inhibitor"
+   ],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "angiotensin ii receptor antagonist",
+    "olmesartan",
+    "receptor antagonist"
+   ],
+   "condition_terms": [
+    "hypertension"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "MATCHED",
+   "reason": "2 row(s) carry both axes and re-verify in objectives_verbatim alone",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 9,
+    "sha256": "1f07298fccd15eeaaac5e89e7e9f38e7cc3c86d6f768963e93988ef0cb925543",
+    "liveness": {
+     "angiotensin ii receptor antagonist": 0,
+     "olmesartan": 0,
+     "receptor antagonist": 9
+    }
+   },
+   "axis_condition": {
+    "n": 95,
+    "sha256": "e62cc91981a18fe8c07b43dee8fb9296cfd09d99488b1616cb31d308b30589eb",
+    "liveness": {
+     "hypertension": 95
+    }
+   },
+   "both": {
+    "n": 3,
+    "sha256": "fc91a2403737df2e7395be7d2821a8aafb845f3bcb7ae6810a482f6ccbcceedd",
+    "bases": [
+     "CD004434",
+     "CD010531",
+     "CD015824"
+    ]
+   },
+   "verified": {
+    "n": 2,
+    "sha256": "00b545cac4d09e98d9a42cf18bfd340dd8a32b2d215ae02c102da9f409d05bd6",
+    "bases": [
+     "CD004434",
+     "CD015824"
+    ]
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD010531"
+   ],
+   "app_id": "olmesartan-htn",
+   "title": "Olmesartan in hypertension: RETIRED -- the titled drug is the comparator in all three trials and the intervention in none",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "olmesartan"
+   ],
+   "class_terms": [
+    "angiotensin ii receptor antagonist",
+    "receptor antagonist"
+   ],
+   "judged": [
+    {
+     "cd_base": "CD004434",
+     "label": "NOT_COUNTERPART"
+    },
+    {
+     "cd_base": "CD015824",
+     "label": "NOT_COUNTERPART"
+    }
+   ],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "antihyperlipidemic",
+    "coa inhibitor",
+    "enzyme inhibitor",
+    "hmg coa inhibitor",
+    "pitavastatin"
+   ],
+   "condition_terms": [
+    "hypercholesterolemia"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "CONDITION_MISMATCH",
+   "reason": "the intervention axis matches 5 rows and the condition axis matches NONE. The frame holds this drug and does not hold it under this condition",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 5,
+    "sha256": "a0287f92584448b4da6aac2f94db02b6b83e5c74cad3c3221ddffb614298d98c",
+    "liveness": {
+     "antihyperlipidemic": 0,
+     "coa inhibitor": 0,
+     "enzyme inhibitor": 4,
+     "hmg coa inhibitor": 0,
+     "pitavastatin": 1
+    }
+   },
+   "axis_condition": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "hypercholesterolemia": 0
+    }
+   },
+   "both": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [],
+   "app_id": "pitavastatin-auto-full-review",
+   "title": "Pitavastatin in adults with hypercholesterolemia",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "pitavastatin"
+   ],
+   "class_terms": [
+    "enzyme inhibitor",
+    "antihyperlipidemic",
+    "hmg coa inhibitor",
+    "coa inhibitor"
+   ],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "cyclase activator",
+    "guanaline cyclase activator",
+    "riociguat"
+   ],
+   "condition_terms": [
+    "pulmonary",
+    "arterial",
+    "hypertension"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "INTERVENTION_MISMATCH",
+   "reason": "the condition axis matches 19 rows and the intervention axis matches NONE. The frame holds this disease and holds no review of this drug or its class",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "cyclase activator": 0,
+     "guanaline cyclase activator": 0,
+     "riociguat": 0
+    }
+   },
+   "axis_condition": {
+    "n": 19,
+    "sha256": "6a4574af172e461c372417e0adf5875e7aae5714df28f8174fb05acdb6eeddb2",
+    "liveness": {
+     "pulmonary": 35,
+     "arterial": 51,
+     "hypertension": 95
+    }
+   },
+   "both": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [],
+   "app_id": "riociguat-pah",
+   "title": "Riociguat in pulmonary arterial hypertension",
+   "rule_outcome": "REKEYED",
+   "class_refusal": null,
+   "drug_terms": [
+    "riociguat"
+   ],
+   "class_terms": [
+    "guanaline cyclase activator",
+    "cyclase activator"
+   ],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "selexipag"
+   ],
+   "condition_terms": [
+    "pulmonary",
+    "arterial",
+    "hypertension"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "INTERVENTION_MISMATCH",
+   "reason": "the condition axis matches 19 rows and the intervention axis matches NONE. The frame holds this disease and holds no review of this drug or its class",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "selexipag": 0
+    }
+   },
+   "axis_condition": {
+    "n": 19,
+    "sha256": "6a4574af172e461c372417e0adf5875e7aae5714df28f8174fb05acdb6eeddb2",
+    "liveness": {
+     "pulmonary": 35,
+     "arterial": 51,
+     "hypertension": 95
+    }
+   },
+   "both": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [],
+   "app_id": "selexipag-pah",
+   "title": "Selexipag in pulmonary arterial hypertension versus placebo",
+   "rule_outcome": "F4_NO_CLASS",
+   "class_refusal": "F4_NO_CLASS",
+   "drug_terms": [
+    "selexipag"
+   ],
+   "class_terms": [],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "sotatercept"
+   ],
+   "condition_terms": [
+    "pulmonary",
+    "arterial",
+    "hypertension"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "INTERVENTION_MISMATCH",
+   "reason": "the condition axis matches 19 rows and the intervention axis matches NONE. The frame holds this disease and holds no review of this drug or its class",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "liveness": {
+     "sotatercept": 0
+    }
+   },
+   "axis_condition": {
+    "n": 19,
+    "sha256": "6a4574af172e461c372417e0adf5875e7aae5714df28f8174fb05acdb6eeddb2",
+    "liveness": {
+     "pulmonary": 35,
+     "arterial": 51,
+     "hypertension": 95
+    }
+   },
+   "both": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [],
+   "app_id": "sotatercept-pah",
+   "title": "Sotatercept in pulmonary arterial hypertension versus placebo",
+   "rule_outcome": "F5_MODALITY_CLASS",
+   "class_refusal": "F5_MODALITY_CLASS",
+   "drug_terms": [
+    "sotatercept"
+   ],
+   "class_terms": [],
+   "judged": [],
+   "n_judged_counterpart": 0
+  },
+  {
+   "intervention_terms": [
+    "warfarin"
+   ],
+   "condition_terms": [
+    "atrial",
+    "fibrillation"
+   ],
+   "have_intervention_terms": true,
+   "have_condition_terms": true,
+   "state": "AMBIGUOUS",
+   "reason": "1 row(s) carry both axes in title+objectives and NONE re-verifies in objectives_verbatim alone. Retrieval found a candidate; verification cannot settle it",
+   "vacuous": false,
+   "vacuous_axes": [],
+   "axis_intervention": {
+    "n": 5,
+    "sha256": "0ed32fa2b79221c53bb49022da4e94517b578784e0ceea57210b0ab8755034d4",
+    "liveness": {
+     "warfarin": 5
+    }
+   },
+   "axis_condition": {
+    "n": 22,
+    "sha256": "19523267117c1fcfe70a212a1eb6d32022b55f059990ae5137942225129112a8",
+    "liveness": {
+     "atrial": 23,
+     "fibrillation": 23
+    }
+   },
+   "both": {
+    "n": 1,
+    "sha256": "5972fe02fb0fbb6da237fe0447eccb1632c7174ac445022c1b3b75d53d35f1e6",
+    "bases": [
+     "CD011373"
+    ]
+   },
+   "verified": {
+    "n": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bases": []
+   },
+   "unverifiable_null_objectives": [],
+   "retrieved_but_unverified": [
+    "CD011373"
+   ],
+   "app_id": "warfarin-af",
+   "title": "Warfarin in atrial fibrillation",
+   "rule_outcome": "F6_CIRCULAR_CLASS",
+   "class_refusal": "F6_CIRCULAR_CLASS",
+   "drug_terms": [
+    "warfarin"
+   ],
+   "class_terms": [],
+   "judged": [],
+   "n_judged_counterpart": 0
+  }
+ ]
+}
