@@ -39,9 +39,9 @@ STOPWORDS = {
     "this", "that", "these", "those", "they", "have", "has", "had", "been",
     "were", "was", "will", "would", "could", "should", "may", "must", "can",
     "received", "receive", "treated", "given", "showed", "found", "demonstrate",
-    "compared", "versus", "approximately", "estimated", "approximately",
+    "compared", "estimated",
     "intent", "treatment-emergent", "regimen", "regimens", "dose", "doses",
-    "weeks", "weekly", "daily", "every", "data", "analysis", "analyses",
+    "weekly", "daily", "every", "data", "analysis", "analyses",
 }
 
 # Reuse v1 data — load PubMed title/year/journal/authors via the v1 CSV

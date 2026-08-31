@@ -112,7 +112,7 @@ def main():
         results.append(result)
 
         status = "OK" if hr_match in ("EXACT", "CLOSE") else "CHECK"
-        print(f"  {curated['id']:20} HR: ours={our_hr}, CTG={ctg_hr}, {hr_match} | N: ours={our_n}, CTG={ctg_n}, {n_match}")
+        print(f"  [{status}] {curated['id']:20} HR: ours={our_hr}, CTG={ctg_hr}, {hr_match} | N: ours={our_n}, CTG={ctg_n}, {n_match}")
 
     print()
     print("=" * 80)
@@ -136,7 +136,7 @@ def main():
     # Save report
     with open("cross_validation_report.json", "w") as f:
         json.dump({"generated": time.strftime("%Y-%m-%d %H:%M"), "results": results}, f, indent=2)
-    print(f"\nReport saved to cross_validation_report.json")
+    print("\nReport saved to cross_validation_report.json")
 
 if __name__ == "__main__":
     main()

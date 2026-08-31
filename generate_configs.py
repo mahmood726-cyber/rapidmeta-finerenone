@@ -301,7 +301,6 @@ def parse_study(data):
     design = ps.get("designModule", {})
     enroll = design.get("enrollmentInfo", {})
     phases = design.get("phases", [])
-    arms = ps.get("armsInterventionsModule", {})
     results = data.get("resultsSection", {})
 
     nct_id = ident.get("nctId", "")
@@ -400,7 +399,7 @@ def parse_study(data):
                                 if v1.isdigit() and v2.isdigit():
                                     # We have counts but need to know which is treatment
                                     pass
-                            except:
+                            except Exception:
                                 pass
 
     return {
