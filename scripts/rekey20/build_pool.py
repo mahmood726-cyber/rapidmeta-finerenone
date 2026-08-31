@@ -4,7 +4,8 @@ import io, json, os, re, sys, glob
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
                               line_buffering=True)
-from rekey_rule import split_title, condition_terms, class_phrases, STOP, norm
+from rekey_rule import (split_title, condition_terms, class_phrases, STOP, norm,
+                        class_terms_for_drug, rule_fingerprint)
 import chembl_resolve as CR
 
 ROOT = "F:/rapidmeta-ssot-shell"
@@ -86,21 +87,16 @@ for name, f in has_object:
     else:
         drug = list(hits.values())[0]
         rec["drug"] = drug
-        sd = drug.get("usan_stem_definition")
-        if not sd:
-            rec["fail"].append("F4_NO_CLASS")
-        elif drug.get("class_is_modality"):
-            rec["fail"].append("F5_MODALITY_CLASS")
+        # R4 and its three refusals live in ONE function, shared with scan.py.
+        ph, cfail = class_terms_for_drug(drug)
+        if cfail:
+            rec["fail"].append(cfail)
         else:
-            ph = class_phrases(sd)
-            dn = norm(drug["pref_name"]).strip()
-            if any(dn in p for p in ph):
-                rec["fail"].append("F6_CIRCULAR_CLASS")
-            else:
-                rec["class_phrases"] = ph
+            rec["class_phrases"] = ph
     topics.append(rec)
 
-json.dump(topics, io.open("pool.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+json.dump({"rule_fingerprint": rule_fingerprint(), "topics": topics},
+          io.open("pool.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
 from collections import Counter
 print("=== POPULATION, with its composition, before any topic count ===")

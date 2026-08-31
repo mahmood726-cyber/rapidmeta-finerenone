@@ -153,3 +153,93 @@ def class_phrases(stem_def):
 def contains(hay_norm, term_norm):
     """whole-token-sequence containment in normalised space."""
     return (" " + term_norm.strip() + " ") in hay_norm
+
+
+def class_terms_for_drug(drug_record):
+    """THE ONE PLACE a drug becomes class terms. -> (phrases, failure_state or None).
+
+    R4 plus its three refusals, in one function, so build_pool.py and scan.py cannot
+    disagree about what the rule yields. They previously did: build_pool applied the
+    F4/F5/F6 gating and froze the result, while scan read that frozen list -- so moving
+    scan to compute live would have silently started scoring the modality classes the
+    rule rejects. One source has to mean the WHOLE rule, not just the splitter.
+    """
+    d = drug_record or {}
+    sd = d.get("usan_stem_definition")
+    if not sd:
+        return [], "F4_NO_CLASS"
+    if d.get("class_is_modality"):
+        return [], "F5_MODALITY_CLASS"
+    ph = class_phrases(sd)
+    dn = norm(d.get("pref_name") or "").strip()
+    if dn and any(dn in p for p in ph):
+        return [], "F6_CIRCULAR_CLASS"
+    return ph, None
+
+
+# ---------------------------------------------------------------------------
+# RULE FINGERPRINT -- the structural fix for: AN INSTRUMENT CERTIFIED IN ONE
+# CONFIGURATION AND RUN IN ANOTHER.
+#
+# WHAT WENT WRONG. Amendment 2 changed `class_phrases`. scan.py had TWO SOURCES for
+# one rule: its controls called class_phrases() LIVE and got the amended splitter,
+# while the twenty read class_phrases FROZEN into twenty.json at draw time, before
+# the amendment. The positive control therefore certified a splitter the twenty
+# never used -- so it was not measuring the twenty at all.
+#
+# WHY A HASH AND NOT A CONVENTION. "Remember to redraw after amending the rule" is a
+# convention, and the next amendment breaks it silently. This makes the drift
+# MECHANICALLY DETECTABLE: the fingerprint is the rule's OUTPUT over a fixed probe,
+# so any change to norm(), class_phrases() or the probe changes it. An artefact
+# records the fingerprint it was built under; a consumer recomputes it and REFUSES
+# on mismatch rather than scoring stale terms.
+#
+# The probe is fixed here, beside the rule, and deliberately includes the exact
+# shapes Amendment 2 was about -- a parenthetical qualifier and a trailing
+# "<exemplar> type" -- so an un-propagated amendment cannot fingerprint identical.
+FINGERPRINT_PROBE = (
+    "beta-blockers (propranolol type)",
+    "thrombin inhibitors argatroban type",
+    "coronary vasodilators verapamil type",
+    "endothelin receptor antagonists",
+    "antithrombotics, blood coagulation factor XA inhibitors",
+    "heparin derivatives and low molecular weight or depolymerized heparins",
+    "enzyme inhibitors: antihyperlipidemics (HMG-CoA inhibitors)",
+    "monoclonal antibodies: fully human",
+    "warfarin analogs",
+)
+
+
+def rule_fingerprint():
+    """sha256 over the rule's OUTPUT for a fixed probe. Changes iff the rule changes."""
+    import hashlib
+    h = hashlib.sha256()
+    for s in FINGERPRINT_PROBE:
+        h.update(s.encode("utf-8"))
+        h.update(b"\x1f")
+        h.update("|".join(class_phrases(s)).encode("utf-8"))
+        h.update(b"\x1e")
+        h.update(norm(s).encode("utf-8"))
+        h.update(b"\x1d")
+    return h.hexdigest()
+
+
+def assert_fingerprint(recorded, artefact_path, gate):
+    """REFUSE if an artefact was built under a different rule than the one now loaded.
+
+    Refusal names the offending artefact first, the rule second, the gate third.
+    """
+    live = rule_fingerprint()
+    if recorded is None:
+        raise SystemExit(
+            "%s\n  rule: the artefact records no rule_fingerprint, so there is no way to "
+            "show it was built by the rule now loaded. An artefact whose provenance cannot "
+            "be checked may not be scored\n  found by: %s" % (artefact_path, gate))
+    if recorded != live:
+        raise SystemExit(
+            "%s\n  rule: built under rule_fingerprint %s, but the rule now loaded "
+            "fingerprints %s. The artefact carries terms from a DIFFERENT version of the "
+            "rule; scoring it would certify one configuration and measure another. "
+            "Rebuild the artefact\n  found by: %s"
+            % (artefact_path, recorded[:16], live[:16], gate))
+    return live

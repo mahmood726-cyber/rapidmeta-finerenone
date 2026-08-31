@@ -5,6 +5,35 @@
 
 ---
 
+> # ⛔ THE FIGURES BELOW ARE SUPERSEDED
+>
+> **This document, as committed in `88aef9525`, reports `1/20 → 4/20` and "one independent
+> new counterpart". Both are superseded. The corrected figures are `1/20 → 5/20` and
+> TWO independent new counterparts across four topics.**
+>
+> **Why:** *Amendment 2* to the rule was authored and frozen **before** the scan, but never
+> propagated to it. `scan.py` had two sources for one rule — its controls called
+> `class_phrases()` live and got the amended splitter, while the twenty read `class_phrases`
+> frozen into `twenty.json` at draw time. **The positive control therefore certified a
+> splitter the twenty never used, so it was not measuring the twenty at all.**
+>
+> Re-running applies the already-frozen rule correctly. It is a **bug fix, not a rule change**,
+> and the defence is the amendment's own timestamp and content, not our word.
+>
+> **The original numbers are left standing here rather than edited away.** A correction that
+> removes the error leaves a clean page where a retraction should be.
+>
+> **Read with:** `CORRECTION-REKEY-TWENTY-2026-08-31.md` (the retraction, the corrected
+> figures, and the structural fix) and `EXPECTATION-REKEY-RERUN-2026-08-31.md` (the
+> prediction, written to disk before the re-run).
+>
+> **What does NOT change:** every conclusion. The near-duplicate finding, the pitavastatin
+> counter-case, the 11-of-20 no-candidate result, and the reading that the 84-of-105 kill may
+> have been masking absence rather than mismatch all stand, and the corrected figure
+> strengthens none of them.
+
+---
+
 ## WHAT THIS FOUND
 
 **Re-keying twenty topics from drug to drug class produced ONE independent new counterpart.**

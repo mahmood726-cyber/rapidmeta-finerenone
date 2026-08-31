@@ -19,7 +19,8 @@ import io, json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 from frame_contract import load_frame, FrameRefused, kinds
-from rekey_rule import norm, contains, split_title, condition_terms, class_phrases
+from rekey_rule import (norm, contains, split_title, condition_terms, class_phrases,
+                        class_terms_for_drug, rule_fingerprint, assert_fingerprint)
 import chembl_resolve as CR
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
@@ -70,13 +71,31 @@ def arms(drug_terms, class_terms, cond):
             "AuB": scan(sorted(set(drug_terms) | set(class_terms)), cond)}
 
 
+# ------------------------------------------------- ONE SOURCE FOR THE RULE
+# The controls and the measured arm MUST derive their terms by the same path. They did
+# not: the controls called class_phrases() live while the twenty read class_phrases
+# frozen into twenty.json before Amendment 2, so the positive control certified a
+# splitter the twenty never used. Both call sites now go through terms_for(), and
+# nothing reads a frozen class term.
+def terms_for(drug_record):
+    """drug record -> (drug terms, class terms). THE ONLY PLACE EITHER IS COMPUTED.
+
+    Class terms come from rekey_rule.class_terms_for_drug, which carries R4 AND its
+    F4/F5/F6 refusals -- the same function build_pool.py uses. One source means the
+    whole rule, not just the splitter.
+    """
+    name = (drug_record or {}).get("pref_name") or ""
+    dt = [x for x in [norm(name).strip()] if x]
+    ct, _fail = class_terms_for_drug(drug_record)
+    return dt, ct
+
+
 # ---------------------------------------------------------------- CONTROLS
 def synth(title):
     inter, cond = split_title(title)
     tok = [w for w in inter.split() if len(w) > 3]
     d = CR.resolve(tok[0])
-    dt = [norm(d["pref_name"]).strip()]
-    ct = class_phrases(d.get("usan_stem_definition"))
+    dt, ct = terms_for(d)
     return dt, ct, condition_terms(cond)
 
 
@@ -131,13 +150,16 @@ if cfail:
 # ---------------------------------------------------------------- THE TWENTY
 print("")
 print("=== THE TWENTY ===")
-twenty = json.load(io.open("twenty.json", encoding="utf-8"))
+_twenty_doc = json.load(io.open("twenty.json", encoding="utf-8"))
+# REFUSE a draw built under a different rule than the one now loaded.
+assert_fingerprint(_twenty_doc.get("rule_fingerprint") if isinstance(_twenty_doc, dict) else None,
+                   "twenty.json", "rekey20/scan.py")
+twenty = _twenty_doc["topics"]
 out = []
 for t in sorted(twenty, key=lambda x: x["app_id"]):
-    d = t.get("drug") or {}
-    dt = [norm(d.get("pref_name") or "").strip()] if d.get("pref_name") else []
-    dt = [x for x in dt if x]
-    ct = t["class_phrases"]
+    # Terms come from terms_for(), the same path the controls use. The frozen
+    # class_phrases in twenty.json are provenance, never scored.
+    dt, ct = terms_for(t.get("drug") or {})
     cond = t["condition_terms"]
     res = arms(dt, ct, cond)
     rec = {"app_id": t["app_id"], "title": t["title"],
