@@ -3769,7 +3769,11 @@
     "records_returned": 22,
     "total_reported": 22,
     "recall_on_included_set": "5/5",
-    "pagination_verified": "next_page_token null and returned == totalCount, read from the FIRST page."
+    "pagination_verified": "next_page_token null and returned == totalCount, read from the FIRST page.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 22 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "ClinicalTrials.gov API v2 -- SECOND QUERY, RECORDED BECAUSE IT DIFFERS",
@@ -3781,7 +3785,11 @@
     "total_reported": 21,
     "recall_on_included_set": "5/5 -- IT MISSED NOTHING THIS REVIEW INCLUDES",
     "what_it_cost": "ONE RECORD, AND THE INTERESTING PART IS WHICH. The condition-filtered query drops NCT02458209 (conditions: ['Healthy']) and KEEPS NCT00991159 (conditions: ['Healthy']). TWO PFIZER PHASE-1 RECORDS WITH THE IDENTICAL CODED CONDITIONS FALL ON OPPOSITE SIDES OF A PARAMETER NAMED FOR THAT FIELD. The `condition` parameter is not a filter on `conditionsModule.conditions`; it matches elsewhere in the record too. Recorded, not relied on -- the unfiltered query is the one this review's cascade is counted from.",
-    "and_no_query_missed_an_included_trial_here": "SAID PLAINLY, BECAUSE THREE OTHER TOPICS IN THIS CORPUS LOST ONE TO THEIRS. sglt2-hf lost DELIVER and iv-iron-hf lost AFFIRM-AHF and HEART-FID to condition terms one word too narrow; apixaban-vte lost NCT02366871 to a phase filter. A clean recall is only worth reading if the misses are reported in the same voice, so it is reported here in that voice."
+    "and_no_query_missed_an_included_trial_here": "SAID PLAINLY, BECAUSE THREE OTHER TOPICS IN THIS CORPUS LOST ONE TO THEIRS. sglt2-hf lost DELIVER and iv-iron-hf lost AFFIRM-AHF and HEART-FID to condition terms one word too narrow; apixaban-vte lost NCT02366871 to a phase filter. A clean recall is only worth reading if the misses are reported in the same voice, so it is reported here in that voice.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 21 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "PubMed (NCBI E-utilities esearch)",
@@ -3793,10 +3801,15 @@
     "records_returned": 50,
     "total_reported": 109,
     "recall_on_included_set": "NOT MEASURED",
-    "what_is_unexamined": "109 records matched and 50 were retrieved. THE OTHER 59 ARE UNEXAMINED, NOT EXCLUDED, and recall against this review's included set was never measured on this database -- so P23 cannot hold on it and says so."
+    "what_is_unexamined": "109 records matched and 50 were retrieved. THE OTHER 59 ARE UNEXAMINED, NOT EXCLUDED, and recall against this review's included set was never measured on this database -- so P23 cannot hold on it and says so.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 50 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    }
   ],
-  "pagination_verified": "returned == totalCount on both registry queries, totalCount read from the FIRST page."
+  "pagination_verified": "returned == totalCount on both registry queries, totalCount read from the FIRST page.",
+  "ids_field_is": "Each databases[] entry carries `ids`: the identifiers THAT SOURCE RETURNED, verbatim in the source's own namespace, with `ids_normalised` beside it. `ids: []` means the source ran and returned nothing; `ids: null` means no set was captured and `ids_absent_because` says which. Defined in scripts/search_ids.py; checked by scripts/check_search_ids.py."
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed search above.",

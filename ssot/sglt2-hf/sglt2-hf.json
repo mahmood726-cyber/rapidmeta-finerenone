@@ -2092,7 +2092,11 @@
     "date_executed": "2026-08-19",
     "records_returned": 23,
     "total_reported": 23,
-    "DEFECT_FOUND": "This query did NOT surface NCT03619213 (DELIVER), which is one of this object's OWN INCLUDED TRIALS. DELIVER registers its condition as 'Heart Failure With Preserved Ejection Fraction' -- no 'chronic' -- while DAPA-HF registers 'Chronic Heart Failure With Reduced Ejection Fraction'. A condition term one word narrower than the registry's own wording dropped an included trial. Recorded rather than replaced: a search that missed something is evidence about the search."
+    "DEFECT_FOUND": "This query did NOT surface NCT03619213 (DELIVER), which is one of this object's OWN INCLUDED TRIALS. DELIVER registers its condition as 'Heart Failure With Preserved Ejection Fraction' -- no 'chronic' -- while DAPA-HF registers 'Chronic Heart Failure With Reduced Ejection Fraction'. A condition term one word narrower than the registry's own wording dropped an included trial. Recorded rather than replaced: a search that missed something is evidence about the search.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 23 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "ClinicalTrials.gov API v2 -- QUERY 2, BROADER, COVERS THE INCLUDED SET",
@@ -2110,7 +2114,11 @@
      "agrees_with_mcp": true
     },
     "covers_all_included": true,
-    "note": "All four included trials surfaced by this query and all four roled EXPERIMENTAL."
+    "note": "All four included trials surfaced by this query and all four roled EXPERIMENTAL.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 56 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "PubMed (NCBI E-utilities esearch)",
@@ -2120,9 +2128,14 @@
     "total_count": 1452,
     "records_returned": 50,
     "records_not_retrieved": 1402,
-    "IMPORTANT": "50 of 1452 retrieved. The other 1402 are UNEXAMINED, not excluded. This search is recorded because it was executed and because the published-meta comparison will consume it, NOT because it contributed to the included set, which is keyed on registration ids."
+    "IMPORTANT": "50 of 1452 retrieved. The other 1402 are UNEXAMINED, not excluded. This search is recorded because it was executed and because the published-meta comparison will consume it, NOT because it contributed to the included set, which is keyed on registration ids.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 50 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    }
-  ]
+  ],
+  "ids_field_is": "Each databases[] entry carries `ids`: the identifiers THAT SOURCE RETURNED, verbatim in the source's own namespace, with `ids_normalised` beside it. `ids: []` means the source ran and returned nothing; `ids: null` means no set was captured and `ids_absent_because` says which. Defined in scripts/search_ids.py; checked by scripts/check_search_ids.py."
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed searches above.",

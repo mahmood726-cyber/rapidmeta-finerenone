@@ -256,7 +256,11 @@
     "records_returned": 57,
     "total_reported": 57,
     "recall_on_included_set": "1/1 -- COMPASS-2 (NCT00303459) surfaced",
-    "pagination_verified": "next_page_token null and returned == totalCount, from the FIRST page."
+    "pagination_verified": "next_page_token null and returned == totalCount, from the FIRST page.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 57 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "PubMed",
@@ -267,10 +271,15 @@
     "records_returned": null,
     "total_reported": null,
     "recall_on_included_set": "NOT MEASURED",
-    "what_is_unexamined": "NO PUBMED SEARCH WAS RUN FOR THIS TOPIC. Recorded as an absence rather than omitted: the registry search is the only executed search behind this review, so any trial reported in the literature and never registered is outside what was looked at. P23 cannot hold on a database nobody queried."
+    "what_is_unexamined": "NO PUBMED SEARCH WAS RUN FOR THIS TOPIC. Recorded as an absence rather than omitted: the registry search is the only executed search behind this review, so any trial reported in the literature and never registered is outside what was looked at. P23 cannot hold on a database nobody queried.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SOURCE WAS NOT RUN for this topic. There is no identifier set to recover, and this is not the same fact as a search that ran and returned nothing."
    }
   ],
-  "pagination_verified": "returned == totalCount on the registry query."
+  "pagination_verified": "returned == totalCount on the registry query.",
+  "ids_field_is": "Each databases[] entry carries `ids`: the identifiers THAT SOURCE RETURNED, verbatim in the source's own namespace, with `ids_normalised` beside it. `ids: []` means the source ran and returned nothing; `ids: null` means no set was captured and `ids_absent_because` says which. Defined in scripts/search_ids.py; checked by scripts/check_search_ids.py."
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed search above.",

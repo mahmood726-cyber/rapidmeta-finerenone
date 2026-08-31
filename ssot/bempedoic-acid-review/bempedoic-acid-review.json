@@ -565,7 +565,11 @@
      "records_returned": 21,
      "agrees_with_mcp": true,
      "why_two_transports": "The MCP payload is FLATTENED and carries no arm types, so it cannot support the arm-role cascade. The raw v2 endpoint supplies the role payload. Both totals are recorded side by side and were NOT reconciled silently -- an earlier run showed them diverging, and the divergence was the phase filter missing from the raw query, not a property of either instrument."
-    }
+    },
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 21 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "PubMed (NCBI E-utilities esearch)",
@@ -576,9 +580,14 @@
     "total_count": 109,
     "records_returned": 50,
     "records_not_retrieved": 59,
-    "IMPORTANT": "50 of 109 were retrieved. The remaining 59 are NOT screened and NOT excluded -- they are UNEXAMINED. Reporting them as excluded would be the substitution this project audits for. The PRISMA counts below therefore carry an unexamined bucket rather than a clean funnel."
+    "IMPORTANT": "50 of 109 were retrieved. The remaining 59 are NOT screened and NOT excluded -- they are UNEXAMINED. Reporting them as excluded would be the substitution this project audits for. The PRISMA counts below therefore carry an unexamined bucket rather than a clean funnel.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 50 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    }
-  ]
+  ],
+  "ids_field_is": "Each databases[] entry carries `ids`: the identifiers THAT SOURCE RETURNED, verbatim in the source's own namespace, with `ids_normalised` beside it. `ids: []` means the source ran and returned nothing; `ids: null` means no set was captured and `ids_absent_because` says which. Defined in scripts/search_ids.py; checked by scripts/check_search_ids.py."
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed searches above.",

@@ -846,7 +846,11 @@
     "http_status": 200,
     "records_returned": 82,
     "total_reported": 82,
-    "recall_on_included_set": "1/1"
+    "recall_on_included_set": "1/1",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 82 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "ClinicalTrials.gov API v2 -- FIRST QUERY, RECORDED BECAUSE IT MISSED",
@@ -857,7 +861,11 @@
     "records_returned": 49,
     "total_reported": 49,
     "recall_on_included_set": "1/1 for THIS review, 1/2 for the parent",
-    "what_it_cost": "THE FIRST QUERY CARRIED phase=[PHASE3,PHASE4] AND RETURNED 49 RECORDS WITHOUT NCT02366871 -- one of the parent object's own two trials -- because it is registered PHASE2. Recorded rather than replaced. The corpus-wide cost of that filter is measured at evidence/2026-08-19-batch1/phase_filter_recall_sweep.json, where apixaban-vte is one of two topics that lost an included trial to it. P23."
+    "what_it_cost": "THE FIRST QUERY CARRIED phase=[PHASE3,PHASE4] AND RETURNED 49 RECORDS WITHOUT NCT02366871 -- one of the parent object's own two trials -- because it is registered PHASE2. Recorded rather than replaced. The corpus-wide cost of that filter is measured at evidence/2026-08-19-batch1/phase_filter_recall_sweep.json, where apixaban-vte is one of two topics that lost an included trial to it. P23.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 49 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "PubMed (NCBI E-utilities esearch)",
@@ -868,10 +876,15 @@
     "records_returned": 50,
     "total_reported": 439,
     "recall_on_included_set": "NOT MEASURED",
-    "what_is_unexamined": "439 records matched and 50 were retrieved. THE OTHER 389 ARE UNEXAMINED, NOT EXCLUDED, and recall against this review's included set was never measured on this database -- so P23 cannot hold on it and says so."
+    "what_is_unexamined": "439 records matched and 50 were retrieved. THE OTHER 389 ARE UNEXAMINED, NOT EXCLUDED, and recall against this review's included set was never measured on this database -- so P23 cannot hold on it and says so.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 50 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    }
   ],
-  "pagination_verified": "returned == totalCount on both registry queries, totalCount read from the FIRST page."
+  "pagination_verified": "returned == totalCount on both registry queries, totalCount read from the FIRST page.",
+  "ids_field_is": "Each databases[] entry carries `ids`: the identifiers THAT SOURCE RETURNED, verbatim in the source's own namespace, with `ids_normalised` beside it. `ids: []` means the source ran and returned nothing; `ids: null` means no set was captured and `ids_absent_because` says which. Defined in scripts/search_ids.py; checked by scripts/check_search_ids.py."
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed search above.",

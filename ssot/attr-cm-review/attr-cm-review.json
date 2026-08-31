@@ -1005,10 +1005,15 @@
     "records_returned": 55,
     "total_reported": 55,
     "recall_on_included_set": "2/2",
-    "why_intervention_only": "No condition filter. ATTR amyloidosis is registered under cardiomyopathy, polyneuropathy, and bare 'amyloidosis' interchangeably, and the two preceding topics both lost included trials to a condition term one word narrower than the registry's own. The population limb is applied at SCREENING, from conditionsModule, where it can be read per trial rather than guessed once."
+    "why_intervention_only": "No condition filter. ATTR amyloidosis is registered under cardiomyopathy, polyneuropathy, and bare 'amyloidosis' interchangeably, and the two preceding topics both lost included trials to a condition term one word narrower than the registry's own. The population limb is applied at SCREENING, from conditionsModule, where it can be read per trial rather than guessed once.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 55 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    }
   ],
-  "pagination_verified": "records_returned == total_reported (55/55); no page boundary."
+  "pagination_verified": "records_returned == total_reported (55/55); no page boundary.",
+  "ids_field_is": "Each databases[] entry carries `ids`: the identifiers THAT SOURCE RETURNED, verbatim in the source's own namespace, with `ids_normalised` beside it. `ids: []` means the source ran and returned nothing; `ids: null` means no set was captured and `ids_absent_because` says which. Defined in scripts/search_ids.py; checked by scripts/check_search_ids.py."
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed search above.",

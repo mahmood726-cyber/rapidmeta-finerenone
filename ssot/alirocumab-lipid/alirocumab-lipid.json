@@ -3422,7 +3422,11 @@
     "records_returned": 54,
     "total_reported": 54,
     "recall_on_included_set": "6/6",
-    "note": "THE NARROW QUERY ACHIEVED FULL RECALL HERE, which is worth recording because on the two preceding topics it did not: sglt2-hf's narrow query dropped DELIVER and iv-iron-hf's dropped AFFIRM-AHF and HEART-FID, both because the registered condition lacked the word the query required. A narrow query is not reliably wrong -- it is reliably UNTESTED until its recall is measured against the object's own included set."
+    "note": "THE NARROW QUERY ACHIEVED FULL RECALL HERE, which is worth recording because on the two preceding topics it did not: sglt2-hf's narrow query dropped DELIVER and iv-iron-hf's dropped AFFIRM-AHF and HEART-FID, both because the registered condition lacked the word the query required. A narrow query is not reliably wrong -- it is reliably UNTESTED until its recall is measured against the object's own included set.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 54 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "ClinicalTrials.gov API v2 -- QUERY 2, BROAD (intervention only)",
@@ -3432,11 +3436,16 @@
     "http_status": 200,
     "records_returned": 99,
     "total_reported": 99,
-    "recall_on_included_set": "6/6"
+    "recall_on_included_set": "6/6",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 99 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    }
   ],
   "pagination_verified": "records_returned == total_reported on BOTH queries (54/54 and 99/99), so neither stopped at a page boundary. Checked explicitly rather than assumed: an outside critic named PAGINATION CURSOR ABANDONMENT -- a fetcher taking page 1 and stopping without raising -- as a class this project could neither rule out nor detect, and it sits at the surfacing stage where withholding leaves no trace in the object.",
-  "why_raw_and_not_the_mcp_client": "Arm TYPES and per-arm intervention lists exist only in the raw v2 payload. This topic is the reason that matters: its comparator can only be read from armGroups, because four of its candidate trials are DOUBLE-DUMMY designs where a placebo is present in both arms as the blinding device while the comparator is ezetimibe."
+  "why_raw_and_not_the_mcp_client": "Arm TYPES and per-arm intervention lists exist only in the raw v2 payload. This topic is the reason that matters: its comparator can only be read from armGroups, because four of its candidate trials are DOUBLE-DUMMY designs where a placebo is present in both arms as the blinding device while the comparator is ezetimibe.",
+  "ids_field_is": "Each databases[] entry carries `ids`: the identifiers THAT SOURCE RETURNED, verbatim in the source's own namespace, with `ids_normalised` beside it. `ids: []` means the source ran and returned nothing; `ids: null` means no set was captured and `ids_absent_because` says which. Defined in scripts/search_ids.py; checked by scripts/check_search_ids.py."
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed searches above.",

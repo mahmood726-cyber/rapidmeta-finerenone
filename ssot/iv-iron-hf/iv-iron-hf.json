@@ -4124,7 +4124,11 @@
     "http_status": 200,
     "records_returned": 16,
     "total_reported": 16,
-    "DEFECT_FOUND": "This query surfaced only 3 of this object's 5 OWN INCLUDED TRIALS. It missed AFFIRM-AHF (NCT02937454), whose registered condition is 'Iron Deficiency; Heart Failure', and HEART-FID (NCT03037931), registered as 'Heart Failure; Iron-deficiency'. NEITHER CARRIES THE WORD 'CHRONIC'. This is the same defect shape that dropped DELIVER from the sglt2-hf query: a condition term one word narrower than the registry's own wording silently loses included trials. It is recorded rather than replaced, because a search's misses are the only available evidence about its recall."
+    "DEFECT_FOUND": "This query surfaced only 3 of this object's 5 OWN INCLUDED TRIALS. It missed AFFIRM-AHF (NCT02937454), whose registered condition is 'Iron Deficiency; Heart Failure', and HEART-FID (NCT03037931), registered as 'Heart Failure; Iron-deficiency'. NEITHER CARRIES THE WORD 'CHRONIC'. This is the same defect shape that dropped DELIVER from the sglt2-hf query: a condition term one word narrower than the registry's own wording silently loses included trials. It is recorded rather than replaced, because a search's misses are the only available evidence about its recall.",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 16 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    },
    {
     "database": "ClinicalTrials.gov API v2 -- QUERY 2, BROADER, FULL RECALL ON THE INCLUDED SET",
@@ -4134,11 +4138,16 @@
     "http_status": 200,
     "records_returned": 47,
     "total_reported": 47,
-    "recall_on_included_set": "5/5"
+    "recall_on_included_set": "5/5",
+    "id_namespace": null,
+    "ids": null,
+    "ids_normalised": null,
+    "ids_absent_because": "THE SEARCH RAN AND ITS IDENTIFIER SET WAS NOT RECORDED. records_returned 47 is what the record states and nothing on disk can recompute it. Re-running the query today would produce a DIFFERENT set -- registry contents change -- so this cannot be recovered, only re-executed as a new record."
    }
   ],
   "why_raw_and_not_the_mcp_client": "Arm TYPES exist only in the raw v2 payload; the flattened MCP payload drops them, and a role reader handed a flattened payload cannot tell 'no experimental arm' from 'the field is absent'. ssot/ctgov_transport.require_raw_v2() RAISES rather than returning a verdict for exactly this reason.",
-  "count_reconciliation_against_the_earlier_run": "An earlier execution tonight recorded k0=40 with roles 30/4/4/2. THIS run returns k0=47 with 34/6/5/2. THE DIFFERENCE IS THE QUERY, NOT THE REGISTRY: query 2 above adds the term 'intravenous iron' to the intervention list, which surfaces seven further interventional records. Both numbers are correct for their own query. The earlier figure is superseded HERE AND NAMED rather than silently overwritten, because a count that changes without an explanation is indistinguishable from a count that was wrong."
+  "count_reconciliation_against_the_earlier_run": "An earlier execution tonight recorded k0=40 with roles 30/4/4/2. THIS run returns k0=47 with 34/6/5/2. THE DIFFERENCE IS THE QUERY, NOT THE REGISTRY: query 2 above adds the term 'intravenous iron' to the intervention list, which surfaces seven further interventional records. Both numbers are correct for their own query. The earlier figure is superseded HERE AND NAMED rather than silently overwritten, because a count that changes without an explanation is indistinguishable from a count that was wrong.",
+  "ids_field_is": "Each databases[] entry carries `ids`: the identifiers THAT SOURCE RETURNED, verbatim in the source's own namespace, with `ids_normalised` beside it. `ids: []` means the source ran and returned nothing; `ids: null` means no set was captured and `ids_absent_because` says which. Defined in scripts/search_ids.py; checked by scripts/check_search_ids.py."
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed searches above.",

@@ -72,6 +72,9 @@ import sys
 import time
 import urllib.parse
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import search_ids  # noqa: E402  -- the one definition of the `ids` field, shared
+
 UA = "rapidmeta-systematic-review/1.0 (mailto:mahmood726@gmail.com)"
 
 # Words that are never the intervention, so a title-derived candidate does not become
@@ -249,41 +252,102 @@ def _query(terms):
 
 
 def run_sources(terms):
+    """Run the free sources and record, for each, THE SET IT RETURNED -- not only the count.
+
+    ⭐ THE `ids` FIELD IS THE POINT OF THIS FUNCTION NOW. Every identifier below was already
+    in hand -- PubMed's `idlist`, Europe PMC's `result` array, the NCTs parsed out of the
+    ClinicalTrials.gov body -- and every one of them was thrown away, leaving a `retrieved`
+    count that nothing could recompute. Unique yield, pairwise overlap and a coverage
+    fraction are all derivable from the sets and NONE of them is derivable from the counts.
+
+    ⛔ AND A FAILED SOURCE GETS `ids: null` WITH A REASON, NEVER `ids: []`. An empty list is
+    a claim that the source ran and found nothing. A source that returned HTTP 500 has made
+    no claim at all, and recording it as an empty set would let every other source score the
+    records it never saw as uniquely its own. See scripts/search_ids.py.
+    """
     rows = []
     q = " OR ".join('"%s"[All Fields]' % t for t in terms)
     d, st = _json("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed"
                   "&retmax=500&retmode=json&term=%s" % urllib.parse.quote(q))
+    pm = (((d or {}).get("esearchresult") or {}).get("idlist")) or [] if d else None
     n = int((((d or {}).get("esearchresult") or {}).get("count")) or 0) if d else None
-    got = len((((d or {}).get("esearchresult") or {}).get("idlist")) or []) if d else 0
-    rows.append({"source": "PubMed", "status": st if st != "OK" else
-                 ("TRUNCATED" if (n or 0) > got else "OK"),
-                 "reported": n, "retrieved": got, "query": q})
+    got = len(pm) if pm is not None else 0
+    row = {"source": "PubMed", "status": st if st != "OK" else
+           ("TRUNCATED" if (n or 0) > got else "OK"),
+           "reported": n, "retrieved": got, "query": q}
+    row.update(search_ids.make("pmid", ids=pm) if pm is not None else
+               search_ids.make("pmid", absent_because="the PubMed request did not return a "
+                                                      "parseable response (%s)" % st))
+    rows.append(row)
 
     q2 = _query(terms)
     d2, st2 = _json("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%s"
                     "&format=json&pageSize=1000&resultType=idlist"
                     % urllib.parse.quote(q2))
     hits = (d2 or {}).get("hitCount")
-    res = ((d2 or {}).get("resultList") or {}).get("result") or []
-    rows.append({"source": "Europe PMC",
-                 "status": st2 if st2 != "OK" else
-                 ("TRUNCATED" if isinstance(hits, int) and len(res) < hits else "OK"),
-                 "reported": hits, "retrieved": len(res), "query": q2})
+    res = ((d2 or {}).get("resultList") or {}).get("result") or [] if d2 else None
+    # Europe PMC's own key namespace -- PMC/PPR/ETH/PAT prefixes and bare MED accessions.
+    # Stored in ITS namespace, not translated into PMIDs, because a translation is a lossy
+    # join and the record must say what THIS source returned.
+    epmc = [r.get("id") for r in res if r.get("id")] if res is not None else None
+    # ⚠️ THREE COUNTS HERE, NOT TWO, AND THEY ARE CARRIED SEPARATELY. `reported` is what the
+    # server says it holds, `result_rows` is what it sent, and `retrieved` is how many of
+    # those rows carried an identifier we could store. A result row with no `id` would make
+    # the last two differ, and folding them would hide a record we cannot name while still
+    # counting it.
+    row = {"source": "Europe PMC",
+           "status": st2 if st2 != "OK" else
+           ("TRUNCATED" if isinstance(hits, int) and len(epmc or []) < hits else "OK"),
+           "reported": hits, "result_rows": len(res or []),
+           "retrieved": len(epmc or []), "query": q2}
+    row.update(search_ids.make("europepmc", ids=epmc) if epmc is not None else
+               search_ids.make("europepmc",
+                               absent_because="the Europe PMC request did not return a "
+                                              "parseable response (%s)" % st2))
+    rows.append(row)
 
-    ncts, ct_status = set(), []
+    # ⚠️ THE TWO ARMS ARE RECORDED SEPARATELY AS WELL AS UNIONED. On dapivirine the
+    # intervention arm was a STRICT SUBSET of the free-text arm and contributed nothing
+    # unique -- a fact that was only visible once the identifier sets were carried, and that
+    # the union count alone can never show. The condition for retiring the arm is stated in
+    # ctgov()'s docstring in systematic_search_dapivirine.py and needs three topics; keeping
+    # per-arm ids here is what makes those three topics measurable instead of re-argued.
+    ncts, ct_status, arms = set(), [], []
     for param in ("query.intr", "query.term"):
         body, code = _curl("https://clinicaltrials.gov/api/v2/studies?%s=%s&pageSize=200"
                            "&fields=NCTId,BriefTitle,OverallStatus,Phase,"
                            "DesignAllocation,StudyType,InterventionName,EnrollmentCount"
                            % (param, urllib.parse.quote(q2)))
+        arm = {"param": param}
         if code != "200":
             ct_status.append("FAILED_HTTP_%s" % code)
+            arm["status"] = "FAILED_HTTP_%s" % code
+            arm.update(search_ids.make("nct", absent_because="HTTP %s -- the arm did not "
+                                                             "answer" % code))
+            arms.append(arm)
             continue
-        ncts |= set(re.findall(r"NCT\d{8}", body))
+        got_ids = sorted(set(re.findall(r"NCT\d{8}", body)))
+        ncts |= set(got_ids)
         ct_status.append("OK")
-    rows.append({"source": "ClinicalTrials.gov (intr ∪ term)",
-                 "status": "OK" if "OK" in ct_status else ";".join(ct_status),
-                 "reported": None, "retrieved": len(ncts), "query": q2})
+        arm["status"] = "OK"
+        arm.update(search_ids.make("nct", ids=got_ids))
+        arms.append(arm)
+    row = {"source": "ClinicalTrials.gov (intr U term)",
+           "status": "OK" if "OK" in ct_status else ";".join(ct_status),
+           "reported": None, "retrieved": len(ncts), "query": q2, "arms": arms}
+    row.update(search_ids.make("nct", ids=sorted(ncts)) if "OK" in ct_status else
+               search_ids.make("nct", absent_because="no ClinicalTrials.gov arm answered "
+                                                     "(%s)" % ";".join(ct_status)))
+    rows.append(row)
+
+    # ⭐ THE COUNT WE PUBLISH IS NOW CHECKABLE AGAINST THE SET, WHICH IS THE WHOLE POINT.
+    # `retrieved` is the assertion target, not `reported`: `reported` is what the server SAID
+    # it holds and the gap between them is the TRUNCATED status, which is a separate finding
+    # and must not be collapsed into this one.
+    for r in rows:
+        ok, detail = search_ids.reconcile(r, r.get("retrieved"))
+        r["ids_reconcile"] = {"ok": ok, "detail": detail,
+                              "state": search_ids.state(r)}
     return rows, sorted(ncts)
 
 
@@ -374,9 +438,41 @@ def search(topic, root="."):
         "SCREENING ONLY, never the query. ANDing them into the search would cost recall.")
     rows, ncts = run_sources(cb["terms"])
     scr = mechanical_screen(ncts, cb["terms"], pop)
+    # ⭐ THE SENTENCE A SUBSCRIPTION REVIEW CANNOT WRITE, as data. Derived from the sets and
+    # not computable from the counts, which is the entire reason the sets are now carried.
+    #
+    # ⚠️ WHICH CROSS-NAMESPACE PAIRS MEAN SOMETHING, AND THE FIRST LIVE RUN CORRECTED ME.
+    #
+    # I wrote here that a pair of sources in different namespaces can only ever intersect in
+    # zero, so no such pair is interpretable. THE FIRST RUN FALSIFIED IT: on ser109-cdi,
+    # PubMed returned 77 and Europe PMC 548, and they share 76. Europe PMC's namespace
+    # CONTAINS PubMed's -- its bare-numeric accessions are the MED source, which is MEDLINE,
+    # which is PMIDs. The overlap is real and PubMed's unique yield of 1 is a real finding.
+    #
+    # ⇒ THE CORRECT RULE IS ABOUT CONTAINMENT, NOT ABOUT DIFFERENCE. Two namespaces are
+    # comparable when one is drawn from the other (europepmc contains pmid). They are NOT
+    # comparable when they are disjoint by construction (nct against pmid), and there a zero
+    # intersection is arithmetic about id schemes rather than evidence about two searches.
+    # Every row carries `id_namespace` so a reader can apply that test rather than trust it.
+    pairs = [(r["source"], r) for r in rows]
+    arm_pairs = [("%s [%s]" % (r["source"], a["param"]), a)
+                 for r in rows for a in (r.get("arms") or [])]
+    derived = {
+        "unique_yield": search_ids.unique_yield(pairs),
+        "pairwise_overlap": search_ids.pairwise_overlap(pairs),
+        "ctgov_arm_unique_yield": search_ids.unique_yield(arm_pairs) if arm_pairs else None,
+        "namespaces": {r["source"]: r.get("id_namespace") for r in rows},
+        "namespace_comparability_rule": (
+            "A pair is interpretable when one namespace is DRAWN FROM the other -- Europe "
+            "PMC's bare-numeric accessions are MEDLINE records, so europepmc contains pmid "
+            "and their overlap is real evidence. A pair whose namespaces are disjoint by "
+            "construction (nct against pmid) can only ever show 0, and that zero is "
+            "arithmetic about id schemes, not evidence about two searches. MEASURED, not "
+            "assumed: on ser109-cdi PubMed returned 77 and Europe PMC 548, sharing 76."),
+    }
     return {"topic": topic, "status": "OK", "executed_utc": started,
             "question": obj.get("question"), "title": obj.get("title"),
-            "concept_block": cb, "sources": rows,
+            "concept_block": cb, "sources": rows, "derived": derived,
             "registrations": len(ncts), "screen": scr,
             "coverage_fraction": {
                 "status": "REFUSED_PENDING_ADJUDICATION",
@@ -404,8 +500,21 @@ if __name__ == "__main__":
     print("  concept block (%d terms): %s" % (len(cb["terms"]), cb["terms"][:10]))
     print()
     for s in r["sources"]:
-        print("  %-34s %-16s reported=%-7s retrieved=%s"
-              % (s["source"], s["status"], s["reported"], s["retrieved"]))
+        print("  %-34s %-16s reported=%-7s retrieved=%-6s ids=%s [%s]"
+              % (s["source"], s["status"], s["reported"], s["retrieved"],
+                 "null" if s.get("ids") is None else len(s["ids"]),
+                 s["ids_reconcile"]["state"]))
+        if s["ids_reconcile"]["ok"] is False:
+            print("      IDS DO NOT RECONCILE: %s" % s["ids_reconcile"]["detail"])
+    uy = r["derived"]["unique_yield"]
+    print()
+    print("  UNIQUE YIELD  (sources counted %d, skipped %s, candidates %d)"
+          % (uy["sources_counted"], uy["sources_skipped"] or "{}", uy["candidates"]))
+    for lab, v in sorted(uy["per_source"].items()):
+        print("     %-34s returned %-6d unique %d" % (lab, v["returned"], v["unique"]))
+    print("     %-34s %d" % ("union", uy["union"]))
+    print("  ⚠️ a pair is interpretable only where one namespace is drawn from the other")
+    print("     -- see derived.namespace_comparability_rule")
     sc = r["screen"]
     print()
     print("  registrations: %d | passed mechanical screen: %d | excluded: %s"
