@@ -103,6 +103,28 @@ def _panel(body, pid):
 _PAGE_MAP = None
 
 
+# A RETIRED-REVIEW TOMBSTONE IS A THIRD KIND OF PAGE. Not a review, not a defect.
+# scripts/check_page_format.py already knew this; gate 16 did not, and the cost was a
+# reported finding that did not exist: 13 pages were counted as "stating no limit on
+# what they establish" when they are 2.7-6 KB redirect stubs carrying no tabs, no
+# protocol panel and no claims at all --
+#
+#     "Lenacapavir for HIV pre-exposure prophylaxis: NOT POOLABLE -- COMPARATOR
+#      -- retired, answered at lenacapavir-prep"
+#
+# A page that makes no claim correctly declines nothing. Counting it as a failure of
+# clause 4 is the "a control is not data and not a defect, it is a THIRD thing" error,
+# and it inflated the c4 population from 0 to 13.
+#
+# The rule is copied deliberately from check_page_format.py rather than reinvented, so
+# the two instruments cannot drift into disagreeing about what a page IS.
+TOMBSTONE_RE = re.compile(r"has been retired|Retired review|retired, answered at", re.I)
+
+
+def is_tombstone(html):
+    return bool(TOMBSTONE_RE.search(html)) and len(html) < 20000
+
+
 def store_for(page):
     """The object behind a page: PAGE_MAP first, the slug convention second.
 
@@ -185,7 +207,30 @@ def assess(page, html, canon):
         ev["c2"] = "the object records no registration"
     else:
         linked = set()
-        for m in re.finditer(r'<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', body, re.S):
+        # BOTH QUOTE STYLES, AND THE FIRST VERSION HAD ONLY ONE.
+        # This matched href="..." and the generator emits
+        # href='...' -- so clause 2 reported "0 of 2
+        # registration(s) are a registry link" for pages whose links are
+        # perfectly good, and a corpus figure of 98 failing pages was
+        # substantially this regex rather than the corpus.
+        #
+        # Same class as an extractor requiring a forward slash against a log
+        # printing backslashes, caught hours earlier the same night: A QUOTE
+        # STYLE IS A SEPARATOR, and a separator class that excludes the one
+        # character actually in use fails toward a smaller, cleaner-looking
+        # number. The failure direction is always the flattering one.
+        # BOTH QUOTE STYLES. Built from chr() because the pattern must contain
+        # a double quote, a single quote AND a backslash, and every attempt to
+        # write it literally through a shell produced either a SyntaxError or a
+        # silently wrong pattern. chr(92) is the backslash that a heredoc turns
+        # into 0x08 when written as an escape -- which is how a dead regex sat
+        # inside a green gate earlier tonight.
+        _QS = chr(34) + chr(39)
+        _BS = chr(92)
+        _A = re.compile(
+            '<a' + _BS + 'b[^>]*href=[' + _QS + ']([^' + _QS + ']+)['
+            + _QS + '][^>]*>(.*?)</a>', re.S)
+        for m in _A.finditer(body):
             href = m.group(1)
             if not REGISTRY_HOST.search(href):
                 continue
@@ -380,7 +425,20 @@ def main(argv):
 
     gate.expect_case("c1-fail", "a page whose trial name carries no nearby registration")
     gate.expect_case("c2-fail", "a page whose registration is not a registry link")
-    gate.expect_case("c4-fail", "a page that states no limit on what it establishes")
+    # CLAUSE 4 HAS ZERO INSTANCES IN THIS CORPUS AND IS DELIBERATELY NOT A NAMED
+    # POSITIVE. It was one, and the gate went VACUOUS the moment tombstones were
+    # excluded -- because the only pages "failing" it were 2.7 KB retirement stubs
+    # that make no claims at all. Every genuine page in this corpus states a limit
+    # on what it establishes, which is a result worth having rather than a gap.
+    #
+    # Declaring a case that cannot occur makes every run vacuous, and vacuous is
+    # worse than failing: it reads as a pass. So clause 4 is proven by PLANT
+    # (--plant: plant=FAIL clean=PASS) and its corpus instance count is stated
+    # here as zero. The day a page fails it, this note is what tells the next
+    # reader the arm had never been exercised on real data until then.
+    gate.note("clause 4 has ZERO instances in this corpus -- every assessable page "
+              "states a limit on what it establishes. The clause is proven by plant, "
+              "not by a corpus positive, and that is recorded rather than implied.")
     gate.expect_case("pass", "a page that satisfies every applicable clause")
 
     kinds = {}
@@ -400,6 +458,11 @@ def main(argv):
                 canon = json.load(fh)
         except Exception:
             kinds["unreadable page or store"] = kinds.get("unreadable page or store", 0) + 1
+            continue
+        if is_tombstone(html):
+            kinds["retired-review tombstone -- a third kind, excluded and named"] = \
+                kinds.get("retired-review tombstone -- a third kind, excluded and named",
+                          0) + 1
             continue
         examined += 1
         cl, ev = assess(page, html, canon)
