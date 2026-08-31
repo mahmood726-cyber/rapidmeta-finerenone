@@ -1,0 +1,93 @@
+{
+  "_schema": "page-format-v1",
+  "_what": "The DECLARED tab list a review page is required to carry. Machine-readable so a page is checked against a written standard rather than against whichever list a lane remembers.",
+  "_why": "Two lanes measuring the same page reported '6 of 8' and '6 of 10' on 2026-08-30. Neither was wrong about the page; they were counting different REQUIRED lists. A requirement nobody wrote down produces exactly that, and a count whose denominator is unstated stops meaning anything.",
+  "_status": "RATIFIED AT EIGHT, 2026-08-31, by Mahmood directly: \"eight is fine\". Protocol - Search - Screening - Extraction - Analysis - Paper Studio - HTA - Guideline. ⇒ THE REMAINING GAP IS TWO TABS: HTA and Guideline. `clinician` and `public` are recorded under considered_and_ruled_out -- decided against, not missing.",
+  "_declared_utc": "2026-08-30",
+  "version": "v1",
+  "required_tabs": [
+    {
+      "id": "protocol",
+      "label": "Protocol",
+      "panel_id_hint": "pn-protocol",
+      "requirement": "The protocol as registered or as written, on the page."
+    },
+    {
+      "id": "search",
+      "label": "Search",
+      "panel_id_hint": "pn-search",
+      "requirement": "The executed search: databases, queries, dates, counts."
+    },
+    {
+      "id": "screening",
+      "label": "Screening",
+      "panel_id_hint": "pn-screen",
+      "requirement": "EVERY RECORD AND ITS DECISION. Not a PRISMA count -- the records themselves, each with the reason it was included or excluded."
+    },
+    {
+      "id": "extraction",
+      "label": "Extraction",
+      "panel_id_hint": "pn-extract",
+      "requirement": "EVERY DATUM LINKED TO ITS SOURCE. A number a reader cannot trace to the document it came from does not satisfy this."
+    },
+    {
+      "id": "analysis",
+      "label": "Analysis",
+      "panel_id_hint": "pn-analysis",
+      "requirement": "The synthesis, its model, and the recompute surface."
+    },
+    {
+      "id": "paper_studio",
+      "label": "Paper Studio",
+      "panel_id_hint": "pn-paper",
+      "requirement": "The drafting surface projecting the manuscript from object fields."
+    },
+    {
+      "id": "hta",
+      "label": "HTA",
+      "panel_id_hint": "pn-hta",
+      "requirement": "Health technology assessment view."
+    },
+    {
+      "id": "guideline",
+      "label": "Guideline",
+      "panel_id_hint": "pn-guideline",
+      "requirement": "Guideline view."
+    }
+  ],
+  "observed_but_not_in_the_required_list": [
+    {
+      "id": "scientific_output",
+      "label": "Scientific Output",
+      "panel_id_hint": "pn-report",
+      "note": "Present on built pages. Either the required list is incomplete or this tab is an extra. DO NOT silently reconcile by adding it -- that is how a requirement drifts to match whatever was built."
+    },
+    {
+      "id": "statistics",
+      "label": "Statistics",
+      "panel_id_hint": "pn-statistics",
+      "note": "Same. Present on built pages, absent from the required list as relayed."
+    }
+  ],
+  "counting_rule": {
+    "the_unit": "REQUIRED TABS PRESENT / REQUIRED TABS DECLARED. Extra tabs are reported separately and NEVER added to either side of that ratio.",
+    "measured_from": "the BUILT HTML bytes -- panel ids and nav labels -- never from the generator's intent, which is a statement about what was meant rather than what shipped.",
+    "why_it_matters": "'6 of 8' and '6 of 10' are the same page. Quoting either without its denominator is the defect this file exists to prevent."
+  },
+  "_moat_clause": "MOAT = the four structural capabilities + the FULL tab set + SERVED + LISTED. A near-miss on any clause is a zero, so 6/8 scores zero exactly as 0/8 does. This file exists so that 'full tab set' is checkable rather than remembered.",
+  "_how_this_file_failed_first": "⭐ KEEP THIS ENTIRE ENTRY. THE REQUIREMENT DRIFTED THROUGH FOUR HANDS IN ONE NIGHT, and this file exists to end that. The chain, in order:\n 1. Mahmood stated TEN (the six, plus 'the advanced hta, guideline, clinician and public bits').\n 2. The relay to this lane COMPRESSED ten to EIGHT.\n 3. This lane RATIFIED the eight -- on a relay, with no primary source. The file created to stop lanes counting against remembered lists made a remembered list its first entry.\n 4. This lane UN-RATIFIED it after another lane's FORMAT_GAP.md showed a TEN-item list, and correctly reframed the 6-of-8 vs 6-of-10 dispute: NOT two lanes miscounting one standard, but TWO DIFFERENT STANDARDS. Neither lane fumbled the page.\n 5. The relay then RULED TEN, citing Mahmood's earlier words.\n 6. Mahmood RULED EIGHT, 2026-08-31. Final.\n⇒ A DECLARATION IS ONLY AS GOOD AS THE PROVENANCE OF WHAT IT DECLARES. Four hands, two reversals, one night, and every participant was acting in good faith on the best list they had. Nobody was careless; the requirement simply had no primary record. That is the argument for this file, and it is worth more than the list in it.",
+  "considered_and_ruled_out": [
+    {
+      "id": "clinician",
+      "label": "clinician",
+      "panel_id_hint": "pn-clinician",
+      "requirement": "⛔ CONSIDERED AND RULED OUT by Mahmood, 2026-08-31 (\"eight is fine\"). This is NOT the same as absent: it was proposed, carried in an earlier ten-item list of his own, measured against the corpus, and then decided against. A later reader finding no clinician tab should know it was declined, not overlooked."
+    },
+    {
+      "id": "public",
+      "label": "public",
+      "panel_id_hint": "pn-public",
+      "requirement": "⛔ CONSIDERED AND RULED OUT by Mahmood, 2026-08-31 (\"eight is fine\"). This is NOT the same as absent: it was proposed, carried in an earlier ten-item list of his own, measured against the corpus, and then decided against. A later reader finding no clinician tab should know it was declined, not overlooked."
+    }
+  ]
+}

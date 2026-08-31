@@ -13,7 +13,7 @@ from projectors import (NL, e, fmt, kv_card, fig, scatter_svg, rows_svg,
                         funnel_svg, rob_traffic_light_svg, prisma_flow_svg,
                         visual_abstract_svg,
                         not_computable_svg, GRADE_DOMAINS)
-from rob_block import rob_block
+from rob_block import rob_block, rob_adjudication_state
 
 # THE ONE PLACE CERTAINTY IS RESOLVED. This module printed the stored level directly and
 # was therefore a seventh consumer outside the module built to be the single answer.
@@ -1083,8 +1083,23 @@ def visual_abstract(canon, res, outcome, p):
         _interval_caption(pooled, outcome.get("null_value", 1)))
 
 
-def _agreement_statement(rb, ag, two):
+def _agreement_statement(rb, ag, two, canon=None):
     """What to say about inter-assessor agreement, which right now is: not the rate.
+
+    ⛔ AND WHEN AN ADJUDICATION EXISTS, NONE OF THE BELOW IS TRUE. This function used to end
+    "No adjudication has been performed, so this review holds no final risk-of-bias
+    judgement for these results" UNCONDITIONALLY. On agyw-hiv-prep-review that sentence was
+    rendered onto a delivered page while the object carried a full adjudication record with
+    per-result resolutions, `rob_adjudication_state` reported adjudicated=True, and
+    `grade_authority.resolve` returned RATED. The store was correct and the PAGE said the
+    work had not been done.
+
+    ⚠️ THAT DIRECTION IS THE EXPENSIVE ONE. A page that under-claims looks like an honest
+    review with a gap, so nobody chases it -- this one had its author asked three separate
+    times to close an assessment that was already closed. A stale disclosure costs more than
+    a missing one because it is invisible to everybody except the reader it misleads.
+
+    WHAT FOLLOWS APPLIES ONLY WHEN NO ADJUDICATION EXISTS.
 
     SUPPRESSED WITH A REASON, NOT SILENTLY OMITTED. The measured disagreement on these
     records is not a property of the evidence -- it is an artefact of how the second
@@ -1103,6 +1118,27 @@ def _agreement_statement(rb, ag, two):
     if not two:
         return ("One assessor. No inter-assessor comparison is available for this "
                 "review, and none is implied by the table above.")
+    # ⭐ THE ADJUDICATED BRANCH. Print the resolution and its reason; do not tell a reader
+    # the work has not been done when the object records that it has.
+    _st = rob_adjudication_state(canon) if canon else {}
+    _rec = _st.get("record") if isinstance(_st.get("record"), dict) else {}
+    if _st.get("adjudicated"):
+        _res = _rec.get("resolutions") if isinstance(_rec.get("resolutions"), dict) else {}
+        _pairs = "; ".join("<strong>%s &rarr; %s</strong>" % (e(str(k)), e(str(v)))
+                           for k, v in sorted(_res.items())) or "&mdash;"
+        return (
+            "This assessment is DUAL &mdash; two assessors from different model families, "
+            "the second asked blind &mdash; and the disagreements have been "
+            "<strong>ADJUDICATED</strong>. %s. %s "
+            "<p>Both assessors&rsquo; per-result judgements remain in the table above, "
+            "unchanged, so a reader can see what each said rather than only the outcome. "
+            "The adjudicated value is this review&rsquo;s finding; the individual "
+            "judgements are the working.</p>"
+            "<p><small>%s</small></p>"
+            % (_pairs,
+               e(str(_rec.get("disagreement", ""))),
+               e(str(_rec.get("resolved_because", "")))
+               or "No reason is recorded with the adjudication."))
     n = ag.get("per_domain_total") or 0
     # THE EXPLANATION THIS SENTENCE USED TO GIVE WAS WRONG, AND IT WAS OURS.
     #
@@ -1521,7 +1557,7 @@ def rob2_card(canon, p):
                NL, p(f1), p(f2),
                ("<th>Carried</th>" if has_carried else ""), NL, rows, NL, NL,
                NL, NL, NL, p(f1), p(f2), NL, ov, NL, NL,
-               NL, NL, _agreement_statement(rb, ag, two), NL,
+               NL, NL, _agreement_statement(rb, ag, two, canon), NL,
                p(ag.get("comparison_to_screening", "")), NL, NL, dis, flags))
 
 

@@ -4905,3 +4905,72 @@ a false reason leaves a false fact in the record, cited later as settled.
 
 `python scripts/sweep_mixed_measure_pools_2026_08_21.py` — the sweep written the same hour, which
 exits `PROOF FAILED` unless it finds the case the gate found.
+
+---
+
+## A CORRECT KEY GUARANTEES THE JOIN, NEVER THE LABEL
+
+**Added 2026-08-30.** `agyw-hiv-prep-review` carried its two trials labelled the wrong way
+round. ClinicalTrials.gov is unambiguous:
+
+| NCT | registry says | the object said |
+|---|---|---|
+| `NCT01539226` | orgStudyId **IPM 027**, n=1,959 — *The Ring Study* | "ASPIRE / MTN-020" |
+| `NCT01617096` | acronym **ASPIRE**, MTN-020, n=2,629 | "The Ring Study" |
+
+**The effect estimates were keyed correctly to the NCTs, so the pooled result never
+depended on the labels.** What was wrong is every sentence that NAMES a trial — which is
+most of what a reader meets, on the page six blinded judges scored, in a review whose whole
+claim is verifiability.
+
+⛔ **THE PAGE LANE OWES A REBUILD.** The served dapivirine page was built from the object
+BEFORE this correction and therefore carries the inverted names in its prose. The object is
+fixed; the page is not. Rebuilding from current `ssot/agyw-hiv-prep-review/` is the whole
+fix — no page-level edit is needed or wanted, and a hand-edit would re-open the gap between
+what the object says and what the page shows.
+
+**Why it survived every automated check: the join was right, so everything downstream of
+the join was right too.** Only a reader comparing a NAME against a registry could see it.
+That is the class — *a correct key guarantees the join, never the label* — and it is the
+same fact as "a name match is a filter, not an identity", arriving from inside our own
+store rather than someone else's data.
+
+### What rejects it
+
+`scripts/audit_trial_label_identity.py --gate` — exits non-zero when any label fits a
+SIBLING NCT in the same object better than its own. Proven both directions against a
+planted inversion and a clean corpus. Corpus state at close: **241 label sites, 178 NCTs,
+178/178 registry records retrieved, 0 inverted.**
+
+### ⚠️ And what that zero is NOT
+
+The first run flagged **nine** sites and was right about **one** — the case it was written
+from. The registry settled the other eight, all of them the audit's own defects:
+
+- `NCT02813694`'s acronym is literally `LEAP2`; a word-boundary match on `leap` hit the
+  sibling `LEAP` and missed the trial's own name. **The third separator defect this project
+  has found in a guard**, after `[_ ]` against hyphens and `SOME CONCERNS` against
+  `SOME_CONCERNS`. The general form: *when a check compares two strings a human would read
+  as the same name, the separators are part of the test and must be normalised on both sides.*
+- `NCT01371838` runs in China, India, South Korea, Taiwan, Vietnam — so "CAP China" is
+  correct. The audit never read the location list, the one field carrying that label's
+  meaning. Both sibling FOCUS trials carry acronym `CAP` and run in neither.
+- Five were copied brief titles, which share wording with every sibling in one programme
+  and can always be made to "fit better".
+
+**Reporting nine would have sent someone to corrupt eight correct labels.** An audit that
+accuses is more dangerous than one that misses, because its output reads as the tool
+working. And the instrument's precision is **fitted, not measured**: three corrections were
+made against those same nine cases, so it has NO measured false-negative rate. Zero means
+*no swap of the shape we already know* — never *the corpus is clean*.
+
+### The propagation, which is the part that cost something
+
+Four documents inherited the inversion from the object's labels and were corrected:
+`SEARCH-DAPIVIRINE-2026-08-30.md`, `OVID-SEARCH-DAPIVIRINE-2026-08-30.md`,
+`EMBASE-CALIBRATION-RUN-SHEET-2026-08-30.md`, `scripts/apply_aspire_rob_evidence_2026_08_30.py`.
+
+The worst is `SEARCH-DAPIVIRINE` line 188, which recorded **Nel's paper — The Ring Study's —
+as answering three signalling questions "for `NCT01617096`"**, which is ASPIRE. A real
+finding attached to the wrong trial: the exact failure the label fix existed to end,
+committed downstream of it because the prose was keyed by name.

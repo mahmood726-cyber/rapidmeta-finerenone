@@ -117,8 +117,19 @@ def rob_block(canon):
                 if j2 is not None:
                     pairs += 1
                     agreed += 1 if ag else 0
+                # ADDITIVE, 2026-08-30: carry the SIGNALLING QUESTIONS through.
+                # 145 of 375 stored domain records hold a `signalling_questions` map, and
+                # this normaliser silently dropped it -- so every consumer saw a domain
+                # judgement with no way to see what produced it, and the published RoB 2
+                # algorithm could not be re-run over the responses the object already
+                # holds. Nothing that read this shape before is affected; a key was added,
+                # none was changed.
                 doms.append({'domain': dk[:2], 'domain_name': dk,
                              'judgements': [j1] + ([j2] if j2 is not None else []),
+                             'signalling_questions': (dv.get('signalling_questions')
+                                                      if isinstance(dv.get('signalling_questions'), dict)
+                                                      else None),
+                             'judgement': dv.get('judgement'),
                              'reason': dv.get('reason'), 'agreed': ag})
             ov = rec.get('overall')
             if isinstance(ov, dict):

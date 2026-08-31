@@ -404,6 +404,40 @@ fi
 # the page -- not a fixture written by whoever wrote the fix.
 python "$(git rev-parse --show-toplevel)/scripts/lint_field_name_in_reader_prose_2026_08_23.py" >/dev/null || { echo "[pre-push] REFUSED: a schema identifier reaches reader-facing prose (scripts/lint_field_name_in_reader_prose_2026_08_23.py)"; exit 1; }
 
+# ---------------------------------------------------------------------------------------
+# SEVEN REPO GATES WIRED, 2026-08-31. Each was written, tested, and CALLED BY NOTHING --
+# what gates/gate8 calls "available, not operative" and .githooks/pre-commit already warns
+# about. gate8 refused a push over nine of them; these seven are the ones that are GREEN
+# and FAST enough to block on. Timings measured once each, on this corpus:
+#
+#     audit_index_identity_drift                       5s
+#     control_label_audit                              6s
+#     gate_stored_estimate_declares_provenance         6s
+#     sweep_estimand_established_unrecorded            9s
+#     gate_screening_row_has_registration_id          16s
+#     audit_trial_label_identity                      21s
+#     check_page_format --gate                        49s
+#                                                    ---
+#                                                    112s added to every push
+#
+# ⛔ THE TWO NOT LISTED HERE ARE NOT FORGOTTEN, AND NOT HIDDEN. audit_included_trial_design
+# and verify_served_page both make network calls -- 403 registry lookups and a live fetch of
+# the deployed page -- and one of them cannot pass BEFORE a push by construction, since it
+# compares served bytes against the build being pushed. They are wired in
+# .github/workflows/network-audits.yml instead. A gate in the wrong place is not operative
+# either; it is just slow and then ignored.
+# ---------------------------------------------------------------------------------------
+R="$(git rev-parse --show-toplevel)"
+for g in audit_index_identity_drift control_label_audit          gate_stored_estimate_declares_provenance_2026_08_27          sweep_estimand_established_unrecorded_2026_08_27          gate_screening_row_has_registration_id_2026_08_26          audit_trial_label_identity; do
+    python "$R/scripts/$g.py" > /dev/null 2>&1 || {
+        echo "[pre-push] REFUSED by scripts/$g.py -- run it directly to read the finding."
+        exit 1; }
+done
+python "$R/scripts/check_page_format.py" --gate > /dev/null 2>&1 || {
+    echo "[pre-push] REFUSED: a delivered page carries fewer than the declared required tabs"
+    echo "           (scripts/check_page_format.py --gate)"
+    exit 1; }
+
 echo "[pre-push] Regression check PASS on $COUNT page(s). Proceeding with push."
 
 exit 0

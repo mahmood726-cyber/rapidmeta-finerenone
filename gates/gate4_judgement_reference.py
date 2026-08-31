@@ -212,7 +212,15 @@ def arm_c(gate, repo):
             if not _writes_judgement(tree):
                 kinds["does not write a judgement"] += 1
                 continue
-            if not (("json.dump" in src or "write_json" in src) and "ssot" in src):
+            # ⛔ `json.dump` IS A SUBSTRING OF `json.dumps`, AND THEY ARE OPPOSITE
+            # OPERATIONS. `json.dump(obj, fh)` writes a file; `json.dumps(obj)`
+            # returns a string. Without the paren this arm called four modules
+            # "persists a judgement into ssot/" when every one of them only ever
+            # PRINTED: recompute_envelope.py, screen_rules.py, plant_grade_engine.py
+            # and gate_screening_row_has_registration_id -- 0 `json.dump(` and 0
+            # writes to an ssot object between them. Four of six findings were the
+            # gate describing itself, and they blocked a push with no override.
+            if not (("json.dump(" in src or "write_json" in src) and "ssot" in src):
                 kinds["writes a judgement but does not persist it to ssot/"] += 1
                 continue
             rel = "%s/%s" % (d, fn)

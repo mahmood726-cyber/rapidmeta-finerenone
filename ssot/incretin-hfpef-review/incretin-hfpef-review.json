@@ -468,7 +468,7 @@
     }
    },
    "kccq_css_change": {
-    "k": 2,
+    "k": 3,
     "estimand_id": "kccq_css_change",
     "model": "random-effects",
     "estimator": "REML random-effects, inverse-variance (tau-squared estimated as zero)",
@@ -517,7 +517,31 @@
       "estimand_id": "kccq_css_change",
       "registered_conditions": "Obesity",
       "registered_eligibility": "Inclusion Criteria: * Male or female, age above or equal to 18 years at the time of signing informed consent. * Body mass index (BMI) greater than or equal to 30.0 kg/m\\^2 * New York Heart Association (NYHA) Class II-IV * Left ventricular ejection fraction (LVEF) greater than or equal to 45 percentage at screening Exclusion Criteria: * A self-reported change in body weight greater than 5 kg (11 lbs) within 90 days before screening irrespective of medical records * Haemoglobin A1c (HbA1c) greater than or equal to 6.5 percentage (48 mmol/mol) based on latest available value from medical records, no older than 3 months or if unavailable a local measurement at screening",
-      "registered_population_basis": "Quoted from this trial's ClinicalTrials.gov protocol record, read 2026-08-24. It is the registry's own wording, not a summary written here: a one-line population a reader cannot distinguish from a quotation is the failure this corpus is trying to avoid."
+      "registered_population_basis": "Quoted from this trial's ClinicalTrials.gov protocol record, read 2026-08-24. It is the registry's own wording, not a summary written here: a one-line population a reader cannot distinguish from a quotation is the failure this corpus is trying to avoid.",
+      "estimand_axis": {
+       "verbatim_label": "treatment policy estimand",
+       "normalised_strategy": "REGARDLESS_OF_ADHERENCE",
+       "normalised_means": "All randomised participants, the effect estimated regardless of adherence, with intercurrent events included rather than censored. ICH E9(R1) calls this the treatment-policy strategy.",
+       "why_normalisation_is_not_a_string_match": "They are NOT the same words. STEP-HFpEF and STEP-HFpEF DM print 'treatment policy estimand'; SUMMIT prints 'treatment-regimen estimand'. A string comparison of those labels returns FALSE and would be wrong. What establishes sameness is STRUCTURAL: each of the three papers reports, alongside its headline figure, an explicitly ON-TREATMENT alternative of its own -- trial-product 8.8 (STEP-HFpEF), efficacy 9.8 (SUMMIT), trial-product 8.6 (STEP-HFpEF DM). A report carrying both a regardless-of-adherence figure and an on-treatment figure identifies which is which without sharing anyone else's vocabulary.",
+       "the_papers_own_on_treatment_alternative": {
+        "label": "trial product estimand",
+        "md_points": 8.8,
+        "ci_low": 5.9,
+        "ci_high": 11.7,
+        "ci_level": 95
+       },
+       "verbatim_quote": "Analyses are based on the treatment policy estimand, reflect the full analysis population, and are from the in-trial period.",
+       "url": "https://www.nejm.org/doi/full/10.1056/NEJMoa2306963",
+       "established_by": "Two model families searching independently -- Codex (GPT-5) and agy routed to Gemini 3.1 Pro (High). Routing confirmed from the agy CLI's own telemetry line `Propagating selected model override to backend: label=...`, NOT from either model's report about itself, which is testimony whichever field is asked for.",
+       "checked_utc": "2026-08-27"
+      },
+      "provenance": {
+       "tier": "JOURNAL_FULL_TEXT",
+       "pmid_or_doi": "10.1056/NEJMoa2306963",
+       "accessed_utc": "2026-08-27",
+       "locator": "headline KCCQ-CSS result, week 52",
+       "corroboration": "TWO FAMILIES agreeing on the estimand label, the alternate estimand and its value, searching independently."
+      }
      },
      {
       "trial_id": "NCT04847557",
@@ -529,17 +553,80 @@
       "ci_level": 95,
       "estimand_id": "kccq_css_change",
       "registered_conditions": "Obesity; Heart Failure With Preserved Ejection Fraction (HFpEF)",
-      "registered_eligibility": "Inclusion Criteria: * Have a diagnosis of stable heart failure (NYHA class II-IV) and left ventricular ejection fraction (LVEF) ≥50% * Elevated NT-proBNP (N-terminal pro B-type natriuretic peptide) \\> 200 picogram/milliliter (pg/ml) for participants without atrial fibrillation (AF), or \\>600 pg/ml for participants with AF, Structural heart disease (Left atrial enlargement) or Elevated left ventricular filling pressure * Estimated glomerular filtration rate (eGFR) \\<70 milliliter (ml)/minute (min)/1.73m² at screening, or HF decompensation within 12 months of screening, * Stable dose of heart failure medications within 4 weeks of screening * Body mass index (BMI) ≥30 kilograms per meter squared (kg/m²) * 6MWD 100-425 meters * KCCQ CSS ≤80 Exclusion Criteria: * Have had a major cardiovascular event within the last 90 days of screening * Have had acute decompensated heart failure within 4 weeks of screening * Have non cardiac causes of functional impairment such as pulmonary arterial hypertension (PAH), severe chronic obstructive pulmonary disease (COPD), anemia, thyroid disease, musculoskeletal disease or orthopedic conditions * Presence of cardiac amyloidosis, cardiac accumulation di",
-      "registered_population_basis": "Quoted from this trial's ClinicalTrials.gov protocol record, read 2026-08-24. It is the registry's own wording, not a summary written here: a one-line population a reader cannot distinguish from a quotation is the failure this corpus is trying to avoid."
+      "registered_eligibility": "Inclusion Criteria: * Have a diagnosis of stable heart failure (NYHA class II-IV) and left ventricular ejection fraction (LVEF) \u226550% * Elevated NT-proBNP (N-terminal pro B-type natriuretic peptide) \\> 200 picogram/milliliter (pg/ml) for participants without atrial fibrillation (AF), or \\>600 pg/ml for participants with AF, Structural heart disease (Left atrial enlargement) or Elevated left ventricular filling pressure * Estimated glomerular filtration rate (eGFR) \\<70 milliliter (ml)/minute (min)/1.73m\u00b2 at screening, or HF decompensation within 12 months of screening, * Stable dose of heart failure medications within 4 weeks of screening * Body mass index (BMI) \u226530 kilograms per meter squared (kg/m\u00b2) * 6MWD 100-425 meters * KCCQ CSS \u226480 Exclusion Criteria: * Have had a major cardiovascular event within the last 90 days of screening * Have had acute decompensated heart failure within 4 weeks of screening * Have non cardiac causes of functional impairment such as pulmonary arterial hypertension (PAH), severe chronic obstructive pulmonary disease (COPD), anemia, thyroid disease, musculoskeletal disease or orthopedic conditions * Presence of cardiac amyloidosis, cardiac accumulation di",
+      "registered_population_basis": "Quoted from this trial's ClinicalTrials.gov protocol record, read 2026-08-24. It is the registry's own wording, not a summary written here: a one-line population a reader cannot distinguish from a quotation is the failure this corpus is trying to avoid.",
+      "estimand_axis": {
+       "verbatim_label": "treatment-regimen estimand",
+       "normalised_strategy": "REGARDLESS_OF_ADHERENCE",
+       "normalised_means": "All randomised participants, the effect estimated regardless of adherence, with intercurrent events included rather than censored. ICH E9(R1) calls this the treatment-policy strategy.",
+       "why_normalisation_is_not_a_string_match": "They are NOT the same words. STEP-HFpEF and STEP-HFpEF DM print 'treatment policy estimand'; SUMMIT prints 'treatment-regimen estimand'. A string comparison of those labels returns FALSE and would be wrong. What establishes sameness is STRUCTURAL: each of the three papers reports, alongside its headline figure, an explicitly ON-TREATMENT alternative of its own -- trial-product 8.8 (STEP-HFpEF), efficacy 9.8 (SUMMIT), trial-product 8.6 (STEP-HFpEF DM). A report carrying both a regardless-of-adherence figure and an on-treatment figure identifies which is which without sharing anyone else's vocabulary.",
+       "the_papers_own_on_treatment_alternative": {
+        "label": "efficacy (on-treatment) estimand",
+        "md_points": 9.8,
+        "ci_low": 7.1,
+        "ci_high": 12.5,
+        "ci_level": 95
+       },
+       "verbatim_quote": "The treatment-regimen estimand is the change in the KCCQ-CSS at 52 weeks",
+       "url": "https://www.nejm.org/doi/full/10.1056/NEJMoa2410027",
+       "established_by": "Two model families searching independently -- Codex (GPT-5) and agy routed to Gemini 3.1 Pro (High). Routing confirmed from the agy CLI's own telemetry line `Propagating selected model override to backend: label=...`, NOT from either model's report about itself, which is testimony whichever field is asked for.",
+       "checked_utc": "2026-08-27"
+      },
+      "provenance": {
+       "tier": "JOURNAL_FULL_TEXT",
+       "pmid_or_doi": "10.1056/NEJMoa2410027",
+       "accessed_utc": "2026-08-27",
+       "locator": "headline KCCQ-CSS result, week 52",
+       "corroboration": "TWO FAMILIES agreeing on the estimand label, the alternate estimand and its value, searching independently."
+      }
+     },
+     {
+      "trial_id": "step-hfpef-dm",
+      "nct": "NCT04916470",
+      "measure": "MEAN_DIFFERENCE",
+      "point": 7.3,
+      "ci_low": 4.1,
+      "ci_high": 10.4,
+      "ci_level": 95,
+      "estimand_id": "kccq_css_change",
+      "population": "Adults with obesity-related HFpEF AND type 2 diabetes. Full analysis population, in-trial period, week 52.",
+      "n_treatment": 310,
+      "n_control": 306,
+      "endpoint_rank_in_its_own_trial": "a DUAL PRIMARY (co-primary) endpoint of the trial",
+      "derivation": "the mean difference the source prints, stored as printed at the interval level the source prints it at",
+      "estimand_axis": {
+       "verbatim_label": "treatment policy estimand",
+       "normalised_strategy": "REGARDLESS_OF_ADHERENCE",
+       "normalised_means": "All randomised participants, the effect estimated regardless of adherence, with intercurrent events included rather than censored. ICH E9(R1) calls this the treatment-policy strategy.",
+       "why_normalisation_is_not_a_string_match": "They are NOT the same words. STEP-HFpEF and STEP-HFpEF DM print 'treatment policy estimand'; SUMMIT prints 'treatment-regimen estimand'. A string comparison of those labels returns FALSE and would be wrong. What establishes sameness is STRUCTURAL: each of the three papers reports, alongside its headline figure, an explicitly ON-TREATMENT alternative of its own -- trial-product 8.8 (STEP-HFpEF), efficacy 9.8 (SUMMIT), trial-product 8.6 (STEP-HFpEF DM). A report carrying both a regardless-of-adherence figure and an on-treatment figure identifies which is which without sharing anyone else's vocabulary.",
+       "the_papers_own_on_treatment_alternative": {
+        "label": "trial product estimand",
+        "md_points": 8.6,
+        "ci_low": 5.6,
+        "ci_high": 11.6,
+        "ci_level": 95
+       },
+       "verbatim_quote": "7.3 (4.1 to 10.4)",
+       "url": "https://www.nejm.org/doi/full/10.1056/NEJMoa2313917",
+       "established_by": "Two model families searching independently -- Codex (GPT-5) and agy routed to Gemini 3.1 Pro (High). Routing confirmed from the agy CLI's own telemetry line `Propagating selected model override to backend: label=...`, NOT from either model's report about itself, which is testimony whichever field is asked for.",
+       "checked_utc": "2026-08-27"
+      },
+      "provenance": {
+       "tier": "JOURNAL_FULL_TEXT",
+       "pmid_or_doi": "10.1056/NEJMoa2313917",
+       "accessed_utc": "2026-08-27",
+       "locator": "headline KCCQ-CSS result, week 52",
+       "corroboration": "TWO FAMILIES on the estimand label (Codex GPT-5 and agy Gemini 3.1 Pro High, routing confirmed from CLI telemetry). ONE FAMILY on the NCT04916470 VALUE itself, plus a source URL and a verbatim quote. NOT adjudicated."
+      }
      }
     ],
     "pooled": {
-     "measure": "MD",
-     "point": 7.43,
-     "ci_low": 5.0895,
-     "ci_high": 9.7704,
+     "measure": "MEAN_DIFFERENCE",
+     "point": 7.384,
+     "ci_low": 5.505,
+     "ci_high": 9.262,
      "ci_level": 95,
-     "scale": "natural",
+     "scale": "linear",
      "stands_because": "THIS IS A REPLACEMENT, NOT A CORRECTION. The withdrawn estimate on this page was an ODDS RATIO over event counts, and two of the three included trials register ONLY CONTINUOUS co-primaries. But ALL THREE register the SAME continuous outcome -- change in the KCCQ clinical summary score -- so a symptom-benefit analysis needs no estimand judgement at all. IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER. STEP-HFpEF DM's ClinicalTrials.gov record carries NO RESULTS SECTION, so this project has no registry-sourced value for it. Its published KCCQ difference exists in the literature and is NOT USED HERE, because every value on this page is read from a registry results record and importing one from elsewhere would break that guarantee for the sake of a third data point. THE TWO VALUES ARE THE REGISTRY'S OWN: STEP-HFpEF 7.8 (4.8 to 10.9) over 243 against 237, and SUMMIT 6.9 (3.3 to 10.6) over 301 against 313. POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants. Q = 0.14 on 1 degree of freedom, I-squared 0 per cent -- the two trials agree almost exactly.",
      "caveats": "WHAT A READER SHOULD KNOW. (1) k=2 AND THE INTERVAL SHOWN IS THE WALD ONE. At two studies a Hartung-Knapp interval uses a t-distribution on ONE degree of freedom. THIS PROJECT'S INTERVAL IS -7.74 TO 22.60 AND IT INCLUDES NO EFFECT. An earlier version of this sentence gave 1.80 to 13.06 and said the interval still excluded no effect; those figures are metafor's RAW UNFLOORED knha output, not this project's, and the conclusion drawn from them was wrong. The raw inflation factor here is 0.3708, so the unfloored adjustment NARROWS rather than widens -- the instability the house floor exists to prevent. Both are recorded. (2) HETEROGENEITY IS ZERO HERE, which at k=2 means the two trials agree, not that the finding is general. (3) THE THIRD TRIAL IS MISSING FOR A PROVENANCE REASON, NOT A CLINICAL ONE. STEP-HFpEF DM would very likely move this estimate very little; it is left out because its registry record has no results, and that is a rule about where numbers may come from rather than a judgement about the trial. (4) SUMMIT'S REGISTRY RECORD LABELS ITS CONTRAST 'Median Difference (Net)' while its arm values are least-squares means whose difference is 6.83. The label and the quantity disagree IN THE REGISTRY. The reported value is used and the discrepancy is stated rather than resolved. (5) A SEVEN-POINT KCCQ DIFFERENCE IS A SYMPTOM BENEFIT, NOT AN EVENT REDUCTION. Five points is the usual threshold for a clinically meaningful within-patient change. Nothing here estimates an effect on death or hospitalisation -- SUMMIT registers a heart-failure event co-primary and this analysis does not use it.",
      "verified_on": "2026-08-18",
@@ -555,7 +642,17 @@
       "value_the_index_published": null,
       "why_that_one_could_not_stand": "TWO OF THE THREE TRIALS ON THIS PAGE REGISTER ONLY CONTINUOUS PRIMARY OUTCOMES, AND THIS PAGE POOLED EVENT COUNTS. Verbatim: STEP-HFpEF and STEP-HFpEF DM each register two co-primaries, 'Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score' and 'Change in Body Weight'. Both are CONTINUOUS CHANGE SCORES. Neither is an event count and neither can produce a 2x2 table. The counts stored for STEP-HFpEF DM, 7 of 310 against 18 of 306, CORRESPOND TO NO REGISTERED PRIMARY OUTCOME OF THAT TRIAL. SUMMIT is different and is the only row here with a defensible source: it registers a continuous KCCQ primary AND 'First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes', and its stored 29 of 364 against 52 of 367 do correspond to that event co-primary. So the pool joins one trial's registered event composite to another trial's unregistered counts. SEPARATELY: THE "
      },
-     "card_wording_note": "The card avoids the word 'withdrawn' deliberately. card_alignment_gate treats a card declaring a withheld state beside a page publishing a value as the SGLT2_HF defect -- an announced withdrawal never performed -- and it fired here on a card that merely DESCRIBED what this analysis replaces. The gate's rule is right and was not weakened; the card was reworded. The withdrawn outcome is still on this object in full, with its reason."
+     "card_wording_note": "The card avoids the word 'withdrawn' deliberately. card_alignment_gate treats a card declaring a withheld state beside a page publishing a value as the SGLT2_HF defect -- an announced withdrawal never performed -- and it fired here on a card that merely DESCRIBED what this analysis replaces. The gate's rule is right and was not weakened; the card was reworded. The withdrawn outcome is still on this object in full, with its reason.",
+     "superseded_k2_argument_2026_08_27": "The `stands_because` and `caveats` text on this block argues for k=2 and is KEPT VERBATIM above. It is now superseded, not wrong: it says plainly that STEP-HFpEF DM 'is left out because its registry record has no results, and that is a rule about where numbers may come from rather than a judgement about the trial', and it predicted the trial 'would very likely move this estimate very little'. Both were correct. The rule it obeyed has been withdrawn.",
+     "interval_note_2026_08_27": "The stored interval is the WALD interval, as at k=2. The k=2 caveat records that a Hartung-Knapp interval on ONE degree of freedom gave -7.74 to 22.60 and included no effect. At k=3 there are TWO degrees of freedom and that instability is much reduced, but the Hartung-Knapp interval has NOT been recomputed here and is not claimed. The k=3 pool is reported on the same basis as the k=2 pool it replaces, which is what makes the two comparable.",
+     "full_precision_2026_08_27": {
+      "point": 7.3837,
+      "ci_low": 5.5051,
+      "ci_high": 9.2624,
+      "why": "The STORED values above are rounded to the four significant figures that ssot/build_tabbed.py renders, because THIS IS THE ONE PLACE WHERE THE DISPLAYED NUMBER MUST EQUAL THE VERIFIED NUMBER. Storing 7.3837 while the page prints 7.384 puts a string in the object that appears NOWHERE in the delivered bytes, and the delivery content check refuses it -- which is exactly what scripts/lint_pooled_point_is_displayable.py refused when this write was first attempted. The unrounded values are kept here so nothing is lost.",
+      "recomputable_by": "scripts/pool_incretin_hfpef_kccq_2026_08_27.py --add=NCT04916470,7.3,4.1,10.4,95",
+      "type_note": "Stored as FLOAT, matching all 32 other pooled points in the corpus. projectors.sig() returns a STRING, and writing its output straight through would have made this the only str-typed pooled point in the corpus -- a type change smuggled in under a precision fix, which is the shape of defect ssot's own lint_string_where_collection_expected exists for. Rounded to four significant figures, then cast back."
+     }
     },
     "replacement_analysis_2026_08_18": {
      "measure": "MD",
@@ -712,7 +809,49 @@
      "b_why_the_raw_interval_is_the_wrong_one_here_specifically": "The raw variance-inflation factor on this pool is 0.3708 -- metafor's Hartung-Knapp standard error is barely a THIRD of the random-effects one -- so the unfloored adjustment NARROWS the interval instead of widening it. That is the exact instability this project's floor exists to prevent, and it is why the raw figures looked reassuringly wide next to the Wald interval while being the product of a correction pointing the wrong way.",
      "c_what_is_and_is_not_changed": "THE POINT ESTIMATE AND ITS WALD INTERVAL ARE UNCHANGED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k = 2, 1,094 participants. What changes is a sentence about what the sensitivity analysis showed, which said the opposite of what it shows. A seven-point KCCQ difference remains a symptom benefit and this page still estimates nothing about death or hospitalisation."
     },
-    "k_corrected_2026_08_21": "THIS FIELD READ 1 AND THE POOL HAS TWO TRIALS. The correction is made on THIS OBJECT'S OWN WORDS, not on an outside judgement: `pooled.stands_because` states 'IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER' and 'POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants'. Two per-trial rows are carried, NCT04788511 and NCT04847557. Found by sweep_r_output_labels_reproduce, which compared the k printed by the stored metafor run (2) against the k this field stored (1) -- the one INTEGER disagreement in the corpus, and the reason that sweep requires exact equality at zero decimals instead of a rounding band."
+    "k_corrected_2026_08_21": "THIS FIELD READ 1 AND THE POOL HAS TWO TRIALS. The correction is made on THIS OBJECT'S OWN WORDS, not on an outside judgement: `pooled.stands_because` states 'IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER' and 'POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants'. Two per-trial rows are carried, NCT04788511 and NCT04847557. Found by sweep_r_output_labels_reproduce, which compared the k printed by the stored metafor run (2) against the k this field stored (1) -- the one INTEGER disagreement in the corpus, and the reason that sweep requires exact equality at zero decimals instead of a rounding band.",
+    "pooled_superseded_2026_08_27": {
+     "previous": {
+      "measure": "MD",
+      "point": 7.43,
+      "ci_low": 5.0895,
+      "ci_high": 9.7704,
+      "ci_level": 95,
+      "scale": "natural",
+      "stands_because": "THIS IS A REPLACEMENT, NOT A CORRECTION. The withdrawn estimate on this page was an ODDS RATIO over event counts, and two of the three included trials register ONLY CONTINUOUS co-primaries. But ALL THREE register the SAME continuous outcome -- change in the KCCQ clinical summary score -- so a symptom-benefit analysis needs no estimand judgement at all. IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER. STEP-HFpEF DM's ClinicalTrials.gov record carries NO RESULTS SECTION, so this project has no registry-sourced value for it. Its published KCCQ difference exists in the literature and is NOT USED HERE, because every value on this page is read from a registry results record and importing one from elsewhere would break that guarantee for the sake of a third data point. THE TWO VALUES ARE THE REGISTRY'S OWN: STEP-HFpEF 7.8 (4.8 to 10.9) over 243 against 237, and SUMMIT 6.9 (3.3 to 10.6) over 301 against 313. POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants. Q = 0.14 on 1 degree of freedom, I-squared 0 per cent -- the two trials agree almost exactly.",
+      "caveats": "WHAT A READER SHOULD KNOW. (1) k=2 AND THE INTERVAL SHOWN IS THE WALD ONE. At two studies a Hartung-Knapp interval uses a t-distribution on ONE degree of freedom. THIS PROJECT'S INTERVAL IS -7.74 TO 22.60 AND IT INCLUDES NO EFFECT. An earlier version of this sentence gave 1.80 to 13.06 and said the interval still excluded no effect; those figures are metafor's RAW UNFLOORED knha output, not this project's, and the conclusion drawn from them was wrong. The raw inflation factor here is 0.3708, so the unfloored adjustment NARROWS rather than widens -- the instability the house floor exists to prevent. Both are recorded. (2) HETEROGENEITY IS ZERO HERE, which at k=2 means the two trials agree, not that the finding is general. (3) THE THIRD TRIAL IS MISSING FOR A PROVENANCE REASON, NOT A CLINICAL ONE. STEP-HFpEF DM would very likely move this estimate very little; it is left out because its registry record has no results, and that is a rule about where numbers may come from rather than a judgement about the trial. (4) SUMMIT'S REGISTRY RECORD LABELS ITS CONTRAST 'Median Difference (Net)' while its arm values are least-squares means whose difference is 6.83. The label and the quantity disagree IN THE REGISTRY. The reported value is used and the discrepancy is stated rather than resolved. (5) A SEVEN-POINT KCCQ DIFFERENCE IS A SYMPTOM BENEFIT, NOT AN EVENT REDUCTION. Five points is the usual threshold for a clinically meaningful within-patient change. Nothing here estimates an effect on death or hospitalisation -- SUMMIT registers a heart-failure event co-primary and this analysis does not use it.",
+      "verified_on": "2026-08-18",
+      "card_note": "REPLACEMENT ANALYSIS, superseding an estimate that could not stand: all three trials register the KCCQ clinical summary score, so a symptom-benefit synthesis needed no estimand judgement. MD 7.43 (5.09 to 9.77) KCCQ points, k=2, n=1,094, I-squared 0%. k=2 not 3 because STEP-HFpEF DM's registry record has NO RESULTS SECTION and this page uses only registry-sourced values. A symptom benefit, NOT an event reduction",
+      "replaces": {
+       "withdrawn_outcome": "primary",
+       "withdrawn_value": {
+        "measure": "OR",
+        "point": null,
+        "ci_low": null,
+        "ci_high": null
+       },
+       "value_the_index_published": null,
+       "why_that_one_could_not_stand": "TWO OF THE THREE TRIALS ON THIS PAGE REGISTER ONLY CONTINUOUS PRIMARY OUTCOMES, AND THIS PAGE POOLED EVENT COUNTS. Verbatim: STEP-HFpEF and STEP-HFpEF DM each register two co-primaries, 'Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score' and 'Change in Body Weight'. Both are CONTINUOUS CHANGE SCORES. Neither is an event count and neither can produce a 2x2 table. The counts stored for STEP-HFpEF DM, 7 of 310 against 18 of 306, CORRESPOND TO NO REGISTERED PRIMARY OUTCOME OF THAT TRIAL. SUMMIT is different and is the only row here with a defensible source: it registers a continuous KCCQ primary AND 'First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes', and its stored 29 of 364 against 52 of 367 do correspond to that event co-primary. So the pool joins one trial's registered event composite to another trial's unregistered counts. SEPARATELY: THE "
+      },
+      "card_wording_note": "The card avoids the word 'withdrawn' deliberately. card_alignment_gate treats a card declaring a withheld state beside a page publishing a value as the SGLT2_HF defect -- an announced withdrawal never performed -- and it fired here on a card that merely DESCRIBED what this analysis replaces. The gate's rule is right and was not weakened; the card was reworded. The withdrawn outcome is still on this object in full, with its reason."
+     },
+     "previous_k": 2,
+     "why": "STEP-HFpEF DM was excluded because ClinicalTrials.gov holds no posted results for it. AACT holds ZERO outcome rows for NCT04916470. Its KCCQ result is in the NEJM report. The registry-results rule is withdrawn: eligibility follows the review question.",
+     "what_changed": "The POINT barely moves, 7.43 -> 7.38. The INTERVAL narrows from +/-2.34 to +/-1.88, a 20% reduction in width, because the added trial carries 39% of the weight and agrees with the other two. WHAT THE REGISTRY-ONLY RULE WAS COSTING WAS NOT A DIFFERENT ANSWER. IT WAS A LESS CERTAIN ONE.",
+     "computed_by": "scripts/pool_incretin_hfpef_kccq_2026_08_27.py, which reproduces the previous k=2 pool to four decimals before it is permitted to compute k=3. REML random effects, tau2=0, Q=0.142, I2=0%. SE from each printed interval at THAT interval's own level; the quantile table REFUSES an unrecognised or absent level rather than defaulting to 1.96.",
+     "derived_before_comparison": "The k=3 value was computed BEFORE any published synthesis was consulted. Only then compared: published A 7.40 (4.90-9.90) differs by -0.016; published B 7.33 (5.84-8.82) by +0.054. Agreement to within 0.05 points is exactly the condition under which a number gets accepted instead of derived."
+    },
+    "estimand_counterfactual_2026_08_27": {
+     "if_each_trials_ON_TREATMENT_estimand_had_been_pooled_instead": [
+      8.8,
+      9.8,
+      8.6
+     ],
+     "approximate_pooled_value": 9.0,
+     "shift_from_ours": "about +1.6 points, roughly 20%",
+     "why_this_is_recorded": "Every one of 8.8, 9.8 and 8.6 is quotable and correct as printed in its own paper. Pooling them would mix estimands across trials and move the answer by a fifth, and NOTHING IN THE OUTPUT WOULD SHOW IT. That is the magnitude of the error class, measured on our own data, having avoided it."
+    },
+    "estimand_established_qualified_2026_08_27": "READ THIS BESIDE `estimand_established`. Until today that flag asserted every contributing trial measures the same quantity, while this object contained ZERO occurrences of 'treatment policy', 'trial product', 'efficacy estimand' or 'on-treatment'. It asserted sameness along an axis it did not record. It happened to be true; nothing in the object made it true, and nothing would have caught it had it been false. The axis is now recorded per row in `estimand_axis`."
    }
   },
   "headline_outcome": "kccq_css_change",

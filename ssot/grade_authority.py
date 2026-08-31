@@ -81,6 +81,10 @@ except ImportError:
 
 STRUCTURED = "grade.by_outcome"
 TABLE = "results.by_outcome.<oid>.grade"
+# The third source of a level, added 2026-08-30: not a stored record but a DERIVATION
+# from the object, performed by the generator on every build. Named separately so a
+# reader and an auditor can always tell which of the three answered.
+DERIVED = "ssot/grade_engine.py (derived at build time)"
 
 # The four cell values a reader can meet, and nothing else.
 CELL_SEE_COMMENT = "See comment"
@@ -266,8 +270,38 @@ def resolve(canon, oid):
                             "not a rating whatever it is stored as." % (lvl,)))
         return out
     if not lvl:
+        # ⭐ NEITHER STORED LOCATION HOLDS A RATING. Before calling this NOT ASSESSED, ask
+        # the ENGINE whether the object supports one.
+        #
+        # WHY THE ORDER IS THIS WAY ROUND. A stored rating is a human judgement recorded
+        # against this outcome; a derived one is what the object's own fields entail. The
+        # stored one therefore WINS wherever it exists, and the engine only ever fills a
+        # hole. It cannot overwrite, contradict or silently "improve" a recorded rating,
+        # which is the failure mode that would make every hand-written assessment in this
+        # corpus unauditable.
+        #
+        # AND WHERE THE ENGINE REFUSES, THE REFUSAL IS RICHER THAN THE OLD SILENCE. The
+        # previous behaviour said only "no assessment was made". The engine says which of
+        # the five domains it COULD assess, what each one found, and exactly which inputs
+        # are missing for the rest -- so a reader meets a partial, sourced assessment and a
+        # named gap rather than a blank. That is strictly more than the cell said before
+        # and strictly less than a rating, which is what is true.
+        try:
+            import grade_engine as _ge
+        except ImportError:
+            from . import grade_engine as _ge
+        drv = _ge.derive(canon, oid)
+        out["derived"] = drv
+        if drv.get("rated") and drv.get("certainty") in LEVELS:
+            dl = drv["certainty"]
+            out.update(state="RATED", level=dl, derived=drv, derived_rating=True,
+                       cell=LEVELS.get(dl, dl.replace("_", " ").capitalize()),
+                       source=DERIVED, needs_footnote=(dl != "HIGH"),
+                       comment=_derived_footnote(drv))
+            return out
         out.update(state="NOT_ASSESSED", cell=CELL_SEE_COMMENT,
-                   comment=NOT_ASSESSED_TEXT)
+                   derived_rating=False,
+                   comment=NOT_ASSESSED_TEXT + " " + _derived_partial(drv))
         return out
 
     # PENDING OUTRANKS RATED, AND ONLY RATED. It sits below WITHDRAWN (no estimate to be
@@ -324,6 +358,99 @@ def resolve(canon, oid):
     if out["needs_footnote"]:
         out["comment"] = _footnote(lvl, s_blk, t_blk, both)
     return out
+
+
+def _derived_footnote(drv):
+    """The footnote for a DERIVED rating. It says it was derived, and from what.
+
+    A derived rating that did not announce itself would be the worst outcome available
+    here: a reader would take it for an assessor's judgement. Every sentence below is
+    generated from the engine's own record, so the footnote cannot drift from the rating.
+    """
+    moved = [d for d in drv.get("domains", []) if d["state"] == "DOWNGRADE"]
+    na = [d for d in drv.get("domains", []) if d["state"] == "NOT_ASSESSABLE"]
+    parts = ["DERIVED BY THE GENERATOR from the fields this object holds, not recorded by "
+             "an assessor. Started HIGH because the contributing studies are randomized "
+             "trials."]
+    for d in moved:
+        parts.append("%s: %s %s" % (d["domain"].replace("_", " ").upper(), d["move"],
+                                    "-- " + d["reason"]))
+    for d in na:
+        parts.append("%s: %s -- %s" % (d["domain"].replace("_", " ").upper(), d["move"],
+                                       d["reason"]))
+    if not moved:
+        parts.append("No domain was rated down.")
+
+    # ⭐⭐ THE THRESHOLD AND THE SENSITIVITY REACH THE READER, NOT JUST THE RECORD.
+    # A certainty rating whose decision threshold is only in a JSON field is, to a reader,
+    # still a letter with a footnote. These two sentences are the difference between an
+    # audit trail we hold and an audit trail they can score.
+    imp = next((d for d in drv.get("domains", []) if d["domain"] == "imprecision"), None)
+    th = (imp or {}).get("thresholds") or {}
+    if th.get("chosen"):
+        parts.append("IMPRECISION WAS JUDGED AGAINST A NAMED THRESHOLD: %s (%s). %s"
+                     % (th["chosen"], th.get("chosen_kind", "").lower().replace("_", " "),
+                        th.get("chosen_source", "")))
+        if th.get("topic_specific_threshold_absent"):
+            parts.append(th["topic_specific_threshold_absent"])
+    sens = drv.get("sensitivity") or {}
+    if sens.get("statement"):
+        parts.append("SENSITIVITY: " + sens["statement"] + " " +
+                     sens.get("what_this_is_not", ""))
+
+    rob = next((d for d in drv.get("domains", []) if d["domain"] == "risk_of_bias"), None)
+    pri = (rob or {}).get("per_result_inputs") or {}
+    if pri.get("n_results"):
+        parts.append("RISK OF BIAS WAS ASSESSED PER RESULT, not per outcome: %d "
+                     "contributing result(s) judged by %d assessor(s) across the five "
+                     "RoB 2 domains, each domain's response and each assessor's answer "
+                     "recorded beside the rating rather than summarised into it."
+                     % (pri["n_results"], pri.get("n_assessors", 0)))
+
+    # The reference is taken from the RECORD, not from a constant in this module. The
+    # first version named `HANDBOOK_REF`, which lives in `grade_engine` and is not
+    # imported here -- so every derived rating raised NameError, and it would have taken
+    # the generator down on the first result it managed to rate rather than refuse. Read
+    # from the record and the citation cannot drift from the rating it describes either.
+    parts.append("Method: %s, %s." % (drv.get("derived_by"),
+                                      drv.get("handbook_reference") or ""))
+    return " ".join(p for p in parts if p)
+
+
+def _derived_partial(drv):
+    """What the engine COULD say when it could not issue a rating.
+
+    ⚠️ This is the sentence that turns a blank cell into a measurement. It names the
+    domains that were assessed AND the inputs whose absence blocked the rest, so the gap
+    is countable by a reader rather than merely felt.
+    """
+    doms = drv.get("domains") or []
+    if not doms:
+        return ""
+    done = [d for d in doms if d["state"] != "REFUSED"]
+    ref = [d for d in doms if d["state"] == "REFUSED"]
+    bits = []
+    if done:
+        bits.append("Of the five GRADE domains, %d WERE assessed from this object: %s."
+                    % (len(done), "; ".join("%s -- %s" % (d["domain"].replace("_", " "),
+                                                          d["move"]) for d in done)))
+    if ref:
+        missing = sorted({m for d in ref for m in (d.get("inputs_missing") or [])})
+        bits.append("%d could not be: %s. The specific inputs that would lift the refusal "
+                    "are %s. No overall certainty is issued from the remainder, because a "
+                    "GRADE level means all five domains were considered."
+                    % (len(ref), ", ".join(d["domain"].replace("_", " ") for d in ref),
+                       "; ".join(missing) or "not enumerable here"))
+
+    # ⭐⭐⭐ THE BOUND REACHES THE READER. Withholding a letter is right; withholding
+    # everything is not. The domains that WERE assessed already constrain the answer, and
+    # saying so is the difference between a refusal that informs and a blank cell that
+    # reads as "nothing to report" -- the exact misreading this module was built to stop.
+    b = drv.get("certainty_bounds") or {}
+    if b.get("statement"):
+        bits.append("CERTAINTY BOUND: " + b["statement"] + " " +
+                    b.get("what_this_is_not", ""))
+    return " ".join(bits)
 
 
 def _footnote(lvl, s_blk, t_blk, both):
