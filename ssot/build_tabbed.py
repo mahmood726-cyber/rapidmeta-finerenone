@@ -1769,6 +1769,15 @@ def build(canon):
         "otherquals": (other_qualifications_card(canon, p)
                        + pgen.generated_judgements_card(canon, p)
                        + prl.judgement_register_card(canon, p)),
+        # ⭐ THE TWO NEW PANELS. TABS names them, ABSENT_STATE covers them, and
+        # these two keys FILL them -- all three or the tab renders empty while
+        # the nav says it exists, which is worse than not having the tab.
+        #
+        # The cards come from the SPLIT reader renderings. `clinician` and
+        # `public` are deliberately NOT given panels: ruled out in
+        # page_format_v1.json, still rendered inside Scientific Output.
+        "hta": prl.hta_card(canon, p),
+        "guideline": prl.guideline_card(canon, p),
         # WYSIWYG ONLY. The panel used to render the manuscript THREE times: the
         # document view, then manuscript_section's card version, then
         # paper_studio's draft. Fifteen headings appeared twice -- two Abstracts,

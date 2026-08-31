@@ -59,9 +59,17 @@ def fetch(nct):
     u = "https://clinicaltrials.gov/api/v2/studies/%s" % nct
     r = subprocess.run(["curl", "-sL", "--max-time", "60", "-A", UA, u],
                        capture_output=True)
+    raw = r.stdout.decode("utf-8", "replace")
+    if not raw.strip():
+        return None                       # NO_PAYLOAD -- nothing arrived
     try:
-        return json.loads(r.stdout.decode("utf-8", "replace"))
-    except Exception:
+        return json.loads(raw)
+    except Exception as exc:
+        # RETRIEVED_CORRUPT: bytes arrived and did not parse. Announced with
+        # its size rather than folded into the not-fetched bucket, because a
+        # truncated write is a specimen and a missing response is a retry.
+        print("   ⛔ RETRIEVED_CORRUPT %s: %d bytes did not parse (%s)"
+              % (nct, len(raw), str(exc)[:60]))
         return None
 
 

@@ -466,3 +466,126 @@ def judgement_register_card(canon, p=None):
           % _e(r.get("what_this_register_does_NOT_do", ""))
     )
     return _card("The judgement register — what a harness cannot derive", inner)
+
+
+# =========================================================================
+# ONE CARD PER READER -- because a tab needs a panel, not a section of one.
+#
+# ⭐ LANDING THE CONTENT IS NOT THE SAME AS LANDING IT IN THE SHAPE THE TABS
+# NEED. `reader_renderings_card` above draws all four readers into a single
+# card, which was right while they lived inside Scientific Output and is wrong
+# the moment HTA and Guideline become their own panels: a tab points at a
+# PANEL, and a panel cannot be a heading three levels inside another card.
+# Whoever wires TABS would otherwise find the content present and unusable,
+# and the natural assumption on seeing the card land is that the job is done.
+#
+# ⛔ AND THE CARD AND THE TAB LIST ARE DELIBERATELY NOT 1:1. This module emits
+# FOUR reader cards. `ssot/page_format_v1.json` requires TWO of them as tabs --
+# HTA and Guideline. `clinician` and `public` were CONSIDERED AND RULED OUT by
+# Mahmood on 2026-08-31 ("eight is fine"); they are recorded under
+# `considered_and_ruled_out` in that file, which is not the same as absent.
+#
+# So the asymmetry is a DECISION, not a defect. A future reader finding two
+# reader cards without tabs must not "fix" the mismatch by adding two tabs --
+# that would silently overturn a ruling by making the code look tidier. If the
+# ruling changes, `page_format_v1.json` changes first and the tabs follow it.
+#
+# ⭐ THE GENERAL FORM, WORTH CARRYING BEYOND THIS CARD:
+#
+#     TIDINESS IS A PLAUSIBLE MOTIVE FOR REVERSING A DECISION NOBODY RECORDED.
+#
+# An asymmetry that looks like an oversight invites a well-meaning fix, and the
+# fix arrives with a clean rationale -- four cards, four tabs, obviously -- so
+# nobody asks whether the missing two were declined. The defence is not a
+# comment saying "do not change this"; it is RECORDING THE DECISION WHERE THE
+# CODE POINTS AT IT, which is why `_READER_TAB_STATUS` below names the ruling
+# and its date on every card rather than only in a file elsewhere.
+# =========================================================================
+
+_READER_TAB_STATUS = {
+    "hta": "REQUIRED AS A TAB by ssot/page_format_v1.json (pn-hta).",
+    "guideline": "REQUIRED AS A TAB by ssot/page_format_v1.json (pn-guideline).",
+    "clinician": ("NOT A TAB. Considered and RULED OUT by Mahmood 2026-08-31. "
+                  "Recorded under considered_and_ruled_out -- decided against, "
+                  "not overlooked. This card is rendered inside Scientific "
+                  "Output and that is deliberate."),
+    "public": ("NOT A TAB. Considered and RULED OUT by Mahmood 2026-08-31. "
+               "Same as clinician: decided against, not overlooked."),
+}
+
+
+def _one_reader_card(canon, key):
+    """The rendering for ONE reader, as its own card, or "" if absent."""
+    r = canon.get("reader_renderings_2026_08_30") or {}
+    blk = (r.get("renderings") or {}).get(key)
+    if not isinstance(blk, dict):
+        return ""
+    inner = _small("Tab status: %s" % _READER_TAB_STATUS.get(key, "not declared"))
+    if blk.get("_reader"):
+        inner += _small("Reader: %s" % blk["_reader"])
+
+    if key == "guideline":
+        etd = blk.get("evidence_to_decision") or {}
+        rows = ""
+        for k, v in etd.items():
+            cls = "warn" if str(v.get("answer", "")).startswith("⛔") else "ok"
+            rows += ("    <tr class='%s'><td>%s</td><td><strong>%s</strong></td>"
+                     "<td><small>%s</small></td></tr>\n"
+                     % (cls, _e(k.replace("_", " ")), _e(v.get("answer")),
+                        _e(v.get("from_this_review") or v.get("why") or "")))
+        cov = blk.get("COVERAGE_OF_THE_FRAMEWORK") or {}
+        inner += (_para(blk.get("_why_this_shape"))
+                  + "  <table>\n    <tr><th>Consideration</th><th>Answer</th>"
+                    "<th>From this review</th></tr>\n" + rows + "  </table>\n"
+                  + "  <div class='absent-state'>%s informed, %s not addressed. "
+                    "%s</div>\n"
+                  % (_e(cov.get("informed_or_partially_informed")),
+                     _e(cov.get("not_addressed")),
+                     _e(cov.get("⭐_the_empty_cells_are_the_point", ""))))
+    else:
+        for k, v in blk.items():
+            if k.startswith("_"):
+                continue
+            if isinstance(v, str):
+                if k.startswith(("⛔", "⚠️")):
+                    inner += "  <div class='absent-state'>%s</div>\n" % _e(v)
+                else:
+                    inner += _para(v)
+            elif isinstance(v, dict):
+                for kk, vv in v.items():
+                    if isinstance(vv, str):
+                        if kk.startswith(("⛔", "⚠️", "so")):
+                            inner += ("  <div class='absent-state'>%s</div>\n"
+                                      % _e(vv))
+                        else:
+                            inner += _small("%s — %s"
+                                            % (kk.replace("_", " "), vv))
+    if key == "public":
+        rd = blk.get("readability") or {}
+        if rd:
+            inner += _small("Readability: Flesch-Kincaid grade %s, reading "
+                            "ease %s, %s words in %s sentences. %s"
+                            % (rd.get("flesch_kincaid_grade"),
+                               rd.get("flesch_reading_ease"), rd.get("words"),
+                               rd.get("sentences"), rd.get("instrument")))
+    titles = {"hta": "For a health-technology-assessment body",
+              "guideline": "For a guideline panel",
+              "clinician": "For a clinician",
+              "public": "For the public"}
+    return _card(titles.get(key, key), inner)
+
+
+def hta_card(canon, p=None):
+    return _one_reader_card(canon, "hta")
+
+
+def guideline_card(canon, p=None):
+    return _one_reader_card(canon, "guideline")
+
+
+def clinician_card(canon, p=None):
+    return _one_reader_card(canon, "clinician")
+
+
+def public_card(canon, p=None):
+    return _one_reader_card(canon, "public")

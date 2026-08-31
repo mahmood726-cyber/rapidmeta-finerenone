@@ -103,6 +103,138 @@ def _indirectness_argument(canon, oid, res):
     return None
 
 
+# ⭐ THE EXISTENCE PROOF FOR DECLARED DERIVATIONS. ONE PROJECTOR, NOT ALL.
+#
+# Measured on the delivered dapivirine page: 1,801 distinct numbers rendered,
+# 1,761 present verbatim in the store, 40 NOT. All forty traced -- every one a
+# legitimate derivation, 21 of them produced by THIS function.
+#
+# ⛔ SO A FABRICATION DETECTOR THAT COMPARES RENDERED VALUES AGAINST STORED ONES
+# ACCUSES EVERY DERIVED VALUE, AND DERIVATION IS THE ENTIRE PURPOSE OF A
+# PROJECTOR. 0% precision by construction, and it INVERTS THE INCENTIVE: the
+# more working a page shows, the more it is accused.
+#
+# The whole gap was one sentence -- this function already knows
+# `baseline x (1 - ratio)` and nothing wrote it down where a checker could read
+# it. `derivation_record()` writes it down. A checker can now recompute a
+# rendered value from named store fields instead of asking whether the string
+# appears somewhere.
+#
+# ⚠️ WHAT THIS DOES NOT DO. It declares ONE derivation on ONE projector. It is
+# an existence proof that makes the rest schedulable, not coverage: every other
+# render-time computation on that page -- the ledger's link count, the recompute
+# envelope's points, the harms risk ratios -- is still undeclared and would
+# still be accused.
+# ⭐ THE SHAPE IS allmeta-02's `render_derivation`, NOT ONE OF MY OWN.
+#
+# I wrote a bespoke `derivation_record` first and then asked for their shape
+# rather than shipping mine, because TWO CONVENTIONS FOR ONE FACT IS HOW THE
+# INDEX ACQUIRED FOUR DESCRIPTIONS OF ONE URL. Theirs is ratified in
+# ssot/claims.py, carries a required field list enforced by validate_claim, and
+# has a recompute function this module calls rather than reimplements.
+#
+# FOUR PROPERTIES OF IT THAT MATTER, and none is decoration:
+#   `op` is a KEY INTO claims.RENDER_OPS, never an expression. A declaration
+#       carrying a string to evaluate would invite the checker to run
+#       page-supplied text, and the fabrication detector is the last place that
+#       should exist.
+#   `inputs` are DOTTED PATHS from the object root, same addressing as
+#       origins()/resolve(). One that does not resolve RAISES -- a declaration a
+#       checker cannot follow is unverifiable, which is the state it exists to
+#       remove. A value not in the store is passed as {"literal": x}, explicitly.
+#   `produces` is REQUIRED, so the checker can say "the page shows 1.485, the
+#       declaration says complement_product(5.0, 0.703), and that is 1.485"
+#       rather than "a projector asserts this is fine".
+#   it reuses __claim/__evidence rather than forking a parallel key.
+#
+# ⛔ AND THE DECLARATION IS VERIFIED IN THE SAME PASS THAT EMITS IT. A
+# declaration never checked against the value it claims to produce is the same
+# shape as a gate that has never fired -- and this module already shipped one
+# check that could only pass, so the rule is applied here rather than trusted.
+DERIVATION_OP = "complement_product"
+
+
+def render_declarations(canon, oid, rows, per=1000):
+    """One `render_derivation` per rendered number, each VERIFIED as emitted.
+
+    Returns (declarations, failures). A declaration that does not recompute is
+    NOT emitted -- it is returned as a failure, because emitting an unverified
+    declaration would launder a wrong number into a checkable-looking one."""
+    try:
+        import claims as _c
+    except ImportError:
+        from . import claims as _c
+    point_path = "results.by_outcome.%s.pooled.point" % oid
+    decls, fails = [], []
+    for r in rows or []:
+        b = r.get("baseline_per_%d" % per)
+        got = r.get("events_prevented_per_%d" % per)
+        if b is None or got is None:
+            continue
+        decl = {"op": DERIVATION_OP,
+                "inputs": [{"literal": b}, point_path],
+                "produces": got,
+                "by": "ssot/absolute_effect.py",
+                "at": "render",
+                "authored": False}
+        try:
+            ok, recomputed = _c.verify_render(canon, decl)
+        except Exception as exc:
+            fails.append({"baseline": b, "why": "%s: %s" % (type(exc).__name__,
+                                                            str(exc)[:80])})
+            continue
+        if not ok:
+            fails.append({"baseline": b, "produces": got,
+                          "recomputed": recomputed,
+                          "why": "declaration does not reproduce the rendered value"})
+            continue
+        decls.append(decl)
+    return decls, fails
+
+
+def recompute_check(canon, oid, rows, per=1000):
+    """Reproduce EMITTED rows from the declared inputs. Errors, or [].
+
+    ⛔ THIS TAKES THE ROWS AS AN ARGUMENT, AND THE FIRST VERSION DID NOT.
+    It called `_rows()` -- the very function that produced the table -- and
+    compared the result with itself, so it could only ever pass. That is the
+    control failure this module's own derivation_record docstring warns about,
+    committed in the check written to demonstrate the fix, and it was caught
+    only because a negative test tried to make it fail and could not.
+    ⇒ A CHECK THAT REGENERATES ITS SUBJECT IS NOT CHECKING IT.
+
+    So the arithmetic here is written out INDEPENDENTLY of `_rows` -- the
+    declared formula, applied to the declared input fields, compared against
+    values that arrived from somewhere else.
+    """
+    res = (((canon.get("results") or {}).get("by_outcome") or {}).get(oid) or {})
+    pooled = res.get("pooled") or {}
+    pt, lo, hi = pooled.get("point"), pooled.get("ci_low"), pooled.get("ci_high")
+    if not (pt and lo and hi):
+        return ["cannot recompute: the declared inputs are not all present"]
+    errs = []
+    for r in rows or []:
+        b = r.get("baseline_per_%d" % per)
+        if b is None:
+            continue
+        # THE DECLARED FORMULA, WRITTEN OUT. Not a call back into the producer.
+        want = round(b * (1.0 - pt), 4)
+        want_lo = round(b * (1.0 - hi), 4)      # HIGH ratio -> FEWEST prevented
+        want_hi = round(b * (1.0 - lo), 4)
+        got = r.get("events_prevented_per_%d" % per)
+        gci = r.get("prevented_ci") or [None, None]
+        if got is None or abs(want - got) > 1e-9:
+            errs.append("baseline %s: declared formula gives %s, row carries %s"
+                        % (b, want, got))
+        if gci[0] is None or abs(want_lo - gci[0]) > 1e-9:
+            errs.append("baseline %s: lower bound should be %s, row carries %s"
+                        % (b, want_lo, gci[0]))
+        if gci[1] is None or abs(want_hi - gci[1]) > 1e-9:
+            errs.append("baseline %s: upper bound should be %s, row carries %s"
+                        % (b, want_hi, gci[1]))
+    return errs
+
+
 def _rows(ratio, lo, hi, grid, per):
     out = []
     for b in grid:
@@ -184,6 +316,26 @@ def derive(canon, oid="primary", per=1000, grid=DEFAULT_GRID):
         note = ("A risk ratio applied to a baseline risk, which is the "
                 "arithmetic GRADE's summary-of-findings table performs.")
 
+    _rows_out = _rows(point, lo, hi, grid, per)
+    _decls, _fails = render_declarations(canon, oid, _rows_out, per)
+    # Recompute each CLASS independently so one cannot mask another.
+    _cls = {"point": [0, 0], "lower_bound": [0, 0], "upper_bound": [0, 0]}
+    for _r in _rows_out:
+        b = _r.get("baseline_per_%d" % per)
+        ci = _r.get("prevented_ci") or [None, None]
+        for name, want, got in (
+                ("point", round(b * (1.0 - point), 4),
+                 _r.get("events_prevented_per_%d" % per)),
+                ("lower_bound", round(b * (1.0 - hi), 4), ci[0]),
+                ("upper_bound", round(b * (1.0 - lo), 4), ci[1])):
+            _cls[name][1] += 1
+            if got is not None and abs(want - got) <= 1e-9:
+                _cls[name][0] += 1
+    _verified_by_class = {k: "%d of %d" % (v[0], v[1]) for k, v in _cls.items()}
+    _verified_by_class["_why_split"] = (
+        "The interval INVERTS -- ci_high gives the FEWEST events prevented. A "
+        "sign error would leave `point` at 100% and fail both bounds, and a "
+        "pooled rate would report that as clean.")
     return {
         "state": "EMITTED",
         "outcome": oid,
@@ -197,8 +349,29 @@ def derive(canon, oid="primary", per=1000, grid=DEFAULT_GRID):
             "grid is given so the reader applies their own incidence."),
         "indirectness_argument_that_licenses_this": ind,
         "measure_caveat": note,
-        "rows": _rows(point, lo, hi, grid, per),
+        "rows": _rows_out,
+        "render_derivations": _decls,
+        "render_derivations_that_did_NOT_verify": _fails,
+        "__claim": "render_derivation",
+        # ⛔ BROKEN OUT BY CLASS, NOT POOLED. From run 1: two AI families on
+        # identical material agreed 99 of 105 -- and that 94% concealed 98/98
+        # on FAIL against 1 OF 7 ON VERIFIED, near-total disagreement on the
+        # only verdict that mattered. A pooled rate over an imbalanced set
+        # hides the class that is failing, and the class that is failing is
+        # always the small one.
+        #
+        # Here the three classes are the point estimate, the lower bound and
+        # the upper bound. They are NOT interchangeable: the interval INVERTS
+        # (ci_high gives the FEWEST prevented), so a sign error would leave the
+        # point-estimate class at 100% while both bound classes failed, and a
+        # pooled "21 of 21" would report that as clean.
+        "_derivations_verified_by_class": _verified_by_class,
+        "_derivations_verified": "%d of %d rendered POINT values recompute from "
+                                 "their declaration; bounds reported separately "
+                                 "because a pooled rate would hide a sign error "
+                                 "in one class" % (len(_decls), len(_rows_out)),
         "_derived_by": "ssot/absolute_effect.py derive()",
+        # emitted below, after the rows exist and each has been verified
         "_generality": ("Fires on ANY topic with a pooled ratio measure and a "
                         "declared indirectness argument. Not written per "
                         "topic."),

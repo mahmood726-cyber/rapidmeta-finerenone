@@ -164,12 +164,53 @@ def derive(canon, oid="primary"):
                                if same_scale else o["events"])})
     scales_differ = (len({v["scale"] for v in per_basis.values()}) > 1)
 
+    # ⭐ THE TWO-SCALE DISCLOSURE, MACHINE-CHECKABLE INSTEAD OF PROSE.
+    #
+    # It already reads correctly on the page. But prose cannot be checked by a consumer, and
+    # the consumer that matters is the recompute envelope: it carries ONE basis, and if it
+    # does not declare WHICH, a reader recomputes in a different MEASURE from the page's own
+    # second table. That is not a basis-selection omission, it is ESTIMAND MIXING -- the two
+    # bases are not two estimates of one quantity.
+    estimand = {
+        "scale_by_basis": {k: v["scale"] for k, v in per_basis.items()},
+        "estimand_changes_with_the_basis": bool(scales_differ),
+        "what_that_means": (
+            "Choosing the document chooses the measure: participants give a RISK ratio, "
+            "person-time gives a RATE ratio. Any component emitting one basis alone must "
+            "name it AND its scale, or it hands a reader a recomputation in a different "
+            "measure from the one this page headlines."
+            if scales_differ else
+            "Both bases are on the same scale, so the estimand does not move with the "
+            "choice of document."),
+    }
+
+    # Claim typing (ssot/claims.py). The headline is a JUDGEMENT -- a person decided which
+    # number is the review's answer -- and each basis is an EVIDENCE SOURCE. Typing them
+    # lets a validator, rather than a reader, catch a basis that never says when it was read.
+    claims_block = {
+        "headline_basis__claim": "authored_judgement",
+    }
+    for name, b in per_basis.items():
+        src = bases.get(name) or {}
+        claims_block["basis_%s__claim" % name] = "evidence_source"
+        claims_block["basis_%s__evidence" % name] = {
+            "source": b.get("source"),
+            "scale": b.get("scale"),
+            # ⚠️ NOT PARSED OUT OF THE SOURCE SENTENCE. Several basis blocks say "read
+            # 2026-08-30" inside their prose; lifting a date out of free text would be this
+            # module inventing a provenance field. If the object does not DECLARE read_utc
+            # the claim fails its required shape -- and that gap is real, not cosmetic.
+            "read_utc": src.get("read_utc"),
+        }
+
     return {
         "state": "EMITTED",
         "outcome": oid,
         "n_bases": len(pooled),
         "pooled_by_basis": pooled,
         "detail_by_basis": per_basis,
+        "estimand": estimand,
+        "claims": claims_block,
         "headline_basis": headline[0] if len(headline) == 1 else None,
         "⛔_headline_not_named" if len(headline) != 1 else "headline_named": (
             "NO BASIS IS MARKED `headline`, or more than one is. The review "

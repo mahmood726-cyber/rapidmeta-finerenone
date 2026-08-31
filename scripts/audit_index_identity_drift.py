@@ -53,6 +53,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+from instrument_controls import require_controls          # noqa: E402
 
 
 def _norm(s):
@@ -86,6 +88,7 @@ def object_for(url):
     return None
 
 
+CORRUPT_OBJECTS = []
 _APPID_CACHE = {}
 
 
@@ -97,7 +100,11 @@ def _appid_map():
             continue
         try:
             d = json.load(open(p, encoding="utf-8"))
-        except Exception:
+        except Exception as exc:
+            # NOT silently skipped: an object that does not parse is a
+            # RETRIEVED_CORRUPT, and dropping it here would shrink the
+            # denominator of every count this module reports.
+            CORRUPT_OBJECTS.append((p, os.path.getsize(p), str(exc)[:70]))
             continue
         if isinstance(d, dict):
             _APPID_CACHE[p] = str(d.get("app_id") or "").lower()
@@ -202,8 +209,12 @@ def audit():
             continue
         try:
             d = json.load(open(obj_path, encoding="utf-8"))
-        except Exception:
-            unmapped.append(url)
+        except Exception as exc:
+            # A CORRUPT object is not an UNMAPPED url. Recording it as unmapped
+            # would say "no object exists for this page" when one exists and is
+            # damaged -- two different facts, one bucket.
+            CORRUPT_OBJECTS.append((obj_path, os.path.getsize(obj_path),
+                                    str(exc)[:70]))
             continue
         otitle = str(d.get("title") or "")
         ow = _norm(otitle)
@@ -292,6 +303,29 @@ def selftest():
 
 
 def main():
+    # ⛔ AN INSTRUMENT THAT WALKS THE CORPUS DECLARES A CASE WHOSE ANSWER IS
+    # ALREADY KNOWN. Both controls below are REAL corpus items whose answers
+    # were established independently of this code -- the positive from reading
+    # the dapivirine object and finding ZERO occurrences of either trial name,
+    # the negative from the object's own title.
+    #
+    # ⚠️ THE NEGATIVE IS NOT OPTIONAL HERE, because over-flagging is this
+    # instrument's failure mode: its word-overlap tier flags 29 of 44 and
+    # reviewing them by hand showed it conflates a SYNONYM with a different
+    # review. Only a negative control catches that.
+    require_controls(
+        "audit_index_identity_drift",
+        positive=("the dapivirine tile names HPTN 082 and FACTS-001, and the "
+                  "object contains neither",
+                  sorted(entity_drift(
+                      "HIV PrEP for AGYW in sub-Saharan Africa "
+                      "(HPTN 082 + FACTS-001)",
+                      "a store mentioning neither trial")),
+                  ["FACTS-001", "HPTN 082"]),
+        negative=("a label naming a trial the object DOES contain is not drift",
+                  entity_drift("The Ring Study (NCT01539226)",
+                               "... NCT01539226 ... The Ring Study ..."),
+                  []))
     if "--selftest" in sys.argv:
         print("INDEX IDENTITY DRIFT -- SELFTEST")
         print(json.dumps(selftest(), indent=1, ensure_ascii=False))
@@ -302,6 +336,11 @@ def main():
         return
     print("INDEX IDENTITY DRIFT -- does the index describe the same review?")
     print()
+    if CORRUPT_OBJECTS:
+        print("  ⛔ RETRIEVED_CORRUPT objects (NOT counted as unmapped): %d"
+              % len(CORRUPT_OBJECTS))
+        for pth, sz, why in CORRUPT_OBJECTS:
+            print("     %s  %d bytes  %s" % (os.path.basename(pth), sz, why))
     print("  review URLs linked from index.html : %d" % r["n_urls_linked"])
     print("  mapped to an SSOT object           : %d  <- the denominator"
           % r["n_mapped_to_an_object"])
@@ -345,15 +384,34 @@ def main():
     print("     'SGLT2i in CKD' against 'Canagliflozin, dapagliflozin and")
     print("     empagliflozin in kidney disease' -- the same review in shorter")
     print("     vocabulary. ENTITY DRIFT is the discriminating signal.")
+    # ⛔ THIS RETURNS A VERDICT AND MUST THEREFORE BE ABLE TO FAIL.
+    # scripts/lint_gate_can_fail.py refused this file, correctly: it printed
+    # "ENTITY DRIFT" findings and exited 0 every time. A checker that reports a
+    # defect and cannot block is a trap for whoever wires it in next, who will
+    # reasonably assume a thing that says REFUSED can refuse.
+    #
+    # TIER 1 BLOCKS, TIER 2 DOES NOT. A label naming a trial with digits that
+    # the object has never mentioned is an identity error -- 1 of 44, the
+    # dapivirine tile naming HPTN 082 and FACTS-001. A bare all-caps token may
+    # be a clinical abbreviation and needs a human; blocking on those would
+    # make the gate fire on MRSA, ASCVD, TMVR and LMIC and be switched off
+    # within a day.
+    hard = r.get("ghosted_hard") or []
     print()
     print("  ⚠️ THIS IS AN IDENTITY CHECK, NOT A VALUE CHECK. "
           "project_index_cards.py already")
     print("     guarantees the NUMBERS agree. Nothing until now compared what "
           "the index SAYS")
     print("     the review IS against what the object says it is.")
+    if hard:
+        print()
+        print("REFUSED: %d index entr%s name a trial the object never mentions."
+              % (len(hard), "y" if len(hard) == 1 else "ies"))
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8",
                                   errors="replace")
-    main()
+    sys.exit(main())

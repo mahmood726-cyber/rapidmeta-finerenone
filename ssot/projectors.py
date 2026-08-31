@@ -42,6 +42,25 @@ TABS = (
     ("report", "6. Scientific Output",
      ("output", "otherquals", "recon", "removal"), ("grade",)),
     ("paper", "7. Paper Studio", ("paper",), ()),
+    # ⭐ THE RULED EIGHT, ssot/page_format_v1.json v1, ratified 2026-08-31.
+    # HTA and Guideline are TABS, not sections of Scientific Output. The cards
+    # existed for a day inside `removal` and a reader had no tab to click.
+    #
+    # ⛔ ADDED IN THREE PLACES AT ONCE, AND THAT IS NOT TIDINESS. This tuple's
+    # own comment records the failure mode: "A key set on the part dict but
+    # absent from this tuple is dropped in silence". The mirror is equally
+    # true -- a tab named here whose key is never set renders an empty panel,
+    # and one absent from ABSENT_STATE renders no honest state when the object
+    # holds nothing. TABS, ABSENT_STATE and REQUIRED_TABS move together or the
+    # page looks complete while carrying less.
+    #
+    # ⚠️ `clinician` and `public` are NOT here, deliberately. They were
+    # considered and RULED OUT (page_format_v1.json considered_and_ruled_out).
+    # Their cards still render inside Scientific Output. A later reader must
+    # not "fix" that asymmetry by adding two tabs: tidiness is a plausible
+    # motive for reversing a decision nobody recorded.
+    ("hta", "8. HTA", ("hta",), ()),
+    ("guideline", "9. Guideline", ("guideline",), ()),
     ("statistics", "Statistics", (),
      ("stats", "counttabs", "crossengine", "panels")),
 )
@@ -68,6 +87,15 @@ ABSENT_STATE = {
               "certainty of this evidence has not been rated."),
  "paper":    ("No manuscript has been generated for this review."),
  "statistics": ("No statistical panel set is held in this object."),
+ "hta":      ("No health-technology-assessment view is held in this object. That view "
+              "needs an absolute effect at a baseline risk the reader chooses and a "
+              "statement of which comparator the decision actually faces; neither is "
+              "derivable from a pooled ratio alone, so nothing is generated here."),
+ "guideline": ("No guideline view is held in this object. A GRADE evidence-to-decision "
+               "framework needs values, resources, equity, acceptability and feasibility "
+               "as well as the effects and the certainty, and a panel is better served "
+               "by an empty cell it can see than by prose that reads as though it "
+               "covered them."),
 }
 
 # TRACK D, THIRD STATE -- PARTIALLY HELD. The two states above are NOT ENOUGH, and eleven
@@ -252,8 +280,18 @@ def report_certainty_unrated(body):
     return all(c in ("&mdash;", "\u2014", "", "See comment") for c in cells)
 
 
-REQUIRED_TABS = ("protocol", "search", "screen", "extract", "analysis", "report",
-                 "paper", "statistics")
+# ⭐ THE RULED EIGHT, not the code's eight. Until 2026-08-31 this read
+# protocol/search/screen/extract/analysis/report/paper/statistics -- which is
+# ALSO eight, and carries `report` and `statistics` where HTA and Guideline
+# belong. Two lanes scored the same page "6 of 8" against different lists and
+# printed the same number, which is the worst coincidence available for a
+# denominator because it looks like agreement. The declared list now lives in
+# ssot/page_format_v1.json and this constant follows it.
+#
+# `report` and `statistics` remain in TABS and still render; they are simply
+# not part of the REQUIRED set the format is scored against.
+REQUIRED_TABS = ("protocol", "search", "screen", "extract", "analysis",
+                 "paper", "hta", "guideline")
 GRADE_DOMAINS = ("risk_of_bias", "inconsistency", "indirectness", "imprecision",
                  "publication_bias")
 FLOOR_CHARS = 600

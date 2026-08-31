@@ -133,55 +133,67 @@ def _entry(slot, state, decided, decided_by, alternative, if_alt,
 
 
 # ------------------------------------------------- THE PROVENANCE GATE ------
-# Phrases a field uses to say IT HOLDS NOTHING, and templated prefixes a repair
-# pass wrote across the corpus. A slot that tests only whether a field EXISTS
-# counts every one of these as a declared judgement.
-_NON_DECLARATIONS = (
-    "not recorded", "not stated", "not reported", "no information",
-    "unknown", "not applicable", "none recorded", "not established",
-    "not derivable", "derived_post_hoc", "derived post hoc", "post_hoc",
-    "this review asks:",          # the templated introduction prefix
-)
+# ⭐ THE PHRASE LIST THAT WAS HERE IS DELETED, AND THAT IS THE POINT.
+#
+# It held a list of strings a field uses to say it holds nothing -- "not
+# recorded", "derived_post_hoc", "this review asks:" -- and refused a DECLARED
+# score to any value containing one. It caught real defects: `_estimand_rule`
+# carried by 44 objects with 16 distinct values, the commonest on 20 of them
+# being literally "not recorded on the page this object was extracted from",
+# scoring as a declared judgement. Gating it dropped this module's counts from
+# 67 marks to 42, a 37% over-count self-caught.
+#
+# ⛔ BUT A PHRASE LIST CATCHES THE TEMPLATES THIS CORPUS CONTAINS TODAY AND IS
+# DEFEATED SILENTLY BY THE NEXT REPAIR PASS THAT WRITES A NEW ONE -- which is
+# exactly how the defect it corrected was introduced. It was always a stopgap
+# for a structural test, and the structural test now exists.
+#
+# ssot/claims.py `validate_claim` refuses a field claiming `authored_judgement`
+# while its `__derived_from` records INPUTS. That is a fact about where the
+# value came from, not about what words it happens to contain, so a value
+# carried in from an extraction cannot score as a judgement someone made
+# regardless of how it is phrased.
+#
+# ⚠️ VERIFIED ON A REAL NESTED OBJECT BEFORE SWITCHING, not on a fixture. An
+# earlier version took (container, plain_key) while its neighbours took
+# (root, dotted_path), so the natural composition -- walk_fields() then
+# validate_claim(canon, path) -- returned [] for every field and reported a
+# perfectly clean corpus. Now it resolves dotted paths itself and RAISES on an
+# unresolvable one. Checked here 2026-08-31: refuses a planted derived value
+# via the dotted path, still ACCEPTS a genuine authored judgement (a fix that
+# refused everything would have made the plant pass too), plain keys still
+# work, and a bad path raises ClaimError instead of missing quietly.
+
+try:
+    from . import claims as _claims          # package import
+except ImportError:                          # flat import, as build_tabbed does
+    import claims as _claims
 
 
-def is_authored(value):
+def is_authored(value, obj=None, field=None):
     """Does this field carry an AUTHORED judgement, or does it merely exist?
 
-    ⛔ WHY THIS GATE EXISTS, AND IT IS A CORRECTION TO THIS MODULE'S OWN COUNTS.
-    Every slot below originally tested PRESENCE. Measured across the corpus on
-    2026-08-30 that was wrong twice, both times in the direction that flatters
-    the review:
-
-      `_estimand_rule` is carried by 44 objects with only SIXTEEN DISTINCT
-      VALUES, and the most common -- on TWENTY objects -- is the string
-      "not recorded on the page this object was extracted from". A field whose
-      content is a statement that nothing was recorded was being counted as a
-      declared estimand judgement.
-
-      `screening.eligibility_provenance` most often reads
-      {state: "derived_post_hoc", predefined: false}. That is the object saying
-      its criteria were reconstructed AFTER the fact. It was being counted as a
-      declared eligibility rule.
-
-    This is the same failure the inventory lane measured on manuscript
-    introductions: a naive "does the field exist" test flips 138 of 152 objects
-    because a repair pass wrote a templated restatement into nearly all of
-    them -- 137 restatements against 1 genuinely authored. TEMPLATED CONTENT
-    LOOKS LIKE REAL CONTENT TO EVERY TEST THAT DOES NOT ASK WHERE IT CAME FROM.
-
-    ⚠️ WHAT THIS GATE IS NOT. It is a phrase list, so it catches the templates
-    THIS corpus happens to contain and nothing else. It is a stopgap for a real
-    `derived_from` provenance field, and it must not be mistaken for one: a new
-    repair pass writing a new template defeats it silently, which is precisely
-    how the defect it corrects was introduced.
+    Structural where the object supports it, and HONEST ABOUT NOT KNOWING where
+    it does not. A field with no `__derived_from` is UNKNOWN ORIGIN -- which is
+    not the same as authored, and not the same as derived. It is scored as NOT
+    authored, because a slot whose provenance nobody recorded has not been
+    shown to be a judgement, and the whole purpose of this register is to stop
+    presence standing in for authorship.
     """
-    if value is None:
+    if value is None or isinstance(value, bool):
         return False
-    if isinstance(value, bool):
-        return False
+    if obj is not None and field is not None:
+        meta = obj.get(str(field) + _claims.SUFFIX_FROM)
+        if isinstance(meta, dict):
+            # THE STRUCTURAL ANSWER, when the object carries one.
+            return bool(meta.get("authored")) and not meta.get("inputs")
+    # No provenance recorded. Fall back to "is there content at all", and the
+    # register reports the slot UNDECLARED unless something else declares it.
     if isinstance(value, dict):
-        if value.get("state") and str(value["state"]).lower() in (
-                "derived_post_hoc", "post_hoc", "unknown", "not_recorded"):
+        return any(is_authored(v) for k, v in value.items()
+                   if not str(k).startswith("_"))
+    if isinstance(value, dict):
+        if str(value.get("state") or "").lower() in ("derived_post_hoc", "post_hoc"):
             return False
         if value.get("predefined") is False:
             return False
@@ -192,10 +204,75 @@ def is_authored(value):
     t = str(value).strip().lower()
     if len(t) < 4:
         return False
-    for bad in _NON_DECLARATIONS:
+    # ⚠️ A NARROW SELF-NEGATION TEST SURVIVES THE DELETION, AND I AM NOT TAKING
+    # THE ADVICE WHOLESALE.
+    #
+    # allmeta-02's reasoning was right about TEMPLATED content -- a restatement
+    # of the question is defeated by the next repair pass writing a new
+    # template, so a phrase list is the wrong instrument for it and
+    # claims.py's provenance test is the right one. That half is deleted.
+    #
+    # BUT A FIELD WHOSE CONTENT SAYS IT HOLDS NOTHING IS A DIFFERENT PROBLEM,
+    # and provenance does not touch it: `_estimand_rule` reading "not recorded
+    # on the page this object was extracted from" is a perfectly well-sourced
+    # value -- someone genuinely wrote that, and an honest `__derived_from`
+    # would say authored:true with no inputs, so claims.py would ACCEPT it as
+    # an authored judgement. It is not one. It is an authored statement that
+    # there is no judgement.
+    #
+    # Carried by 44 objects with 16 distinct values, the commonest on 20 of
+    # them. Dropping this test raised ELIGIBILITY_RULE 14 -> 21 and ESTIMAND
+    # 21 -> 39 in one run: a 37% over-count returning by the back door because
+    # a stricter gate replaced a looser one WITHOUT BEING WIRED TO ANY CALLER.
+    #
+    # So the two tests are COMPLEMENTARY and neither supersedes the other:
+    #   claims.py  catches a value CARRIED IN from an extraction
+    #   this       catches a value that SAYS IT IS NOT A DECISION
+    for bad in ("not recorded", "not stated", "not reported", "no information",
+                "not established", "not derivable", "derived post hoc",
+                "derived_post_hoc"):
         if bad in t:
             return False
     return True
+
+
+# ⛔ AND THE SWITCH TO A STRUCTURAL TEST SILENTLY UNDID A REAL FIX, WHICH IS
+# WORTH RECORDING BECAUSE IT TOOK ONE RUN TO NOTICE AND WOULD HAVE SHIPPED.
+#
+# The phrase list had dropped this module's counts from 67 marks to 42 -- a 37%
+# over-count, self-caught. Replacing it with `is_authored(value, obj, field)`
+# left every CALLER passing one argument, so the structural branch was never
+# reached and the counts went straight back to 21 and 39. A stricter gate that
+# is never invoked is looser than the loose one it replaced.
+#
+# THE HONEST RESOLUTION IS TWO NUMBERS, NOT ONE, because they answer different
+# questions and only one of them is currently answerable:
+#
+#   DECLARED         the slot carries content a human would recognise as a
+#                    decision. What this register has always counted.
+#   PROVEN_AUTHORED  ssot/claims.py validates the field as authored_judgement:
+#                    __derived_from says authored, with NO inputs.
+#
+# PROVEN_AUTHORED IS ZERO ACROSS THE CORPUS TODAY, and that is not a regression
+# -- `__derived_from` is new and nothing has been annotated yet. Reporting it as
+# though it were a fall from 42 would be as misleading as reporting 42 as though
+# it were proven. Both are printed, with the reason the second is zero.
+def proven_authored(container, field):
+    """Does claims.py validate this field as an authored judgement?
+
+    Returns False on ANY refusal, and False when nothing is annotated -- an
+    unrecorded provenance is UNKNOWN, which is not authorship."""
+    if not isinstance(container, dict):
+        return False
+    meta = container.get(str(field) + _claims.SUFFIX_FROM)
+    if not isinstance(meta, dict):
+        return False
+    probe = dict(container)
+    probe[str(field) + _claims.SUFFIX_CLAIM] = "authored_judgement"
+    try:
+        return not _claims.validate_claim(probe, str(field))
+    except Exception:
+        return False
 
 
 # ------------------------------------------------------------ J: PICO -------
@@ -590,6 +667,15 @@ def derive(canon, oid="primary"):
                        "Declare it rather than inferring it.",
                        "n/a", "refused")
         entries.append(e)
+    # Second tier: which of these slots is PROVEN authored by claims.py.
+    res_c = _outcome(canon, oid)
+    _FIELDS = {"QUESTION_PICO": "question_pico",
+               "IMPRECISION_THRESHOLD": "decision_threshold",
+               "ESTIMAND": "estimand_normalisation",
+               "COUNT_TIER": "count_bases"}
+    for e in entries:
+        f = _FIELDS.get(e["slot"])
+        e["proven_authored"] = bool(f and proven_authored(res_c, f))
     declared = [e for e in entries if e["state"] == DECLARED]
     undeclared = [e for e in entries if e["state"] == UNDECLARED]
     return {
@@ -614,6 +700,21 @@ def derive(canon, oid="primary"):
             "declared": "%d of %d" % (len(declared), len(SLOTS)),
             "undeclared": "%d of %d" % (len(undeclared), len(SLOTS)),
             "undeclared_slots": [e["slot"] for e in undeclared],
+        },
+        "proven_authored_by_claims_py": {
+            "n": "%d of %d slots" % (sum(1 for e in entries if e["proven_authored"]),
+                                     len(SLOTS)),
+            "what_it_means": (
+                "ssot/claims.py validates the field as authored_judgement: its "
+                "`__derived_from` says authored with NO inputs, so a value "
+                "carried in from an extraction cannot score."),
+            "⚠️_zero_is_expected_today_and_is_not_a_regression": (
+                "`__derived_from` is new and no slot has been annotated yet. "
+                "DECLARED counts content a human would recognise as a "
+                "decision; PROVEN_AUTHORED counts recorded provenance. Until "
+                "the slots are annotated the second is zero everywhere, and "
+                "reporting that as a fall from the DECLARED count would be as "
+                "misleading as reporting DECLARED as though it were proven."),
         },
         "⭐_the_scaling_claim": (
             "A topic costs %d declared judgements on this outcome, not four "

@@ -177,6 +177,11 @@
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
+ #rt-hta:checked ~ .panels > #pn-hta{height:auto;overflow:visible}
+ #rt-hta:checked ~ .tabnav label[for="rt-hta"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-guideline:checked ~ .panels > #pn-guideline{height:auto;overflow:visible}
+ #rt-guideline:checked ~ .tabnav label[for="rt-guideline"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-guideline:focus-visible ~ .tabnav label[for="rt-guideline"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
  #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
@@ -241,6 +246,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <input type="radio" name="rmtab" id="rt-analysis">
 <input type="radio" name="rmtab" id="rt-report">
 <input type="radio" name="rmtab" id="rt-paper" checked>
+<input type="radio" name="rmtab" id="rt-hta">
+<input type="radio" name="rmtab" id="rt-guideline">
 <input type="radio" name="rmtab" id="rt-statistics">
 <nav class="tabnav" aria-label="Review sections">
   <label for="rt-protocol">1. Protocol</label>
@@ -250,6 +257,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-analysis">5. Analysis Suite</label>
   <label for="rt-report">6. Scientific Output</label>
   <label for="rt-paper">7. Paper Studio</label>
+ <label for="rt-hta">8. HTA</label>
+  <label for="rt-guideline">9. Guideline</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
@@ -444,7 +453,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h2 id="screen-screening-ledger-every-record-in-this-fil">Screening ledger &mdash; every record, in this file</h2>
 <details class="screen-ledger"><summary><strong>1443 screening decisions</strong> &mdash; 13 pass-included-trial &middot; 22 pass-already-retrieved &middot; 2 pass-outside-registry-set &middot; 61 pass-no-id &middot; 107 undecidable &middot; 1238 exclude. Every record is in this file; expand to read or check any of them.</summary>
-<p class="ledger-head">Every one of the <strong>1443</strong> screened records is below, with the decision and the rule that made it. <strong>1390</strong> carry an identifier and link to the source; <strong>53</strong> do not and say so. Nothing is truncated and nothing is paginated &mdash; a screen a reader cannot reach is a count, not a screen. Ledger read 2026-08-31T00:51:31+00:00.</p>
+<p class="ledger-head">Every one of the <strong>1443</strong> screened records is below, with the decision and the rule that made it. <strong>1390</strong> carry an identifier and link to the source; <strong>53</strong> do not and say so. Nothing is truncated and nothing is paginated &mdash; a screen a reader cannot reach is a count, not a screen. Ledger read 2026-08-31T02:39:13+00:00.</p>
 <details class="screen-group"><summary><strong>PASS_INCLUDED_TRIAL</strong> &mdash; 13 records. Passed the screen and is a trial this review pools.</summary>
 <div class='tscroll'><table class="ledger">
     <caption>Table 6. Screening ledger — every record, in this file</caption>
@@ -2396,8 +2405,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-18</td></tr>
     <tr><th scope='col'>Source object SHA-256</th><td><code>53cf4c04f999bac2</code></td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-31 00:51 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>3b15695a9</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone). The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-31 02:39 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>48cd999bc</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone). The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -2835,7 +2844,53 @@ Every count and denominator behind those estimates is read as follows. Registry 
 <tr><td>Submission conformance</td><td>The submission conformance statement</td><td>No further reason is recorded.</td></tr>
 </table></div>
 </div>  </section>
-<!--end-paper--> <section class="panel" id="pn-statistics">
+<!--end-paper--> <section class="panel" id="pn-hta">
+<div class="absent-state" role="note"><strong>Not held in this object.</strong> No health-technology-assessment view is held in this object. That view needs an absolute effect at a baseline risk the reader chooses and a statement of which comparator the decision actually faces; neither is derivable from a pooled ratio alone, so nothing is generated here.</div>
+<div class='card'>
+  <h2>For a health-technology-assessment body</h2>
+  <p><small>Tab status: REQUIRED AS A TAB by ssot/page_format_v1.json (pn-hta).</small></p>
+  <p><small>Reader: A health-technology-assessment body deciding whether to fund the dapivirine ring.</small></p>
+  <p>Relative risk of HIV-1 seroconversion 0.703 (95% confidence interval 0.566 to 0.873), random effects, REML, k = 2 trials, 4588 women randomised and 4578 analysed.</p>
+  <p><small>the comparator in this review — a placebo vaginal ring</small></p>
+  <p><small>the comparator an HTA decision actually faces — oral tenofovir/emtricitabine pre-exposure prophylaxis, or long-acting injectable cabotegravir, both of which are available and both of which are what a funder would be choosing between.</small></p>
+  <div class='absent-state'>⚠️ THIS REVIEW ESTIMATES WHETHER THE RING BEATS NOTHING. IT DOES NOT ESTIMATE WHETHER THE RING BEATS WHAT IS ALREADY AVAILABLE. An HTA body cannot use a placebo-controlled relative risk for a funding decision without an indirect comparison this review does not perform and does not have the trials to perform. THAT IS A LIMITATION OF THE EVIDENCE BASE, NOT OF THE SYNTHESIS -- both eligible trials were placebo-controlled -- but it is decisive for this reader and it is stated first rather than buried.</div>
+  <p><small>what would be needed — A network meta-analysis against oral pre-exposure prophylaxis, or the head-to-head trials that exist and were found by this review&#x27;s own search: NCT03965923, NCT04140266 and NCT03593655 all randomise the ring against oral prophylaxis. Every one was EXCLUDED here on the comparator and the outcome -- their primaries are safety, adherence and uptake, not HIV incidence. The head-to-head efficacy trial an HTA body needs HAS NOT BEEN DONE.</small></p>
+  <p><small> why a range — A single assumed baseline risk is a modelling choice made by the review author on behalf of a jurisdiction they do not know. The whole range is given instead so the reader applies their own incidence.</small></p>
+  <p><small>units — per 100 woman-years</small></p>
+  <p><small>estimand caveat — ⚠️ The relative risk pools cumulative incidence over DIFFERENT follow-up: 24 months registered for NCT01539226 and 12 to 14 months for NCT01617096. Applying it to an annualised incidence assumes the ratio is constant over time. That assumption is not tested here and the table is an approximation resting on it.</small></p>
+  <p>⛔ NOT ADDRESSED. This review holds no cost, no price, no delivery-system requirement and no budget-impact input. Nothing in it can support a cost-effectiveness statement, and the absolute table above is an effectiveness input to such a model, not a substitute for one.</p>
+  <p>VERY LOW by this review&#x27;s GRADE derivation. An HTA body should read that as: the direction is probably right and the magnitude should not be relied on for a threshold decision.</p>
+  <p>Serious adverse events and deaths per arm are held for both trials and are DELIBERATELY NOT POOLED -- the two placebo arms differ more than seven-fold in serious-adverse-event rate, which is an ascertainment difference. A harms input to a model must not be taken from a pool this review declines to compute.</p>
+</div>
+ </section>
+<!--end-hta-->  <section class="panel" id="pn-guideline"><span id="guideline"></span>
+  <p class='toc'><strong>In this section:</strong> <a href="#guideline-for-a-guideline-panel">For a guideline panel</a></p>
+<div class='card'>
+  <h2 id="guideline-for-a-guideline-panel">For a guideline panel</h2>
+  <p><small>Tab status: REQUIRED AS A TAB by ssot/page_format_v1.json (pn-guideline).</small></p>
+  <p><small>Reader: A guideline panel using a GRADE evidence-to-decision framework.</small></p>
+  <p>A panel does not need a narrative. It needs its own twelve considerations answered, or told plainly that they are not.</p>
+  <div class='tscroll'><table>
+    <caption>Table 37. For a guideline panel</caption>
+
+    <tr><th>Consideration</th><th>Answer</th><th>From this review</th></tr>
+    <tr class='ok'><td>problem is a priority</td><td><strong>PARTIALLY INFORMED</strong></td><td><small>The trials ran in Malawi, South Africa, Uganda and Zimbabwe and their placebo arms show HIV-1 incidence in the range WHO calls substantial risk. The priority is not in question; this review contributes the setting, not the priority.</small></td></tr>
+    <tr class='ok'><td>desirable anticipated effects</td><td><strong>INFORMED</strong></td><td><small>Relative risk 0.703 (0.566 to 0.873). At a baseline of 4.5 per 100 woman-years that is about 1.34 infections prevented per 100 woman-years.</small></td></tr>
+    <tr class='ok'><td>undesirable anticipated effects</td><td><strong>PARTIALLY INFORMED</strong></td><td><small>Serious adverse events and deaths per arm, both trials, from registry posted results. NOT POOLED, and the reason is stated. Genital and urinary events -- the harms specific to a vaginal ring -- are NOT extracted.</small></td></tr>
+    <tr class='ok'><td>certainty of evidence</td><td><strong>INFORMED</strong></td><td><small>VERY LOW.</small></td></tr>
+    <tr class='warn'><td>values</td><td><strong>⛔ NOT ADDRESSED</strong></td><td><small>No study of how women weigh HIV prevention against ring use was sought or synthesised. This review&#x27;s own screen IDENTIFIED acceptability and preference studies -- they are in the ledger, excluded because they are not trials of this outcome -- so the gap is a scope decision, not an absence of literature, and a panel should commission that synthesis rather than assume it does not exist.</small></td></tr>
+    <tr class='warn'><td>balance of effects</td><td><strong>⛔ CANNOT BE DETERMINED</strong></td><td><small>A balance requires values. With values unaddressed, any balance statement would be the review author&#x27;s preference wearing a panel&#x27;s authority.</small></td></tr>
+    <tr class='warn'><td>resources required</td><td><strong>⛔ NOT ADDRESSED</strong></td><td><small>No cost input of any kind is held.</small></td></tr>
+    <tr class='warn'><td>certainty of resource evidence</td><td><strong>⛔ NOT APPLICABLE</strong></td><td><small>No resource evidence.</small></td></tr>
+    <tr class='warn'><td>cost effectiveness</td><td><strong>⛔ NOT ADDRESSED</strong></td><td><small>No economic evaluation was sought.</small></td></tr>
+    <tr class='ok'><td>equity</td><td><strong>PARTIALLY INFORMED, AND THE FINDING IS NEGATIVE</strong></td><td><small>⚠️ NEITHER TRIAL ENROLLED ANYONE UNDER 18. Both set a minimum age of 18 and a maximum of 45. For adolescent girls -- the group in whom adherence to a vaginal ring is most in question and in whom incidence is highest -- THIS REVIEW HAS NO DIRECT EVIDENCE AT ALL, and a panel extending a recommendation to them is extrapolating. ASPIRE also reports an age interaction WITHIN its own range: efficacy 61% at 25 years or older against 10% below, p = 0.02 for interaction. The trials themselves supply the reason not to extrapolate downward.</small></td></tr>
+    <tr class='warn'><td>acceptability</td><td><strong>⛔ NOT ADDRESSED</strong></td><td><small>Same as values: acceptability studies were identified by the search and excluded by scope. Named, not absent.</small></td></tr>
+    <tr class='warn'><td>feasibility</td><td><strong>⛔ NOT ADDRESSED</strong></td><td><small>Ring supply, insertion support and monthly replacement logistics are outside this review.</small></td></tr>
+  </table></div>
+  <div class='absent-state'>5 of 12 considerations informed, 7 of 12 considerations not addressed. A panel handed 5 of 12 filled cells and a named reason for each blank is better served than one handed continuous prose that reads as though it covered all 12. This review informs the effects and the certainty. It does not inform values, resources, cost-effectiveness, acceptability or feasibility, and it says which.</div>
+</div>
+  </section>
+<!--end-guideline--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
  </section>
 <!--end-statistics--></div>
