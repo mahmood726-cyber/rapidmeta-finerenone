@@ -58,7 +58,7 @@ EXTRACTED = {
         "document": "FDA Integrated Review, NDA 215341 (KERENDIA, finerenone), 2021",
         "url": ("https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/"
                 "215341Orig1s000IntegratedR.pdf"),
-        "text": "F:/claude-temp/fda/finerenone_integratedR.txt",
+        "text": "F:/claude-temp/rm-dapivirine-2026-08-31/fda/finerenone_integratedR.txt",
         "trials": ["NCT02540993"],          # FIDELIO-DKD only. FIGARO is ongoing.
         "topic": "finerenone-cv",
         "answers": [
@@ -106,7 +106,7 @@ EXTRACTED = {
         "document": "FDA Integrated Review, NDA 216203 (sotagliflozin), 2023",
         "url": ("https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/"
                 "216203Orig1s000IntegratedR.pdf"),
-        "text": "F:/claude-temp/fda/sotagliflozin_integratedR.txt",
+        "text": "F:/claude-temp/rm-dapivirine-2026-08-31/fda/sotagliflozin_integratedR.txt",
         "trials": ["NCT03315143", "NCT03521934"],   # SCORED and SOLOIST-WHF, both named.
         "topic": "sotagliflozin-hf",
         "answers": [

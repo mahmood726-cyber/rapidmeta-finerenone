@@ -388,7 +388,7 @@ def main():
     print("  ⚠️ 'not verified' is NOT 'wrong'. Trials carry sponsor codes, network codes")
     print("     and published acronyms the registry may not list. Only INVERTED is")
     print("     asserted as a defect; the rest are left for a person.")
-    out = os.environ.get("LABEL_AUDIT_OUT", "F:/claude-temp/label_audit.json")
+    out = os.environ.get("LABEL_AUDIT_OUT", "F:/claude-temp/rm-dapivirine-2026-08-31/label_audit.json")
     json.dump(a, open(out, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     print("  written to %s" % out)
 

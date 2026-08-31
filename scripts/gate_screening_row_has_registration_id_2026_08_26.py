@@ -60,14 +60,40 @@ ANCESTOR_DEPTH = 3
 #
 # Third narrowing of this gate's vocabulary in one sitting: NCT only, then NCT+path, now
 # re-findable. Each narrowing pointed the same way -- at the corpus, wrongly.
+# FOURTH WIDENING, 2026-08-31, and the same direction as the other three: at the
+# corpus, wrongly. A bibliographic screen of Europe PMC returns records that have
+# NO PubMed ID -- preprints (PPR...) and PMC-only deposits (conference abstracts,
+# HTA reports). 53 of one topic's 1,443 screened records are of that kind, and
+# every one carries `"key": "europepmc:PMC:PMC12768671"` or
+# `"key": "europepmc:PPR:PPR1267978"`, which resolves at europepmc.org exactly as
+# a PMID resolves at pubmed.
+#
+#     THE REQUIREMENT IS THAT THE ROW CAN BE RE-FOUND. A PMCID re-finds it.
+#
+# Accepting these is NOT a relaxation: a row with no identifier of any kind still
+# fails, which is checked by the negative control below.
+# ENUMERATING SOURCE CODES WAS THE WRONG SHAPE AND FAILED TWICE IN ONE SITTING.
+# PMC and PPR cleared 49 of 53 rows and left four: europepmc:ETH:733423 (three
+# theses) and europepmc:PAT:US2012093911 (a patent). Europe PMC's key format is
+# `source:id` across ALL its sources -- MED, PMC, PPR, ETH, PAT, AGR, CBA, HIR,
+# CTX, NBK -- and every one resolves. A rule that lists the sources it has met so
+# far will keep failing on the next one, which is the same narrow-then-widen loop
+# this gate's own comments record three times already. Match the FORM.
+RECORD_KEY = re.compile(r'"(key|record_id|record_key)"\s*:\s*"europepmc:[A-Z]{2,4}:[A-Za-z0-9._-]{3,}"', re.I)
+PMCID_ANY = re.compile(r"\bPMC\d{6,9}\b")
 PMID_FIELD = re.compile(r'"(record_id|pmid|pubmed_id)"\s*:\s*"?(\d{6,9})', re.I)
 DOI_ANY = re.compile(r"10\.\d{4,9}/[^\s\"'<>,)]+")
 URL_ANY = re.compile(r"https?://[^\s\"']+")
 
 
+# An UPPERCASE:slug key is a POLICY label in this corpus, not a screened record.
+_re_policy = re.compile(r'^[A-Z][A-Z_]{2,}:')
+
+
 def has_id(blob):
     return bool(NCT.search(blob) or OTHER_ID.search(blob) or PMID_FIELD.search(blob)
-                or DOI_ANY.search(blob) or URL_ANY.search(blob))
+                or DOI_ANY.search(blob) or URL_ANY.search(blob)
+                or RECORD_KEY.search(blob) or PMCID_ANY.search(blob))
 
 
 def scan():
@@ -85,7 +111,23 @@ def scan():
             nonlocal total
             if isinstance(node, dict):
                 v = next((node[k] for k in VERDICT_KEY if isinstance(node.get(k), str)), None)
-                in_screen = "screen" in path.lower()
+                # ⛔ A POLICY IS NOT A ROW. `"screen" in path` matched
+                # `scope_decisions/SCREENING:must-match-the-question-it-serves`
+                # in arni-hfref -- a METHODOLOGICAL DECISION about the review's
+                # own screening rule, cited to Handbook 3.2.1/3.2.3. Its subject
+                # is the rule, named in its key; it cannot carry a registration id
+                # because it is not about a registration, and demanding one is the
+                # over-flagging direction this gate's own comment warns is "the
+                # accusing one".
+                #
+                # This corpus labels policy with an UPPERCASE prefix and a colon
+                # (SCOPE:..., SCREENING:...), and records with an index or an id.
+                # Match on that, and only for the LEAF -- a row sitting inside a
+                # container whose name contains "screen" is still a row.
+                _segs = [x for x in path.split("/") if x]
+                _leaf_is_policy = bool(_segs) and bool(
+                    _re_policy.match(_segs[-1]))
+                in_screen = ("screen" in path.lower()) and not _leaf_is_policy
                 if v is not None and in_screen:
                     total += 1
                     # THE PATH IS PART OF THE ROW'S IDENTITY, and the first version of this

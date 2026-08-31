@@ -265,7 +265,7 @@ if __name__ == "__main__":
     seeds = sys.argv[1].split(",") if len(sys.argv) > 1 else \
         ["NCT01539226", "NCT01617096"]
     query = sys.argv[2] if len(sys.argv) > 2 else "dapivirine vaginal ring HIV"
-    out = sys.argv[3] if len(sys.argv) > 3 else r"F:\claude-temp\citation_chase.json"
+    out = sys.argv[3] if len(sys.argv) > 3 else r"F:\claude-temp\rm-dapivirine-2026-08-31\rm-dapivirine-2026-08-31\citation_chase.json"
     r = chase(seeds, query, "dapivirine-ring")
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(r, fh, indent=1, ensure_ascii=False)

@@ -509,10 +509,18 @@ def main():
             "is \"seven found\" rather than \"seven exist\"."),
     }
 
-    tmp = OBJ + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as fh:
-        json.dump(obj, fh, indent=1, ensure_ascii=False)
-    os.replace(tmp, OBJ)
+    # ⛔ THROUGH THE STAMPED WRITER, NOT A HAND-ROLLED TEMP-AND-REPLACE.
+    # This was `open(tmp,"w") + json.dump + os.replace` -- atomic, and still
+    # wrong: ssot/atomic_write.write_json STAMPS every judgement in a topic
+    # object with a reference to the subject it was made about, and a
+    # hand-rolled write skips the stamp silently. The judgement then references
+    # nothing and staleness becomes undetectable. gate4 refused a push over it
+    # and was right; the atomicity I had was the easy half.
+    _here = os.path.dirname(os.path.abspath(__file__))
+    if _here not in sys.path:
+        sys.path.insert(0, _here)
+    import atomic_write as _aw
+    _aw.write_json(OBJ, obj, indent=1)
 
     print("WROTE judgement_register_2026_08_30")
     print("  per-topic judgements   %d" % n_topic)

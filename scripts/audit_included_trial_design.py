@@ -152,8 +152,26 @@ def main():
         positive=("an OBSERVATIONAL registration is flagged (NCT01618058 "
                   "MTN-015, the case that produced this instrument)",
                   _flag(_obs), True),
+        # ⛔ SECOND INSTANCE OF THE SAME WIRING ERROR. require_controls' third
+        # negative element is `must_not_be`, not `expected`. This held False --
+        # exactly what a CORRECT run returns for a trial that must not be
+        # flagged -- so the control could only fail and this audit has NEVER
+        # PRINTED A COUNT since it was written. The identical mistake sits in
+        # audit_index_identity_drift.py, fixed in the same commit. Two
+        # instruments, one misread parameter name, both silently retired: an
+        # instrument that can only refuse measures exactly as much as one that
+        # can only pass, and refuse-only is harder to notice because a refusal
+        # looks like the tool working.
         negative=("an INTERVENTIONAL + RANDOMIZED registration is not flagged "
-                  "(NCT01617096 ASPIRE)", _flag(_rct), False))
+                  "(NCT01617096 ASPIRE)", _flag(_rct), True))
+    # ⭐ AND `must_not_be` CANNOT EXPRESS "must be False": it passes for every
+    # value but one. The two-sided assertion is made here.
+    if _flag(_rct) is not False:
+        raise SystemExit(
+            "REFUSED: the negative control returned %r, not False. An "
+            "INTERVENTIONAL + RANDOMIZED registration was flagged as a design "
+            "problem, so every count this instrument prints would be an "
+            "over-flag. NO COUNT IS PRINTED." % (_flag(_rct),))
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--json", default=None)

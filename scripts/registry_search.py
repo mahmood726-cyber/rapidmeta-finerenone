@@ -250,7 +250,7 @@ if __name__ == "__main__":
     print("  ⚠️ INDETERMINATE is NOT zero trials. It means the page renders results in the")
     print("     browser and we hold a shell. Reporting it as EMPTY would turn 'our parser")
     print("     cannot see this' into 'this registry holds nothing'.")
-    out = os.environ.get("REG_OUT", "F:/claude-temp/registry_search.json")
+    out = os.environ.get("REG_OUT", "F:/claude-temp/rm-dapivirine-2026-08-31/registry_search.json")
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(res, fh, indent=1, ensure_ascii=False)
     print("  written to %s" % out)

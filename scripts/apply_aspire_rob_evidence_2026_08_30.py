@@ -66,7 +66,7 @@ ANSWERS = [
      "test"),
 ]
 
-SOURCE_TEXT = "F:/claude-temp/ft/ASPIRE_PMC4993693.txt"
+SOURCE_TEXT = "F:/claude-temp/rm-dapivirine-2026-08-31/ft/ASPIRE_PMC4993693.txt"
 
 
 def _norm(s):

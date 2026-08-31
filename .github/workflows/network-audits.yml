@@ -1,0 +1,57 @@
+name: network-audits
+
+# TWO GATES THAT CANNOT LIVE IN THE PRE-PUSH HOOK, WIRED HERE RATHER THAN LEFT INERT.
+#
+# gates/gate8 refused a push over nine repo gates that were "available, not operative".
+# Seven were green and fast and now block in .githooks/pre-push. These two cannot:
+#
+#   scripts/audit_included_trial_design.py
+#       Resolves 403 registrations against ClinicalTrials.gov to ask whether every trial
+#       a synthesis POOLS is recorded INTERVENTIONAL + RANDOMIZED. Over ten minutes of
+#       network calls. A pre-push hook that adds ten minutes is a hook people bypass.
+#
+#   scripts/verify_served_page.py
+#       Fetches the DEPLOYED page and compares its sha256 against the local build. It
+#       CANNOT PASS BEFORE A PUSH, by construction -- the bytes it checks are the ones the
+#       push is about to create. Running it pre-push would be a gate guaranteed to be red,
+#       which is the same defect as one guaranteed to be green.
+#
+# So it runs AFTER a push to main, where the comparison is meaningful, plus on demand.
+#
+# ⚠️ THE SERVED CHECK IS ALLOWED TO FAIL THE JOB. That is the point: a push that lands a
+# commit is not a deploy, and a deploy is not a served byte. Eleven commits were once
+# reported delivered while the deploy ref had not moved.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*_REVIEW.html'
+      - 'ssot/**'
+      - 'scripts/audit_included_trial_design.py'
+      - 'scripts/verify_served_page.py'
+  workflow_dispatch: {}
+
+jobs:
+  audits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Registry design of every pooled trial. Exits non-zero only when a flagged trial is
+      # actually POOLED -- a flagged trial that contributes nothing is reported, not refused.
+      - name: included-trial design
+        run: python scripts/audit_included_trial_design.py
+
+      # Pages is served by the legacy branch builder with a ~10 minute timeout, so a deploy
+      # can silently not happen. Give it time to publish before asking what it served.
+      - name: wait for the deploy to publish
+        run: sleep 180
+
+      - name: served bytes match the build
+        run: python scripts/verify_served_page.py AGYW_HIV_PREP_REVIEW.html

@@ -196,7 +196,7 @@ def fetch_reviews(drug, outdir, want=("integratedR", "multidisciplineR", "statR"
 if __name__ == "__main__":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     drugs = sys.argv[1:] or ["finerenone"]
-    outdir = os.environ.get("FDA_OUTDIR", "F:/claude-temp/fda")
+    outdir = os.environ.get("FDA_OUTDIR", "F:/claude-temp/rm-dapivirine-2026-08-31/fda")
     allrecs = []
     for d in drugs:
         r = fetch_reviews(d, outdir)

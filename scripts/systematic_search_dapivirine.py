@@ -192,7 +192,7 @@ if __name__ == "__main__":
     print("  ClinicalTrials.gov union: %d NCT ids" % len(res["ctgov_union_ids"]))
     for i in res["ctgov_union_ids"]:
         print("     %s" % i)
-    out = os.environ.get("SEARCH_OUT", "F:/claude-temp/search_dapivirine.json")
+    out = os.environ.get("SEARCH_OUT", "F:/claude-temp/rm-dapivirine-2026-08-31/search_dapivirine.json")
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(res, fh, indent=1, ensure_ascii=False)
     print("\n  written to %s" % out)

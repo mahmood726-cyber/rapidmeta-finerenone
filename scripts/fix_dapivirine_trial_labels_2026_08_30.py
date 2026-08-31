@@ -94,9 +94,9 @@ RING_ANSWERS = [
 
 SOURCES = {
     "NCT01617096": (ASPIRE_DOC, ASPIRE_URL, ASPIRE_ANSWERS,
-                    "F:/claude-temp/ft/ASPIRE_PMC4993693.txt"),
+                    "F:/claude-temp/rm-dapivirine-2026-08-31/ft/ASPIRE_PMC4993693.txt"),
     "NCT01539226": (RING_DOC, RING_URL, RING_ANSWERS,
-                    "F:/claude-temp/ft/RINGSTUDY_NEJMoa1602046.txt"),
+                    "F:/claude-temp/rm-dapivirine-2026-08-31/ft/RINGSTUDY_NEJMoa1602046.txt"),
 }
 
 

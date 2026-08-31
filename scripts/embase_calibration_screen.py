@@ -214,7 +214,7 @@ if __name__ == "__main__":
         print("usage: embase_calibration_screen.py <export.ris> [worksheet.json]")
         sys.exit(2)
     ris = sys.argv[1]
-    out = sys.argv[2] if len(sys.argv) > 2 else "F:/claude-temp/embase_worksheet.json"
+    out = sys.argv[2] if len(sys.argv) > 2 else "F:/claude-temp/rm-dapivirine-2026-08-31/embase_worksheet.json"
     r = build_worksheet(ris, out)
     print("records parsed                 : %d" % r["n_records_parsed"])
     print("records with no trial resolved : %d  (listed, never dropped)"
