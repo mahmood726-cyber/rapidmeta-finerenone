@@ -1,0 +1,71 @@
+# Line endings, declared once, so a merge is a merge and not a whole-file rewrite.
+#
+# ⛔ THE DEFECT THIS REMOVES. There was no .gitattributes in this repository and
+# `core.autocrlf` is `false`, so git stored whatever bytes each lane's tooling happened to
+# write. On 2026-08-31 that turned FIVE OF SEVEN merge conflicts into WHOLE-FILE conflicts:
+# one store presented as a 2,000-line rewrite of a 2,000-line file, and with whitespace
+# ignored the real change was 144 lines.
+#
+# ⚠️ AND THE DANGER IS NOT THE NOISE, IT IS WHAT THE NOISE INVITES. When every line of a
+# file conflicts, "take ours" or "take theirs" is the only tractable move -- and either one
+# SILENTLY DELETES THE OTHER LANE'S WORK WHILE LOOKING LIKE A DELIBERATE RESOLUTION. The
+# diff cannot show you what you are discarding, so the destruction is invisible at exactly
+# the moment a human is deciding.
+#
+# MEASURED BEFORE WRITING THIS, over 13,710 tracked files:
+#
+#     LF     10,255      CRLF    1,666      MIXED   279      no newline  1,343
+#     BINARY    167
+#
+#     .json   4,659    LF 4,446   CRLF   165   MIXED   1
+#     .html   2,084    LF   773   CRLF 1,228   MIXED  81   <- THE SPLIT CLASS
+#     .md     1,473    LF 1,450   CRLF    23
+#     .py     1,205    LF 1,074   CRLF   130   MIXED   1
+#     .out      898    LF   604   CRLF     1   MIXED 190   <- captured output, left alone
+#
+# `.html` is both the biggest conflict source and the deliverable, and `build_tabbed.py`
+# was itself mixed at 1,902 CRLF against 104 LF. LF is chosen because it is already the
+# majority everywhere except the pages.
+#
+# INCLUDING `.html` IS DELIBERATE, AND THE INSTINCT RUNS THE OTHER WAY. It is the
+# deliverable, so the reflex is to leave it alone -- but 1,228 CRLF against 773 LF is
+# precisely WHERE THE CONFLICTS ARE, and excluding it would dodge the problem this file
+# exists to solve while looking like the cautious choice. Two facts make it safe: the pages
+# are GENERATED from objects by build_tabbed.py rather than hand-edited, so a normalised
+# page is a rebuild away; and nothing hashes page bytes -- artefact_registry scans
+# `scripts/`, `.githooks/`, `ssot/` generators and the repository root, and does not
+# register the reviews.
+
+* text=auto eol=lf
+
+# ---------------------------------------------------------------------------------------
+# EXPLICITLY NOT NORMALISED, and the reason matters more than the list.
+#
+# `scripts/artefact_registry.py::sha(path)` hashes FILE BYTES ON DISK, over `scripts/`,
+# `.githooks/`, `ssot/` generators and the repository root. Anything whose recorded identity
+# is a hash of its bytes must not have those bytes rewritten underneath the record, or the
+# hash stops identifying the thing it names -- which is the provenance defect this project
+# has spent a night removing, arriving through the back door of a whitespace setting.
+#
+# Captured output (.out, .task) is EVIDENCE OF A RUN, not source. 190 of 898 `.out` files
+# are mixed because that is what the process emitted; normalising them would edit the
+# record of what happened.
+*.out       -text
+*.task      -text
+*.log       -text
+
+# Binary, by content rather than by hope. 167 tracked files contain NUL bytes.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.pdf       binary
+*.zip       binary
+*.gz        binary
+*.duckdb    binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.eps       binary
+*.tiff      binary
