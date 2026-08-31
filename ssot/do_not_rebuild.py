@@ -35,6 +35,8 @@ list is a variable that gets exported once and forgotten.
 import io
 import os
 import sys
+import json
+import re
 
 PAGES = {
     "ARNI_HF_REVIEW.html": (
@@ -277,3 +279,65 @@ def check_object(path_or_topic):
         "  This check runs BEFORE the write, so nothing has been changed.\n"
         "  To proceed deliberately:  REBUILD_ANYWAY=%s <command>\n"
         "  There is no blanket override." % (topic, page, why, page))
+
+
+# =========================================================================================
+# A REBUILD MUST NOT SILENTLY UN-PUBLISH A CORRECTION.
+#
+# Corrections live in the page bytes and in history. A generator that reads only current
+# store state can rebuild a page WITHOUT its correction, and nothing errors, nothing
+# changes in the tree count, and the run looks clean.
+#
+#     A REBUILD THAT DROPS A CORRECTION IS INDISTINGUISHABLE FROM A SUCCESSFUL REBUILD,
+#     FROM THE OUTSIDE. That is the whole reason this is a refusal and not a report.
+#
+# scripts/baselines/published_corrections.json pins, for each page that carries one, the
+# shortest distinctive sentence that MUST still be there afterwards.
+#
+# ⚠️ THE COMPARISON IS AGAINST RENDERED TEXT, NEVER RAW HTML. The pinned strings were
+# extracted with tags stripped and whitespace collapsed, so a sentence a reader sees as one
+# string is several strings in the file, split by an inline <strong> or a newline inside a
+# <p>. Comparing against the source would fail to find EVERY markup-spanning sentence and
+# refuse every page carrying one -- the mirror image of a defect this project has already
+# shipped, where the same mismatch reported 67 of 71 edits applied when the true figure was
+# 46.
+#
+# ⛔ AND AN ABSENT LIST IS NOT AN EMPTY LIST. If the file is missing, this refuses rather
+# than passing, because "no corrections recorded" and "the record could not be read" are
+# opposite facts that a silent skip would merge.
+# =========================================================================================
+CORRECTIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           "scripts", "baselines", "published_corrections.json")
+
+
+def _rendered(html):
+    """Tags out, entities left alone, whitespace collapsed -- what a reader reads."""
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html)).strip()
+
+
+def check_correction_survives(out_path, html):
+    page = os.path.basename(out_path)
+    if not os.path.exists(CORRECTIONS):
+        raise SystemExit(
+            "BUILD REFUSED: %s is absent, so it cannot be known whether %s carries a "
+            "published correction. An absent list is not an empty list: refusing rather "
+            "than rebuilding a page whose retraction might vanish. Run "
+            "scripts/enumerate_published_corrections.py --write." % (CORRECTIONS, page))
+    with io.open(CORRECTIONS, encoding="utf-8") as fh:
+        rec = json.load(fh).get("pages", {}).get(page)
+    if not rec or rec.get("class") != "PUBLISHED_CORRECTION":
+        return
+    must = rec.get("must_render")
+    if not must:
+        raise SystemExit(
+            "BUILD REFUSED: %s carries a PUBLISHED CORRECTION whose text could not be "
+            "pinned to a distinctive sentence, so a rebuild cannot be checked for having "
+            "kept it. Refusing to rebuild this page at all. Pin a must_render string in "
+            "%s by hand, or leave the page alone." % (page, CORRECTIONS))
+    if _rendered(must) not in _rendered(html):
+        raise SystemExit(
+            "BUILD REFUSED: %s carries a PUBLISHED CORRECTION and this build DROPPED IT.\n"
+            "  the correction that must survive, from %s:\n"
+            "      %s\n"
+            "  It is not in the rendered text of the page about to be written. Nothing has "
+            "been written." % (page, os.path.basename(CORRECTIONS), must[:220]))

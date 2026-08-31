@@ -2324,5 +2324,9 @@ if __name__ == "__main__":
         raise SystemExit(
             "BUILD REFUSED: the integrity layer raised while checking this page (%s: %s). A "
             "suite that errors has not passed." % (type(_e).__name__, _e))
+    # THE LAST THING BEFORE THE WRITE, deliberately. Every earlier check reads the
+    # object; this one reads the BYTES ABOUT TO BE PUBLISHED, which is the only
+    # place a dropped correction is visible.
+    _dnr.check_correction_survives(out, _html)
     open(out, "w", encoding="utf-8").write(_html)
     print("built %s (%d bytes)" % (out, os.path.getsize(out)))
