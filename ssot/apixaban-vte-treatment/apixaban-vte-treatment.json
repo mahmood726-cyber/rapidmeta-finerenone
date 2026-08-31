@@ -809,6 +809,28 @@
      "a_all_three_trials_are_open_label": "READ THIS BESIDE THE ESTIMATE. NOT ONE of the three contributing trials masks anybody: NCT03045406, NCT03266783 and NCT01780987 all register MASKING: NONE. The endpoint is adjudicated on all three, which is the standard mitigation for an open-label anticoagulation trial, but NO REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED.",
      "b_two_of_the_three_are_contributing_a_secondary_outcome": "On NCT03266783 the registered primary is CLINICALLY RELEVANT BLEEDING and recurrent VTE is the third of nine secondaries. On NCT01780987 the registered primary is MAJOR BLEEDING and recurrent VTE is the first of five. ONLY CARAVAGGIO CONTRIBUTES ITS OWN REGISTERED PRIMARY.",
      "c_and_the_three_comparators_are_three_different_drugs": "Dalteparin, rivaroxaban, and unfractionated heparin followed by warfarin. The pooled quantity is therefore apixaban against WHATEVER ELSE WAS GIVEN, which is one step from any question a reader has. This object's GRADE rates indirectness down for it and the certainty here is VERY LOW."
+    },
+    "question_pico": {
+     "population": "adults with acute or recent venous thromboembolism",
+     "intervention": "apixaban",
+     "comparator": "conventional anticoagulation, another direct oral anticoagulant, or placebo",
+     "outcome": "recurrent venous thromboembolism",
+     "declared_utc": "2026-08-30",
+     "source": "The question and title as published on this page, restated axis by axis. Every value appears verbatim in the question prose, which the anti-rescoping guard enforces.",
+     "excludes": [
+      "A placebo comparison. The question offers placebo as one of three comparators and NO contributing trial has a placebo arm, so the pooled estimate is entirely against active anticoagulation.",
+      "Extended secondary prevention after the initial treatment period.",
+      "Bleeding. The question asks about recurrent VTE 'and on bleeding'; this pooled result is the recurrence outcome only."
+     ]
+    },
+    "trial_pico": {
+     "population": "adults with acute symptomatic venous thromboembolism, one of the three trials restricted to cancer-associated venous thromboembolism",
+     "intervention": "apixaban",
+     "comparator": "conventional anticoagulation, another direct oral anticoagulant",
+     "outcome": "recurrent venous thromboembolism",
+     "source": "ClinicalTrials.gov records for CARAVAGGIO (NCT03045406, cancer-associated VTE, comparator dalteparin), COBRRA (NCT03266783, comparator rivaroxaban -- another DOAC) and the Japanese acute DVT/PE study (NCT01780987, comparator conventional heparin/VKA), as held on this object (read 2026-08-30).",
+     "LABEL_IS_STRONGER_THAN_THE_EVIDENCE_ON_POPULATION": "⚠️ THE POPULATION AXIS IS SCORED 'SUBSTITUTED', AND THAT LABEL OVERSTATES PART OF THE CASE. `indirectness_procedure.compare_axis` decides RESTRICTED against SUBSTITUTED by string containment: where neither declared value contains the other it returns SUBSTITUTED, meaning 'a different value, not a narrower one'. Here the truth is MIXED. CARAVAGGIO's cancer-associated venous thromboembolism is genuinely a different population rather than a narrower one, so SUBSTITUTED is right for that third of the evidence. But 'acute symptomatic' against the question's 'acute or recent' is merely NARROWER, and for the other two trials RESTRICTED is the accurate label. The instrument cannot express 'restricted on one part and substituted on another' and reports the stronger of the two. ⭐ THE CERTAINTY LETTER IS UNAFFECTED: both verdicts carry levels=1, so the rating would be identical either way. What is overstated is the REASON, not the result -- and it is recorded here rather than left for a reader to catch, because a hedge that exists only in the author's head is not a hedge.",
+     "comparator_note": "The comparator axis is RESTRICTED and that label is exact: the question offers three comparators and the trials supply two of them, with no placebo arm anywhere."
     }
    }
   }

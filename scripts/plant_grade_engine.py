@@ -120,6 +120,18 @@ def clean_object(k=4, i2=0.0, tau2=0.0, lo=0.40, hi=0.70, measure="RR",
         "results": {
             "by_outcome": {
                 "primary": {
+                    # ⭐ THE FIXTURE NOW NAMES ITS OUTCOME, because a rating that cannot say
+                    # WHAT IT RATES must refuse -- and this fixture could not say.
+                    #
+                    # ⚠️ THIS IS A FIXTURE GAINING A REQUIRED PROPERTY, NOT A TEST BEING
+                    # WEAKENED TO FIT A CHANGE. The distinction matters and it is the one
+                    # this repo has been caught on before: a test that asserts what the code
+                    # HAPPENED to do will defend a defect. Here the assertion "a clean object
+                    # is RATED" is still exactly what is asserted; what changed is that
+                    # "clean" now includes an outcome a reader can identify, which is the
+                    # requirement run 1 failed on. Removing the line below must make the
+                    # rating REFUSE -- that is control [17].
+                    "outcome": "__control_ outcome, named so the rating can attach to it",
                     "k": k,
                     "pooled": {"point": (lo * hi) ** 0.5, "ci_low": lo, "ci_high": hi,
                                "ci_level": 95, "measure": measure},
@@ -646,6 +658,110 @@ def test_scoped_question_is_declared_never_inferred():
               dd["state"] == ge.REFUSED)
 
 
+def test_rescoping_the_pico_cannot_raise_the_rating():
+    """⛔ THE ANTI-RESCOPING GUARD: `question_pico` must be the question on the page.
+
+    THE DEFECT THIS PLANTS. `question_pico` is a SEPARATE FIELD from the prose `question`.
+    Before the guard, narrowing the declared population to match the trials turned a
+    DOWNGRADE into NO_DOWNGRADE while a reader was still shown the broad question -- the
+    page rendering one thing while the rating was computed from another, diverging in the
+    flattering direction, with no reader able to catch it.
+
+    ⭐ THE CHECK IS CONTAINMENT, NOT PARSING. The guard never derives the question's axes
+    from prose -- that returns DIRECT by construction and is the thing this domain exists
+    to refuse. It asks only whether the DECLARED string appears in the question shown.
+    Narrowing always adds words the prose does not contain, so the flattering direction is
+    exactly the direction caught.
+
+    Both halves are checked: the honest declaration still earns its downgrade, and the
+    narrowed one REFUSES naming both strings so the refusal is repairable in one edit.
+    """
+    print("\n[16] RESCOPING -- narrowing the declared PICO must REFUSE, never rate")
+    o = clean_object()
+    o["question"] = ("Does the control intervention reduce the control outcome against "
+                     "the control comparator in adults?")
+    del o["results"]["by_outcome"]["primary"]["grade"]
+    res = o["results"]["by_outcome"]["primary"]
+    res["question_pico"] = {"population": "adults",
+                            "intervention": "the control intervention",
+                            "comparator": "the control comparator",
+                            "outcome": "the control outcome"}
+    res["trial_pico"] = {"population": "adults aged 18-45",
+                         "intervention": "the control intervention",
+                         "comparator": "the control comparator",
+                         "outcome": "the control outcome"}
+
+    honest = ge.derive(json.loads(json.dumps(o)), "primary")
+    dh = [x for x in honest["domains"] if x["domain"] == "indirectness"][0]
+    check("honest PICO -> DOWNGRADE is DERIVED", dh["state"] == ge.DOWNGRADE, dh["state"])
+    check("and it declares which module derived it",
+          dh.get("derived_by") == "ssot.indirectness_procedure.rate",
+          str(dh.get("derived_by")))
+
+    planted = json.loads(json.dumps(o))
+    planted["results"]["by_outcome"]["primary"]["question_pico"]["population"] = \
+        "adults aged 18-45"
+    rp = ge.derive(planted, "primary")
+    dp = [x for x in rp["domains"] if x["domain"] == "indirectness"][0]
+    check("PLANT -- narrowed PICO REFUSES (it used to rate NO_DOWNGRADE)",
+          dp["state"] == ge.REFUSED, dp["state"])
+    check("the plant earns NO letter", rp["rated"] is False)
+    check("the refusal names the QUESTION ON THE PAGE", "in adults?" in dp["reason"])
+    check("the refusal names the NARROWED DECLARED VALUE",
+          "adults aged 18-45" in dp["reason"])
+    check("and names the diverging axis", dp.get("diverged_axes") == ["population"],
+          str(dp.get("diverged_axes")))
+
+    restored = ge.derive(json.loads(json.dumps(o)), "primary")
+    dr = [x for x in restored["domains"] if x["domain"] == "indirectness"][0]
+    check("RESTORED -- the rating comes back identically", dr == dh)
+
+
+def test_a_rating_must_name_the_outcome_it_rates():
+    """⛔ RUN 1 RETURNED 0 OF 3, AND EVERY PAIR FAILED THE CERTAINTY CONDITION FIRST.
+
+    Including the one topic that HAS a GRADE block -- because the rating was not attached to
+    the outcome being compared. A certainty rating that exists somewhere on the page does not
+    satisfy the condition; it has to say WHICH outcome it rates.
+
+    ⚠️ `oid` IS NOT AN OUTCOME. "primary" names a position in a store. "HIV-1
+    seroconversion" is the outcome. Carrying the slug and calling it attachment is a
+    position standing in for an identity -- the same defect as `judgements[]` being
+    attributable only by index.
+    """
+    print("\n[17] ATTACHMENT -- a rating must name the outcome it rates")
+    # The fixture keeps its stored indirectness judgement: this control is about
+    # ATTACHMENT, and stripping `grade` would make it refuse on indirectness instead --
+    # a test failing for a reason it does not name is worse than no test.
+    o = clean_object()
+    r = ge.derive(o, "primary")
+    check("a named outcome is RATED", r["rated"] is True, r.get("state"))
+    check("and the letter travels WITH the outcome",
+          "certainty for" in (r.get("rating_reads") or ""), r.get("rating_reads"))
+    check("the risk-of-bias domain names it too",
+          any(d.get("rates_outcome") for d in r["domains"]
+              if d["domain"] == "risk_of_bias"))
+
+    # PLANT: remove the name. The slug remains, so the store still resolves -- and that is
+    # precisely the state that must NOT produce a letter.
+    o2 = json.loads(json.dumps(o))
+    o2["results"]["by_outcome"]["primary"].pop("outcome", None)
+    o2["outcomes"] = [{"id": "primary", "name": None}]
+    r2 = ge.derive(o2, "primary")
+    check("PLANT -- unnamed outcome REFUSES", r2["state"] == ge.REFUSED, r2.get("state"))
+    check("and issues NO certainty letter", r2.get("certainty") is None, r2.get("certainty"))
+    check("and the refusal says the slug is not an outcome",
+          "names a position" in (r2.get("reason") or ""))
+
+    # A name supplied via outcomes[] rather than on the result must also work -- one
+    # resolver, two stores, or the two would drift.
+    o3 = json.loads(json.dumps(o))
+    o3["results"]["by_outcome"]["primary"].pop("outcome", None)
+    o3["outcomes"] = [{"id": "primary", "name": "__control_ outcome via outcomes[]"}]
+    check("a name held in outcomes[] attaches just as well",
+          ge.derive(o3, "primary")["rated"] is True)
+
+
 def test_incoherent_inputs_refuse_rather_than_rate():
     """⭐ THE THIRD STATE: inputs that are all PRESENT and cannot all be TRUE.
 
@@ -719,6 +835,8 @@ def main():
               test_bound_is_reported_but_never_becomes_a_rating,
               test_regulatory_lift_fires_and_declares_itself,
               test_scoped_question_is_declared_never_inferred,
+              test_rescoping_the_pico_cannot_raise_the_rating,
+              test_a_rating_must_name_the_outcome_it_rates,
               test_incoherent_inputs_refuse_rather_than_rate,
               test_plant_detects_a_broken_engine):
         try:

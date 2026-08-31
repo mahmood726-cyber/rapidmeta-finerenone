@@ -217,6 +217,26 @@ def coherence_violations(res):
     return v
 
 
+def _outcome_name(canon, oid, res=None):
+    """The outcome a reader recognises, or None. ONE resolver, used everywhere.
+
+    `oid` is a store key ("primary"); the outcome is "HIV-1 seroconversion". Two copies of
+    this lookup would drift, and a rating attached by one rule while a domain is attached by
+    another is exactly the unattached defect with extra steps.
+    """
+    if res is None:
+        res = ((canon.get("results") or {}).get("by_outcome") or {}).get(oid) or {}
+    nm = res.get("outcome") if isinstance(res, dict) else None
+    if isinstance(nm, str) and nm.strip():
+        return nm
+    for o in (canon.get("outcomes") or []):
+        if isinstance(o, dict) and o.get("id") == oid:
+            nm = o.get("name") or o.get("label")
+            if isinstance(nm, str) and nm.strip():
+                return nm
+    return None
+
+
 def _dom(domain, state, reason, levels=0, move=None, inputs_read=None,
          inputs_missing=None):
     return {"domain": domain, "state": state, "levels": levels,
@@ -446,6 +466,48 @@ def d_risk_of_bias(canon, oid, res):
             "therefore listed one per contributing result, each with the five domain "
             "responses that produced it and each assessor's answer shown separately. A "
             "reader can disagree with D3 on one trial without discarding the rating.")
+
+        # ⭐ WHO DECIDED EACH DOMAIN, CARRIED INTO THE RATING ITSELF.
+        #
+        # FORMAL GRADE IS JUDGED ON WHETHER A RATING IS AUDITABLE, NOT ON WHETHER ONE
+        # EXISTS. Across six blinded judges it is one of only two axes lost, and the
+        # first run-1 verdicts fail the certainty criterion every time -- on pages that
+        # DO carry a certainty letter. A letter a reader cannot trace is not a weaker
+        # rating; it is an unauditable one, which is what the criterion measures.
+        #
+        # Measured on the built page: it renders "anthropic" x5, "openai" x5,
+        # "Assessor" x6 -- and NEITHER assessor's name, and no per-domain attribution,
+        # even once. The object knew; the page withheld. So the attribution travels
+        # with the domain rather than sitting only in the risk-of-bias block, and a
+        # renderer that drops it now drops something the rating itself carries.
+        attribution, unattributed = [], 0
+        for t in (b.get("trials") or []):
+            for dom in (t.get("domains") or []):
+                if not isinstance(dom, dict):
+                    continue
+                by = dom.get("by_assessor") or []
+                if by:
+                    attribution.append({
+                        "trial": t.get("trial") or t.get("id"),
+                        "domain": dom.get("domain"),
+                        "agreed": dom.get("agreed"),
+                        "by_assessor": by})
+                else:
+                    unattributed += 1
+        if attribution or unattributed:
+            d["who_judged_each_domain"] = attribution
+            d["who_judged_each_domain__claim"] = "authored_judgement"
+            # The attribution names its outcome too. A per-domain table floating free of
+            # the outcome it belongs to is the same unattached defect one level down.
+            d["rates_outcome"] = _outcome_name(canon, oid, res)
+            # ⛔ THE PARTS SUM, AND THE UNATTRIBUTED ARE NAMED RATHER THAN OMITTED. A
+            # count of the domain calls that HAPPENED to carry an assessor is the
+            # reach-as-population error, and this section is about attribution.
+            d["attribution_coverage"] = {
+                "attributed": len(attribution), "unattributed": unattributed,
+                "total": len(attribution) + unattributed,
+                "note": ("Domain calls carrying the assessor who made them, against "
+                         "those that do not. Reported per class rather than pooled.")}
         return d
 
     if high:
@@ -823,6 +885,52 @@ def d_indirectness(canon, oid, res):
                     % (('"%s"' % q[:180]) if q else "the question is not held on this "
                        "object.", scope.get("because") or "no reason recorded"),
                     inputs_read=["question", "question_scope"])
+    # ⭐ DERIVE THE RATING WHERE BOTH PICOs ARE DECLARED, via indirectness_procedure.
+    #
+    # This is the ONLY branch that produces an indirectness rating without a human having
+    # written one, and it is deliberately narrow: it fires only where the question's PICO
+    # and the contributing trials' PICO are BOTH declared axis by axis on the object. It
+    # never parses the question sentence and never parses registered eligibility prose --
+    # the module compares DECLARED value against DECLARED value, which is why it is a
+    # derivation and not the pattern-matching this domain has always refused to do.
+    #
+    # ⚠️ AND IT CANNOT MANUFACTURE DIRECTNESS. Where either PICO is absent or incomplete
+    # the module REFUSES and we fall through to the refusal below. That refusal-when-
+    # undeclared is load-bearing: inferring the question from the trials that answered it
+    # returns DIRECT by construction, which is the most dangerous answer this domain can
+    # give. Do not relax it -- a domain that cannot be downgraded by any realistic
+    # evidence is not being assessed.
+    try:
+        import indirectness_procedure as _IP
+    except ImportError:  # imported as a package from outside ssot/
+        from . import indirectness_procedure as _IP
+    q_pico = _IP.question_pico(canon, oid)
+    t_pico = res.get("trial_pico")
+    if q_pico and isinstance(t_pico, dict) and t_pico:
+        verdict = _IP.rate(canon, oid, t_pico, _IP.anticipated_effects(canon, oid))
+        if verdict.get("state") in (NO_DOWNGRADE, DOWNGRADE):
+            d = _dom("indirectness", verdict["state"], verdict["reason"],
+                     levels=int(verdict.get("levels") or 0),
+                     inputs_read=["results.by_outcome.%s.question_pico" % oid,
+                                  "results.by_outcome.%s.trial_pico" % oid])
+            d["derived_by"] = "ssot.indirectness_procedure.rate"
+            d["handbook"] = verdict.get("handbook")
+            d["comparisons"] = verdict.get("comparisons")
+            if verdict.get("modifier_confirmed_axes"):
+                d["modifier_confirmed_axes"] = verdict["modifier_confirmed_axes"]
+            if verdict.get("why_not_two_levels"):
+                d["why_not_two_levels"] = verdict["why_not_two_levels"]
+            return d
+        # ⛔ THE MODULE REFUSED WITH BOTH PICOs DECLARED, AND ITS REASON IS THE SPECIFIC
+        # ONE. Falling through to the generic "no recorded judgement" here would throw
+        # away the only text that says WHAT IS WRONG -- most importantly the anti-
+        # rescoping refusal, which names the question on the page and the declared value
+        # that diverges from it. A refusal whose reason has been replaced by a vaguer
+        # refusal is the discard-path defect this corpus has already paid for once.
+        _derived_refusal = verdict
+    else:
+        _derived_refusal = None
+
     quoted = []
     for t in (res.get("per_trial") or []):
         if isinstance(t, dict) and t.get("registered_eligibility"):
@@ -831,6 +939,20 @@ def d_indirectness(canon, oid, res):
                            "registered_conditions": t.get("registered_conditions"),
                            "registered_eligibility": t.get("registered_eligibility"),
                            "basis": t.get("registered_population_basis")})
+    if _derived_refusal is not None:
+        d = _dom("indirectness", REFUSED, _derived_refusal["reason"],
+                 inputs_read=["results.by_outcome.%s.question_pico" % oid,
+                              "results.by_outcome.%s.trial_pico" % oid, "question"],
+                 inputs_missing=_derived_refusal.get("missing") or [])
+        d["refused_by"] = "ssot.indirectness_procedure.rate"
+        if _derived_refusal.get("diverged_axes"):
+            d["diverged_axes"] = _derived_refusal["diverged_axes"]
+        if q:
+            d["question_asked"] = q
+        if quoted:
+            d["registered_eligibility_of_contributing_trials"] = quoted
+        return d
+
     d = _dom("indirectness", REFUSED,
              "Indirectness compares the population, intervention, comparator and outcome "
              "of the contributing trials against the question this review asks. That "
@@ -1132,9 +1254,38 @@ def derive(canon, oid):
                 "reason": "No result is stored under this outcome id.",
                 "domains": [], "handbook_version": HANDBOOK_VERSION}
 
+    # ⛔ A RATING MUST NAME THE OUTCOME IT RATES, OR IT REFUSES.
+    #
+    # Run 1 returned 0 of 3 and every pair failed the certainty condition before anything
+    # else was assessed -- INCLUDING the one topic that carries a GRADE block. It failed
+    # because the rating is not attached to the OUTCOME BEING COMPARED.
+    #
+    # ⇒ A CERTAINTY RATING THAT EXISTS SOMEWHERE ON THE PAGE DOES NOT SATISFY THE
+    # CONDITION. It must be attached to a specific outcome and a reader must be able to see
+    # WHICH. Raising the 30-of-155 block count to 155 would still fail if the attachment is
+    # wrong, so attachment is the requirement and the count is not.
+    #
+    # ⚠️ AND `oid` IS NOT AN OUTCOME. It is a slug -- "primary" -- naming a position in a
+    # store, not a thing a reader recognises; the outcome is "HIV-1 seroconversion".
+    # Carrying the slug and calling it attachment is a position standing in for an
+    # identity, which this engine has already met twice tonight in `judgements[]`.
+    outcome_name = _outcome_name(canon, oid, res)
+    if not outcome_name:
+        return {"oid": oid, "rated": False, "state": REFUSED,
+                "reason": (
+                    "THIS OUTCOME HAS NO NAME, so a certainty rating cannot be attached to "
+                    "it. The store identifies it only as %r, which names a position rather "
+                    "than an outcome a reader recognises. A rating that cannot say WHAT IT "
+                    "RATES is not a weaker rating, it is an UNATTACHED one, and a reader "
+                    "meeting it cannot tell which of this review's outcomes it refers to. "
+                    "⇒ Declare results.by_outcome.%s.outcome, or an outcomes[] entry with "
+                    "id %r and a name." % (oid, oid, oid)),
+                "domains": [], "handbook_version": HANDBOOK_VERSION}
+
     pooled = res.get("pooled") if isinstance(res.get("pooled"), dict) else {}
     if pooled.get("withdrawn"):
         return {"oid": oid, "rated": False, "state": "WITHDRAWN",
+                "outcome": outcome_name,
                 "reason": ("The pooled estimate for this outcome has been WITHDRAWN, so "
                            "there is no estimate for a certainty rating to be about. Any "
                            "rating this object still carries was made about the withdrawn "
@@ -1253,8 +1404,14 @@ def derive(canon, oid):
         return rec
 
     idx = min(total, len(LADDER) - 1)
+    # ⭐ THE LETTER AND THE OUTCOME IT RATES TRAVEL TOGETHER, ALWAYS. A certainty grade
+    # separated from its outcome is what run 1 failed on: a rating present on the page and
+    # not attached to the thing being compared. `rates_outcome` is the human name a reader
+    # recognises; `oid` remains the store key and is never a substitute for it.
     rec.update({"rated": True, "state": "RATED",
                 "certainty": LADDER[idx],
+                "rates_outcome": outcome_name,
+                "rating_reads": "%s certainty for %s" % (LADDER[idx], outcome_name),
                 "reason": "Started HIGH; %s." % (
                     "no domain was rated down" if total == 0
                     else "rated down %d level(s) across %s" % (

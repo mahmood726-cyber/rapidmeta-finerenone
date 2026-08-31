@@ -142,6 +142,40 @@ def anticipated_effects(canon, oid):
     return out
 
 
+def question_pico_divergence(canon, pico):
+    """Declared axes whose value does NOT appear in the question a reader is shown.
+
+    ⛔ THE ANTI-RESCOPING GUARD. Rule 1 of this module says a restriction is judged
+    against THE QUESTION AS ASKED, and that narrowing the question to escape a downgrade
+    is the same defect as deleting the downgrade. That rule was unenforced: `question_pico`
+    is a SEPARATE FIELD from the prose `question`, so narrowing the PICO alone raised the
+    rating while a reader still met the broad question. The page rendered one thing and
+    the rating was computed from another, with the divergence in the flattering direction
+    and no reader able to catch it.
+
+    ⭐ AND THE CHECK IS CONTAINMENT, NOT PARSING -- which is the only reason it is
+    admissible here. Deriving the question's axes from its prose is precisely what this
+    module refuses to do, because inferring the question from the evidence returns DIRECT
+    by construction. This does the opposite and much weaker thing: it takes the DECLARED
+    value and asks whether that string is present in the question the reader meets. It
+    never decides what the question's population IS; it only detects that a declared value
+    is not in it. Narrowing always adds words the prose does not contain ("women" ->
+    "women aged 18-45"), so the flattering direction is exactly the direction this catches.
+
+    ⚠️ IT WILL ALSO REFUSE ON HONEST WORDING DRIFT -- a declared outcome "recurrent VTE"
+    against a question saying "recurrent venous thromboembolism". That is a FALSE REFUSAL
+    and it is the safe direction: the fix is to make the declared value the words the
+    reader actually meets, or to reword the question. A refusal that names both strings is
+    repairable in one edit; a silently raised rating is not.
+    """
+    q = canon.get("question")
+    q = _norm(q) if isinstance(q, str) else ""
+    if not q:
+        return None
+    return [a for a in REQUIRED_AXES
+            if (pico or {}).get(a) and _norm(pico[a]) not in q]
+
+
 def rate(canon, oid, trial_pico, modifiers=None):
     """The indirectness rating for one pooled result, or a refusal naming what is missing.
 
@@ -161,6 +195,39 @@ def rate(canon, oid, trial_pico, modifiers=None):
                     "⇒ THIS IS AN OBJECT DEFECT, NOT A RATING. Declare `%s` with the four "
                     "required axes." % PICO_KEY),
                 "missing": [PICO_KEY]}
+    # ⛔ THE DECLARED PICO MUST BE THE QUESTION THE READER MEETS. Refused, never warned:
+    # a warning beside a raised rating is a rating that was raised.
+    prose = canon.get("question")
+    prose = prose if isinstance(prose, str) and prose.strip() else None
+    if not prose:
+        return {"state": REFUSED, "levels": 0, "handbook": HANDBOOK,
+                "reason": (
+                    "NO QUESTION PROSE HELD ON THIS OBJECT, so the declared question PICO "
+                    "cannot be checked against the question a reader is shown. Rule 1 of "
+                    "this procedure judges restriction against THE QUESTION AS ASKED; with "
+                    "nothing asked on the page, a PICO declared here governs a rating no "
+                    "reader can audit. ⇒ OBJECT DEFECT, NOT A RATING."),
+                "missing": ["question"]}
+    diverged = question_pico_divergence(canon, q) or []
+    if diverged:
+        return {"state": REFUSED, "levels": 0, "handbook": HANDBOOK,
+                "reason": (
+                    "THE DECLARED QUESTION PICO DOES NOT MATCH THE QUESTION ON THE PAGE, on "
+                    "%s. The rating would be computed from one scope while a reader is shown "
+                    "another, and the difference raises the rating -- narrowing the declared "
+                    "population or outcome removes the restriction that Handbook domain (3) "
+                    "is about. Rescoping is an EDITORIAL ACT that must change the question a "
+                    "reader meets; it is never a field edit beside a letter.\n"
+                    "  QUESTION ON THE PAGE : %r\n"
+                    "  DECLARED IN question_pico : %s\n"
+                    "⇒ Either declare the value the question actually states, or reword the "
+                    "question and the title so the narrower scope is what a reader is asked "
+                    "to accept."
+                    % (", ".join(diverged), prose,
+                       "; ".join("%s=%r" % (a, q.get(a)) for a in diverged))),
+                "missing": ["question_pico.%s does not appear in question" % a
+                            for a in diverged],
+                "diverged_axes": diverged}
     gaps = missing_axes(q)
     if gaps:
         return {"state": REFUSED, "levels": 0, "handbook": HANDBOOK,

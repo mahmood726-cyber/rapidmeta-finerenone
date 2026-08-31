@@ -2237,7 +2237,27 @@
     "estimator_note_superseded_2026_08_20": "INHERITED AND OPEN, NOT ENDORSED. This object declares DerSimonian-Laird, which is biased for k<10. That was already questionable at k=6 and remains so at k=8. REML on the same eight trials gives -54.72 (-60.62 to -48.82) with tau2 61.44 and I-squared 90.0, and a prediction interval of -71.18 to -38.26. It is reported BESIDE the DL figure rather than substituted for it, because changing the estimator and the trial set in one step would make neither change attributable. A reader should treat the estimator choice as open.",
     "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
     "interpretation_caveat_superseded_2026_08_20": "Between-trial variation is high: I-squared is 88.0 per cent and tau-squared 50.04. The trials differ in background statin therapy, in population, and in dose regimen, so the pooled figure summarises a range of settings rather than estimating one common effect. Heterogeneity was already high at k=6 (I-squared 87.9) and the recovery did not create it.",
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "question_pico": {
+     "population": "adults treated for hypercholesterolaemia",
+     "intervention": "alirocumab",
+     "comparator": "placebo",
+     "outcome": "calculated LDL cholesterol",
+     "declared_utc": "2026-08-30",
+     "source": "The question and title as published on this page, restated axis by axis. Every value appears verbatim in the question prose, which the anti-rescoping guard enforces.",
+     "excludes": [
+      "Untreated hypercholesterolaemia. Every contributing trial enrolled participants already on lipid-modifying therapy and inadequately controlled on it, so the pooled estimate does not speak to alirocumab as first-line therapy in an untreated population.",
+      "Children and adolescents: the trials set a minimum age of 18.",
+      "Clinical events. The outcome is a laboratory measure at week 24, not cardiovascular death, myocardial infarction or stroke."
+     ]
+    },
+    "trial_pico": {
+     "population": "adults treated for hypercholesterolaemia who were not adequately controlled on their maximally tolerated lipid-modifying therapy",
+     "intervention": "alirocumab",
+     "comparator": "placebo",
+     "outcome": "calculated LDL cholesterol",
+     "source": "ClinicalTrials.gov eligibility modules for the 8 contributing NCTs, as already quoted verbatim on this object at results.by_outcome.ldlc_pct_change_wk24.per_trial[].registered_eligibility (read 2026-08-30). Every one enrols participants 'not adequately controlled' on existing lipid-modifying therapy."
+    }
    }
   }
  },
