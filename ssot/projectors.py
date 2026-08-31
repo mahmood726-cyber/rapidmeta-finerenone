@@ -15,6 +15,7 @@ Acceptance test: the emitted page against
 """
 import html as _html
 import math
+import os
 import re
 from urllib.parse import quote
 
@@ -64,6 +65,66 @@ TABS = (
     ("statistics", "Statistics", (),
      ("stats", "counttabs", "crossengine", "panels")),
 )
+
+# ---------------------------------------------------------------------------
+# THREE STATES FOR THE PROTOCOL TAB, NOT TWO.
+#
+# Measured 2026-08-28 across 155 objects: 1 page had a protocol on disk AND
+# linked it, 91 had one on disk and DENIED that any existed, 3 had one and were
+# silent, 36 correctly said none exists, 1 had none and was silent, 23 were not
+# assessable. A two-state fix -- "start linking it" -- repairs the 91 and turns
+# the 36 correct denials into false affirmations. So the state has to be
+# resolved per topic, not asserted either way.
+#
+# The old text did not merely say the OBJECT held no protocol, which was true.
+# It said the review "was assembled from named sources rather than from a
+# pre-registered protocol", which is a claim about the world, and for 91 pages
+# a protocol for that exact topic was sitting in the repository.
+# ---------------------------------------------------------------------------
+_PROTO_RX = re.compile(r"^(.+?)_(?:auto_)?protocol_v[\d.]+_(\d{4}-\d\d-\d\d)\.md$")
+
+
+def _protocol_dir():
+    here = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(os.path.dirname(here), "protocols")
+
+
+def protocol_on_disk(canon):
+    """The protocol file for this topic, or None. Newest version wins."""
+    slug = str((canon or {}).get("app_id") or (canon or {}).get("slug") or "").lower()
+    if not slug:
+        return None
+    cands = {slug, slug.replace("-", "_"),
+             re.sub(r"[-_](auto[-_]full[-_]review|review|auto)$", "",
+                    slug.replace("-", "_"))}
+    d = _protocol_dir()
+    try:
+        names = os.listdir(d)
+    except OSError:
+        return None
+    hits = []
+    for f in names:
+        m = _PROTO_RX.match(f)
+        if m and m.group(1).lower() in cands:
+            hits.append((m.group(2), f))
+    if not hits:
+        return None
+    return sorted(hits)[-1][1]
+
+
+def protocol_state_note(canon, default_note):
+    """One of three statements, resolved from disk rather than assumed."""
+    f = protocol_on_disk(canon)
+    if not f:
+        # Genuinely none. The default text stands -- it is correct here.
+        return default_note
+    return ("A protocol for this topic IS held in the repository, at "
+            "<code>protocols/%s</code>. This object does not record it, so no "
+            "registration, amendment history or prospective estimand declaration is "
+            "projected here, and the page cannot show that the review followed it. "
+            "The file's date is an AUTHORSHIP date: it was first committed to this "
+            "repository later, so it is not evidence of prospective registration." % f)
+
 # TRACK D: a tab with no source renders an HONEST STATE, never empty and never
 # silently merged into its neighbour. Silent merge is how a page becomes a flat
 # scroll while still claiming to be a review: the reader sees no gap, so the
@@ -413,8 +474,24 @@ def readiness(canon):
             limits.append({"label": "Registration is not prospective",
                            "detail": o.get("reason", "")})
     else:
-        blocking.append({"label": "No registration evidence",
-                         "detail": "This object records no protocol registration."})
+        # THREE STATES. "This object records no protocol registration" is true --
+        # and on 91 of 155 topics a protocol for that exact topic is sitting in
+        # protocols/ while this line reads as "there isn't one". A reader hears
+        # the label, not the scope of the noun.
+        _pf = protocol_on_disk(canon)
+        if _pf:
+            blocking.append({
+                "label": "A protocol exists but this object does not record it",
+                "detail": ("A protocol for this topic is held at protocols/%s. This object "
+                           "records no registration, so the page cannot show that the review "
+                           "followed it, and no amendment history or prospective estimand "
+                           "declaration can be projected. The file's date is an AUTHORSHIP "
+                           "date -- it was first committed to this repository later -- so it "
+                           "is not evidence of prospective registration." % _pf)})
+        else:
+            blocking.append({"label": "No registration evidence",
+                             "detail": "This object records no protocol registration, and no "
+                                       "protocol for this topic is held in the repository."})
     for oid, r in by_out.items():
         pb = (((r.get("grade") or {}).get("domains") or {})
               .get("publication_bias") or {})
@@ -1059,10 +1136,25 @@ def points_with_labels(points):
 # render as NOT ASSESSED either: that says nobody looked, when the truth is we looked and
 # could not reach it. One is a statement about the trial, the other about our retrieval,
 # and collapsing them prints our gap as a fact about someone else's study.
+# AND THE CODE BELOW BROKE THE RULE THE COMMENT ABOVE STATES. "No information" rendered as
+# a filled circle in the same visual vocabulary as +, ? and minus -- a fourth verdict in a
+# three-verdict scale, on a page that already said in words that no such verdict exists.
+# The rule was written down and connected to nothing, one line apart.
+#
+# CHECKED AGAINST THE TOOL WE HOLD, NOT A RECALLED SECTION NUMBER. In
+# `ssot/rob2_algorithm.py` -- this project's transcription of the 22 August 2019 tables --
+# NI appears ONLY as a signalling-question INPUT. Every row maps it to Low, Some concerns
+# or High: "Table 4: 1.2 = NI AND 1.3 = Y/PY -> High", "Table 14 row 3: 5.3 = NI -> Some
+# concerns". No path returns NO_INFORMATION as a domain judgement. The single case that
+# yields nothing is Table 10, where 3.2 = NI selects NO ROW -- "the algorithm does not
+# determine it", which is a third statement again and not a verdict either.
+#
+# So the cell now renders OUTSIDE the verdict scale: an open SQUARE, not a circle, so it
+# cannot be read as a fourth grade in a row of three.
 ROB_GLYPH = {"LOW": ("+", "#15803d", "#dcfce7"),
              "SOME CONCERNS": ("?", "#a16207", "#fef9c3"),
              "HIGH": ("\u2212", "#b91c1c", "#fee2e2"),
-             "NO INFORMATION": ("\u25cb", "#475569", "#e2e8f0"),
+             "NO INFORMATION": ("\u25a1", "#475569", "#e2e8f0"),
              "NOT ASSESSED": ("\u00b7", "#64748b", "#f1f5f9")}
 # stored spellings, so an underscore does not fall through to NOT ASSESSED
 ROB_GLYPH["NO_INFORMATION"] = ROB_GLYPH["NO INFORMATION"]
@@ -1070,7 +1162,8 @@ ROB_GLYPH["SOME_CONCERNS"] = ROB_GLYPH["SOME CONCERNS"]
 
 
 def visual_abstract_svg(title, question, k, n_total, measure, point, lo, hi,
-                        null_v, certainty, outcome_name, loo_note=""):
+                        null_v, certainty, outcome_name, loo_note="", n_total_note="",
+                        alt_interval=None):
     """A graphical abstract PROJECTED from the object, never hand-drawn.
 
     IT MUST NOT IMPLY BENEFIT. The pooled estimate here is 0.872 with an
@@ -1165,13 +1258,43 @@ def visual_abstract_svg(title, question, k, n_total, measure, point, lo, hi,
 
     # --- the verdict, stated in the direction the data supports -------------
     vy = ax_y + 66
+    # BOTH INTERVALS IN ONE SENTENCE, NOT ONE BELOW THE OTHER. A visual abstract
+    # travels without its page, so a caveat placed underneath does not travel
+    # with the claim -- it has to share the sentence or it does not exist for a
+    # reader who sees only the graphic. Measured 2026-08-28: 6 pools on 5 topics
+    # state that the interval excludes no difference while a Hartung-Knapp
+    # interval stored on the SAME pool spans it. On ceftaroline the headline
+    # reads as harm, which is the highest-cost direction for a named drug.
+    _alt = ""
+    if alt_interval and not crosses:
+        try:
+            _a, _b = float(alt_interval[0]), float(alt_interval[1])
+            if _a < null_v < _b:
+                _alt = (" -- but this review's own Hartung-Knapp interval, %s to %s, "
+                        "does include it, so the exclusion is not robust to the "
+                        "estimator." % (fmt(_a), fmt(_b)))
+        except (TypeError, ValueError, IndexError):
+            _alt = ""
     verdict = ("The interval INCLUDES no difference: this pooled estimate is "
                "compatible with no effect." if crosses else
-               "The interval excludes no difference.")
+               "The interval excludes no difference" + (_alt or "."))
     v1, vy2 = wrap(verdict, 96, 28, vy, 15, 20, "700")
     body += v1
-    facts = "%s trials, %s participants. Outcome: %s. GRADE certainty: %s." % (
-        fmt(k), n_total or "n/a", outcome_name, certainty or "not rated")
+    # THE REFUSAL KEPT ITS REASON. The caller sets the total to zero on purpose
+    # when a contributing trial cannot be matched to a registered arm count,
+    # because a quietly smaller number is not an improvement on a larger one.
+    # That refusal used to arrive here as a falsy value and render as "n/a",
+    # which reads as "not applicable" and loses the reason -- a softer claim
+    # substituted for a refusal, on the one artefact that travels without the
+    # page that would explain it.
+    if n_total:
+        _n_clause = "%s trials, %s participants." % (fmt(k), n_total)
+    else:
+        _n_clause = ("%s trials; the participant total is not shown%s."
+                     % (fmt(k), (" -- " + n_total_note) if n_total_note else
+                        " because it could not be established from this object"))
+    facts = "%s Outcome: %s. GRADE certainty: %s." % (
+        _n_clause, outcome_name, certainty or "not rated")
     f1, vy3 = wrap(facts, 104, 28, vy2 + 8, 13, 18, "400", ".9")
     body += f1
     if loo_note:
@@ -1227,18 +1350,26 @@ def rob_traffic_light_svg(trials, domains, assessors, cell):
                             cx + dx, y + RH / 2.0 + 5, fg, e(g), NL))
     ly = TOP + RH * len(trials) + 22
     if len(assessors) > 1:
-        legend = ('Left circle: %s. Right circle: %s. '
+        # NOT "circle". A cell is a circle when it carries one of the three RoB 2
+        # judgements and an OPEN SQUARE when the domain is rendered outside that scale --
+        # the distinction 948cec5ef introduced so an invalid non-judgement stops looking
+        # like a verdict. This legend still said "circle" for both, so a rebuilt page
+        # labelled squares as circles: the glyph fix was right and the legend was stale.
+        legend = ('Left mark in each cell: %s. Right mark: %s. '
                   % (e(str(assessors[0])), e(str(assessors[1]))))
         aria = 'two assessors per cell'
     else:
-        legend = ('Single circle: %s. THIS OBJECT HOLDS ONE ASSESSOR, so there is no '
+        legend = ('Single mark per cell: %s. THIS OBJECT HOLDS ONE ASSESSOR, so there is no '
                   'independent second reading to show. '
                   % e(str(assessors[0]) if assessors else 'assessor 1'))
         aria = 'one assessor per cell; this object holds no second assessment'
     body += ('<text x="6" y="%d" font-size="12" fill="currentColor">%s'
-             '+ low, ? some concerns, \u2212 high, \u25cb no information reached us '
-             '(a protocol, statistical analysis plan, registry field or regulatory '
-             'review would close it), \u00b7 not assessed.</text>%s'
+             'A \u25cb carries one of the three domain judgements RoB 2 defines: '
+             '+ low, ? some concerns, \u2212 high. '
+             'A \u25a1 is NOT a fourth judgement: it marks a domain this review '
+             'could not evidence, which is an unassessed domain rather than a verdict '
+             'about the trial (a protocol, statistical analysis plan, registry field or '
+             'regulatory review would close it). \u00b7 not assessed.</text>%s'
              % (ly, legend, NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
             'width="100%%" role="img" aria-label="Risk-of-bias traffic light: '
@@ -1745,6 +1876,8 @@ def tabbed_body(canon, parts, page):
             else:
                 _label = "Not held in this object."
                 note = _tbl.get(tid, "No content is held in this object for this section.")
+                if tid == "protocol":
+                    note = protocol_state_note(canon, note)
             # THE MANUSCRIPT IS THE TAB A READER ARRIVES FOR, SO IT IS THE ONE THAT OPENS.
             #
             # The tabs work: `.panel{height:0;overflow:hidden}` and only the checked radio's

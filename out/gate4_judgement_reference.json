@@ -1,0 +1,58 @@
+{
+ "gate": {
+  "gate": "4  JUDGEMENT REFERENCE",
+  "what": "a stored judgement must carry a reference to the version of what it judged",
+  "kinds": {
+   "topic object (ssot/<t>/<t>.json)": 155,
+   "other json under ssot/<t>/": 6,
+   "A VERSIONED   -- hash, verbatim snapshot or commit; exactly re-checkable": 40,
+   "B TIMESTAMPED -- when it was read, not what was read": 1397,
+   "C IDENTIFIER  -- names a mutable subject, pins no version": 868,
+   "D NOTHING     -- no reference to what was judged": 484,
+   "writes a judgement but does not persist it to ssot/": 52,
+   "persists a judgement into ssot/": 58,
+   "  BYPASSES the stamped writer -- its judgements reference nothing": 41,
+   "  through the STAMPED writer": 17
+  },
+  "coverage": null,
+  "expected_cases": {
+   "probe:A": "the classifier still recognises A VERSIONED",
+   "probe:B": "the classifier still recognises B TIMESTAMPED",
+   "probe:C": "the classifier still recognises C IDENTIFIER",
+   "probe:D": "the classifier still recognises D NOTHING"
+  },
+  "cases_seen": [
+   "probe:A",
+   "probe:B",
+   "probe:C",
+   "probe:D"
+  ],
+  "cases_not_seen": [],
+  "control": {
+   "negatives": 6,
+   "false_positives": 0,
+   "fp_rate": 0.0,
+   "examples": []
+  },
+  "notes": [
+   "demonstration -- same subject mutated D2 'some concerns' -> 'high':",
+   "    A VERSIONED   -- hash, verbatim snapshot or commit; exactly re-checkable -> STALE",
+   "    B TIMESTAMPED -- when it was read, not what was read           -> NOT-CHECKABLE",
+   "    C IDENTIFIER  -- names a mutable subject, pins no version      -> NOT-CHECKABLE",
+   "    D NOTHING     -- no reference to what was judged               -> NOT-CHECKABLE",
+   "kind-D backlog: 484 frozen, 484 now, 0 retired, 0 NEW",
+   "ratchet: 41 frozen, 41 now, 0 retired, 0 NEW. A PASS means no new instances, not a clean corpus.",
+   "the stamp is wired at ssot/atomic_write.py::write_json (blast radius 155, acknowledged) and fires on ssot/<topic>/<topic>.json only.",
+   "exactly re-checkable: 40/2789 = 1.4% of stored judgements. The remainder are believed, not checked.",
+   "the fix is one field at the point of writing: block['subject_ref'] = subject_ref({the values judged})"
+  ],
+  "findings": []
+ },
+ "counts": {
+  "B TIMESTAMPED -- when it was read, not what was read": 1397,
+  "C IDENTIFIER  -- names a mutable subject, pins no version": 868,
+  "D NOTHING     -- no reference to what was judged": 484,
+  "A VERSIONED   -- hash, verbatim snapshot or commit; exactly re-checkable": 40
+ },
+ "new_bare": []
+}

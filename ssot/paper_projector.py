@@ -1230,12 +1230,45 @@ def _clinical_gaps(obj):
     def any_key(dicts, keys):
         return any(d.get(k) not in (None, "", [], {}) for d in dicts for k in keys)
 
+    # WHICH QUANTITIES THIS OUTCOME TYPE CAN EVEN HAVE. A mean difference in mmHg
+    # has no events in each arm and no number needed to treat -- a mean difference
+    # IS an absolute effect. Asking for them named an absence that cannot be
+    # filled, which is the same defect as a claimed absence that is not real, in
+    # the other direction: it tells a clinician the review is missing something
+    # the outcome type never had. Measured from the pooled measures, so a page
+    # carrying both a hazard ratio and a mean difference still asks for events.
+    _measures = {str((b.get("pooled") or {}).get("measure") or "").upper()
+                 for b in blks if isinstance(b.get("pooled"), dict)}
+    _measures |= {str(r.get("measure") or "").upper() for r in rows}
+    _measures.discard("")
+    _COUNTABLE = {"HR", "RR", "OR", "IRR", "RD", "PETO OR", "RATE RATIO", "RATIO"}
+    _has_countable = bool(_measures & _COUNTABLE) or not _measures
+
+    # THE ARMS ARE THE OTHER PLACE EVENT COUNTS LIVE, and probing only `per_trial` walked this
+    # function into the exact failure its own docstring warns about: it probed the wrong key.
+    #
+    # Measured 2026-08-28 at origin/main e3a9c964b: of 141 objects carrying a results block,
+    # 38 hold arm-level event counts at inputs.trials[*].arms[*].events while holding none of
+    # the per_trial keys below -- so each was telling a clinician "this review does not give
+    # you the number of events in each arm" on a page that gives exactly that. On
+    # ablation-af-medical-therapy all 3 of 3 trials carry them: CASTLE-AF 51/179 vs 82/184,
+    # CABANA 89/1108 vs 101/1096, RAFT-AF 50/214 vs 64/197.
+    #
+    # A FALSE DENIAL IS THE HARDER HALF TO SEE. Every detector here looks for a page claiming
+    # too much; a page claiming too LITTLE reads as modesty and passes. This clause was
+    # generating that defect rather than catching it.
+    _arm_events = any(a.get("events") is not None
+                      for t in trials for a in (t.get("arms") or [])
+                      if isinstance(a, dict))
     gaps = []
-    if not any_key(rows, ("events_int", "events_ctrl", "e_int", "e_ctrl", "events",
-                          "n_events", "treatment_evaluable", "control_evaluable")):
+    if _has_countable and not _arm_events and not any_key(
+            rows, ("events_int", "events_ctrl", "e_int", "e_ctrl",
+                   "events", "n_events", "treatment_evaluable",
+                   "control_evaluable")):
         gaps.append("the number of events in each arm")
-    if not any_key(blks, ("absolute", "risk_difference", "nnt", "absolute_effect",
-                          "control_risk", "baseline_risk", "cer")):
+    if _has_countable and not any_key(blks, ("absolute", "risk_difference", "nnt",
+                                             "absolute_effect", "control_risk",
+                                             "baseline_risk", "cer")):
         # A LIST ITEM CANNOT CARRY ITS OWN "and so" -- inside `_and_list` it rendered as
         # "any absolute effect, and so no number needed to treat, how long participants
         # were followed and any measure of harm", which reads as four items or five
@@ -2115,16 +2148,33 @@ def _live_certainty(obj):
     and selecting the first outcome in KEY ORDER without asking whether it is one the review
     publishes. Either alone was enough to put a wrong rating in front of a reader.
     """
+    # AND IT WAS STILL A RAW READ, WHICH IS THE NINTH CONSUMER. The fix above corrected WHICH
+    # outcomes it reads and WHICH field, but it still took the level straight off the object
+    # instead of asking the module built to be the single answer. Measured across every
+    # rendering surface on 2026-08-27: this line put a certainty level on 20 pages whose
+    # other surfaces withhold one, and it is the whole of that 20.
+    #
+    # It also retires an earlier claim of mine. I reported ZERO conflicting levels; that
+    # comparison read the Summary of Findings against the certainty column and no other
+    # surface. Reading all of them finds one page showing two different levels outright --
+    # sglt2-hf, "high" on the GRADE card against "low" here -- and 20 showing a level where
+    # another surface withholds it.
     res = (obj.get("results") or {}).get("by_outcome") or {}
     grade = ((obj.get("grade") or {}).get("by_outcome") or {})
     vals = []
-    for oid, g in sorted(grade.items()):
-        if not isinstance(g, dict) or not g.get("certainty"):
-            continue
+    for oid in sorted(set(grade) | set(res)):
+        g = grade.get(oid)
         pooled = (res.get(oid) or {}).get("pooled")
         if not isinstance(pooled, dict) or pooled.get("point") is None or pooled.get("withdrawn"):
             continue
-        vals.append(str(g["certainty"]).replace("_", " ").lower())
+        r = _ga.resolve(obj, oid)
+        if r["state"] != "RATED" or not r.get("level"):
+            # PENDING, NOT_ASSESSED, WITHDRAWN and DISAGREEMENT all mean the same thing to
+            # this sentence: there is no level to state. Skipping them silently would let a
+            # partial set speak for the whole, so a single withheld outcome suppresses the
+            # summary entirely rather than averaging over what is left.
+            return None
+        vals.append(str(r["level"]).replace("_", " ").lower())
     if not vals:
         return None
     uniq = sorted(set(vals))
@@ -2291,7 +2341,80 @@ def measure_words(measure):
     return str(measure).replace("_", " ").lower() if "_" in str(measure) else str(measure)
 
 
-def _arms_text(value):
+def _as_posted_pairs(ap):
+    """(experimental_label, e, n), (comparator_label, e, n) from any as_posted schema.
+
+    THREE SCHEMAS EXIST IN THIS CORPUS and a formatter built from one encodes that one:
+        intervention/comparator  + _n + _pct     (percentages, not events)
+        experimental/comparator  + _events + _n
+        <label>_events / <label>_n               (keyed by the arm's own label)
+    An unrecognised shape returns None and the caller reports an absence rather than
+    inventing a rendering.
+    """
+    if not isinstance(ap, dict):
+        return None
+    for exp, comp in (("intervention", "comparator"), ("experimental", "comparator")):
+        # BOTH sides must be present. Accepting the tuple when only ONE was found matched
+        # the experimental/comparator data against the intervention/comparator names --
+        # `comparator_n` exists in both schemas -- and rendered a single arm labelled
+        # "intervention" with no counts. Caught by the schema control, not by review.
+        n_e, n_c = ap.get(exp + "_n"), ap.get(comp + "_n")
+        if n_e is None or n_c is None:
+            continue
+        out = []
+        for who in (exp, comp):
+            n = ap.get(who + "_n")
+            ev = ap.get(who + "_events")
+            if ev is None and ap.get(who + "_pct") is not None and n is not None:
+                # a posted PERCENTAGE, not a count -- say so rather than implying an integer
+                ev = "%.4g%% of" % ap.get(who + "_pct")
+            label = ap.get(who) if isinstance(ap.get(who), str) else who
+            out.append((label, ev, n))
+        return out
+    # keyed by the arm's own label
+    labels = sorted(set(k[:-7] for k in ap if k.endswith("_events")))
+    if len(labels) == 2:
+        return [(l, ap.get(l + "_events"), ap.get(l + "_n")) for l in labels]
+    return None
+
+
+def _arms_from_as_posted(obj, nct):
+    """A DERIVED arms cell, read through to `as_posted`, with its provenance stated."""
+    if not isinstance(obj, dict) or not nct:
+        return None
+    for _oid, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+        if not isinstance(blk, dict):
+            continue
+        for row in blk.get("per_trial") or []:
+            if not isinstance(row, dict) or row.get("nct") != nct:
+                continue
+            pairs = _as_posted_pairs(row.get("as_posted"))
+            if not pairs:
+                continue
+            bits = []
+            for label, ev, n in pairs:
+                if ev is None and n is None:
+                    continue
+                bits.append("%s (%s of %s)" % (label, ev if ev is not None else "?",
+                                               n if n is not None else "?"))
+            if not bits:
+                continue
+            # PLAIN TEXT, NOT AN ENTITY. The projector escapes this string, so "&mdash;"
+            # reached the reader as the literal characters "&amp;mdash;".
+            note = ("No arm-level record is stored on this trial. The counts above are read "
+                    "through to this object's own `as_posted` block -- the registry's "
+                    "posted results, UNCORRECTED")
+            if row.get("read_utc"):
+                note += ", read %s" % row["read_utc"]
+            note += ". They are not a separate copy: this cell is derived, so a correction "
+            note += "to the source cannot leave a stale duplicate behind."
+            if row.get("continuity_correction"):
+                note += (" A CONTINUITY CORRECTION was applied to this trial, so the analysed "
+                         "counts differ from the uncorrected ones shown here.")
+            return " vs ".join(bits) + ". " + note
+
+
+def _arms_text(value, obj=None, nct=None):
     """The Arms cell, formatted -- because `str()` of a list of dicts is a Python repr.
 
     This cell was `str(t.get("comparison") or t.get("arms") or "")`, so a reader received
@@ -2314,7 +2437,11 @@ def _arms_text(value):
     who cannot see that a field exists cannot ask for it.
     """
     if value is None:
-        return "not recorded on this object"
+        # An ABSENT `arms` key and an EMPTY one are the same absence to a reader, and the
+        # read-through must serve both. Placing it only under the empty-list branch left it
+        # unreachable on every object that omits the key entirely -- which is all four of
+        # the trials it was written for.
+        return _arms_from_as_posted(obj, nct) or "not recorded on this object"
     if isinstance(value, str):
         return value
     if isinstance(value, (int, float)):
@@ -2326,6 +2453,23 @@ def _arms_text(value):
         return "NOT_ASSESSABLE -- arms recorded in an unrecognised shape (%s)" \
             % type(value).__name__
     if not value:
+        # READ THROUGH, NEVER COPY. Where `arms` is empty and the object already holds the
+        # counts in `as_posted`, this DERIVES the cell from that one authoritative location
+        # and says where it came from. It does not write a second copy.
+        #
+        # WHY NOT POPULATE `arms`: this corpus's characteristic defect is one fact stored
+        # under several names, and hepatitis-b-taf-tdf cost two lanes four hours precisely
+        # because a repair landed on one of two copies. Filling `arms` from `as_posted`
+        # would manufacture that pair again, and the next repair would land on one of them.
+        #
+        # THE TWO ARE NOT THE SAME STATUS AND THE CELL SAYS SO. `as_posted` is the
+        # UNCORRECTED registry record -- the generator's own note reads "the corrected value
+        # is what the interval is built from; as_posted holds the uncorrected registry
+        # counts" -- while `arms` are the ANALYSED counts. They coincide only where no
+        # continuity correction was applied, so a correction is named when one is present.
+        through = _arms_from_as_posted(obj, nct)
+        if through:
+            return through
         # An empty list is an ABSENCE and is reported as one. `[]` on a page is a Python
         # object standing where a statement belongs.
         return "not recorded on this object"
@@ -4810,7 +4954,7 @@ def project(obj, journal="generic", length="standard"):
                       # cannot check against the source it came from.
                       str(t.get("registered_primary_timeframe") or "not recorded"),
                       _own_sentence(t.get("design")) or _arms_text(
-                          t.get("comparison") or t.get("arms"))]
+                          t.get("comparison") or t.get("arms"), obj, nct)]
                      for nct, t in sorted(by_id.items())],
                     ["inputs.trials"])
     else:
@@ -4933,11 +5077,35 @@ def project(obj, journal="generic", length="standard"):
             # with the pooled result" sat under a slot reading "Figure 1 not drawn" on 126
             # pages, several of them at k = 0 with the estimate withdrawn. When the figure
             # is refused the caption names it and the reason carries the rest.
+            # THE CAPTION MUST COUNT WHAT THE FIGURE DRAWS, NOT WHAT THE OBJECT HOLDS.
+            #
+            # COVID19_VACCINES stores three trial rows and the plot draws two: NCT04510207 has
+            # no computed risk ratio, so it cannot be placed on the axis. The caption said
+            # "k = 3" over a figure showing two effects and two labels -- an overstatement of
+            # the evidence in the one place a reader counts it, and the store was right both
+            # times. `usable` is the set actually drawn, a few lines above.
+            #
+            # THREE STATES, because "k" answers a two-state question that has three answers:
+            #   stored k equals the rows drawn      -> "k = n" is true, keep it
+            #   stored k exceeds the rows drawn     -> say BOTH numbers; one k cannot carry it
+            #   nothing drawable, or pool withdrawn -> the refusal caption already handles it,
+            #                                          and must not describe a figure as drawn
+            _stored_k = k if isinstance(k, int) else None
+            _drawn = len(usable)
+            if _drawn and _stored_k is not None and _drawn != _stored_k:
+                # NO HTML ENTITY HERE. This string is escaped downstream, so "&mdash;"
+                # arrives at the reader as the literal text "&mdash;" -- caught by reading the
+                # served bytes rather than trusting the marker to mean the caption was right.
+                _kcap = ("%d plotted rows against %d stored trial rows, the difference being "
+                         "trials this object holds without an estimate that can be placed "
+                         "on the axis" % (_drawn, _stored_k))
+            else:
+                _kcap = "k = %s" % kw
             s.add_figure(
                 obj,
-                ("Forest plot -- %s. k = %s." % (name, kw)) if why else
+                ("Forest plot -- %s. %s." % (name, _kcap)) if why else
                 ("Forest plot -- %s. Each contributing trial's stored estimate and interval, "
-                 "with the pooled result. k = %s." % (name, kw)),
+                 "with the pooled result. %s." % (name, _kcap)),
                 svg, src, refusal=why)
 
             # -- FUNNEL ------------------------------------------------------------------

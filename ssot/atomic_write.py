@@ -23,7 +23,40 @@ that caused the incident, and a helper that reproduced it would be worse than no
 import io
 import json
 import os
+import re
+import sys
 import tempfile
+
+# THE JUDGEMENT STAMP, WIRED 2026-08-28 (blast radius 155, acknowledged in
+# gates/BLAST_RADIUS_ACK.json before this edit was made).
+#
+# `subject_ref` existed as a field and a helper for a day and NOTHING WROTE IT -- the same
+# AVAILABLE-NOT-OPERATIVE shape as gates/absence.py, reappearing within hours in the work of
+# the person who had just fixed it. This is the choke point: 45 modules and every topic object
+# are written through write_json, so stamping here is the class fix rather than 107 instance
+# fixes.
+#
+# SCOPED TO TOPIC OBJECTS ONLY. `ssot/<topic>/<topic>.json` and nothing else -- gate reports
+# under out/ carry "verdict" keys of their own and must not be stamped.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                "gates"))
+try:
+    import judgement as _judgement
+except Exception:                                    # pragma: no cover - never silently skip
+    _judgement = None
+
+def _is_topic_object_path(path):
+    """ssot/<topic>/<topic>.json, decided by path PARTS rather than by a pattern.
+
+    A regex needing a backreference was written here three times through a shell heredoc and
+    every pass mangled the escape -- the last produced a literal 0x01 in the source, which is
+    exactly what scripts/lint_control_chars.py exists to refuse. Path components have no
+    escaping problem at all, and the rule is clearer read as a sentence.
+    """
+    parts = os.path.abspath(path).replace(os.sep, "/").split("/")
+    if len(parts) < 3 or not parts[-1].endswith(".json"):
+        return False
+    return parts[-3] == "ssot" and parts[-1][:-5] == parts[-2]
 
 VALID_NEWLINES = (None, "", "\n", "\r", "\r\n")
 
@@ -69,8 +102,30 @@ def write_text(path, text, newline=None):
             os.remove(tmp)
 
 
+def is_topic_object(path):
+    """ssot/<topic>/<topic>.json -- the only thing that carries stored judgements."""
+    return _is_topic_object_path(path)
+
+
 def write_json(path, obj, indent=1, newline=None, trailing_newline=True):
-    """Serialise FIRST, then write atomically. The order is the point."""
+    """Serialise FIRST, then write atomically. The order is the point.
+
+    A topic object is stamped on the way through: every judgement gains a reference to the
+    subject it was made about, unless it already carries one and the judgement is unchanged.
+    See gates/judgement.py -- the "unchanged" branch is what makes staleness detectable.
+    """
+    if is_topic_object(path):
+        if _judgement is None:
+            raise ImportError(
+                "gates/judgement.py could not be imported, so this topic object would be "
+                "written with its judgements unstamped. Refusing rather than writing an "
+                "object whose judgements reference nothing.")
+        import copy
+        before = copy.deepcopy(obj)
+        _judgement.stamp_object(obj)
+        # a bug here corrupts the corpus rather than reporting on it, so prove the stamp only
+        # ADDED keys before any bytes are written
+        _judgement.assert_only_added(before, obj)
     text = json.dumps(obj, indent=indent, ensure_ascii=False)
     if trailing_newline:
         text += "\n"

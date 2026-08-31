@@ -86,6 +86,38 @@
   "scripts/internal_consistency_triage.py::if not isinstance(oc, dict):#0",
   "scripts/internal_consistency_triage.py::if not os.path.exists(f):#0",
   "scripts/lane_enqueue_agy.py::if not isinstance(blk, dict):#0",
+  "scripts/lane_rob/absolute_effects.py::if not isinstance(c, dict):#0",
+  "scripts/lane_rob/absolute_effects.py::if not isinstance(res, dict):#0",
+  "scripts/lane_rob/adjudication_triage.py::if d1 is None:#0",
+  "scripts/lane_rob/adjudication_triage.py::if j2 is None:#0",
+  "scripts/lane_rob/adjudication_triage.py::if not isinstance(dv, dict):#0",
+  "scripts/lane_rob/adjudication_triage.py::if not sa:#0",
+  "scripts/lane_rob/audit_trail.py::if not isinstance(c, dict):#0",
+  "scripts/lane_rob/certainty_profile.py::if not isinstance(blk, dict):#0",
+  "scripts/lane_rob/certainty_profile.py::if not isinstance(c, dict):#0",
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not hits:#0",
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not trials:#0",
+  "scripts/lane_rob/clinical_reading.py::if not isinstance(c, dict):#0",
+  "scripts/lane_rob/count_provenance.py::if not isinstance(c, dict):#0",
+  "scripts/lane_rob/estimand_label_gate.py::if not isinstance(block, dict):#0",
+  "scripts/lane_rob/estimand_label_gate.py::if not os.path.exists(p):#0",
+  "scripts/lane_rob/gate_estimate_reconciles.py::if nt is None:#0",
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if len(pend) == 0:#0",
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not os.path.isfile(obj_path):#0",
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not topic:#0",
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not topic:#1",
+  "scripts/lane_rob/gate_scale_vs_measure.py::if len(hits) == 0:#0",
+  "scripts/lane_rob/ni_provenance.py::if b is None:#0",
+  "scripts/lane_rob/other_outcomes.py::if not isinstance(c, dict):#0",
+  "scripts/lane_rob/other_outcomes.py::if not isinstance(res, dict):#0",
+  "scripts/lane_rob/other_outcomes.py::if not rows:#0",
+  "scripts/lane_rob/subgroup_efficacy.py::if not bl:#0",
+  "scripts/lane_rob/subgroup_efficacy.py::if not isinstance(c, dict):#0",
+  "scripts/lane_rob/subgroup_efficacy.py::if not isinstance(res, dict):#0",
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if drug_hit is None:#0",
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if m is None:#0",
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if not isinstance(o, dict):#0",
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if not isinstance(rec, dict):#0",
   "scripts/lint_arm_roles_contradict_the_object.py::if not arms:#0",
   "scripts/lint_arm_roles_contradict_the_object.py::if not isinstance(trials, list):#0",
   "scripts/lint_arm_roles_contradict_the_object.py::if not named:#0",
@@ -146,7 +178,6 @@
   "scripts/marker_prefix_gate.py::if not marked:#0",
   "scripts/marker_prefix_gate.py::if not os.path.exists(f):#0",
   "scripts/measure_p47_gap_corpus_2026_08_21.py::if not p46.pooled_outcomes(obj):#0",
-  "scripts/measure_topic_trial_retrievability_2026_08_26.py::if not trials:#0",
   "scripts/merge_azilsartan_2026_08_19.py::if not os.path.exists(p2):#0",
   "scripts/metric_consistency_triage.py::if not n.startswith(\"NCT\"):#0",
   "scripts/metric_consistency_triage.py::if not os.path.exists(f):#0",
@@ -192,7 +223,6 @@
   "scripts/subject_role_triage.py::if not os.path.exists(f):#0",
   "scripts/subject_role_triage.py::if not subj:#0",
   "scripts/sweep_abstract_omits_withdrawn_2026_08_22.py::if not unmentioned:#0",
-  "scripts/sweep_estimand_established_unrecorded_2026_08_27.py::if not isinstance(b, dict):#0",
   "scripts/sweep_mixed_measure_pools_2026_08_21.py::if not g:#0",
   "scripts/sweep_mixed_measure_pools_2026_08_21.py::if not isinstance(blk, dict):#0",
   "scripts/sweep_mixed_measure_pools_2026_08_21.py::if not kinds:#0",
@@ -217,7 +247,9 @@
   "ssot/build_to_standard.py::if not os.path.exists(p2):#0",
   "ssot/corpus_reconcile.py::if not items:#0",
   "ssot/known_answer_placebo_naming.py::if not fn.endswith(\".json\"):#0",
-  "ssot/publish_refusals.py::if not os.path.exists(path):#0"
+  "ssot/publish_refusals.py::if not os.path.exists(path):#0",
+  "scripts/measure_topic_trial_retrievability_2026_08_26.py::if not trials:#0",
+  "scripts/sweep_estimand_established_unrecorded_2026_08_27.py::if not isinstance(b, dict):#0"
  ],
  "baselined_with_reason": {
   "scripts/lint_arm_roles_contradict_the_object.py:166": "`if not arms` IS the property meant. A trial with no arms is UNREAD, and the guard increments trials_unread before continuing rather than dropping the row silently -- the absence is counted and reported as a third state, which is the opposite of the reading-order rollout's defect.",
@@ -264,6 +296,22 @@
   "scripts/audit_grade_per_pool_2026_08_23.py::if not mine:#0": "Skips a topic that publishes no pooled outcome. THE ABSENCE IS THE PROPERTY AND IT IS THE WHOLE POINT OF THE MEASUREMENT: this audit exists because the previous one counted GRADE PER PAGE, and a topic with no pool has no pool to rate. The denominator it did examine is printed on every run -- 34 pooled outcomes across 28 topics -- so the set it skipped is visible as arithmetic rather than as silence, which is the exact failure the per-page count made.",
   "scripts/audit_grade_per_pool_2026_08_23.py::if not val:#0": "Skips a not-pooled outcome that carries no rating in the location being examined, because an outcome with no rating cannot be a STRANDED rating. The positive property is computed: `stranded` collects only outcomes that DO hold a value while that topic's pooled outcomes hold none in the same location. The run exits non-zero when that set is non-empty, and it currently does -- sglt2-hf, results.*.grade=HIGH on an outcome marked not pooled -- so this guard is demonstrably not swallowing the condition it stands next to.",
   "scripts/audit_writers_guard_authored_prose_2026_08_23.py::if not writes_an_object:  # lint:allow-negative-guard  selection, not absenc#0": "SELECTION, NOT EXCLUSION-BY-ABSENCE. The population this audit measures is 'files that WRITE an object' -- detected positively by `atomic_write.write_json`, `json.dump(obj` or `write_json(`. A file that writes no object is not a writer whose guard status could mean anything; it is not in the population at all. The absence here selects the denominator rather than hiding a defect, and the denominator IS the headline number the run prints on every execution -- 70 writers, of which 2 import a do-not-rebuild check and 68 do not. That figure would be meaningless if non-writers were counted, and it is stated rather than implied, so the set that was skipped is visible as arithmetic. The property this instrument actually reports on -- an UNCONDITIONAL assignment to `manuscript.<field>` -- is computed positively and currently measures 0 of 2, both guarded.",
+  "scripts/lane_rob/*  (10 guards, 2026-08-27)": "TEN GUARDS IN FOUR LANE INSTRUMENTS, AND THE ABSENCE IS THE PROPERTY IN EVERY ONE. Each selects the population the instrument is ABOUT, and each now RENDERS THE ARM IT EXCLUDES rather than dropping it -- which is the half that was missing when the gate first refused them.\n\n  gate_no_certainty_over_unadjudicated_rob.py\n    `len(pend) == 0`      pages where every outcome IS rated. Counted and printed as 'pages where every outcome IS rated', because a page with nothing withheld is not a silent skip, it is the clean arm.\n    `not topic` x2, `not os.path.isfile(obj_path)`   pages this gate cannot attribute to a store. These are the reason the gate exists in its current form: it previously dropped them, examined ZERO pages for SGLT2_HF, and reported '0 rendering a level' over an empty set while that page published a false certainty. They are now COUNTED and the gate REFUSES on them rather than passing.\n\n  gate_scale_vs_measure.py\n    `len(hits) == 0`      pages that never say 'on the natural scale'. The gate is about pages that DO; the complement is printed as 'pages that never say it'.\n\n  ni_provenance.py\n    `b is None`           topics with no risk-of-bias block at all. The instrument splits NO_INFORMATION judgements; a topic with no assessment has none to split. Printed as 'topics carrying NO risk-of-bias block at all'.\n\n  sweep_d4_functional_unblinding.py\n    `drug_hit is None`, `m is None`   the sweep is DEFINED as the intersection of a perceptible intervention and a patient-reported outcome. Excluding either is the selection, not a gap; both complements are printed so the six flagged outcomes read as a rate rather than a bare number.\n    two `isinstance` guards            shape checks on malformed records, not decisions about evidence.\n\nNOT A VERDICT, PER THIS BASELINE'S OWN RULE: each is a candidate someone should read again if this instrument's numbers ever look too clean.",
+  "scripts/lane_rob/absolute_effects.py::if not isinstance(c, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(c, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/absolute_effects.py::if not isinstance(res, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(res, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/audit_trail.py::if not isinstance(c, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(c, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/certainty_profile.py::if not isinstance(blk, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(blk, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/certainty_profile.py::if not isinstance(c, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(c, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/clinical_reading.py::if not isinstance(c, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(c, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/count_provenance.py::if not isinstance(c, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(c, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/other_outcomes.py::if not isinstance(c, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(c, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/other_outcomes.py::if not isinstance(res, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(res, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/other_outcomes.py::if not rows:#0": "`if not rows:` IS the property meant, and it is counted. An object carrying no rows for this component has nothing for it to report, and the component RENDERS A NAMED REFUSAL on the page rather than omitting the section -- so the absence is a third state a reader can see, not a silence. coverage() counts it as its own kind and prints it under 'SKIPPED, by kind'.",
+  "scripts/lane_rob/subgroup_efficacy.py::if not bl:#0": "`if not bl:` IS the property meant, and it is counted. An object carrying no rows for this component has nothing for it to report, and the component RENDERS A NAMED REFUSAL on the page rather than omitting the section -- so the absence is a third state a reader can see, not a silence. coverage() counts it as its own kind and prints it under 'SKIPPED, by kind'.",
+  "scripts/lane_rob/subgroup_efficacy.py::if not isinstance(c, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(c, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/subgroup_efficacy.py::if not isinstance(res, dict):#0": "A TYPE guard, not an exclusion by absence. `if not isinstance(res, dict):` asks whether the value parsed from disk is the SHAPE this loop can read; it is not an inference that some property is absent from a well-formed object. ⛔ AND THE SKIP IS COUNTED: coverage() increments a `skipped` counter and the --coverage report prints a 'SKIPPED, by kind' block, so the file is visible as a named kind rather than vanishing from the denominator. Before that counting patch this admission would have been false.",
+  "scripts/lane_rob/estimand_label_gate.py::if not os.path.exists(p):#0": "ARRIVED BY MERGE FROM ANOTHER LANE (9619cb209bae, \"Estimand-label refusal: a number must carry the label of the rows it was computed from\"); admitted so this lane's merge is not held for another lane's line. READ, NOT VOUCHED FOR: the guard skips a directory under ssot/ that has no <dir>/<dir>.json, which is a real non-topic directory rather than an inference about a well-formed object. ⚠️ RESIDUAL, RECORDED RATHER THAN BURIED: the `continue` precedes `objects += 1`, so such a directory is absent from that gate's denominator instead of appearing in it as a named kind. Logged in out/ESCALATIONS.jsonl for the lane that owns the file.",
+  "scripts/lane_rob/estimand_label_gate.py::if not isinstance(block, dict):#0": "ARRIVED BY MERGE FROM ANOTHER LANE (9619cb209bae, \"Estimand-label refusal: a number must carry the label of the rows it was computed from\"); admitted on the same basis. READ, NOT VOUCHED FOR: a TYPE guard on a value parsed from disk, asking whether the outcome block is the shape the loop can read. ⚠️ RESIDUAL: it `continue`s before `counts[v] += 1`, so a malformed block is missing from COMPARED_OK / MISMATCH / NOT_COMPARABLE rather than counted as a fourth kind. Same class this gate refused my own thirteen guards for; I fixed mine by COUNTING the skips, and this one is the owning lane's to change.",
   "scripts/measure_topic_trial_retrievability_2026_08_26.py::if not NCT.match(n):#0": "RESOLVED 2026-08-27, not baselined. The guard was inverted to POSITIVE control flow -- the predicate is tested for truth and the trials failing it go to an else branch that COUNTS them. 4 trials corpus-wide carry no identifier field at all and are now reported on every run rather than dropped in silence. Kept here as the record that the fix was a rewrite, not an exemption. AND THIS REASON STRING WAS ITSELF CORRUPTED ONCE: it was written through a shell double-quoted python -c containing backticks, which bash executed as command substitution and swallowed, leaving the sentence with a hole where the code example had been. Rewritten from a file. Backticks inside double quotes are command substitution; the standing rule against authoring content through shell strings covers them and this is the instance that shows why.",
   "scripts/measure_topic_trial_retrievability_2026_08_26.py::if not trials:#0": "The positive property IS stated, in the output rather than the code: the denominator is reported as 'topics with >=1 trial', 137 of 155. A topic with no trials cannot contribute a (topic, trial) pair, so its exclusion is definitional rather than a criterion. Named in the reported denominator, which is where a reader checks it.",
   "scripts/sweep_estimand_established_unrecorded_2026_08_27.py::if not isinstance(b, dict):#0": "A type guard against a malformed outcome block, not an exclusion criterion. It protects the walk from a non-dict where the schema requires a dict; any block it skips is one no reader could interpret either. NOT a claim about the population."
@@ -330,10 +378,114 @@
  ],
  "why_admitted_unexamined_2026_08_24": "THESE 52 GUARDS WERE NEVER SEEN BY THIS GATE, AND NOBODY HAS READ THEM. They became visible on 2026-08-24 when two selector holes were closed: NEG_GUARD could not cross a comma, so `if not x.get(\"k\", []):` was invisible (+37); and the exit window was two lines, so a guard that logged, counted, then continued read as not-excluding (+16). Both holes were found by a cold reviewer lane and each was confirmed by measuring the delta, not by reading the regex. They are kept in a SEPARATE key from `guards` because `guards` holds entries that were seen and weighed, 44 of them with a written reason, and merging the two would promote NOT ASSESSED to KNOWN AND ACCEPTED -- the same shape as a verdict that counts a skipped witness as a pass. The ratchet is unaffected: a guard written tomorrow is still NEW and still blocks.",
  "notes": {
-  "lint_collinear_protocol.py": "Both are iteration filters, not absence-claims. The first selects .py files to walk; the second skips a file the scanner returned no hit for. Neither concludes anything FROM an absence -- the instrument's finding is a positive match (a rater collection subscripted by a counter modulo n), and its four controls assert that a known-confounded file is CAUGHT and a fully-crossed one is CLEAN. Added 2026-08-25."
+  "lint_collinear_protocol.py": "Both are iteration filters, not absence-claims. The first selects .py files to walk; the second skips a file the scanner returned no hit for. Neither concludes anything FROM an absence -- the instrument's finding is a positive match (a rater collection subscripted by a counter modulo n), and its four controls assert that a known-confounded file is CAUGHT and a fully-crossed one is CLEAN. Added 2026-08-25.",
+  "lane_rob/gate_estimate_reconciles.py": "Not an exclusion-by-absence: the guard classifies a row INTO a named state (PARTIAL, 'events present, treatment N absent') and records the reason, rather than dropping it from a denominator. That is the three-state discipline the lane's own 95.5%-uncheckable finding rests on. Arrived unbaselined with dafe1585e and blocked the next commit in the repo; baselined 2026-08-27 by a different lane."
  },
  "why_each_absence_is_the_property_2026_08_26": {
   "scripts/rederive_no_information_domains_2026_08_26.py": "SEVEN GUARDS, AND ONLY ONE OF THEM IS A DECISION. Six are shape guards -- `not isinstance(dv/per/rec/rb, dict)`, `not isinstance(stored_j, str)`, `not os.path.isfile(p)`. A value that is not a dict is not a domain record and a path that is not a file is not an object; the absence IS the property, and there is no positive form of `this is a domain record` that the schema supplies. THE SEVENTH IS THE REAL ONE: `if q is None` fires when a NO_INFORMATION domain has neither stored signalling answers nor a declared ceiling, so no responses can be assembled and the published algorithm cannot be run on it. It does NOT narrow the pass: the branch increments `tier['no basis -- left untouched']` and a per-domain entry in `gaps`, both printed every run, and the domain is left exactly as it was. That is the distinction this ratchet exists to force -- a skip that is COUNTED and NAMED is not the `zero paper-* sections` failure, which was a skip nobody could see. If this branch ever starts writing a value instead of counting one, it must leave the baseline and be argued again."
  },
+ "admitted_from_another_lane_2026_08_28": [
+  "scripts/lane_rob/adjudication_triage.py::if d1 is None:#0",
+  "scripts/lane_rob/adjudication_triage.py::if j2 is None:#0",
+  "scripts/lane_rob/adjudication_triage.py::if not isinstance(dv, dict):#0",
+  "scripts/lane_rob/adjudication_triage.py::if not sa:#0"
+ ],
+ "why_admitted_from_another_lane_2026_08_28": "THESE FOUR ARE NOT THIS LANE'S CODE AND THIS LANE HAS NOT READ THEM. They arrived in scripts/lane_rob/adjudication_triage.py through a merge of origin/main from the rob-retrieval lane on 2026-08-28 and immediately blocked every commit here, because the ratchet correctly reports them as new. Admitted so the block clears, recorded as SEEN and NOT as justified: whether each absence is the property that lane means is that lane's call, not this one's. Vouching for four guards I have not examined, in a file I did not write, would be exactly the false clearance this gate exists to prevent. Same pattern as admitted_unexamined_2026_08_24, and flagged to the rob-retrieval lane.",
+ "admitted_from_another_lane_2026_08_29": [
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not hits:#0",
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not trials:#0"
+ ],
+ "why_admitted_from_another_lane_2026_08_29": "SECOND TIME IN TWO DAYS, SAME MECHANISM. These arrived in scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py through a merge of origin/main from the rob-retrieval lane and immediately blocked every commit here, because the ratchet correctly reports a merged file's guards as new. Admitted so the block clears, recorded as SEEN and NOT as justified: whether each absence is the property that lane means is that lane's call. Vouching for guards this lane did not write and has not read is the false clearance the gate exists to prevent. THE RECURRENCE IS THE FINDING: a per-lane ratchet keyed on file paths will fire on every cross-lane merge forever, and the fix is for the ratchet to attribute a guard to the lane that introduced it rather than to whoever merges it next.",
+ "guard_origin_2026_08_29": {
+  "scripts/lane_rob/adjudication_triage.py::if d1 is None:#0": {
+   "introduced_by": "23468cba26bde69197ddffaa252f130dc0ed9f8d",
+   "subject": "Adjudication protocol: the queue is a RE-ASK queue, and zero cells are adjudicable today"
+  },
+  "scripts/lane_rob/adjudication_triage.py::if j2 is None:#0": {
+   "introduced_by": "23468cba26bde69197ddffaa252f130dc0ed9f8d",
+   "subject": "Adjudication protocol: the queue is a RE-ASK queue, and zero cells are adjudicable today"
+  },
+  "scripts/lane_rob/adjudication_triage.py::if not isinstance(dv, dict):#0": {
+   "introduced_by": "23468cba26bde69197ddffaa252f130dc0ed9f8d",
+   "subject": "Adjudication protocol: the queue is a RE-ASK queue, and zero cells are adjudicable today"
+  },
+  "scripts/lane_rob/adjudication_triage.py::if not sa:#0": {
+   "introduced_by": "23468cba26bde69197ddffaa252f130dc0ed9f8d",
+   "subject": "Adjudication protocol: the queue is a RE-ASK queue, and zero cells are adjudicable today"
+  },
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not hits:#0": {
+   "introduced_by": "309db7e1aba39b00d45dfc1f4925605b8dbb347e",
+   "subject": "Detect non-inferiority trials pooled as superiority: 35 topics, 0 pages state a margin"
+  },
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not trials:#0": {
+   "introduced_by": "309db7e1aba39b00d45dfc1f4925605b8dbb347e",
+   "subject": "Detect non-inferiority trials pooled as superiority: 35 topics, 0 pages state a margin"
+  },
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if len(pend) == 0:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not os.path.isfile(obj_path):#0": {
+   "introduced_by": "06a9f71c956785656b1e4a9e92b3eacb5fe9b589",
+   "subject": "Gate: no certainty level over an unadjudicated risk-of-bias assessment"
+  },
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not topic:#0": {
+   "introduced_by": "06a9f71c956785656b1e4a9e92b3eacb5fe9b589",
+   "subject": "Gate: no certainty level over an unadjudicated risk-of-bias assessment"
+  },
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not topic:#1": {
+   "introduced_by": "36ae41332611a33a37ff041d158683f6dd8698a3",
+   "subject": "Per-outcome participant counts, withdrawn-state fallthrough, and a gate that was passing an empty set"
+  },
+  "scripts/lane_rob/gate_scale_vs_measure.py::if len(hits) == 0:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/ni_provenance.py::if b is None:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if drug_hit is None:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if m is None:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if not isinstance(o, dict):#0": {
+   "introduced_by": "33bd367885d0d65bac8e2065ccb18319868db82a",
+   "subject": "Two sweeps for two new error classes: D4 functional unblinding, and PICO wider than trials"
+  },
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if not isinstance(rec, dict):#0": {
+   "introduced_by": "33bd367885d0d65bac8e2065ccb18319868db82a",
+   "subject": "Two sweeps for two new error classes: D4 functional unblinding, and PICO wider than trials"
+  }
+ },
+ "why_guard_origin": "RE-DERIVED, as ruled. The 17 lane_rob guards were previously admitted as SEEN-and-not-justified with no record of where they came from. Each now carries the COMMIT that introduced it and that commit subject, so the admission is attributable instead of anonymous. NOTE what could NOT be derived: which LANE owns a guard. First-parent history fails because merges here fast-forward, putting another lane commits directly onto it -- it misattributed 14 of these 17 to this lane. Authorship fails because every commit in the repository carries one identity. The commit is the strongest true attribution available.",
+ "admitted_2026_08_30_regen_features": "13 guards from the six-component landing (absolute effects, stratified reading, other outcomes, count provenance, clinical reading, audit trail) plus the certainty profile. ALL ARE INSIDE coverage(), and every one was made COUNTED before it was admitted: each coverage() now carries a `skipped` Counter and prints a 'SKIPPED, by kind' block, so the objects these guards pass over are a named kind rather than a silent shrinkage of the denominator. Measured after the patch: absolute_effects reports 141 objects with a pooled result AND 20 skipped as 'no results.by_outcome recorded' -- 161 files, all accounted for. ⚠️ The admission is only true because of that patch; admitting these guards while they still dropped rows silently would have been the erosion this baseline exists to prevent. Uncommitted at the time of admission, so no sha could be recorded: they are introduced by the commit that carries this baseline change.",
+ "admitted_2026_08_30_by_merge_not_authored_here": "Two guards from commit 9619cb209bae admitted by the regen-features lane, which did not write them: they entered only through a merge of origin/main. The reasons recorded are a READER'S READING of what the lines do, explicitly not the author's justification, and each records the residual denominator gap the reading found. ⚠️ An admission that says nothing is what erodes a baseline; an admission that says what it does not know is not the same thing.",
+ "_admitted": [
+  {
+   "utc": "2026-08-30",
+   "added": [
+    "scripts/lane_rob/estimand_label_gate.py::if not isinstance(block, dict):#0",
+    "scripts/lane_rob/estimand_label_gate.py::if not os.path.exists(p):#0"
+   ],
+   "attribution": [
+    [
+     "scripts/lane_rob/estimand_label_gate.py::if not isinstance(block, dict):#0",
+     "9619cb209baef82d626b48d302f952b58149a2df",
+     "Estimand-label refusal: a number must carry the label of the rows it was computed from"
+    ],
+    [
+     "scripts/lane_rob/estimand_label_gate.py::if not os.path.exists(p):#0",
+     "9619cb209baef82d626b48d302f952b58149a2df",
+     "Estimand-label refusal: a number must carry the label of the rows it was computed from"
+    ]
+   ],
+   "why": "Negative guards in scripts/lane_rob/estimand_label_gate.py, arriving by merge from the RoB lane. Admitted rather than rewritten: they are that lane's code, and restating another author's guard positively would be an edit to a detector this lane does not own. Keys come from the audit's OWN scanner and ratchet -- never retyped from the console, whose display truncates them, and never rebuilt by hand: a first attempt passed a list of paths to keys_for(), which expects hit tuples, and wrote the junk key 's::i#0' into this file. That was reverted."
+  }
+ ],
  "rebaselined_2026_08_27": "Three guards from the registry-results rule-change work. The first was MEASURED rather than assumed: 403 of 403 identifiers are NCT, so the absence excludes nothing today and is recorded as unsafe in general."
 }

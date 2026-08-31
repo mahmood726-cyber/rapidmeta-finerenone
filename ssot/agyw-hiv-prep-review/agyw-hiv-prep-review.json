@@ -18,6 +18,56 @@
     "read_utc": "2026-08-18",
     "registered_primary_timeframe": "24 months",
     "registered_primary_timeframe_basis": "The time frame of this trial's REGISTERED PRIMARY OUTCOME, quoted verbatim from its ClinicalTrials.gov protocol record, read 2026-08-24. It is not necessarily the trial's overall follow-up, and it is not parsed into a number: the registry's wording varies and normalising it would assert precision the source does not carry.",
+    "arms": [
+     {
+      "label": "Dapivirine vaginal ring",
+      "role": "treatment",
+      "events": 82,
+      "participants": 1302
+     },
+     {
+      "label": "Placebo vaginal ring",
+      "role": "control",
+      "events": 61,
+      "participants": 650
+     }
+    ],
+    "arms_basis": {
+     "tier": "registry results",
+     "source": "ClinicalTrials.gov NCT01539226, results section as submitted",
+     "read_utc": "2026-08-18",
+     "note": "These are the counts this object already carried in `as_posted`. They are re-expressed here with an explicit role per arm so that direction is read from the record rather than inferred from label order. ⚠️ THEY ARE THE REGISTRY'S COUNTS, NOT THE ADJUDICATED ONES -- see `counts_by_tier` on the per-trial block."
+    },
+    "counts_by_tier": {
+     "_what": "As above.",
+     "designated": "registry results",
+     "why_designated": "The adjudicated counts are held only at the external-review tier (see `not_held`), so designating them would rest the headline on a document this project has not read.",
+     "tiers": {
+      "registry results": {
+       "treatment_events": 82,
+       "treatment_n": 1302,
+       "control_events": 61,
+       "control_n": 650,
+       "source": "ClinicalTrials.gov NCT01539226, results as submitted",
+       "read_utc": "2026-08-18"
+      },
+      "external review citing the adjudicated publication": {
+       "treatment_events": 77,
+       "treatment_n": 1300,
+       "control_events": 56,
+       "control_n": 650,
+       "source": "An external review citing this trial's adjudicated primary publication. ⚠️ NOT read at source — see `not_held`.",
+       "not_held": {
+        "document_id": "PMID 27959766",
+        "what": "The Ring Study primary report (Nel et al., 2016)",
+        "state": "NOT_YET_FOUND",
+        "routes_tried": "europepmc_by_pmid -> HTTP 404. The record carries no PMC identifier and no DOI in what we hold, so no pmcid or doi route existed to try. A document is recorded as unreachable only after every route has been tried and named, and this is that record.",
+        "attempted_utc": "2026-08-30"
+       }
+      }
+     },
+     "what_differs": "FIVE EVENTS AND TWO PARTICIPANTS in the intervention arm, and five events in the control arm. The registry posts counts as SUBMITTED; the publication reports them after endpoint ADJUDICATION, which is the step that decides which seroconversions count. Where the two disagree the adjudicated figure is the trial's own final answer — which is why the difference is shown rather than resolved silently."
+    },
     "label_before_2026_08_30": "ASPIRE / MTN-020",
     "label_corrected_because": "ClinicalTrials.gov gives orgStudyId 'IPM 027' and enrolment 1959 for this NCT. The previous label named the other trial."
    },
@@ -30,6 +80,59 @@
     "read_utc": "2026-08-18",
     "registered_primary_timeframe": "minimum of 12 months and a maximum of 14 months per participant",
     "registered_primary_timeframe_basis": "The time frame of this trial's REGISTERED PRIMARY OUTCOME, quoted verbatim from its ClinicalTrials.gov protocol record, read 2026-08-24. It is not necessarily the trial's overall follow-up, and it is not parsed into a number: the registry's wording varies and normalising it would assert precision the source does not carry.",
+    "arms": [
+     {
+      "label": "Dapivirine vaginal ring",
+      "role": "treatment",
+      "events": 71,
+      "participants": 1313
+     },
+     {
+      "label": "Placebo vaginal ring",
+      "role": "control",
+      "events": 97,
+      "participants": 1313
+     }
+    ],
+    "arms_basis": {
+     "tier": "registry results",
+     "source": "ClinicalTrials.gov NCT01617096, results section as submitted",
+     "read_utc": "2026-08-18",
+     "note": "⚠️ THE PLACEBO DENOMINATOR DISAGREES WITH THE TRIAL REPORT. The registry gives 1313 in both arms; the primary report states “Of 5516 women who underwent screening, 2629 were enrolled: 1313 in the dapivirine group and 1316 in the placebo group”. The disagreement is recorded rather than resolved silently, and it is the input that separates this review's pooled estimate from an external reviewer's."
+    },
+    "counts_by_tier": {
+     "_what": "The counts for this trial under each provenance tier, so a reader can see which the pool used and what the alternative would give.",
+     "designated": "registry results",
+     "why_designated": "⚠️ NOT because it is the better number. The object's pooled estimate was computed from the registry counts, and moving the designation without recomputing the pool would leave the page's headline disagreeing with its own inputs. The disagreement is shown instead.",
+     "tiers": {
+      "registry results": {
+       "treatment_events": 71,
+       "treatment_n": 1313,
+       "control_events": 97,
+       "control_n": 1313,
+       "source": "ClinicalTrials.gov NCT01617096, results as submitted",
+       "read_utc": "2026-08-18"
+      },
+      "trial report": {
+       "treatment_events": 71,
+       "treatment_n": 1313,
+       "control_events": 97,
+       "control_n": 1316,
+       "source": {
+        "document_id": "PMC4993693",
+        "what": "ASPIRE / MTN-020 primary report",
+        "route": "ncbi_efetch (Europe PMC returned 503)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 44179,
+        "tier": "trial report",
+        "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752"
+       },
+       "source_quote": "Of 5516 women who underwent screening, 2629 were enrolled: 1313 in the dapivirine group and 1316 in the placebo group.",
+       "read_utc": "2026-08-30"
+      }
+     },
+     "what_differs": "The PLACEBO DENOMINATOR: 1313 in the registry, 1316 in the trial's own report. The allocation was 1:1 and the realised split was not exactly balanced. Three participants."
+    },
     "label_before_2026_08_30": "The Ring Study",
     "label_corrected_because": "ClinicalTrials.gov gives orgStudyId 'MTN-020' and enrolment 2629 for this NCT. The previous label named the other trial."
    }
@@ -165,11 +268,12 @@
      "read_the_width_with_care": "AT k=2 HARTUNG-KNAPP USES t ON ONE DEGREE OF FREEDOM -- 12.7062 against the normal 1.9600 -- and the interval is enormously wider. That width is a property of the method at very few studies, not a measurement of this evidence. It is recorded so a reader can see it; it is NOT presented as the better interval."
     },
     "POOL_FINDINGS_2026_08_21": {
-     "a_neither_trial_enrolled_an_adolescent": "READ THIS BESIDE THE ESTIMATE. This review is named for ADOLESCENT GIRLS AND YOUNG WOMEN. BOTH CONTRIBUTING TRIALS SET A MINIMUM AGE OF 18 YEARS on their registrations -- NCT01539226 and NCT01617096, both FEMALE, both 18 to 45 years. NO PARTICIPANT UNDER 18 WAS ELIGIBLE FOR EITHER TRIAL. The estimate does not speak to adolescent girls, and GRADE indirectness is rated down for it.",
+     "a_eligibility_not_enrollment_for_under_18s": "READ THIS BESIDE THE ESTIMATE. This review is named for ADOLESCENT GIRLS AND YOUNG WOMEN. BOTH CONTRIBUTING REGISTRATIONS SET A MINIMUM ELIGIBILITY AGE OF 18 YEARS -- NCT01539226 and NCT01617096, both FEMALE, both 18 to 45 years. THE OBJECT DOES NOT HOLD ENROLLED-AGE DISTRIBUTIONS, so it cannot say whether any adolescent was actually enrolled. The estimate does not speak to people under 18 as an eligibility group, and GRADE indirectness is rated down for that reason.",
      "b_the_countries_are_right_even_though_the_ages_are_not": "Stated so the caution is not read wider than it is. The Ring Study ran in South Africa and Uganda; ASPIRE ran in Malawi, South Africa, Uganda and Zimbabwe. BY REGION THIS IS DIRECTLY THE POPULATION OF INTEREST. The indirectness is about AGE ALONE.",
      "c_the_effect_does_not_survive_the_small_sample_adjustment_and_that_cuts_both_ways": "The unadjusted interval is RR 0.7030 (0.5660 to 0.8731) and EXCLUDES no difference. This project's Hartung-Knapp interval at k = 2 is 0.1725 to 2.8655 -- and NOT 0.4054 to 1.2191, which is metafor's RAW unfloored knha interval and was misattributed to this project in the first version of this note and INCLUDES it. THE HONEST READING OF THAT IS NARROW: at k = 2 the t critical value is 12.7062 and almost nothing survives the adjustment, so this is much weaker evidence against the result than the same disagreement would be at larger k. It is disclosed because a reader is entitled to both intervals, not because it overturns the estimate.",
      "d_no_external_check_exists_for_this_estimate": "A screen of eight records found NO published synthesis pooling HIV seroconversion across these two trials -- the five flagged syntheses are about adherence, acceptability and pregnancy outcomes. THIS ESTIMATE IS UNREPLICATED so far as this project has looked.",
      "e_a_registered_safety_co_primary_is_not_carried": "Both registrations register adverse events as a SECOND PRIMARY OUTCOME. This review carries only the efficacy primary. That is a scope fact, not a defect in the estimate, and it is recorded so a reader does not read this page as a benefit-and-harm summary.",
+     "a_neither_trial_enrolled_an_adolescent": "READ THIS BESIDE THE ESTIMATE. This review is named for ADOLESCENT GIRLS AND YOUNG WOMEN. BOTH CONTRIBUTING TRIALS SET A MINIMUM AGE OF 18 YEARS on their registrations -- NCT01539226 and NCT01617096, both FEMALE, both 18 to 45 years. NO PARTICIPANT UNDER 18 WAS ELIGIBLE FOR EITHER TRIAL. The estimate does not speak to adolescent girls, and GRADE indirectness is rated down for it.",
      "b_the_countries_are_right_even_though_the_ages_are_not_corrected_because": "Corrected 2026-08-30 from ClinicalTrials.gov, read the same day: NCT01539226 is orgStudyId IPM 027, The Ring Study, n=1,959, and its registered locations are South Africa and Uganda; NCT01617096 is acronym ASPIRE, MTN-020, n=2,629, locations Malawi, South Africa, Uganda and Zimbabwe. The previous wording attached each trial's facts to the OTHER trial. ⛔ THESE TWO FIELDS ARE PROSE WITH NO NCT IN THE STRING, so neither this repo's NCT-keyed sweep nor the staging lane's gate could reach them -- both walk identifier keys. A name in free text has no key to walk. Found by rapidmeta-staging-33."
     },
     "r_output": {
@@ -184,6 +288,854 @@
      "inputs_note": "yi = log(point) and sei = (log(hi) - log(lo)) / (2 * 1.959964), derived from the per-trial intervals stored on this block.",
      "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   agyw-hiv-prep-review\nOUTCOME primary\nSTORED  RR 0.7030 (0.5660 to 0.8731), k = 2, random-effects / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT01539226      0.6711 (0.4884 to 0.9221)  yi=-0.398837  sei=0.162125\n   NCT01617096      0.7320 (0.5442 to 0.9845)  yi=-0.311975  sei=0.151232\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8573   -1.7145    2.2855   -1.7145   14.2855   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1535, p-val = 0.6952\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub     \n -0.3524  0.1106  -3.1865  0.0014  -0.5691  -0.1356  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8573   -1.7145    2.2855   -1.7145   14.2855   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1535, p-val = 0.6952\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.3524  0.0433  -8.1334   1  0.0779  -0.9029  0.1981  . \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.7030 (0.5660 to 0.8732)\n   Hartung-Knapp  0.7030 (0.1725 to 2.8655)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.3918)\n   metafor raw    0.7030 (0.4054 to 1.2191)   [test=knha, UNFLOORED]\n   tau^2 0.000000   Q 0.1535 on 1 df, p = 0.6952   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
      "stored_at": "evidence/africa_prep_fits_2026_08_21/agyw-hiv-prep-review.txt"
+    },
+    "subgroups": [
+     {
+      "label": "Under 25 years",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 10,
+      "ci_low": -41,
+      "ci_high": 43,
+      "ve_percent": 10,
+      "p_as_printed": "P=0.64",
+      "analysis_status": "PRESPECIFIED",
+      "prespecified": true,
+      "verbatim": "However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).",
+      "source": {
+       "pmid": "26900902",
+       "pmcid": "PMC4993693",
+       "doi": "10.1056/NEJMoa1506110",
+       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+       "retrieved_utc": "2026-08-30"
+      },
+      "direction": "protective",
+      "migrated_from": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists.",
+      "note": "PRESPECIFIED stratum, and NOT a demonstration of no effect. Efficacy 10% (−41 to 43), P = 0.64 in the source: the interval is compatible with substantial benefit. What it establishes is that protection was not demonstrated in this stratum.",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "stratification": "age_prespecified_25",
+      "stratification_basis": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists."
+     },
+     {
+      "label": "25 years or older",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 61,
+      "ci_low": 32,
+      "ci_high": 77,
+      "ve_percent": 61,
+      "p_as_printed": "P=<0.001",
+      "analysis_status": "PRESPECIFIED",
+      "prespecified": true,
+      "verbatim": "However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).",
+      "source": {
+       "pmid": "26900902",
+       "pmcid": "PMC4993693",
+       "doi": "10.1056/NEJMoa1506110",
+       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+       "retrieved_utc": "2026-08-30"
+      },
+      "direction": "protective",
+      "migrated_from": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists.",
+      "note": "PRESPECIFIED stratum. ASPIRE's own prespecified age split; efficacy 61% (32 to 77), P<0.001 in the source.",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "stratification": "age_prespecified_25",
+      "stratification_basis": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists."
+     },
+     {
+      "label": "21 years of age or younger",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": -27,
+      "ci_low": -133,
+      "ci_high": 31,
+      "ve_percent": -27,
+      "p_as_printed": "P = 0.45",
+      "analysis_status": "POST_HOC",
+      "prespecified": false,
+      "verbatim": "In a post hoc analysis, higher rates of HIV-1 protection were observed among women over the age of 21 years (56%; 95% CI, 31 to 71; P<0.001) but not among those 21 years of age or younger (-27%; 95% CI, −133 to 31; P = 0.45), a difference that was correlated with reduced adherence.",
+      "source": {
+       "pmid": "26900902",
+       "pmcid": "PMC4993693",
+       "doi": "10.1056/NEJMoa1506110",
+       "staged_as": "sources/ASPIRE_PMC4993693.extract.txt",
+       "sha256": "5386f694f8ec74e46b0eac494901027649b9c4a7be1c734ab3af6e417201b125",
+       "retrieved_utc": "2026-08-30"
+      },
+      "direction": "not demonstrated",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "note": "POST HOC, and NOT a demonstration of no effect. The interval runs from -133% to 31%: compatible with substantial benefit and with substantial harm. What it establishes is that protection was NOT DEMONSTRATED. The source correlates the difference with reduced adherence and does not resolve product versus adherence.",
+      "supporting_verbatim": [
+       {
+        "quote": "Lack of HIV-1 protection, along with lower adherence, was seen in participants who were 18 to 21 years of age, with an efficacy of HIV-1 protection of −27% (95% CI, −133 to 31; P = 0.45). For women who were older than 21 years of age, the efficacy of HIV-1 protection was 56% (95% CI, 31 to 71; P<0.001), and the rate of adherence was more than 70% overall.",
+        "why_it_is_here": "ASPIRE's own sentence for THIS band. The row's main verbatim states the over-21 versus 21-and-under contrast; this one names the band itself, its interval, and the adherence correlation together.",
+        "label_in_source": "18 to 21 years",
+        "source": {
+         "document_id": "PMC4993693",
+         "what": "ASPIRE / MTN-020 primary report",
+         "route": "ncbi_efetch (Europe PMC returned 503)",
+         "retrieved_utc": "2026-08-30",
+         "rendered_chars": 44179,
+         "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+         "tier": "trial report"
+        }
+       }
+      ],
+      "label_in_source": "18 to 21 years",
+      "shared_with": "This is also the LOWEST BAND of the post-hoc thirds: the source reports -27% (-133 to 31) for 'those 18 to 21 years of age' and the same figure for 'those 21 years of age or younger'. One group, one number, reported under two labels in the same paper.",
+      "stratification": "age_posthoc_dichotomy_21",
+      "stratification_basis": "labelled from this record's own source sentence: the post hoc dichotomy at 21"
+     },
+     {
+      "label": "22 to 26 years",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 56,
+      "ci_low": 19,
+      "ci_high": 76,
+      "ve_percent": 56,
+      "events": "752 participants, 51 infections",
+      "analysis_status": "POST_HOC",
+      "prespecified": false,
+      "verbatim": "Panel A shows that the efficacy of HIV-1 protection in the dapivirine group was −27% (95% CI, −133 to 31) for those 18 to 21 years of age, 56% (95% CI, 19 to 76) for those 22 to 26 years of age, and 51% (95% CI, 8 to 74) for those 27 to 45 years of age, as compared with placebo. The combined efficacy of HIV-1 prevention for participants over the age of 21 years was 56% (95% CI, 31 to 71; P<0.001).",
+      "source": {
+       "document_id": "PMC4993693",
+       "what": "ASPIRE / MTN-020 primary report",
+       "route": "ncbi_efetch (Europe PMC returned 503)",
+       "retrieved_utc": "2026-08-30",
+       "rendered_chars": 44179,
+       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+       "tier": "trial report"
+      },
+      "direction": "protective",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "note": "Post hoc, and one of ASPIRE's three age bands. Reported alongside the other two so the GRADIENT is visible: protection rises across the bands rather than switching on at 21. Restored after a migration collapsed the three bands into a single over-21 figure.",
+      "migrated_from": "stratified_analyses.age (post-hoc thirds)",
+      "stratification": "age_posthoc_thirds",
+      "stratification_basis": "stratified_analyses.age (post-hoc thirds)"
+     },
+     {
+      "label": "27 to 45 years",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 51,
+      "ci_low": 8,
+      "ci_high": 74,
+      "ve_percent": 51,
+      "events": "1192 participants, 44 infections",
+      "analysis_status": "POST_HOC",
+      "prespecified": false,
+      "verbatim": "Panel A shows that the efficacy of HIV-1 protection in the dapivirine group was −27% (95% CI, −133 to 31) for those 18 to 21 years of age, 56% (95% CI, 19 to 76) for those 22 to 26 years of age, and 51% (95% CI, 8 to 74) for those 27 to 45 years of age, as compared with placebo. The combined efficacy of HIV-1 prevention for participants over the age of 21 years was 56% (95% CI, 31 to 71; P<0.001).",
+      "source": {
+       "document_id": "PMC4993693",
+       "what": "ASPIRE / MTN-020 primary report",
+       "route": "ncbi_efetch (Europe PMC returned 503)",
+       "retrieved_utc": "2026-08-30",
+       "rendered_chars": 44179,
+       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+       "tier": "trial report"
+      },
+      "direction": "protective",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "note": "Post hoc, and one of ASPIRE's three age bands. Reported alongside the other two so the GRADIENT is visible: protection rises across the bands rather than switching on at 21. Restored after a migration collapsed the three bands into a single over-21 figure.",
+      "migrated_from": "stratified_analyses.age (post-hoc thirds)",
+      "stratification": "age_posthoc_thirds",
+      "stratification_basis": "stratified_analyses.age (post-hoc thirds)"
+     },
+     {
+      "label": "Older than 21 years",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 56,
+      "ci_low": 31,
+      "ci_high": 71,
+      "ve_percent": 56,
+      "p_as_printed": "P<0.001",
+      "analysis_status": "POST_HOC",
+      "prespecified": false,
+      "verbatim": "In a post hoc analysis, higher rates of HIV-1 protection were observed among women over the age of 21 years (56%; 95% CI, 31 to 71; P<0.001) but not among those 21 years of age or younger (-27%; 95% CI, −133 to 31; P = 0.45), a difference that was correlated with reduced adherence.",
+      "source": {
+       "pmid": "26900902",
+       "pmcid": "PMC4993693",
+       "doi": "10.1056/NEJMoa1506110",
+       "staged_as": "sources/ASPIRE_PMC4993693.extract.txt",
+       "sha256": "5386f694f8ec74e46b0eac494901027649b9c4a7be1c734ab3af6e417201b125",
+       "retrieved_utc": "2026-08-30"
+      },
+      "direction": "protective",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "note": "POST HOC. The source's words: 'In a post hoc analysis'. Not a prespecified stratum.",
+      "stratification": "age_posthoc_dichotomy_21",
+      "stratification_basis": "labelled from this record's own source sentence: the post hoc dichotomy at 21"
+     }
+    ],
+    "subgroups_stratified_by": "age at enrolment",
+    "other_outcomes": {
+     "_note": "⚠️ THIS TABLE IS ASPIRE'S UNLESS A ROW SAYS OTHERWISE. The Ring Study's safety table has not been read at source in this pass, so no row claims two trials. The rows are the outcomes the retrieved article body reports, plus the ones it explicitly does not: “not measured” and “not reported in a poolable form” are outcomes of the search and are printed rather than dropped, because a table that lists only what was found reads as a table of everything that exists.",
+     "rows": [
+      {
+       "outcome": "Any grade 3 adverse event",
+       "treatment": "151 (12%)",
+       "control": "162 (12%)",
+       "effect": "no material difference",
+       "trials": "ASPIRE, 2629 women",
+       "tier": "trial report",
+       "source": {
+        "document_id": "PMC4993693",
+        "what": "ASPIRE / MTN-020 primary report",
+        "route": "ncbi_efetch (Europe PMC returned 503)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 44179,
+        "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+        "tier": "trial report"
+       },
+       "source_quote": "Table 2 Adverse Events. Adverse Event Dapivirine Group (N = 1313) Placebo Group (N = 1316) no. (%) Primary safety end point 180 (14) 186 (14); Any serious adverse event 52 (4) 48 (4); Death 4 (<1) 3 (<1); Any grade 4 event 22 (2) 23 (2); Any grade 3 event 151 (12) 162 (12); Any grade 2 event assessed as related 7 (1) 9 (1). P = 0.80 for the overall comparison by the chi-square test.",
+       "trial_ids": [
+        "NCT01617096"
+       ],
+       "trials_label_note": "The attribution is keyed to NCT01617096. The name shown is DERIVED from the registry payload for that identifier, so a change to any label in this object cannot move which trial this row's numbers came from."
+      },
+      {
+       "outcome": "Any grade 4 adverse event",
+       "treatment": "22 (2%)",
+       "control": "23 (2%)",
+       "effect": "no material difference",
+       "trials": "ASPIRE, 2629 women",
+       "tier": "trial report",
+       "source": {
+        "document_id": "PMC4993693",
+        "what": "ASPIRE / MTN-020 primary report",
+        "route": "ncbi_efetch (Europe PMC returned 503)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 44179,
+        "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+        "tier": "trial report"
+       },
+       "source_quote": "Table 2 Adverse Events. Adverse Event Dapivirine Group (N = 1313) Placebo Group (N = 1316) no. (%) Primary safety end point 180 (14) 186 (14); Any serious adverse event 52 (4) 48 (4); Death 4 (<1) 3 (<1); Any grade 4 event 22 (2) 23 (2); Any grade 3 event 151 (12) 162 (12); Any grade 2 event assessed as related 7 (1) 9 (1). P = 0.80 for the overall comparison by the chi-square test.",
+       "trial_ids": [
+        "NCT01617096"
+       ],
+       "trials_label_note": "The attribution is keyed to NCT01617096. The name shown is DERIVED from the registry payload for that identifier, so a change to any label in this object cannot move which trial this row's numbers came from."
+      },
+      {
+       "outcome": "Any serious adverse event",
+       "treatment": "52 (4%)",
+       "control": "48 (4%)",
+       "effect": "no material difference",
+       "trials": "ASPIRE, 2629 women",
+       "tier": "trial report",
+       "source": {
+        "document_id": "PMC4993693",
+        "what": "ASPIRE / MTN-020 primary report",
+        "route": "ncbi_efetch (Europe PMC returned 503)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 44179,
+        "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+        "tier": "trial report"
+       },
+       "source_quote": "Table 2 Adverse Events. Adverse Event Dapivirine Group (N = 1313) Placebo Group (N = 1316) no. (%) Primary safety end point 180 (14) 186 (14); Any serious adverse event 52 (4) 48 (4); Death 4 (<1) 3 (<1); Any grade 4 event 22 (2) 23 (2); Any grade 3 event 151 (12) 162 (12); Any grade 2 event assessed as related 7 (1) 9 (1). P = 0.80 for the overall comparison by the chi-square test.",
+       "trial_ids": [
+        "NCT01617096"
+       ],
+       "trials_label_note": "The attribution is keyed to NCT01617096. The name shown is DERIVED from the registry payload for that identifier, so a change to any label in this object cannot move which trial this row's numbers came from."
+      },
+      {
+       "outcome": "Death",
+       "treatment": "4 (<1%)",
+       "control": "3 (<1%)",
+       "effect": "no material difference",
+       "trials": "ASPIRE, 2629 women",
+       "tier": "trial report",
+       "source": {
+        "document_id": "PMC4993693",
+        "what": "ASPIRE / MTN-020 primary report",
+        "route": "ncbi_efetch (Europe PMC returned 503)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 44179,
+        "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+        "tier": "trial report"
+       },
+       "source_quote": "Table 2 Adverse Events. Adverse Event Dapivirine Group (N = 1313) Placebo Group (N = 1316) no. (%) Primary safety end point 180 (14) 186 (14); Any serious adverse event 52 (4) 48 (4); Death 4 (<1) 3 (<1); Any grade 4 event 22 (2) 23 (2); Any grade 3 event 151 (12) 162 (12); Any grade 2 event assessed as related 7 (1) 9 (1). P = 0.80 for the overall comparison by the chi-square test.",
+       "trial_ids": [
+        "NCT01617096"
+       ],
+       "trials_label_note": "The attribution is keyed to NCT01617096. The name shown is DERIVED from the registry payload for that identifier, so a change to any label in this object cannot move which trial this row's numbers came from."
+      },
+      {
+       "outcome": "Grade 2 event judged related to the product",
+       "treatment": "7 (1%)",
+       "control": "9 (1%)",
+       "effect": "no material difference",
+       "trials": "ASPIRE, 2629 women",
+       "tier": "trial report",
+       "source": {
+        "document_id": "PMC4993693",
+        "what": "ASPIRE / MTN-020 primary report",
+        "route": "ncbi_efetch (Europe PMC returned 503)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 44179,
+        "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+        "tier": "trial report"
+       },
+       "source_quote": "Table 2 Adverse Events. Adverse Event Dapivirine Group (N = 1313) Placebo Group (N = 1316) no. (%) Primary safety end point 180 (14) 186 (14); Any serious adverse event 52 (4) 48 (4); Death 4 (<1) 3 (<1); Any grade 4 event 22 (2) 23 (2); Any grade 3 event 151 (12) 162 (12); Any grade 2 event assessed as related 7 (1) 9 (1). P = 0.80 for the overall comparison by the chi-square test.",
+       "trial_ids": [
+        "NCT01617096"
+       ],
+       "trials_label_note": "The attribution is keyed to NCT01617096. The name shown is DERIVED from the registry payload for that identifier, so a change to any label in this object cannot move which trial this row's numbers came from."
+      },
+      {
+       "outcome": "NNRTI resistance mutations among those who seroconverted",
+       "treatment": "8 of 68 (12%)",
+       "control": "10 of 96 (10%)",
+       "effect": "no signal; P = 0.80",
+       "trials": "ASPIRE",
+       "tier": "trial report",
+       "source": {
+        "document_id": "PMC4993693",
+        "what": "ASPIRE / MTN-020 primary report",
+        "route": "ncbi_efetch (Europe PMC returned 503)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 44179,
+        "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+        "tier": "trial report"
+       },
+       "source_quote": "among participants who acquired HIV-1 infection, there was no significant between-group difference in the numbers of participants with non-nucleoside reverse-transcriptase inhibitor mutations suggesting antiviral resistance (8 of 68 participants [12%] in the dapivirine group and 10 of 96 [10%] in the placebo group, P = 0.80)",
+       "trial_ids": [
+        "NCT01617096"
+       ],
+       "trials_label_note": "The attribution is keyed to NCT01617096. The name shown is DERIVED from the registry payload for that identifier, so a change to any label in this object cannot move which trial this row's numbers came from."
+      },
+      {
+       "outcome": "Pregnancy",
+       "treatment": "—",
+       "control": "—",
+       "effect": "the ring was withheld during pregnancy and resumed afterwards, so pregnancy is a protocol event here rather than a comparative outcome",
+       "trials": "ASPIRE",
+       "tier": "trial report",
+       "source": {
+        "document_id": "PMC4993693",
+        "what": "ASPIRE / MTN-020 primary report",
+        "route": "ncbi_efetch (Europe PMC returned 503)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 44179,
+        "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+        "tier": "trial report"
+       },
+       "source_quote": "Women were tested monthly for pregnancy, and the study ring was withheld from women who became pregnant; they resumed use of the study ring when no longer pregnant or lactating.",
+       "trial_ids": [
+        "NCT01617096"
+       ],
+       "trials_label_note": "The attribution is keyed to NCT01617096. The name shown is DERIVED from the registry payload for that identifier, so a change to any label in this object cannot move which trial this row's numbers came from."
+      },
+      {
+       "outcome": "Sexually transmitted infections, all incident (composite)",
+       "trials": "The Ring Study, 1895 analysed",
+       "effect": "RR 1.063 (95% CI 0.969 to 1.167) — derived here from the registry's own posted 2×2. ⚠️ The interval includes no difference, so this establishes no effect in either direction.",
+       "source": {
+        "document_id": "PMID27959766",
+        "what": "The Ring Study (IPM 027) primary report, full PDF",
+        "pmid": "27959766",
+        "doi": "10.1056/NEJMoa1602046",
+        "nct": "NCT01539226",
+        "route": "Free PDF recorded by Europe PMC at the publisher (nejm.org)",
+        "retrieved_utc": "2026-08-30",
+        "staged_as": "sources/RING_STUDY_NEJMoa1602046.sti_excerpt.txt",
+        "sha256_pdf": "53371b98ecb41bd9aa2695b697d66fd5fb481bed593248d9af63c3a0d1cb5f05",
+        "sha256_excerpt": "721eeec382da37896ef126a35389392060e90503dc9c6d29b7eeaebe40cdcec6",
+        "tier": "trial report"
+       },
+       "estimand_note": "⛔ THIS IS A COMPOSITE ACROSS FOUR ORGANISMS — gonorrhoea, chlamydia, trichomonas and syphilis — AS THE REGISTRY DEFINES IT, and it counts PARTICIPANTS testing positive over 24 months. The comparator reports RISK RATIOS FOR SINGLE ORGANISMS. A composite and its components are different quantities: this row cannot confirm or contradict the chlamydia or syphilis rows below it, and none of them may be pooled together.",
+       "replaces": "reliance on the comparator for the direction of effect on sexually transmitted infections. The comparator's per-organism rows remain, still labelled as its own, because they are a different quantity — not because no primary was found.",
+       "retrieval_state": "RETRIEVED_WITH_VALUE",
+       "tier": "registry results",
+       "source_quote": "The percentage of participants testing positive for any STI (gonorrhoea, chlamydia, trichomonas, syphilis) will be assessed.",
+       "trial_ids": [
+        "NCT01539226"
+       ],
+       "trials_label_note": "The attribution is keyed to NCT01617096. The name shown is DERIVED from the registry payload for that identifier, so a change to any label in this object cannot move which trial this row's numbers came from.",
+       "treatment": "682 / 1271 (53.7%)",
+       "control": "315 / 624 (50.5%)",
+       "prespecified": true,
+       "prespecified_basis": "The Ring Study names this a SECONDARY TRIAL OBJECTIVE: “Secondary trial objectives were to assess the incidence rate of curable sexually transmitted infections, adherence to ring use, and incidence of pregnancy.” It is not an incidental observation.",
+       "what_is_still_missing": "Per-organism counts for this trial. The registry posts the composite only; the paper points to Table S10 of the Supplementary Appendix, which NEJM serves behind bot protection (every supplement URL returns the same 68,132-byte HTML page, not a PDF). ASPIRE posts no STI outcome measure at all and reports the outcome only qualitatively.",
+       "derived_from": {
+        "source": "ClinicalTrials.gov posted results for NCT01539226, outcome measure “The Incidence of Curable STIs”",
+        "declared_type": "SECONDARY",
+        "param_type": "COUNT_OF_PARTICIPANTS",
+        "time_frame": "24 months",
+        "definition_verbatim": "The percentage of participants testing positive for any STI (gonorrhoea, chlamydia, trichomonas, syphilis) will be assessed.",
+        "counts": {
+         "intervention_events": 682,
+         "intervention_n": 1271,
+         "control_events": 315,
+         "control_n": 624
+        },
+        "computation": "RR = (682/1271) / (315/624); log-scale Wald interval with se(logRR) = sqrt(1/682 - 1/1271 + 1/315 - 1/624) = 0.0475.",
+        "staged_as": "evidence/acquisition/NCT01539226/registry.txt"
+       },
+       "corroboration": "SAME TRIAL, TWO INDEPENDENT ROUTES, DIFFERENT TIERS — and the tiers are named because they are different claims. The figure above is REGISTRY RESULTS tier, from ClinicalTrials.gov posted results for NCT01539226. The Ring Study's own PUBLICATION (N Engl J Med 2016;375:2133-2143, doi 10.1056/NEJMoa1602046, the same NCT01539226) states the finding as rates rather than risks: “The overall incidence rates of sexually transmitted infections were similar in the two trial groups. We observed 32.0 infections (95% CI, 29.6 to 34.5) per 100 person-years in the dapivirine group and 31.1 infections (95% CI, 27.7 to 34.6) per 100 person-years in the placebo group.” ⛔ THE RISK RATIO ABOVE IS DERIVED FROM THE REGISTRY COUNTS, NOT FROM THOSE RATES — two routes agreeing is evidence; one derived from the other is not.",
+       "only_one_trial_contributes": "⛔ THIS OUTCOME RESTS ON ONE OF THE TWO TRIALS, NOT BOTH, AND THAT IS A FACT ABOUT ASPIRE. ASPIRE (NCT01617096, MTN-020) posts FIVE outcome measures on ClinicalTrials.gov — efficacy, grade 2/3/4 and serious adverse events, adherence, acceptability, and HIV-1 drug resistance mutations — and NONE of them is a sexually-transmitted-infection outcome. Its publication carries a single qualitative sentence with no figure: “Incident sexually transmitted infections occurred at a similar rate in the two groups.” So the count, the denominator and the interval are the Ring Study's alone. ⚠️ A composite reported by one trial of two is not a pooled result and is not presented as one.",
+       "aspire_contribution": {
+        "nct": "NCT01617096",
+        "org_study_id": "MTN-020",
+        "registry_state": "POSTED_BUT_NO_STI_OUTCOME",
+        "registry_evidence": "five posted outcome measures, none of them an STI outcome",
+        "publication_state": "RETRIEVED_QUALITATIVE_ONLY",
+        "publication_verbatim": "Incident sexually transmitted infections occurred at a similar rate in the two groups.",
+        "contributes_to_the_figure": false
+       }
+      },
+      {
+       "outcome": "Chlamydia",
+       "treatment": "not stated in what we hold",
+       "control": "not stated in what we hold",
+       "effect": "RR 0.97 (0.89 to 1.07)",
+       "trials": "2 trials, 4588 women",
+       "tier": "prior-meta table (unverified)",
+       "source": {
+        "document_id": "PMC8092571",
+        "pmid": "33719075",
+        "what": "Cochrane CD007961.pub3, 'Topical microbicides for preventing sexually transmitted infections' — THE DESIGNATED COMPARATOR",
+        "route": "ncbi_efetch (Europe PMC returned 404)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 10857,
+        "tier": "prior-meta table (unverified)",
+        "sha256_prefix": "a61512f81de560a9",
+        "what_part_we_hold": "⚠️ ABSTRACT AND PLAIN-LANGUAGE SUMMARY ONLY. 10,857 rendered characters is the PMC deposit's front matter, not the review. The data tables, forest plots and per-outcome event counts are not in what we hold, so any figure not quoted below is unread.",
+        "its_search_date": "up to August 2020, quoted from its own abstract"
+       },
+       "source_quote": "In addition, dapivirine (RR 0.97, 95% CI 0.89 to 1.07), tenofovir (RR 0.90, 95% CI 0.71 to 1.13) … may result in little to no difference in the risk of acquiring chlamydia infection (low-certainty evidence).",
+       "why_the_primary_read_did_not_land": "This is the comparator's own pooled figure, quoted from its abstract. The underlying counts are in ASPIRE's Table S7 and the Ring Study's report, neither of which this retrieval obtained, so the number has not been reconciled against a primary read.",
+       "primary_read_2026_08_30": {
+        "what_was_read": [
+         "ASPIRE full text (PMC4993693)",
+         "Ring Study metadata (PMID 27959766)"
+        ],
+        "finding": "⛔ THE PRIMARY TRIALS WERE READ FOR THIS OUTCOME AND DO NOT CARRY IT. ASPIRE's full text reports sexually transmitted infections ONLY as a composite -- the word \"chlamydia\" does not appear in it at all -- and the Ring Study's primary report is not deposited in PubMed Central, so no open-access full text exists to read. RETRIEVAL STATES: ASPIRE RETRIEVED_NO_VALUE (document read, value not in it); Ring Study NOT_RETRIEVABLE_OPEN_ACCESS (document not readable by this review). ⚠️ The second is a fact about THIS REVIEW'S REACH, not about the trial, which may well report the outcome in its full article.",
+        "aspire_state": "RETRIEVED_NO_VALUE",
+        "ring_study_state": "NOT_RETRIEVABLE_OPEN_ACCESS",
+        "sources": [
+         {
+          "document_id": "PMC4993693",
+          "what": "ASPIRE / MTN-020 primary report, full text",
+          "pmid": "26900902",
+          "pmcid": "PMC4993693",
+          "doi": "10.1056/NEJMoa1506110",
+          "route": "PubMed Central full text (bio-research pubmed MCP, get_full_text_article)",
+          "retrieved_utc": "2026-08-30",
+          "staged_as": "sources/ASPIRE_PMC4993693.sti_excerpt.txt",
+          "sha256": "52d4ed03e3e5a7308476258c9b3fd0d52b1668ebeeba5a22f60de70b5eff3999",
+          "tier": "trial report"
+         },
+         {
+          "document_id": "PMID27959766",
+          "what": "The Ring Study primary report (Nel 2016, N Engl J Med 2016;375:2133-2143)",
+          "pmid": "27959766",
+          "doi": "10.1056/NEJMoa1602046",
+          "pmcid": null,
+          "route": "PubMed metadata; NO PMCID exists, so no open-access full text to retrieve",
+          "retrieved_utc": "2026-08-30",
+          "tier": "trial report, ABSTRACT ONLY"
+         }
+        ],
+        "why_the_borrowed_figure_stands": "The comparator remains the only source this review holds for a per-organism figure. It is retained, still labelled as the comparator's, and it is now known -- rather than assumed -- that no primary-source alternative is reachable. ⚠️ It is also a DIFFERENT QUANTITY from ASPIRE's composite and must not be read as confirming or contradicting it."
+       }
+      },
+      {
+       "outcome": "Syphilis",
+       "treatment": "not stated in what we hold",
+       "control": "not stated in what we hold",
+       "effect": "RR 1.70 (0.63 to 4.59)",
+       "trials": "as reported by the comparator",
+       "tier": "prior-meta table (unverified)",
+       "source": {
+        "document_id": "PMC8092571",
+        "pmid": "33719075",
+        "what": "Cochrane CD007961.pub3, 'Topical microbicides for preventing sexually transmitted infections' — THE DESIGNATED COMPARATOR",
+        "route": "ncbi_efetch (Europe PMC returned 404)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 10857,
+        "tier": "prior-meta table (unverified)",
+        "sha256_prefix": "a61512f81de560a9",
+        "what_part_we_hold": "⚠️ ABSTRACT AND PLAIN-LANGUAGE SUMMARY ONLY. 10,857 rendered characters is the PMC deposit's front matter, not the review. The data tables, forest plots and per-outcome event counts are not in what we hold, so any figure not quoted below is unread.",
+        "its_search_date": "up to August 2020, quoted from its own abstract"
+       },
+       "source_quote": "The evidence also suggests that dapivirine (RR 1.70, 95% CI 0.63 to 4.59), tenofovir (RR 1.27, 95% CI 0.58 to 2.78) … may have little or no effect on the risk of acquiring syphilis (low-certainty evidence).",
+       "why_the_primary_read_did_not_land": "As above. ⚠️ AND THE INTERVAL SPANS 0.63 TO 4.59, so it supports no conclusion in either direction and must not be read as harm.",
+       "primary_read_2026_08_30": {
+        "what_was_read": [
+         "ASPIRE full text (PMC4993693)",
+         "Ring Study metadata (PMID 27959766)"
+        ],
+        "finding": "⛔ THE PRIMARY TRIALS WERE READ FOR THIS OUTCOME AND DO NOT CARRY IT. ASPIRE's full text reports sexually transmitted infections ONLY as a composite -- the word \"syphilis\" does not appear in it at all -- and the Ring Study's primary report is not deposited in PubMed Central, so no open-access full text exists to read. RETRIEVAL STATES: ASPIRE RETRIEVED_NO_VALUE (document read, value not in it); Ring Study NOT_RETRIEVABLE_OPEN_ACCESS (document not readable by this review). ⚠️ The second is a fact about THIS REVIEW'S REACH, not about the trial, which may well report the outcome in its full article.",
+        "aspire_state": "RETRIEVED_NO_VALUE",
+        "ring_study_state": "NOT_RETRIEVABLE_OPEN_ACCESS",
+        "sources": [
+         {
+          "document_id": "PMC4993693",
+          "what": "ASPIRE / MTN-020 primary report, full text",
+          "pmid": "26900902",
+          "pmcid": "PMC4993693",
+          "doi": "10.1056/NEJMoa1506110",
+          "route": "PubMed Central full text (bio-research pubmed MCP, get_full_text_article)",
+          "retrieved_utc": "2026-08-30",
+          "staged_as": "sources/ASPIRE_PMC4993693.sti_excerpt.txt",
+          "sha256": "52d4ed03e3e5a7308476258c9b3fd0d52b1668ebeeba5a22f60de70b5eff3999",
+          "tier": "trial report"
+         },
+         {
+          "document_id": "PMID27959766",
+          "what": "The Ring Study primary report (Nel 2016, N Engl J Med 2016;375:2133-2143)",
+          "pmid": "27959766",
+          "doi": "10.1056/NEJMoa1602046",
+          "pmcid": null,
+          "route": "PubMed metadata; NO PMCID exists, so no open-access full text to retrieve",
+          "retrieved_utc": "2026-08-30",
+          "tier": "trial report, ABSTRACT ONLY"
+         }
+        ],
+        "why_the_borrowed_figure_stands": "The comparator remains the only source this review holds for a per-organism figure. It is retained, still labelled as the comparator's, and it is now known -- rather than assumed -- that no primary-source alternative is reachable. ⚠️ It is also a DIFFERENT QUANTITY from ASPIRE's composite and must not be read as confirming or contradicting it."
+       }
+      },
+      {
+       "outcome": "Gonorrhoea",
+       "treatment": "—",
+       "control": "—",
+       "effect": "the comparator reports no effect on the risk of acquiring gonorrhoea; ⚠️ NO FIGURE IS GIVEN HERE BECAUSE WE HOLD NONE. The comparator states this qualitatively in the part of it we hold; its per-outcome counts and intervals are in the data tables, and the PMC deposit is the abstract only. The pilot page printed a risk ratio for this outcome that does not appear in any document this project holds, and it is not carried forward.",
+       "trials": "—",
+       "tier": "prior-meta table (unverified)",
+       "source": {
+        "document_id": "PMC8092571",
+        "pmid": "33719075",
+        "what": "Cochrane CD007961.pub3, 'Topical microbicides for preventing sexually transmitted infections' — THE DESIGNATED COMPARATOR",
+        "route": "ncbi_efetch (Europe PMC returned 404)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 10857,
+        "tier": "prior-meta table (unverified)",
+        "sha256_prefix": "a61512f81de560a9",
+        "what_part_we_hold": "⚠️ ABSTRACT AND PLAIN-LANGUAGE SUMMARY ONLY. 10,857 rendered characters is the PMC deposit's front matter, not the review. The data tables, forest plots and per-outcome event counts are not in what we hold, so any figure not quoted below is unread.",
+        "its_search_date": "up to August 2020, quoted from its own abstract"
+       },
+       "source_quote": "The evidence also suggests that current topical microbicides may not have an effect on the risk of acquiring gonorrhoea, condyloma acuminatum, trichomoniasis, or human papillomavirus infection (low-certainty evidence).",
+       "why_the_primary_read_did_not_land": "The comparator states this outcome qualitatively in the abstract we hold and gives no figure for it there; the counts are in data tables the PMC deposit does not include.",
+       "primary_read_2026_08_30": {
+        "what_was_read": [
+         "ASPIRE full text (PMC4993693)",
+         "Ring Study metadata (PMID 27959766)"
+        ],
+        "finding": "⛔ THE PRIMARY TRIALS WERE READ FOR THIS OUTCOME AND DO NOT CARRY IT. ASPIRE's full text reports sexually transmitted infections ONLY as a composite -- the word \"gonorrhoea\" does not appear in it at all -- and the Ring Study's primary report is not deposited in PubMed Central, so no open-access full text exists to read. RETRIEVAL STATES: ASPIRE RETRIEVED_NO_VALUE (document read, value not in it); Ring Study NOT_RETRIEVABLE_OPEN_ACCESS (document not readable by this review). ⚠️ The second is a fact about THIS REVIEW'S REACH, not about the trial, which may well report the outcome in its full article.",
+        "aspire_state": "RETRIEVED_NO_VALUE",
+        "ring_study_state": "NOT_RETRIEVABLE_OPEN_ACCESS",
+        "sources": [
+         {
+          "document_id": "PMC4993693",
+          "what": "ASPIRE / MTN-020 primary report, full text",
+          "pmid": "26900902",
+          "pmcid": "PMC4993693",
+          "doi": "10.1056/NEJMoa1506110",
+          "route": "PubMed Central full text (bio-research pubmed MCP, get_full_text_article)",
+          "retrieved_utc": "2026-08-30",
+          "staged_as": "sources/ASPIRE_PMC4993693.sti_excerpt.txt",
+          "sha256": "52d4ed03e3e5a7308476258c9b3fd0d52b1668ebeeba5a22f60de70b5eff3999",
+          "tier": "trial report"
+         },
+         {
+          "document_id": "PMID27959766",
+          "what": "The Ring Study primary report (Nel 2016, N Engl J Med 2016;375:2133-2143)",
+          "pmid": "27959766",
+          "doi": "10.1056/NEJMoa1602046",
+          "pmcid": null,
+          "route": "PubMed metadata; NO PMCID exists, so no open-access full text to retrieve",
+          "retrieved_utc": "2026-08-30",
+          "tier": "trial report, ABSTRACT ONLY"
+         }
+        ],
+        "why_the_borrowed_figure_stands": "The comparator remains the only source this review holds for a per-organism figure. It is retained, still labelled as the comparator's, and it is now known -- rather than assumed -- that no primary-source alternative is reachable. ⚠️ It is also a DIFFERENT QUANTITY from ASPIRE's composite and must not be read as confirming or contradicting it."
+       }
+      },
+      {
+       "outcome": "Trichomoniasis",
+       "treatment": "—",
+       "control": "—",
+       "effect": "the comparator reports no effect on the risk of acquiring trichomoniasis; ⚠️ NO FIGURE IS GIVEN HERE BECAUSE WE HOLD NONE. The comparator states this qualitatively in the part of it we hold; its per-outcome counts and intervals are in the data tables, and the PMC deposit is the abstract only. The pilot page printed a risk ratio for this outcome that does not appear in any document this project holds, and it is not carried forward.",
+       "trials": "—",
+       "tier": "prior-meta table (unverified)",
+       "source": {
+        "document_id": "PMC8092571",
+        "pmid": "33719075",
+        "what": "Cochrane CD007961.pub3, 'Topical microbicides for preventing sexually transmitted infections' — THE DESIGNATED COMPARATOR",
+        "route": "ncbi_efetch (Europe PMC returned 404)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 10857,
+        "tier": "prior-meta table (unverified)",
+        "sha256_prefix": "a61512f81de560a9",
+        "what_part_we_hold": "⚠️ ABSTRACT AND PLAIN-LANGUAGE SUMMARY ONLY. 10,857 rendered characters is the PMC deposit's front matter, not the review. The data tables, forest plots and per-outcome event counts are not in what we hold, so any figure not quoted below is unread.",
+        "its_search_date": "up to August 2020, quoted from its own abstract"
+       },
+       "source_quote": "The evidence also suggests that current topical microbicides may not have an effect on the risk of acquiring gonorrhoea, condyloma acuminatum, trichomoniasis, or human papillomavirus infection (low-certainty evidence).",
+       "why_the_primary_read_did_not_land": "As for gonorrhoea: stated qualitatively, no figure in what we hold.",
+       "primary_read_2026_08_30": {
+        "what_was_read": [
+         "ASPIRE full text (PMC4993693)",
+         "Ring Study metadata (PMID 27959766)"
+        ],
+        "finding": "⛔ THE PRIMARY TRIALS WERE READ FOR THIS OUTCOME AND DO NOT CARRY IT. ASPIRE's full text reports sexually transmitted infections ONLY as a composite -- the word \"trichomoniasis\" does not appear in it at all -- and the Ring Study's primary report is not deposited in PubMed Central, so no open-access full text exists to read. RETRIEVAL STATES: ASPIRE RETRIEVED_NO_VALUE (document read, value not in it); Ring Study NOT_RETRIEVABLE_OPEN_ACCESS (document not readable by this review). ⚠️ The second is a fact about THIS REVIEW'S REACH, not about the trial, which may well report the outcome in its full article.",
+        "aspire_state": "RETRIEVED_NO_VALUE",
+        "ring_study_state": "NOT_RETRIEVABLE_OPEN_ACCESS",
+        "sources": [
+         {
+          "document_id": "PMC4993693",
+          "what": "ASPIRE / MTN-020 primary report, full text",
+          "pmid": "26900902",
+          "pmcid": "PMC4993693",
+          "doi": "10.1056/NEJMoa1506110",
+          "route": "PubMed Central full text (bio-research pubmed MCP, get_full_text_article)",
+          "retrieved_utc": "2026-08-30",
+          "staged_as": "sources/ASPIRE_PMC4993693.sti_excerpt.txt",
+          "sha256": "52d4ed03e3e5a7308476258c9b3fd0d52b1668ebeeba5a22f60de70b5eff3999",
+          "tier": "trial report"
+         },
+         {
+          "document_id": "PMID27959766",
+          "what": "The Ring Study primary report (Nel 2016, N Engl J Med 2016;375:2133-2143)",
+          "pmid": "27959766",
+          "doi": "10.1056/NEJMoa1602046",
+          "pmcid": null,
+          "route": "PubMed metadata; NO PMCID exists, so no open-access full text to retrieve",
+          "retrieved_utc": "2026-08-30",
+          "tier": "trial report, ABSTRACT ONLY"
+         }
+        ],
+        "why_the_borrowed_figure_stands": "The comparator remains the only source this review holds for a per-organism figure. It is retained, still labelled as the comparator's, and it is now known -- rather than assumed -- that no primary-source alternative is reachable. ⚠️ It is also a DIFFERENT QUANTITY from ASPIRE's composite and must not be read as confirming or contradicting it."
+       }
+      },
+      {
+       "outcome": "Human papillomavirus and condyloma acuminatum",
+       "treatment": "—",
+       "control": "—",
+       "effect": "the comparator reports no effect; no figure is given in what we hold",
+       "trials": "—",
+       "tier": "prior-meta table (unverified)",
+       "source": {
+        "document_id": "PMC8092571",
+        "pmid": "33719075",
+        "what": "Cochrane CD007961.pub3, 'Topical microbicides for preventing sexually transmitted infections' — THE DESIGNATED COMPARATOR",
+        "route": "ncbi_efetch (Europe PMC returned 404)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 10857,
+        "tier": "prior-meta table (unverified)",
+        "sha256_prefix": "a61512f81de560a9",
+        "what_part_we_hold": "⚠️ ABSTRACT AND PLAIN-LANGUAGE SUMMARY ONLY. 10,857 rendered characters is the PMC deposit's front matter, not the review. The data tables, forest plots and per-outcome event counts are not in what we hold, so any figure not quoted below is unread.",
+        "its_search_date": "up to August 2020, quoted from its own abstract"
+       },
+       "source_quote": "The evidence also suggests that current topical microbicides may not have an effect on the risk of acquiring gonorrhoea, condyloma acuminatum, trichomoniasis, or human papillomavirus infection (low-certainty evidence).",
+       "why_the_primary_read_did_not_land": "Stated qualitatively in the abstract; no figure in the deposit we hold.",
+       "primary_read_2026_08_30": {
+        "what_was_read": [
+         "ASPIRE full text (PMC4993693)",
+         "Ring Study metadata (PMID 27959766)"
+        ],
+        "finding": "⛔ THE PRIMARY TRIALS WERE READ FOR THIS OUTCOME AND DO NOT CARRY IT. ASPIRE's full text reports sexually transmitted infections ONLY as a composite -- the word \"human\" does not appear in it at all -- and the Ring Study's primary report is not deposited in PubMed Central, so no open-access full text exists to read. RETRIEVAL STATES: ASPIRE RETRIEVED_NO_VALUE (document read, value not in it); Ring Study NOT_RETRIEVABLE_OPEN_ACCESS (document not readable by this review). ⚠️ The second is a fact about THIS REVIEW'S REACH, not about the trial, which may well report the outcome in its full article.",
+        "aspire_state": "RETRIEVED_NO_VALUE",
+        "ring_study_state": "NOT_RETRIEVABLE_OPEN_ACCESS",
+        "sources": [
+         {
+          "document_id": "PMC4993693",
+          "what": "ASPIRE / MTN-020 primary report, full text",
+          "pmid": "26900902",
+          "pmcid": "PMC4993693",
+          "doi": "10.1056/NEJMoa1506110",
+          "route": "PubMed Central full text (bio-research pubmed MCP, get_full_text_article)",
+          "retrieved_utc": "2026-08-30",
+          "staged_as": "sources/ASPIRE_PMC4993693.sti_excerpt.txt",
+          "sha256": "52d4ed03e3e5a7308476258c9b3fd0d52b1668ebeeba5a22f60de70b5eff3999",
+          "tier": "trial report"
+         },
+         {
+          "document_id": "PMID27959766",
+          "what": "The Ring Study primary report (Nel 2016, N Engl J Med 2016;375:2133-2143)",
+          "pmid": "27959766",
+          "doi": "10.1056/NEJMoa1602046",
+          "pmcid": null,
+          "route": "PubMed metadata; NO PMCID exists, so no open-access full text to retrieve",
+          "retrieved_utc": "2026-08-30",
+          "tier": "trial report, ABSTRACT ONLY"
+         }
+        ],
+        "why_the_borrowed_figure_stands": "The comparator remains the only source this review holds for a per-organism figure. It is retained, still labelled as the comparator's, and it is now known -- rather than assumed -- that no primary-source alternative is reachable. ⚠️ It is also a DIFFERENT QUANTITY from ASPIRE's composite and must not be read as confirming or contradicting it."
+       }
+      },
+      {
+       "outcome": "Herpes simplex virus type 2",
+       "treatment": "—",
+       "control": "—",
+       "effect": "NOT MEASURABLE for this product — the comparator reports HSV-2 for cellulose sulphate, PRO 2000 and tenofovir, and reports none for dapivirine; ASPIRE's report does not carry an HSV outcome either",
+       "trials": "—",
+       "tier": "absent by design",
+       "source": {
+        "document_id": "PMC8092571",
+        "pmid": "33719075",
+        "what": "Cochrane CD007961.pub3, 'Topical microbicides for preventing sexually transmitted infections' — THE DESIGNATED COMPARATOR",
+        "route": "ncbi_efetch (Europe PMC returned 404)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 10857,
+        "tier": "prior-meta table (unverified)",
+        "sha256_prefix": "a61512f81de560a9",
+        "what_part_we_hold": "⚠️ ABSTRACT AND PLAIN-LANGUAGE SUMMARY ONLY. 10,857 rendered characters is the PMC deposit's front matter, not the review. The data tables, forest plots and per-outcome event counts are not in what we hold, so any figure not quoted below is unread.",
+        "its_search_date": "up to August 2020, quoted from its own abstract"
+       },
+       "source_quote": "Existing evidence suggests that cellulose sulphate … and PRO 2000 … may result in little to no difference in the risk of getting herpes simplex virus type 2 infection"
+      },
+      {
+       "outcome": "Acceptability",
+       "treatment": "—",
+       "control": "—",
+       "effect": "NOT REPORTED by any trial in the comparator's set — “No study reported on acceptability of the intervention.”",
+       "trials": "—",
+       "tier": "absent",
+       "source": {
+        "document_id": "PMC8092571",
+        "pmid": "33719075",
+        "what": "Cochrane CD007961.pub3, 'Topical microbicides for preventing sexually transmitted infections' — THE DESIGNATED COMPARATOR",
+        "route": "ncbi_efetch (Europe PMC returned 404)",
+        "retrieved_utc": "2026-08-30",
+        "rendered_chars": 10857,
+        "tier": "prior-meta table (unverified)",
+        "sha256_prefix": "a61512f81de560a9",
+        "what_part_we_hold": "⚠️ ABSTRACT AND PLAIN-LANGUAGE SUMMARY ONLY. 10,857 rendered characters is the PMC deposit's front matter, not the review. The data tables, forest plots and per-outcome event counts are not in what we hold, so any figure not quoted below is unread.",
+        "its_search_date": "up to August 2020, quoted from its own abstract"
+       },
+       "source_quote": "No study reported on acceptability of the intervention."
+      }
+     ]
+    },
+    "estimand_mismatch": {
+     "pooled_quantity": "risk ratio over binary counts",
+     "trials_analysed": "time to event, with censoring and unequal follow-up",
+     "statement": "⚠️ THE QUANTITY POOLED HERE IS NOT THE QUANTITY THE TRIALS ANALYSED. Both trials analysed HIV-1 acquisition as TIME TO EVENT, with censoring and unequal follow-up; ASPIRE reports a median of 1.6 years per participant and a follow-up window of 12 to 14 months on its registered primary outcome. What this review pools is a RISK RATIO over binary counts, because binary counts are what the object holds. That is a different quantity from the trials' own estimand: it weights a participant followed for two years the same as one followed for twelve months, and it will differ from a hazard ratio whenever follow-up differs between arms. It is reported because it is what the evidence here supports, and it is labelled rather than presented as though it were the trials' own analysis.",
+     "source_quote": "ASPIRE, registered primary outcome time frame: “minimum of 12 months and a maximum of 14 months per participant”. The Ring Study: “24 months”.",
+     "what_would_fix_it": "Per-arm person-time or the trials' own hazard ratios with their standard errors. Neither is in this object; neither has been extracted; and no hazard ratio is derived here from counts, because a hazard ratio derived from binary counts is a risk ratio wearing a different name."
+    },
+    "followup": {
+     "median": 1.6,
+     "unit": "years",
+     "iqr": "1.1 to 2.3",
+     "maximum": 2.6,
+     "person_years": 4280,
+     "source": {
+      "document_id": "PMC4993693",
+      "what": "ASPIRE / MTN-020 primary report",
+      "route": "ncbi_efetch (Europe PMC returned 503)",
+      "retrieved_utc": "2026-08-30",
+      "tier": "trial report",
+      "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+      "scope": "⚠️ ASPIRE ONLY. The Ring Study's report is not held (PMID 27959766, no PMC id, europepmc_by_pmid 404), so none of these values is claimed for both trials."
+     },
+     "source_quote": "The median follow-up was 1.6 years (interquartile range, 1.1 to 2.3), and the maximum follow-up was 2.6 years; 1024 women contributed more than 2 years of follow-up.",
+     "basis": "⛔ THIS IS ASPIRE'S MEDIAN, NOT A POOLED FOLLOW-UP, and the number needed to treat derived beside it is over BOTH trials. It is reported as the horizon the larger trial observed rather than as the review's own, because the object holds no pooled follow-up and inventing one would attach a false precision to the figure a clinician remembers."
+    },
+    "background_care": {
+     "delivered_to": "every participant in both arms",
+     "what": "counselling on HIV-1 risk reduction, partner HIV-1 testing, treatment of sexually transmitted infections in participants and partners, and free condoms",
+     "source": {
+      "document_id": "PMC4993693",
+      "what": "ASPIRE / MTN-020 primary report",
+      "route": "ncbi_efetch (Europe PMC returned 503)",
+      "retrieved_utc": "2026-08-30",
+      "tier": "trial report",
+      "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+      "scope": "⚠️ ASPIRE ONLY. The Ring Study's report is not held (PMID 27959766, no PMC id, europepmc_by_pmid 404), so none of these values is claimed for both trials."
+     },
+     "source_quote": "All participants received a package of HIV-1 prevention services, including counseling with respect to HIV-1 risk reduction, partner HIV-1 testing, treatment of sexually transmitted infections in participants and partners, and free condoms.",
+     "what_it_means_for_the_estimate": "The effect is measured ON TOP OF this package, delivered to both arms. It therefore describes the ring ADDED to that care and says nothing about the ring used INSTEAD of it. ⭐ Stated as a property of the evidence rather than as advice: this review has no standing to recommend a package of care, and it does have standing to say what its own estimate is conditional on."
+    },
+    "adherence": {
+     "measured": true,
+     "how": "dapivirine detection in plasma, residual drug in returned rings, and the composite of those two measures",
+     "rate_over_21": "more than 70% overall",
+     "contact_schedule": "monthly follow-up visits including HIV-1 serologic testing, safety monitoring and individualised adherence counselling",
+     "source": {
+      "document_id": "PMC4993693",
+      "what": "ASPIRE / MTN-020 primary report",
+      "route": "ncbi_efetch (Europe PMC returned 503)",
+      "retrieved_utc": "2026-08-30",
+      "tier": "trial report",
+      "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+      "scope": "⚠️ ASPIRE ONLY. The Ring Study's report is not held (PMID 27959766, no PMC id, europepmc_by_pmid 404), so none of these values is claimed for both trials."
+     },
+     "source_quote": "For women who were older than 21 years of age, the efficacy of HIV-1 protection was 56% (95% CI, 31 to 71; P<0.001), and the rate of adherence was more than 70% overall, as defined by dapivirine detection in plasma, in returned rings, and in the composite of those two measures.",
+     "schedule_quote": "Women returned for monthly follow-up visits, which included HIV-1 serologic testing, safety monitoring, and individualized adherence counseling.",
+     "what_it_means_for_the_estimate": "Adherence was OBSERVED, not assumed, and it was observed under monthly contact. A service that does not reproduce monthly contact should expect lower adherence and therefore a smaller effect than this one: the estimate is an efficacy under trial conditions, not an effectiveness in use."
+    },
+    "subgroups_interaction": {
+     "p_as_printed": "P = 0.02 for interaction",
+     "p": 0.02,
+     "applies_to": "the PRESPECIFIED split (under 25 versus 25 and over)",
+     "analysis_status": "PRESPECIFIED",
+     "verbatim": "However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).",
+     "source": {
+      "pmid": "26900902",
+      "pmcid": "PMC4993693",
+      "doi": "10.1056/NEJMoa1506110",
+      "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+      "retrieved_utc": "2026-08-30"
+     },
+     "how_to_read_it": "⚠️ AN INTERACTION TEST STRENGTHENS A POST-HOC SUBGROUP; IT DOES NOT MAKE IT PRESPECIFIED. P = 0.02 is reported for the PRESPECIFIED age split, and the age-categorised thirds below it remain POST HOC. Both facts must be read together: presenting the thirds as a finding because an interaction test exists would recreate exactly the overclaim this review caught in its own reference -- a post-hoc subgroup presented as a finding.",
+     "migrated_from": "stratified_analyses['age (prespecified)'].interaction"
+    },
+    "subgroup_heading": "By age at enrolment",
+    "subgroup_footnote": "Two of these strata are PRESPECIFIED (under 25 versus 25 and over) and two are POST HOC; each row says which. For the prespecified split the trial reports P = 0.02 for interaction, applying to the PRESPECIFIED split (under 25 versus 25 and over). That test strengthens the prespecified split — it does NOT make the post-hoc strata prespecified, and no interaction test is reported for them. The source's words: “However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).” These strata are reported, not tested against one another beyond that single interaction test.",
+    "recompute_bases_2026_08_30": {
+     "why_this_exists": "⛔ A RECOMPUTABLE PAGE THAT SILENTLY SELECTS ONE OF TWO DEFENSIBLE INPUTS IS VERIFIABLE AND STILL MISLEADING. A reader can check our arithmetic perfectly and never learn there was a choice. Both bases are therefore given, with the headline named.",
+     "headline_basis": "registry results",
+     "why_the_headline_basis": "It is the tier this object DECLARES in `inputs.trials[].arms_basis.tier`, and that declaration predates this comparison. ⚠️ The rule was fixed BEFORE the alternative was computed, so the headline cannot have been chosen by which answer it gave.",
+     "bases": [
+      {
+       "name": "registry results",
+       "headline": true,
+       "counts": {
+        "NCT01539226": "82/1302 vs 61/650",
+        "NCT01617096": "71/1313 vs 97/1313"
+       },
+       "pooled": "RR 0.7030 (95% CI 0.5660 to 0.8731)",
+       "tau2": 0.0,
+       "Q": 0.1533,
+       "excludes_no_difference": true
+      },
+      {
+       "name": "best published (adjudicated publication + trial report)",
+       "headline": false,
+       "counts": {
+        "NCT01539226": "77/1300 vs 56/650 — external review citing the adjudicated publication",
+        "NCT01617096": "71/1313 vs 97/1316 — trial report"
+       },
+       "pooled": "RR 0.7127 (95% CI 0.5715 to 0.8889)",
+       "tau2": 0.0,
+       "Q": 0.082,
+       "excludes_no_difference": true
+      }
+     ],
+     "what_changes": "NEITHER THE DIRECTION NOR THE SIGNIFICANCE. The pooled risk ratio moves from 0.7030 to 0.7127 — a shift of 0.0097, about one per cent of the effect. Both intervals exclude no difference and heterogeneity is zero under both. ⭐ Saying so costs nothing and is worth stating: a reader who prefers the adjudicated counts gets essentially our answer.",
+     "the_bases_are_not_interchangeable_per_trial": "⛔ THE TIERS ARE NOT SYMMETRIC AND MAY NOT BE MIXED. The Ring Study holds ‘external review citing the adjudicated publication’; ASPIRE holds ‘trial report’. Asking both for the same second tier fails, correctly, because one of them does not have it. Pooling one trial's adjudicated counts with another's registry counts would be a MIXED BASIS presented as one — the arithmetic would succeed and the result would not be the quantity its label claims. `ma_studies_envelope.assert_one_basis` now refuses that pool by name.",
+     "recompute_it_yourself": "The study-level effects behind the headline basis are published as a `ma-studies-v1` envelope, derived from THIS OBJECT rather than from the rendered page, and recomputing them reproduces the published estimate to within rounding: 0.702983 against 0.703000."
     },
     "grade": {
      "indirectness": {
@@ -609,7 +1561,52 @@
  ],
  "renamed_2026_08_18": "Renamed from agyw-hiv-prep-auto-full-review. THE READER LANDS ON agyw-hiv-prep_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write.",
  "carried_contrasts": [],
- "sources": {},
+ "sources": {
+  "ASPIRE_PRIMARY_PMC": {
+   "layer": "Trial primary report, open access via PubMed Central",
+   "layer_rank": 1,
+   "name": "Baeten et al. Use of a Vaginal Ring Containing Dapivirine for HIV-1 Prevention in Women. N Engl J Med 2016.",
+   "pmid": "26900902",
+   "pmcid": "PMC4993693",
+   "doi": "10.1056/NEJMoa1506110",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4993693/",
+   "staged_as": "sources/ASPIRE_PMC4993693.jats.xml",
+   "extract_as": "sources/ASPIRE_PMC4993693.extract.txt",
+   "retrieved_utc": "2026-08-30",
+   "bytes": 87588,
+   "sha256": "a6c75ad7e331aff7ff37a779",
+   "how_found": "PubMed E-utilities esearch on NCT01617096[si] -- the REGISTRATION link, not a publication-type filter. The query returned 9 records for this trial and most are sub-studies carrying the same registration; the primary was identified by title and date. A type tag is not a role.",
+   "access_note": "Staged because the page's headline clinical figure -- 56% protection in women over 21 -- was grounded in nothing we held. Source: ASPIRE, PMID 26900902, PMC4993693, doi 10.1056/NEJMoa1506110, retrieved 2026-08-30. Zero hits for '56' or 'age-strat' in this object, no sources directory existed, and the WHO guideline's two '56%' are the upper CI bound of a different estimate and a sexual-partner percentage. The figure is real and this file is where it lives: 'In a post hoc analysis, higher rates of HIV-1 protection were observed among women over the age of 21 years (56%; 95% CI, 31 to 71; P<0.001) but not among those 21 years of age or younger (-27%; 95% CI, -133 to 31; P = 0.45)'. The clinical reading states the 56% without 'post hoc' and without the interval.",
+   "nct": "NCT01617096",
+   "registry_identity": {
+    "nct": "NCT01617096",
+    "acronym": "ASPIRE",
+    "org_study_id": "MTN-020",
+    "brief_title": "Phase 3 Safety and Effectiveness Trial of Dapivirine Vaginal Ring for Prevention of HIV-1 in Women",
+    "enrollment": 2629
+   },
+   "label_is_derived_from": "evidence/acquisition/NCT01617096/registry.txt — the trial's OWN acronym and sponsor study id. ⚠️ Our label is NOT the identity and must never be the key."
+  },
+  "RING_STUDY_PRIMARY": {
+   "layer": "Trial primary report",
+   "layer_rank": 1,
+   "name": "Nel et al. Safety and Efficacy of a Dapivirine Vaginal Ring for HIV Prevention in Women. N Engl J Med 2016.",
+   "pmid": "27959766",
+   "pmcid": null,
+   "state": "NOT_YET_FOUND",
+   "how_found": "PubMed E-utilities esearch on NCT01539226[si]; 6 records, primary identified by title and date.",
+   "access_note": "PMID recovered 2026-08-30; the id converter returns NO PMC id, so no open full text was reachable by this route. That is a statement about the routes tried, not a claim that no full text exists. The page's 'primary report NOT held -- paywalled' is consistent with this and is now backed by a named attempt rather than asserted.",
+   "nct": "NCT01539226",
+   "registry_identity": {
+    "nct": "NCT01539226",
+    "acronym": null,
+    "org_study_id": "IPM 027",
+    "brief_title": "Safety and Efficacy Trial of a Dapivirine Vaginal Matrix Ring in Healthy HIV-Negative Women",
+    "enrollment": 1959
+   },
+   "label_is_derived_from": "evidence/acquisition/NCT01539226/registry.txt — the trial's OWN acronym and sponsor study id. ⚠️ Our label is NOT the identity and must never be the key."
+  }
+ },
  "outcomes": [
   {
    "id": "primary",
@@ -2070,7 +3067,7 @@
      {
       "domain": "indirectness",
       "move": "MODERATE to LOW, down 1 level(s)",
-      "reason": "THIS TOPIC IS NAMED FOR ADOLESCENT GIRLS AND YOUNG WOMEN AND NEITHER TRIAL ENROLLED AN ADOLESCENT. Both registrations set a MINIMUM AGE OF 18 YEARS (NCT01539226 and NCT01617096, eligibility module, both 18 to 45 years, FEMALE). The estimate is therefore indirect for the younger half of the named population, in whom adherence to a vaginal ring is the very thing in question. THE SETTING IS NOT THE PROBLEM: the trials ran in South Africa, Uganda, Malawi and Zimbabwe, which is directly the population of interest by region."
+      "reason": "THIS TOPIC IS NAMED FOR ADOLESCENT GIRLS AND YOUNG WOMEN. Both registrations set a MINIMUM ELIGIBILITY AGE OF 18 YEARS (NCT01539226 and NCT01617096, eligibility module, both 18 to 45 years, FEMALE). The object DOES NOT HOLD ENROLLED-AGE DISTRIBUTIONS, so it cannot say whether any adolescent was actually enrolled. The estimate is therefore indirect for people under 18 in the named population, in whom adherence to a vaginal ring is the very thing in question. THE SETTING IS NOT THE PROBLEM: the trials ran in South Africa, Uganda, Malawi and Zimbabwe, which is directly the population of interest by region."
      },
      {
       "domain": "imprecision",
@@ -2085,7 +3082,7 @@
       "reason": "k = 2. A funnel plot and its asymmetry tests have essentially no power below about ten trials (Handbook 13.3.5.4), so this is NOT ASSESSABLE rather than 'undetected'."
      }
     ],
-    "summary": "LOW certainty. The two trials agree closely and ran in the right countries, so the downgrades are for the unread adherence and attrition domains and for a population mismatch the topic's own name conceals: NEITHER TRIAL ENROLLED ANYONE UNDER 18.",
+    "summary": "LOW certainty. The two trials agree closely and ran in the right countries, so the downgrades are for the unread adherence and attrition domains and for a population mismatch the topic's own name conceals: both registrations set minimum eligibility at 18, and the object does not hold enrolled-age distributions.",
     "rating_up_not_applied": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH.",
     "SUPERSEDED_2026_08_30": {
      "superseded_by": "grade_engine.derive(canon, \"primary\")",
@@ -2118,7 +3115,10 @@
   },
   "identity_basis": "NOT APPLICABLE -- no comparable synthesis was found, so there is no trial set to have identified.",
   "reviews": [],
-  "THE_FINDING_OF_THIS_COMPARISON_2026_08_21": "NO PUBLISHED SYNTHESIS POOLING THE EFFICACY OF THESE TWO TRIALS WAS FOUND. Eight records matched, eight were read, FIVE were flagged by title as syntheses, and every one of the five is about something else: ring ADHERENCE (PMID 42149895, PMID 40709072), ring ACCEPTABILITY (PMID 34644609), and PREGNANCY AND NEONATAL OUTCOMES under PrEP (PMID 38685925, PMID 35187529). NONE POOLS HIV SEROCONVERSION ACROSS ASPIRE AND THE RING STUDY. Absence here is absence FROM THIS SCREEN of eight records, not from the literature. It does NOT license calling this pool novel. One query on one database was run and no included-study table was opened anywhere. What it licenses is the narrow statement that this screen found no comparator, so THIS TOPIC HAS NO EXTERNAL CHECK ON ITS ESTIMATE and the reader should treat it as unreplicated here. Class 82 compares our trial count with a published one. WITH NO PUBLISHED COUNT THERE IS NOTHING TO COMPARE, so this topic joins the nine of eighteen whose appraised comparison states no trial count -- not the four where ours is lower. It is neither evidence for nor against the breadth deficit."
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_21": "NO PUBLISHED SYNTHESIS POOLING THE EFFICACY OF THESE TWO TRIALS WAS FOUND. Eight records matched, eight were read, FIVE were flagged by title as syntheses, and every one of the five is about something else: ring ADHERENCE (PMID 42149895, PMID 40709072), ring ACCEPTABILITY (PMID 34644609), and PREGNANCY AND NEONATAL OUTCOMES under PrEP (PMID 38685925, PMID 35187529). NONE POOLS HIV SEROCONVERSION ACROSS ASPIRE AND THE RING STUDY. Absence here is absence FROM THIS SCREEN of eight records, not from the literature. It does NOT license calling this pool novel. One query on one database was run and no included-study table was opened anywhere. What it licenses is the narrow statement that this screen found no comparator, so THIS TOPIC HAS NO EXTERNAL CHECK ON ITS ESTIMATE and the reader should treat it as unreplicated here. Class 82 compares our trial count with a published one. WITH NO PUBLISHED COUNT THERE IS NOTHING TO COMPARE, so this topic joins the nine of eighteen whose appraised comparison states no trial count -- not the four where ours is lower. It is neither evidence for nor against the breadth deficit.",
+  "designated_comparator_pmid": "33719075",
+  "designated_comparator_because": "Cochrane, 'Topical microbicides for preventing sexually transmitted infections', Cochrane Database Syst Rev, 13 March 2021. Designated by hand on 2026-08-29 because choosing which published review answers this question is a judgement, not a query -- the currency component refuses to make it and an earlier version that took whichever PMID appeared first selected 42149895, an adherence review of OBSERVATIONAL studies, and reported an evidence gap derived from it. Its search cut-off is quoted from its own abstract: '...up to August 2020'. Its scope is broader than this question (topical microbicides generally), which is the same fact behind the PICO contamination seen when its comparator text was extracted.",
+  "screen_stored_no_identities_2026_08_29": "THE SCREEN RECORDED COUNTS AND NOT ONE IDENTIFIER, so it cannot be audited. appraisal/PUBLISHED_SYNTHESIS_SCREEN.json records matched 8 / retrieved 8 / read 8 / flagged_by_title 5 / appraised [] and stores no PMID. Re-running its query verbatim on 2026-08-29 returns 12 records, including BOTH reviews this page names -- the Cochrane review 33719075 and Musekiwa 32306503. Whether the original 8 contained them cannot be established either way, because no identity was kept. The query was NOT at fault: constrained to each of those UIDs it returns them. A count without its population is a reach figure, and this one is unauditable rather than wrong."
  },
  "model_output": {
   "_why": "P46 limb 4 -- the model output as the software printed it.",

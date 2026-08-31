@@ -1,0 +1,141 @@
+python files read                            1071
+NEGATIVE guards that exclude, skip or return 2338
+
+objects read                                 155
+recorded exclusions phrased as an absence    4
+
+TOP FILES BY NEGATIVE-EXCLUSION COUNT:
+   ssot/paper_projector.py                                   78
+   ssot/validate_v2.py                                       67
+   ssot/projectors2.py                                       27
+   ssot/build_app_v2.py                                      23
+   ssot/projectors.py                                        21
+   ssot/build_tabbed.py                                      18
+   scripts/nafis_harness/probes.py                           16
+   scripts/nafis_harness/probes_build.py                     15
+   ssot/apply_reml_corpus.py                                 15
+   scripts/corpus/corpus_detectors.py                        13
+   ssot/statement.py                                         13
+   scripts/audit_exclusion_by_absence.py                     12
+   scripts/cross_check_external.py                           12
+   scripts/audit_citation_consistency.py                     11
+   scripts/registration_ordering_gate.py                     11
+   ssot/corpus_reconcile.py                                  11
+
+OBJECTS WITH THE MOST ABSENCE-PHRASED EXCLUSIONS:
+   arni-hfref                                        3
+   sotagliflozin-hf                                  1
+
+   examples:
+     arni-hfref                     ANSWER-HF -- fails measure This is the hardest exclusion in the table and the only one that passes t
+     arni-hfref                     Bano 2021 -- fails measure Right population and right comparator: a randomised comparison of sacubit
+     arni-hfref                     Li 2019 -- screened, eligibility could not be established Eligibility is undetermined, not decided. 
+     sotagliflozin-hf               SOTA-P-CARDIA -- outcome_not_this_review's A sotagliflozin trial, and it is in this log rather than 
+
+COUNTED AND NAMED, NOT ADJUDICATED. Many of these are correct -- excluding a
+record that genuinely has no comparator arm is right. The defect is only where
+the absence stands in for a DIFFERENT property that was meant, as `zero paper
+sections` stood in for `built by an older generator` and `phase not in the
+enumerated list` stood in for `not a phase 3 trial`. Reading each settles it.
+
+THE ENUMERABLE SUBSET -- negative guards INSIDE a loop over the corpus: 223
+A guard here decides what a corpus-wide FIX REACHES. The reading-order rollout's
+`zero paper-* sections` excluded three live pages, two of which serve nothing for
+a pooled point their object holds.
+    scripts/ambiguous_field_sweep.py:97  (loop opened at line 95)
+        if not os.path.exists(f):
+    scripts/ambiguous_field_sweep.py:104  (loop opened at line 95)
+        if not isinstance(blk, dict):
+    scripts/ambiguous_field_sweep.py:107  (loop opened at line 95)
+        if pl.get("point") is None:
+    scripts/arm_role_triage.py:80  (loop opened at line 78)
+        if not os.path.exists(f):
+    scripts/arm_role_triage.py:89  (loop opened at line 78)
+        if not isinstance(t, dict):
+    scripts/arm_role_triage.py:98  (loop opened at line 78)
+        if not reg:
+    scripts/arm_role_triage.py:114  (loop opened at line 78)
+        if not isinstance(blk, dict):
+    scripts/arni_four_checks.py:143  (loop opened at line 141)
+        if not os.path.exists(fp):
+    scripts/audit_abstract_certainty_source_2026_08_22.py:64  (loop opened at line 55)
+        if not by:
+    scripts/audit_abstract_certainty_source_2026_08_22.py:67  (loop opened at line 55)
+        if said is None:
+    scripts/audit_analysis_population_estimand.py:108  (loop opened at line 90)
+        if not n:
+    scripts/audit_analysis_population_estimand.py:121  (loop opened at line 90)
+        if not isinstance(blk, dict):
+    scripts/audit_arm_direction_fingerprint_2026_08_23.py:172  (loop opened at line 162)
+        if not isinstance(tr, dict):
+    scripts/audit_corpus_duplication_2026_08_19.py:56  (loop opened at line 54)
+        if not os.path.exists(p):
+    scripts/audit_corpus_duplication_2026_08_19.py:69  (loop opened at line 54)
+        if not ncts:
+    scripts/audit_exclusion_by_absence.py:91  (loop opened at line 89)
+        if not nm.endswith(".py"):
+    scripts/audit_exclusion_by_absence.py:101  (loop opened at line 89)
+        if not NEG_GUARD.search(ln):
+    scripts/audit_exclusion_by_absence.py:121  (loop opened at line 119)
+        if not os.path.isdir(d):
+    scripts/audit_exclusion_by_absence.py:124  (loop opened at line 119)
+        if not os.path.exists(fp):
+    scripts/audit_exclusion_by_absence.py:143  (loop opened at line 119)
+        if not isinstance(e, dict):
+    scripts/audit_exclusion_by_absence.py:209  (loop opened at line 207)
+        if not nm.endswith(".py"):
+    scripts/audit_exclusion_by_absence.py:228  (loop opened at line 207)
+        if not stack:
+    scripts/audit_exclusion_by_absence.py:230  (loop opened at line 207)
+        if not NEG_GUARD.search(ln):
+    scripts/audit_grade_per_pool_2026_08_23.py:69  (loop opened at line 58)
+        if not mine:
+    scripts/audit_grade_per_pool_2026_08_23.py:101  (loop opened at line 58)
+        if not val:
+    scripts/audit_mixed_contrast_pools.py:259  (loop opened at line 250)
+        if not isinstance(trials, list):
+    scripts/audit_null_cursor_evidence.py:134  (loop opened at line 124)
+        if not isinstance(db, dict):
+    scripts/audit_our_k_against_theirs.py:163  (loop opened at line 150)
+        if not isinstance(rev, dict):
+    scripts/audit_p46_closure_quality.py:94  (loop opened at line 92)
+        if not os.path.exists(fp):
+    scripts/audit_p46_closure_quality.py:101  (loop opened at line 92)
+        if not pools:
+    scripts/audit_p46_limbs_reach_a_reader.py:276  (loop opened at line 268)
+        if not p46.pooled_outcomes(obj):
+    scripts/audit_p46_limbs_reach_a_reader.py:286  (loop opened at line 268)
+        if not pages:
+    scripts/audit_p46_limbs_reach_a_reader.py:306  (loop opened at line 268)
+        if not prs:
+    scripts/audit_p46_limbs_reach_a_reader.py:315  (loop opened at line 268)
+        if not hit:
+    scripts/audit_p47_split.py:71  (loop opened at line 69)
+        if not os.path.isdir(d):
+    scripts/audit_p47_split.py:74  (loop opened at line 69)
+        if not os.path.exists(fp):
+    scripts/audit_path_resolvers.py:134  (loop opened at line 132)
+        if not nm.endswith(".py"):
+    scripts/audit_recovery_paths_can_raise.py:163  (loop opened at line 157)
+        if hits is None:
+    scripts/audit_refusal_overclaim_2026_08_24.py:89  (loop opened at line 77)
+        if not isinstance(blk, dict):
+    scripts/audit_skipped_but_current.py:61  (loop opened at line 59)
+        if not os.path.exists(fp):
+    ... +183 more
+
+REFUSED: 10 NEW negative guard(s) inside a corpus-wide loop:
+    scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not os.path.isfile(obj_path):#0
+    scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not pend:#0
+    scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not topic:#0
+    scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not topic:#1
+    scripts/lane_rob/gate_scale_vs_measure.py::if not hits:#0
+    scripts/lane_rob/ni_provenance.py::if not b:#0
+    scripts/lane_rob/sweep_d4_functional_unblinding.py::if not drug_hit:#0
+    scripts/lane_rob/sweep_d4_functional_unblinding.py::if not isinstance(o, dict):#0
+    scripts/lane_rob/sweep_d4_functional_unblinding.py::if not isinstance(rec, dict):#0
+    scripts/lane_rob/sweep_d4_functional_unblinding.py::if not m:#0
+
+State the POSITIVE property instead -- `built by generator X`, not `has zero
+X sections` -- or add it to the baseline with a line saying why the absence
+IS the property you mean.

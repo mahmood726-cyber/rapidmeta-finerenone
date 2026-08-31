@@ -1,0 +1,6870 @@
+{
+ "gate": {
+  "gate": "7  BLAST RADIUS",
+  "what": "an edit to a file more than one topic builds through must be acknowledged with its radius, counted",
+  "kinds": {
+   "one-off module naming specific topics": 78,
+   "shared non-module file": 38,
+   "module outside the build closure": 20,
+   "CLASS-WIDE module (in the build closure)": 16,
+   "topic-owned file (radius 1)": 469,
+   "files in this change under ssot/": 0
+  },
+  "coverage": null,
+  "expected_cases": {
+   "ssot/build_tabbed.py": "the file edited under a per-page brief",
+   "topic-owned": "a topic-owned file, which must be radius 1"
+  },
+  "cases_seen": [
+   "ssot/build_tabbed.py",
+   "topic-owned"
+  ],
+  "cases_not_seen": [],
+  "control": {
+   "negatives": 4,
+   "false_positives": 0,
+   "fp_rate": 0.0,
+   "examples": []
+  },
+  "notes": [
+   "ssot/build_tabbed.py radius = 155 topics (in the build closure: every topic is built through it (it also special-cases 6 topic ids, which does not narrow it))",
+   "the 56 class-wide files under ssot/, widest first: ssot/wysiwyg.py(155), ssot/statement.py(155), ssot/rob_block.py(155), ssot/qualification_fields.py(155), ssot/projectors2.py(155), ssot/projectors.py(155), ssot/paper_projector.py(155), ssot/paper.py(155)"
+  ],
+  "findings": []
+ },
+ "radius": {
+  "ssot/abhf_topic_data.py": {
+   "radius": 4,
+   "why": "outside the build closure, names 4 topic id(s)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-review",
+    "iv-iron-hf",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/abmt_topic_data.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "ablation-af-medical-therapy",
+    "ablation-af-review"
+   ]
+  },
+  "ssot/add_availability_blocks.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/add_f1000_fields.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/ali_repool.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/ali_topic_data.py": {
+   "radius": 4,
+   "why": "outside the build closure, names 4 topic id(s)",
+   "topics": [
+    "ablation-af-review",
+    "alirocumab-lipid",
+    "iv-iron-hf",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/apply_africa_prep_four_limbs.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "agyw-hiv-prep-review",
+    "cab-prep-hiv-review"
+   ]
+  },
+  "ssot/apply_antibiotic_population_estimand.py": {
+   "radius": 4,
+   "why": "outside the build closure, names 4 topic id(s)",
+   "topics": [
+    "ceftaroline-auto-full-review",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/apply_apixaban_vte_treatment_rob.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "apixaban-vte-treatment"
+   ]
+  },
+  "ssot/apply_attrpn_contrast_finding.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "attr-pn-review"
+   ]
+  },
+  "ssot/apply_attrpn_published_comparison.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "attr-pn-review"
+   ]
+  },
+  "ssot/apply_azilsartan_grade.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz"
+   ]
+  },
+  "ssot/apply_bococizumab_rob_per_result.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "bococizumab-lipid-review"
+   ]
+  },
+  "ssot/apply_breadth_and_tigecycline_disclosure.py": {
+   "radius": 5,
+   "why": "outside the build closure, names 5 topic id(s)",
+   "topics": [
+    "attr-pn-review",
+    "incretin-hfpef-review",
+    "nirsevimab-infant-rsv-review",
+    "sglt2-mace-cvot-review",
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/apply_cangrelor_disagreement_renders.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "cangrelor-pci-review"
+   ]
+  },
+  "ssot/apply_cangrelor_finding_on_primary.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "cangrelor-pci-review"
+   ]
+  },
+  "ssot/apply_cangrelor_published_comparison.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "cangrelor-pci-review"
+   ]
+  },
+  "ssot/apply_ceft_tige_comparison.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "ceftaroline-auto-full-review",
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/apply_ceft_tige_limbs.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "ceftaroline-auto-full-review",
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/apply_container_repr_2026_08_20.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "bempedoic-acid-review"
+   ]
+  },
+  "ssot/apply_contrast_gap_2026_08_20.py": {
+   "radius": 7,
+   "why": "outside the build closure, names 7 topic id(s)",
+   "topics": [
+    "attr-pn-review",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "icosapent-lipid-auto-full-review",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "rosuvastatin-auto-full-review"
+   ]
+  },
+  "ssot/apply_d1_resolved_by_guidance.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/apply_derived_criteria.py": {
+   "radius": 4,
+   "why": "outside the build closure, names 4 topic id(s)",
+   "topics": [
+    "ablation-af-review",
+    "attr-cm-review",
+    "bempedoic-acid-review",
+    "bococizumab-lipid-review"
+   ]
+  },
+  "ssot/apply_empagliflozin_card_contradiction.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/apply_empagliflozin_estimand.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/apply_empagliflozin_published_comparison.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "alirocumab-lipid",
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/apply_empagliflozin_rob_per_result.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "arni-hfref",
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/apply_empagliflozin_summary_measure_disclosure.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/apply_f1000_declarations.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/apply_finerenone_and_sglt2_limbs.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "finerenone-cv",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/apply_finerenone_cv_published_comparison.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "finerenone-cv"
+   ]
+  },
+  "ssot/apply_gepo_lefa_grade.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "gepotidacin-urinary-tract-auto-full-review",
+    "lefamulin-cabp-auto-full-review"
+   ]
+  },
+  "ssot/apply_gepo_lefa_model_output.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "gepotidacin-urinary-tract-auto-full-review",
+    "lefamulin-cabp-auto-full-review"
+   ]
+  },
+  "ssot/apply_gepo_lefa_published_comparison.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "gepotidacin-urinary-tract-auto-full-review",
+    "lefamulin-cabp-auto-full-review"
+   ]
+  },
+  "ssot/apply_gepo_lefa_rob.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "gepotidacin-urinary-tract-auto-full-review",
+    "lefamulin-cabp-auto-full-review"
+   ]
+  },
+  "ssot/apply_grade_three_topics.py": {
+   "radius": 3,
+   "why": "outside the build closure, names 3 topic id(s)",
+   "topics": [
+    "empagliflozin-hf-auto-full-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-lipid-kidney-auto-full-review"
+   ]
+  },
+  "ssot/apply_icosapent_p46.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "icosapent-lipid-auto-full-review"
+   ]
+  },
+  "ssot/apply_icosapent_rob_per_result.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "icosapent-lipid-auto-full-review"
+   ]
+  },
+  "ssot/apply_inclisiran_published_comparison.py": {
+   "radius": 4,
+   "why": "outside the build closure, names 4 topic id(s)",
+   "topics": [
+    "alirocumab-lipid",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "rosuvastatin-auto-full-review",
+    "sglt2-mace-cvot-review"
+   ]
+  },
+  "ssot/apply_inclisiran_rob_per_result.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "inclisiran-lipid-kidney-auto-full-review"
+   ]
+  },
+  "ssot/apply_incretin_hfpef_published_comparison.py": {
+   "radius": 3,
+   "why": "outside the build closure, names 3 topic id(s)",
+   "topics": [
+    "cangrelor-pci-review",
+    "finerenone-cv",
+    "incretin-hfpef-review"
+   ]
+  },
+  "ssot/apply_k4.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/apply_malaria_vaccines_four_limbs.py": {
+   "radius": 3,
+   "why": "outside the build closure, names 3 topic id(s)",
+   "topics": [
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/apply_nirsevimab_four_limbs.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "nirsevimab-infant-rsv-review"
+   ]
+  },
+  "ssot/apply_paper_register_2026_08_20.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/apply_paper_register_pass2_2026_08_20.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/apply_reml_corpus.py": {
+   "radius": 11,
+   "why": "outside the build closure, names 11 topic id(s)",
+   "topics": [
+    "alirocumab-lipid",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "attr-pn-review",
+    "bempedoic-acid-review",
+    "empagliflozin-hf-auto-full-review",
+    "finerenone-cv",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "rosuvastatin-auto-full-review",
+    "sglt2-mace-cvot-review"
+   ]
+  },
+  "ssot/apply_rosuvastatin_estimand_finding.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "rosuvastatin-auto-full-review",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/apply_rosuvastatin_published_comparison.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "rosuvastatin-auto-full-review"
+   ]
+  },
+  "ssot/apply_rotavirus_published_comparison.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "rotavirus-vaccine-africa-review"
+   ]
+  },
+  "ssot/apply_screening.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "bempedoic-acid-review"
+   ]
+  },
+  "ssot/apply_sglt2_mace_adjudication.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "sglt2-mace-cvot-review"
+   ]
+  },
+  "ssot/apply_sglt2_mace_published_comparison.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "sglt2-mace-cvot-review"
+   ]
+  },
+  "ssot/apply_sglt2_pools.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/apply_sotagliflozin_grade_reads_rob.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/apply_sotagliflozin_p46.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/apply_three_refits_2026_08_21.py": {
+   "radius": 4,
+   "why": "outside the build closure, names 4 topic id(s)",
+   "topics": [
+    "cangrelor-pci-review",
+    "incretin-hfpef-review",
+    "rotavirus-vaccine-africa-review",
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/apx_prophylaxis_pool.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/apx_split_topic_data.py": {
+   "radius": 4,
+   "why": "outside the build closure, names 4 topic id(s)",
+   "topics": [
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/apx_topic_data.py": {
+   "radius": 3,
+   "why": "outside the build closure, names 3 topic id(s)",
+   "topics": [
+    "apixaban-vte",
+    "iv-iron-hf",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/apx_treatment_pool.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/arm_roles.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/assessment.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "attr-cm-review"
+   ]
+  },
+  "ssot/assessor_registry.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "iv-iron-hf",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/atomic_write.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 2 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/attr_topic_data.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "alirocumab-lipid",
+    "attr-cm-review"
+   ]
+  },
+  "ssot/authored_guard.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/azl_topic_data.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz"
+   ]
+  },
+  "ssot/batch1_assess.py": {
+   "radius": 8,
+   "why": "outside the build closure, names 8 topic id(s)",
+   "topics": [
+    "ablation-af-review",
+    "alirocumab-lipid",
+    "apixaban-vte",
+    "attr-cm-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bempedoic-acid-review",
+    "bococizumab-lipid-review",
+    "bosentan-pah"
+   ]
+  },
+  "ssot/batch1_cascade.py": {
+   "radius": 8,
+   "why": "outside the build closure, names 8 topic id(s)",
+   "topics": [
+    "ablation-af-review",
+    "alirocumab-lipid",
+    "apixaban-vte",
+    "attr-cm-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bempedoic-acid-review",
+    "bococizumab-lipid-review",
+    "bosentan-pah"
+   ]
+  },
+  "ssot/boco_refit.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/boco_topic_data.py": {
+   "radius": 4,
+   "why": "outside the build closure, names 4 topic id(s)",
+   "topics": [
+    "apixaban-vte",
+    "bococizumab-lipid-review",
+    "iv-iron-hf",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/bos_topic_data.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "bosentan-pah"
+   ]
+  },
+  "ssot/build_app_v2.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 9 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/build_tabbed.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 6 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/build_to_standard.py": {
+   "radius": 20,
+   "why": "outside the build closure, names 20 topic id(s)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "alirocumab-lipid",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bempedoic-acid-review",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "colchicine-cvd-coronary",
+    "iv-iron-hf",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/corpus_assess.py": {
+   "radius": 8,
+   "why": "outside the build closure, names 8 topic id(s)",
+   "topics": [
+    "ablation-af-review",
+    "alirocumab-lipid",
+    "apixaban-vte",
+    "attr-cm-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bempedoic-acid-review",
+    "bococizumab-lipid-review",
+    "bosentan-pah"
+   ]
+  },
+  "ssot/corpus_reconcile.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/ctgov_transport.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/derive_criteria.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "ablation-af-review"
+   ]
+  },
+  "ssot/do_not_rebuild.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/erc_topic_data.py": {
+   "radius": 3,
+   "why": "outside the build closure, names 3 topic id(s)",
+   "topics": [
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "early-rhythm-control-af"
+   ]
+  },
+  "ssot/estimand_identity.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/field_aliases.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/field_lead_ins.json": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figures.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/fit_from_per_trial.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/fit_gepotidacin_lefamulin.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/grade_authority.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 3 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/i2_reproduction_sweep.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/invariants.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/ivi_pools.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/ivi_topic_data.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "iv-iron-hf",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/journal_profile.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/known_answer_placebo_naming.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/make_docx.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/manuscript_docmodel.json": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/manuscript_guard.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 1 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/move_africa_model_output_to_house_key.py": {
+   "radius": 3,
+   "why": "outside the build closure, names 3 topic id(s)",
+   "topics": [
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "cab-prep-hiv-review"
+   ]
+  },
+  "ssot/PAGE_MAP.json": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/paper.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/paper_projector.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 21 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/patch_f1000.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/patch_v10.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/patch_v10b.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/patch_v15.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/placeholder_provenance.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/preconditions.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "iv-iron-hf",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/projectors.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 1 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/projectors2.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 6 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/publish_refusals.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/PUSH_LEDGER.md": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/qualification_fields.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/QUARANTINE_DECISIONS.md": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/RECONCILIATION.md": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/reml_apx_treatment_sensitivity_check.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/reml_corpus_refit.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/reml_two_special_cases.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/rob2_algorithm.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/rob_block.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 2 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/SCHEMA_v2.md": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/screen_remainder.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "bempedoic-acid-review"
+   ]
+  },
+  "ssot/screen_sglt2_remainder.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2_pools.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/sotagliflozin_pools.R": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/statement.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it (it also special-cases 6 topic ids, which does not narrow it)",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/sweep_addon_arms.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "arni-hfref",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sweep_asserted_negatives.py": {
+   "radius": 1,
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/synthesis_reconcile.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/test_absence_keyerrors.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/topic_identity.py": {
+   "radius": 6,
+   "why": "outside the build closure, names 6 topic id(s)",
+   "topics": [
+    "ablation-af-review",
+    "alirocumab-lipid",
+    "apixaban-vte",
+    "bococizumab-lipid-review",
+    "iv-iron-hf",
+    "sglt2-hf"
+   ]
+  },
+  "ssot/trial_identity.py": {
+   "radius": 0,
+   "why": "names no topic and is not reachable from a page builder",
+   "topics": []
+  },
+  "ssot/validate_v2.py": {
+   "radius": 2,
+   "why": "outside the build closure, names 2 topic id(s)",
+   "topics": [
+    "cangrelor-pci-review",
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/wysiwyg.py": {
+   "radius": 155,
+   "why": "in the build closure: every topic is built through it",
+   "topics": [
+    "ablation-af-heart-failure",
+    "ablation-af-medical-therapy",
+    "ablation-af-review",
+    "acs-antiplatelet-review",
+    "agyw-hiv-prep-review",
+    "alirocumab-lipid",
+    "amoxicillin-aom",
+    "anidulafungin-candida-auto-full-review",
+    "anidulafungin-fungal-auto-full-review",
+    "antimalarial-act",
+    "apixaban-acs-review",
+    "apixaban-af-review",
+    "apixaban-vte",
+    "apixaban-vte-prophylaxis",
+    "apixaban-vte-treatment",
+    "arni-hfref",
+    "attr-cm-review",
+    "attr-pn-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bamlanivimab-covid",
+    "bamlanivimab-outp",
+    "bempedoic-acid-review",
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+    "bosentan-pah-children",
+    "bosentan-pah-combination",
+    "bosentan-pah-monotherapy",
+    "bosentan-ph-not-group1",
+    "cab-prep-hiv-review",
+    "cangrelor-pci-review",
+    "casirivimab-covid",
+    "caspofungin-fungal-auto-full-review",
+    "cefepime-taz-auto-full-review",
+    "ceftaroline-auto-full-review",
+    "ceftazidime-avibactam-auto-full-review",
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review",
+    "colchicine-cvd-coronary",
+    "colchicine-cvd-review",
+    "colchicine-intracerebral-haemorrhage",
+    "colchicine-mixed-ascvd",
+    "colchicine-pericarditis",
+    "colchicine-peripheral-arterial",
+    "colchicine-periprocedural",
+    "colchicine-stroke-prevention",
+    "covid-oral-antivirals",
+    "covid19-vaccines",
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa",
+    "cvncov-covid19",
+    "cvncov-sarscov2",
+    "dabigatran-af",
+    "dabigatran-stroke",
+    "dabigatran-vte-cerebral",
+    "dabigatran-vte-extended",
+    "dabigatran-vte-review",
+    "dabigatran-vte-surgical",
+    "dabigatran-vte-treatment",
+    "delamanid-tb",
+    "doac-af-review",
+    "doac-cancer-vte-review",
+    "doravirine-hiv",
+    "doripenem",
+    "drotrecogin-sepsis",
+    "early-rhythm-control-af",
+    "edoxaban-vte",
+    "empagliflozin-hf-auto-full-review",
+    "emtricitabine-hiv-auto-full-review",
+    "enoxaparin-vte",
+    "eravacycline-infection-auto-full-review",
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review",
+    "etesevimab-covid-auto-full-review",
+    "etripamil-psvt",
+    "evinacumab-hofh",
+    "evolocumab-ascvd-auto2",
+    "evolocumab-dyslipidemia-review",
+    "evolocumab-mixed-dyslipidemia-auto-full-review",
+    "fcm-hf-review",
+    "fidaxomicin-cdi-auto-full-review",
+    "fidaxomicin-cdiff",
+    "finerenone-cv",
+    "finerenone-review",
+    "fondaparinux-vte",
+    "gepotidacin-urinary-tract-auto-full-review",
+    "hepatitis-b-taf-tdf-review",
+    "hiv-prep-injectable-review",
+    "icosapent-lipid-auto-full-review",
+    "inclisiran-hofh",
+    "inclisiran-lipid-kidney-auto-full-review",
+    "incretin-hfpef-review",
+    "influenza-recombinant",
+    "intensive-bp-review",
+    "iv-iron-hf",
+    "ivermectin-lf-auto-full-review",
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review",
+    "lenacapavir-hiv",
+    "lenacapavir-prep",
+    "lenacapavir-prep-review",
+    "linezolid-mrsa",
+    "malaria-act-review",
+    "malaria-vaccine",
+    "malaria-vaccines",
+    "maribavir-cmv",
+    "mavacamten-hcm-review",
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review",
+    "mdr-tb-shortened",
+    "men-acwy-auto-full-review",
+    "menacwy-booster",
+    "menacyw-healthy-volunteers-auto-full-review",
+    "meropenem-auto-full-review",
+    "mipomersen-hofh",
+    "mitral-funcmr-review",
+    "moxifloxacin-respi",
+    "netarsudil-ocular-hypertension-auto-full-review",
+    "nirsevimab-infant-rsv-review",
+    "olmesartan-htn",
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref",
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review",
+    "pediatric-hiv-art",
+    "pitavastatin-auto-full-review",
+    "plazomicin-infection-auto-full-review",
+    "posaconazole-fungal",
+    "prevnar15-pneumo",
+    "raltegravir-hiv",
+    "remdesivir-covid",
+    "rifapentine-tb",
+    "riociguat-pah",
+    "rivaroxaban-acs-review",
+    "rivaroxaban-vasc-review",
+    "rosuvastatin-auto-full-review",
+    "rotavirus-vaccine-africa-review",
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf",
+    "sarilumab-covid",
+    "selexipag-pah",
+    "ser109-cdi",
+    "sglt2-ckd-review",
+    "sglt2-hf",
+    "sglt2-mace-cvot-review",
+    "sotagliflozin-hf",
+    "sotatercept-pah",
+    "sotatercept-pah-auto2",
+    "tecovirimat-mpox",
+    "thiamine-sepsis",
+    "tigecycline-ciai",
+    "tigecycline-infection",
+    "warfarin-af"
+   ]
+  },
+  "ssot/ablation-af-heart-failure/ablation-af-heart-failure.json": {
+   "radius": 1,
+   "why": "belongs to topic ablation-af-heart-failure",
+   "topics": [
+    "ablation-af-heart-failure"
+   ]
+  },
+  "ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json": {
+   "radius": 1,
+   "why": "belongs to topic ablation-af-medical-therapy",
+   "topics": [
+    "ablation-af-medical-therapy"
+   ]
+  },
+  "ssot/ablation-af-review/ablation-af-review.json": {
+   "radius": 1,
+   "why": "belongs to topic ablation-af-review",
+   "topics": [
+    "ablation-af-review"
+   ]
+  },
+  "ssot/ablation-af-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic ablation-af-review",
+   "topics": [
+    "ablation-af-review"
+   ]
+  },
+  "ssot/acs-antiplatelet-review/acs-antiplatelet-review.json": {
+   "radius": 1,
+   "why": "belongs to topic acs-antiplatelet-review",
+   "topics": [
+    "acs-antiplatelet-review"
+   ]
+  },
+  "ssot/agyw-hiv-prep-review/agyw-hiv-prep-review.json": {
+   "radius": 1,
+   "why": "belongs to topic agyw-hiv-prep-review",
+   "topics": [
+    "agyw-hiv-prep-review"
+   ]
+  },
+  "ssot/agyw-hiv-prep-review/agyw-hiv-prep-review.json.striptest": {
+   "radius": 1,
+   "why": "belongs to topic agyw-hiv-prep-review",
+   "topics": [
+    "agyw-hiv-prep-review"
+   ]
+  },
+  "ssot/agyw-hiv-prep-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic agyw-hiv-prep-review",
+   "topics": [
+    "agyw-hiv-prep-review"
+   ]
+  },
+  "ssot/alirocumab-lipid/alirocumab-lipid.json": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/sources/INDEX.json": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/sources/NCT01507831.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/sources/NCT01617655.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/sources/NCT01623115.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/sources/NCT01644175.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/sources/NCT01709500.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/sources/NCT02107898.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/alirocumab-lipid/sources/README.txt": {
+   "radius": 1,
+   "why": "belongs to topic alirocumab-lipid",
+   "topics": [
+    "alirocumab-lipid"
+   ]
+  },
+  "ssot/amoxicillin-aom/amoxicillin-aom.json": {
+   "radius": 1,
+   "why": "belongs to topic amoxicillin-aom",
+   "topics": [
+    "amoxicillin-aom"
+   ]
+  },
+  "ssot/anidulafungin-candida-auto-full-review/anidulafungin-candida-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic anidulafungin-candida-auto-full-review",
+   "topics": [
+    "anidulafungin-candida-auto-full-review"
+   ]
+  },
+  "ssot/anidulafungin-fungal-auto-full-review/anidulafungin-fungal-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic anidulafungin-fungal-auto-full-review",
+   "topics": [
+    "anidulafungin-fungal-auto-full-review"
+   ]
+  },
+  "ssot/antimalarial-act/antimalarial-act.json": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/PROTOCOL.md": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/SEARCH-RECORD.json": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/ACT-trials.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/ACT-trials.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/NCT01704508.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/NCT04565184.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/NCT04767191.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/NCT05192265.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/NCT06076213.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/PMID27649561.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/PMID35189818.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/antimalarial-act/sources/PMID37179349.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic antimalarial-act",
+   "topics": [
+    "antimalarial-act"
+   ]
+  },
+  "ssot/apixaban-acs-review/apixaban-acs-review.json": {
+   "radius": 1,
+   "why": "belongs to topic apixaban-acs-review",
+   "topics": [
+    "apixaban-acs-review"
+   ]
+  },
+  "ssot/apixaban-af-review/apixaban-af-review.json": {
+   "radius": 1,
+   "why": "belongs to topic apixaban-af-review",
+   "topics": [
+    "apixaban-af-review"
+   ]
+  },
+  "ssot/apixaban-vte/apixaban-vte.json": {
+   "radius": 1,
+   "why": "belongs to topic apixaban-vte",
+   "topics": [
+    "apixaban-vte"
+   ]
+  },
+  "ssot/apixaban-vte-prophylaxis/apixaban-vte-prophylaxis.json": {
+   "radius": 1,
+   "why": "belongs to topic apixaban-vte-prophylaxis",
+   "topics": [
+    "apixaban-vte-prophylaxis"
+   ]
+  },
+  "ssot/apixaban-vte-treatment/apixaban-vte-treatment.json": {
+   "radius": 1,
+   "why": "belongs to topic apixaban-vte-treatment",
+   "topics": [
+    "apixaban-vte-treatment"
+   ]
+  },
+  "ssot/arni-hfref/ANSWER_HF_CHANGE_SPEC.md": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/arni-hfref.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/manuscript_docmodel.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/PROTOCOL.md": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/EMA_ENTRESTO_EPAR.pdf": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/EMA_ENTRESTO_EPAR.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/FDA_207620_MedR.pdf": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/FDA_207620_StatR.pdf": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/FDA_207620_StatR.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/NCT01035255.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/NCT02468232.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/NCT04023227.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_ANSWERHF_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_BANO2021_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_BANO2021_PMC8357012.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_PARACHUTE_JAMA2026.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_PARACHUTE_JAMA2026_pmc.html": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_PARADIGM_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_PARALLEL_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_PATHADKA2020_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_PATHADKA2020_PMC7855850.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_ZHAO2022_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/OA_ZHAO2022_PMC9297686.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/PMID25176015.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/PMID33553256.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/PMID33731544.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/PMID34395116.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/PMID35874853.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/PMID41335448.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/PMID41396086.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/PM_SACVAL_ENAL_PMC10710849.html": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/PM_SACVAL_ENAL_PMC10710849.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT01035255.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT01920711.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT02468232.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT02554890.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT02816736.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT02874794.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT02900378.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT02924727.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT03066804.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT03988634.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT04023227.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/REG_CTGOV_NCT04853758.json": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/SR_CHAGAS_PAIR.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/arni-hfref/sources/SR_CHAGAS_PAIR_abstracts.txt": {
+   "radius": 1,
+   "why": "belongs to topic arni-hfref",
+   "topics": [
+    "arni-hfref"
+   ]
+  },
+  "ssot/attr-cm-review/attr-cm-review.json": {
+   "radius": 1,
+   "why": "belongs to topic attr-cm-review",
+   "topics": [
+    "attr-cm-review"
+   ]
+  },
+  "ssot/attr-pn-review/attr-pn-review.json": {
+   "radius": 1,
+   "why": "belongs to topic attr-pn-review",
+   "topics": [
+    "attr-pn-review"
+   ]
+  },
+  "ssot/attr-pn-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic attr-pn-review",
+   "topics": [
+    "attr-pn-review"
+   ]
+  },
+  "ssot/azilsartan-chlorthalidone-vs-olmesartan-hctz/azilsartan-chlorthalidone-vs-olmesartan-hctz.json": {
+   "radius": 1,
+   "why": "belongs to topic azilsartan-chlorthalidone-vs-olmesartan-hctz",
+   "topics": [
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz"
+   ]
+  },
+  "ssot/bamlanivimab-covid/bamlanivimab-covid.json": {
+   "radius": 1,
+   "why": "belongs to topic bamlanivimab-covid",
+   "topics": [
+    "bamlanivimab-covid"
+   ]
+  },
+  "ssot/bamlanivimab-outp/bamlanivimab-outp.json": {
+   "radius": 1,
+   "why": "belongs to topic bamlanivimab-outp",
+   "topics": [
+    "bamlanivimab-outp"
+   ]
+  },
+  "ssot/bempedoic-acid-review/bempedoic-acid-review.json": {
+   "radius": 1,
+   "why": "belongs to topic bempedoic-acid-review",
+   "topics": [
+    "bempedoic-acid-review"
+   ]
+  },
+  "ssot/bezlotoxumab-cdi/bezlotoxumab-cdi.json": {
+   "radius": 1,
+   "why": "belongs to topic bezlotoxumab-cdi",
+   "topics": [
+    "bezlotoxumab-cdi"
+   ]
+  },
+  "ssot/bezlotoxumab-cdiff/bezlotoxumab-cdiff.json": {
+   "radius": 1,
+   "why": "belongs to topic bezlotoxumab-cdiff",
+   "topics": [
+    "bezlotoxumab-cdiff"
+   ]
+  },
+  "ssot/bococizumab-lipid-review/bococizumab-lipid-review.json": {
+   "radius": 1,
+   "why": "belongs to topic bococizumab-lipid-review",
+   "topics": [
+    "bococizumab-lipid-review"
+   ]
+  },
+  "ssot/bococizumab-lipid-review/sources/NCT01975376_Prot_000.pdf": {
+   "radius": 1,
+   "why": "belongs to topic bococizumab-lipid-review",
+   "topics": [
+    "bococizumab-lipid-review"
+   ]
+  },
+  "ssot/bococizumab-lipid-review/sources/NCT01975389_Prot_000.pdf": {
+   "radius": 1,
+   "why": "belongs to topic bococizumab-lipid-review",
+   "topics": [
+    "bococizumab-lipid-review"
+   ]
+  },
+  "ssot/bococizumab-lipid-review/sources/README-SPIRE-PROTOCOLS.md": {
+   "radius": 1,
+   "why": "belongs to topic bococizumab-lipid-review",
+   "topics": [
+    "bococizumab-lipid-review"
+   ]
+  },
+  "ssot/bosentan-pah/bosentan-pah.json": {
+   "radius": 1,
+   "why": "belongs to topic bosentan-pah",
+   "topics": [
+    "bosentan-pah"
+   ]
+  },
+  "ssot/bosentan-pah-children/bosentan-pah-children.json": {
+   "radius": 1,
+   "why": "belongs to topic bosentan-pah-children",
+   "topics": [
+    "bosentan-pah-children"
+   ]
+  },
+  "ssot/bosentan-pah-combination/bosentan-pah-combination.json": {
+   "radius": 1,
+   "why": "belongs to topic bosentan-pah-combination",
+   "topics": [
+    "bosentan-pah-combination"
+   ]
+  },
+  "ssot/bosentan-pah-monotherapy/bosentan-pah-monotherapy.json": {
+   "radius": 1,
+   "why": "belongs to topic bosentan-pah-monotherapy",
+   "topics": [
+    "bosentan-pah-monotherapy"
+   ]
+  },
+  "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json": {
+   "radius": 1,
+   "why": "belongs to topic bosentan-ph-not-group1",
+   "topics": [
+    "bosentan-ph-not-group1"
+   ]
+  },
+  "ssot/cab-prep-hiv-review/cab-prep-hiv-review.json": {
+   "radius": 1,
+   "why": "belongs to topic cab-prep-hiv-review",
+   "topics": [
+    "cab-prep-hiv-review"
+   ]
+  },
+  "ssot/cab-prep-hiv-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic cab-prep-hiv-review",
+   "topics": [
+    "cab-prep-hiv-review"
+   ]
+  },
+  "ssot/cangrelor-pci-review/cangrelor-pci-review.json": {
+   "radius": 1,
+   "why": "belongs to topic cangrelor-pci-review",
+   "topics": [
+    "cangrelor-pci-review"
+   ]
+  },
+  "ssot/cangrelor-pci-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic cangrelor-pci-review",
+   "topics": [
+    "cangrelor-pci-review"
+   ]
+  },
+  "ssot/casirivimab-covid/casirivimab-covid.json": {
+   "radius": 1,
+   "why": "belongs to topic casirivimab-covid",
+   "topics": [
+    "casirivimab-covid"
+   ]
+  },
+  "ssot/caspofungin-fungal-auto-full-review/caspofungin-fungal-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic caspofungin-fungal-auto-full-review",
+   "topics": [
+    "caspofungin-fungal-auto-full-review"
+   ]
+  },
+  "ssot/cefepime-taz-auto-full-review/cefepime-taz-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic cefepime-taz-auto-full-review",
+   "topics": [
+    "cefepime-taz-auto-full-review"
+   ]
+  },
+  "ssot/ceftaroline-auto-full-review/ceftaroline-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic ceftaroline-auto-full-review",
+   "topics": [
+    "ceftaroline-auto-full-review"
+   ]
+  },
+  "ssot/ceftaroline-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic ceftaroline-auto-full-review",
+   "topics": [
+    "ceftaroline-auto-full-review"
+   ]
+  },
+  "ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic ceftazidime-avibactam-auto-full-review",
+   "topics": [
+    "ceftazidime-avibactam-auto-full-review"
+   ]
+  },
+  "ssot/ceftolozane-infection-auto-full-review/ceftolozane-infection-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic ceftolozane-infection-auto-full-review",
+   "topics": [
+    "ceftolozane-infection-auto-full-review"
+   ]
+  },
+  "ssot/ceftolozane-taz-auto-full-review/ceftolozane-taz-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic ceftolozane-taz-auto-full-review",
+   "topics": [
+    "ceftolozane-taz-auto-full-review"
+   ]
+  },
+  "ssot/colchicine-cvd-coronary/colchicine-cvd-coronary.json": {
+   "radius": 1,
+   "why": "belongs to topic colchicine-cvd-coronary",
+   "topics": [
+    "colchicine-cvd-coronary"
+   ]
+  },
+  "ssot/colchicine-cvd-review/colchicine-cvd-review.json": {
+   "radius": 1,
+   "why": "belongs to topic colchicine-cvd-review",
+   "topics": [
+    "colchicine-cvd-review"
+   ]
+  },
+  "ssot/colchicine-intracerebral-haemorrhage/colchicine-intracerebral-haemorrhage.json": {
+   "radius": 1,
+   "why": "belongs to topic colchicine-intracerebral-haemorrhage",
+   "topics": [
+    "colchicine-intracerebral-haemorrhage"
+   ]
+  },
+  "ssot/colchicine-mixed-ascvd/colchicine-mixed-ascvd.json": {
+   "radius": 1,
+   "why": "belongs to topic colchicine-mixed-ascvd",
+   "topics": [
+    "colchicine-mixed-ascvd"
+   ]
+  },
+  "ssot/colchicine-pericarditis/colchicine-pericarditis.json": {
+   "radius": 1,
+   "why": "belongs to topic colchicine-pericarditis",
+   "topics": [
+    "colchicine-pericarditis"
+   ]
+  },
+  "ssot/colchicine-peripheral-arterial/colchicine-peripheral-arterial.json": {
+   "radius": 1,
+   "why": "belongs to topic colchicine-peripheral-arterial",
+   "topics": [
+    "colchicine-peripheral-arterial"
+   ]
+  },
+  "ssot/colchicine-periprocedural/colchicine-periprocedural.json": {
+   "radius": 1,
+   "why": "belongs to topic colchicine-periprocedural",
+   "topics": [
+    "colchicine-periprocedural"
+   ]
+  },
+  "ssot/colchicine-stroke-prevention/colchicine-stroke-prevention.json": {
+   "radius": 1,
+   "why": "belongs to topic colchicine-stroke-prevention",
+   "topics": [
+    "colchicine-stroke-prevention"
+   ]
+  },
+  "ssot/covid-oral-antivirals/covid-oral-antivirals.json": {
+   "radius": 1,
+   "why": "belongs to topic covid-oral-antivirals",
+   "topics": [
+    "covid-oral-antivirals"
+   ]
+  },
+  "ssot/covid19-vaccines/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/covid19-vaccines.json": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/INDEX.json": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/NCT04324606.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/NCT04510207.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/NCT04530396.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/NCT04652102.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/PMC9726273.cochrane-SOF-extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/PMC9726273.cochrane.xml": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/PMID33306989.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/PMID33545094.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/PMID34037666.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/covid19-vaccines/sources/PMID34826381.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic covid19-vaccines",
+   "topics": [
+    "covid19-vaccines"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/cryptococcal-meningitis.json": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/ACTA.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/ACTA.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/AMBITION-cm.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/AMBITION-cm.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/COAT.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/COAT.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/NCT01075152.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/PMID24963568.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/PMID29539274.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis/sources/PMID35320642.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis",
+   "topics": [
+    "cryptococcal-meningitis"
+   ]
+  },
+  "ssot/cryptococcal-meningitis-africa/cryptococcal-meningitis-africa.json": {
+   "radius": 1,
+   "why": "belongs to topic cryptococcal-meningitis-africa",
+   "topics": [
+    "cryptococcal-meningitis-africa"
+   ]
+  },
+  "ssot/cvncov-covid19/cvncov-covid19.json": {
+   "radius": 1,
+   "why": "belongs to topic cvncov-covid19",
+   "topics": [
+    "cvncov-covid19"
+   ]
+  },
+  "ssot/cvncov-sarscov2/cvncov-sarscov2.json": {
+   "radius": 1,
+   "why": "belongs to topic cvncov-sarscov2",
+   "topics": [
+    "cvncov-sarscov2"
+   ]
+  },
+  "ssot/dabigatran-af/dabigatran-af.json": {
+   "radius": 1,
+   "why": "belongs to topic dabigatran-af",
+   "topics": [
+    "dabigatran-af"
+   ]
+  },
+  "ssot/dabigatran-stroke/dabigatran-stroke.json": {
+   "radius": 1,
+   "why": "belongs to topic dabigatran-stroke",
+   "topics": [
+    "dabigatran-stroke"
+   ]
+  },
+  "ssot/dabigatran-vte-cerebral/dabigatran-vte-cerebral.json": {
+   "radius": 1,
+   "why": "belongs to topic dabigatran-vte-cerebral",
+   "topics": [
+    "dabigatran-vte-cerebral"
+   ]
+  },
+  "ssot/dabigatran-vte-extended/dabigatran-vte-extended.json": {
+   "radius": 1,
+   "why": "belongs to topic dabigatran-vte-extended",
+   "topics": [
+    "dabigatran-vte-extended"
+   ]
+  },
+  "ssot/dabigatran-vte-review/dabigatran-vte-review.json": {
+   "radius": 1,
+   "why": "belongs to topic dabigatran-vte-review",
+   "topics": [
+    "dabigatran-vte-review"
+   ]
+  },
+  "ssot/dabigatran-vte-surgical/dabigatran-vte-surgical.json": {
+   "radius": 1,
+   "why": "belongs to topic dabigatran-vte-surgical",
+   "topics": [
+    "dabigatran-vte-surgical"
+   ]
+  },
+  "ssot/dabigatran-vte-treatment/dabigatran-vte-treatment.json": {
+   "radius": 1,
+   "why": "belongs to topic dabigatran-vte-treatment",
+   "topics": [
+    "dabigatran-vte-treatment"
+   ]
+  },
+  "ssot/delamanid-tb/delamanid-tb.json": {
+   "radius": 1,
+   "why": "belongs to topic delamanid-tb",
+   "topics": [
+    "delamanid-tb"
+   ]
+  },
+  "ssot/doac-af-review/doac-af-review.json": {
+   "radius": 1,
+   "why": "belongs to topic doac-af-review",
+   "topics": [
+    "doac-af-review"
+   ]
+  },
+  "ssot/doac-cancer-vte-review/doac-cancer-vte-review.json": {
+   "radius": 1,
+   "why": "belongs to topic doac-cancer-vte-review",
+   "topics": [
+    "doac-cancer-vte-review"
+   ]
+  },
+  "ssot/doravirine-hiv/doravirine-hiv.json": {
+   "radius": 1,
+   "why": "belongs to topic doravirine-hiv",
+   "topics": [
+    "doravirine-hiv"
+   ]
+  },
+  "ssot/doripenem/doripenem.json": {
+   "radius": 1,
+   "why": "belongs to topic doripenem",
+   "topics": [
+    "doripenem"
+   ]
+  },
+  "ssot/drotrecogin-sepsis/drotrecogin-sepsis.json": {
+   "radius": 1,
+   "why": "belongs to topic drotrecogin-sepsis",
+   "topics": [
+    "drotrecogin-sepsis"
+   ]
+  },
+  "ssot/early-rhythm-control-af/early-rhythm-control-af.json": {
+   "radius": 1,
+   "why": "belongs to topic early-rhythm-control-af",
+   "topics": [
+    "early-rhythm-control-af"
+   ]
+  },
+  "ssot/edoxaban-vte/edoxaban-vte.json": {
+   "radius": 1,
+   "why": "belongs to topic edoxaban-vte",
+   "topics": [
+    "edoxaban-vte"
+   ]
+  },
+  "ssot/empagliflozin-hf-auto-full-review/ADJUDICATION-RECORD.json": {
+   "radius": 1,
+   "why": "belongs to topic empagliflozin-hf-auto-full-review",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/empagliflozin-hf-auto-full-review/empagliflozin-hf-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic empagliflozin-hf-auto-full-review",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/empagliflozin-hf-auto-full-review/PROTOCOL.md": {
+   "radius": 1,
+   "why": "belongs to topic empagliflozin-hf-auto-full-review",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/empagliflozin-hf-auto-full-review/SCREENING-RECORD.json": {
+   "radius": 1,
+   "why": "belongs to topic empagliflozin-hf-auto-full-review",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/empagliflozin-hf-auto-full-review/SEARCH-RECORD.json": {
+   "radius": 1,
+   "why": "belongs to topic empagliflozin-hf-auto-full-review",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/empagliflozin-hf-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic empagliflozin-hf-auto-full-review",
+   "topics": [
+    "empagliflozin-hf-auto-full-review"
+   ]
+  },
+  "ssot/emtricitabine-hiv-auto-full-review/emtricitabine-hiv-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic emtricitabine-hiv-auto-full-review",
+   "topics": [
+    "emtricitabine-hiv-auto-full-review"
+   ]
+  },
+  "ssot/enoxaparin-vte/enoxaparin-vte.json": {
+   "radius": 1,
+   "why": "belongs to topic enoxaparin-vte",
+   "topics": [
+    "enoxaparin-vte"
+   ]
+  },
+  "ssot/eravacycline-infection-auto-full-review/eravacycline-infection-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic eravacycline-infection-auto-full-review",
+   "topics": [
+    "eravacycline-infection-auto-full-review"
+   ]
+  },
+  "ssot/ertapenem-auto-full-review/ertapenem-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic ertapenem-auto-full-review",
+   "topics": [
+    "ertapenem-auto-full-review"
+   ]
+  },
+  "ssot/ertapenem-infect-auto-full-review/ertapenem-infect-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic ertapenem-infect-auto-full-review",
+   "topics": [
+    "ertapenem-infect-auto-full-review"
+   ]
+  },
+  "ssot/etesevimab-covid-auto-full-review/etesevimab-covid-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic etesevimab-covid-auto-full-review",
+   "topics": [
+    "etesevimab-covid-auto-full-review"
+   ]
+  },
+  "ssot/etripamil-psvt/etripamil-psvt.json": {
+   "radius": 1,
+   "why": "belongs to topic etripamil-psvt",
+   "topics": [
+    "etripamil-psvt"
+   ]
+  },
+  "ssot/evinacumab-hofh/evinacumab-hofh.json": {
+   "radius": 1,
+   "why": "belongs to topic evinacumab-hofh",
+   "topics": [
+    "evinacumab-hofh"
+   ]
+  },
+  "ssot/evolocumab-ascvd-auto2/evolocumab-ascvd-auto2.json": {
+   "radius": 1,
+   "why": "belongs to topic evolocumab-ascvd-auto2",
+   "topics": [
+    "evolocumab-ascvd-auto2"
+   ]
+  },
+  "ssot/evolocumab-dyslipidemia-review/evolocumab-dyslipidemia-review.json": {
+   "radius": 1,
+   "why": "belongs to topic evolocumab-dyslipidemia-review",
+   "topics": [
+    "evolocumab-dyslipidemia-review"
+   ]
+  },
+  "ssot/evolocumab-mixed-dyslipidemia-auto-full-review/evolocumab-mixed-dyslipidemia-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic evolocumab-mixed-dyslipidemia-auto-full-review",
+   "topics": [
+    "evolocumab-mixed-dyslipidemia-auto-full-review"
+   ]
+  },
+  "ssot/fcm-hf-review/fcm-hf-review.json": {
+   "radius": 1,
+   "why": "belongs to topic fcm-hf-review",
+   "topics": [
+    "fcm-hf-review"
+   ]
+  },
+  "ssot/fidaxomicin-cdi-auto-full-review/fidaxomicin-cdi-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic fidaxomicin-cdi-auto-full-review",
+   "topics": [
+    "fidaxomicin-cdi-auto-full-review"
+   ]
+  },
+  "ssot/fidaxomicin-cdiff/fidaxomicin-cdiff.json": {
+   "radius": 1,
+   "why": "belongs to topic fidaxomicin-cdiff",
+   "topics": [
+    "fidaxomicin-cdiff"
+   ]
+  },
+  "ssot/figs/fig01.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig02.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig03.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig04.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig05.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig06.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig07.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig08.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig09.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig10.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig11.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig12.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig13.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig14.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig15.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/figs/fig16.png": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/finerenone-cv/finerenone-cv.json": {
+   "radius": 1,
+   "why": "belongs to topic finerenone-cv",
+   "topics": [
+    "finerenone-cv"
+   ]
+  },
+  "ssot/finerenone-cv/PROTOCOL.md": {
+   "radius": 1,
+   "why": "belongs to topic finerenone-cv",
+   "topics": [
+    "finerenone-cv"
+   ]
+  },
+  "ssot/finerenone-cv/SEARCH-RECORD.json": {
+   "radius": 1,
+   "why": "belongs to topic finerenone-cv",
+   "topics": [
+    "finerenone-cv"
+   ]
+  },
+  "ssot/finerenone-cv/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic finerenone-cv",
+   "topics": [
+    "finerenone-cv"
+   ]
+  },
+  "ssot/finerenone-review/finerenone-review.json": {
+   "radius": 1,
+   "why": "belongs to topic finerenone-review",
+   "topics": [
+    "finerenone-review"
+   ]
+  },
+  "ssot/fondaparinux-vte/fondaparinux-vte.json": {
+   "radius": 1,
+   "why": "belongs to topic fondaparinux-vte",
+   "topics": [
+    "fondaparinux-vte"
+   ]
+  },
+  "ssot/gepotidacin-urinary-tract-auto-full-review/gepotidacin-urinary-tract-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic gepotidacin-urinary-tract-auto-full-review",
+   "topics": [
+    "gepotidacin-urinary-tract-auto-full-review"
+   ]
+  },
+  "ssot/gepotidacin-urinary-tract-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic gepotidacin-urinary-tract-auto-full-review",
+   "topics": [
+    "gepotidacin-urinary-tract-auto-full-review"
+   ]
+  },
+  "ssot/hepatitis-b-taf-tdf-review/hepatitis-b-taf-tdf-review.json": {
+   "radius": 1,
+   "why": "belongs to topic hepatitis-b-taf-tdf-review",
+   "topics": [
+    "hepatitis-b-taf-tdf-review"
+   ]
+  },
+  "ssot/hiv-prep-injectable-review/hiv-prep-injectable-review.json": {
+   "radius": 1,
+   "why": "belongs to topic hiv-prep-injectable-review",
+   "topics": [
+    "hiv-prep-injectable-review"
+   ]
+  },
+  "ssot/icosapent-lipid-auto-full-review/icosapent-lipid-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic icosapent-lipid-auto-full-review",
+   "topics": [
+    "icosapent-lipid-auto-full-review"
+   ]
+  },
+  "ssot/icosapent-lipid-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic icosapent-lipid-auto-full-review",
+   "topics": [
+    "icosapent-lipid-auto-full-review"
+   ]
+  },
+  "ssot/inclisiran-hofh/inclisiran-hofh.json": {
+   "radius": 1,
+   "why": "belongs to topic inclisiran-hofh",
+   "topics": [
+    "inclisiran-hofh"
+   ]
+  },
+  "ssot/inclisiran-lipid-kidney-auto-full-review/inclisiran-lipid-kidney-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic inclisiran-lipid-kidney-auto-full-review",
+   "topics": [
+    "inclisiran-lipid-kidney-auto-full-review"
+   ]
+  },
+  "ssot/inclisiran-lipid-kidney-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic inclisiran-lipid-kidney-auto-full-review",
+   "topics": [
+    "inclisiran-lipid-kidney-auto-full-review"
+   ]
+  },
+  "ssot/incretin-hfpef-review/incretin-hfpef-review.json": {
+   "radius": 1,
+   "why": "belongs to topic incretin-hfpef-review",
+   "topics": [
+    "incretin-hfpef-review"
+   ]
+  },
+  "ssot/incretin-hfpef-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic incretin-hfpef-review",
+   "topics": [
+    "incretin-hfpef-review"
+   ]
+  },
+  "ssot/influenza-recombinant/influenza-recombinant.json": {
+   "radius": 1,
+   "why": "belongs to topic influenza-recombinant",
+   "topics": [
+    "influenza-recombinant"
+   ]
+  },
+  "ssot/intensive-bp-review/intensive-bp-review.json": {
+   "radius": 1,
+   "why": "belongs to topic intensive-bp-review",
+   "topics": [
+    "intensive-bp-review"
+   ]
+  },
+  "ssot/iv-iron-hf/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/iv-iron-hf.json": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/CTGOV_HEARTFID_PROT_SAP.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/CTGOV_HEARTFID_PROT_SAP.pdf": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/EMA_CENTRAL_AUTHORISATION_ENUMERATION.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/EMA_IV_IRON_ART31_ANNEX1.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/EMA_IV_IRON_ART31_ANNEX1.pdf": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/FDA_LABEL_INJECTAFER.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/FDA_LABEL_INJECTAFER.pdf": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/FDA_LABEL_MONOFERRIC.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/FDA_LABEL_MONOFERRIC.pdf": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/NCT00520780.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/NCT01394562.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/NCT01453608.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/NCT02642562.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/NCT02937454.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/NCT03036462.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/NCT03037931.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_AFFIRM_AHF_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_CONFIRM_HF_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_CONFIRM_HF_PMC.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_EFFECT_HF_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_EFFECT_HF_PMC.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_FAIR_HF2_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_FAIR_HF_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_HEART_FID_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_IRONMAN_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_PM_GRAHAM2023_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_PM_GRAHAM2023_PMC.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OA_PM_PONIKOWSKI2023_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OLD_GENERATOR_DEFECT_PROBE.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/OLD_GENERATOR_PAGE.html": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PMID19920054.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PMID25176939.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PMID28701470.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PMID33197395.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PMID36347265.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PMID36823953.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PMID37632415.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PMID37632463.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PMID40159390.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/iv-iron-hf/sources/PRIOR_SYNTHESIS_SEARCH_RECORD.txt": {
+   "radius": 1,
+   "why": "belongs to topic iv-iron-hf",
+   "topics": [
+    "iv-iron-hf"
+   ]
+  },
+  "ssot/ivermectin-lf-auto-full-review/ivermectin-lf-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic ivermectin-lf-auto-full-review",
+   "topics": [
+    "ivermectin-lf-auto-full-review"
+   ]
+  },
+  "ssot/lefamulin-cabp-auto-full-review/lefamulin-cabp-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic lefamulin-cabp-auto-full-review",
+   "topics": [
+    "lefamulin-cabp-auto-full-review"
+   ]
+  },
+  "ssot/lefamulin-cabp-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic lefamulin-cabp-auto-full-review",
+   "topics": [
+    "lefamulin-cabp-auto-full-review"
+   ]
+  },
+  "ssot/lefamulin-cap-auto-full-review/lefamulin-cap-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic lefamulin-cap-auto-full-review",
+   "topics": [
+    "lefamulin-cap-auto-full-review"
+   ]
+  },
+  "ssot/lenacapavir-hiv/lenacapavir-hiv.json": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-hiv",
+   "topics": [
+    "lenacapavir-hiv"
+   ]
+  },
+  "ssot/lenacapavir-prep/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep",
+   "topics": [
+    "lenacapavir-prep"
+   ]
+  },
+  "ssot/lenacapavir-prep/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep",
+   "topics": [
+    "lenacapavir-prep"
+   ]
+  },
+  "ssot/lenacapavir-prep/lenacapavir-prep.json": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep",
+   "topics": [
+    "lenacapavir-prep"
+   ]
+  },
+  "ssot/lenacapavir-prep/sources/NCT04925752.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep",
+   "topics": [
+    "lenacapavir-prep"
+   ]
+  },
+  "ssot/lenacapavir-prep/sources/NCT04994509.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep",
+   "topics": [
+    "lenacapavir-prep"
+   ]
+  },
+  "ssot/lenacapavir-prep/sources/PMID39046157.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep",
+   "topics": [
+    "lenacapavir-prep"
+   ]
+  },
+  "ssot/lenacapavir-prep/sources/PMID39602624.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep",
+   "topics": [
+    "lenacapavir-prep"
+   ]
+  },
+  "ssot/lenacapavir-prep/sources/PURPOSE-trials.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep",
+   "topics": [
+    "lenacapavir-prep"
+   ]
+  },
+  "ssot/lenacapavir-prep/sources/PURPOSE-trials.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep",
+   "topics": [
+    "lenacapavir-prep"
+   ]
+  },
+  "ssot/lenacapavir-prep-review/lenacapavir-prep-review.json": {
+   "radius": 1,
+   "why": "belongs to topic lenacapavir-prep-review",
+   "topics": [
+    "lenacapavir-prep-review"
+   ]
+  },
+  "ssot/linezolid-mrsa/linezolid-mrsa.json": {
+   "radius": 1,
+   "why": "belongs to topic linezolid-mrsa",
+   "topics": [
+    "linezolid-mrsa"
+   ]
+  },
+  "ssot/malaria-act-review/malaria-act-review.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-act-review",
+   "topics": [
+    "malaria-act-review"
+   ]
+  },
+  "ssot/malaria-vaccine/malaria-vaccine.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccine",
+   "topics": [
+    "malaria-vaccine"
+   ]
+  },
+  "ssot/malaria-vaccines/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/malaria-vaccines.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/added-cohorts.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/added-cohorts.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/NCT00380393.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/NCT00436007.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/NCT00866619.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/NCT03143218.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/NCT03276962.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/NCT03896724.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/NCT04704830.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMC5626001.rtss-phase3.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMC5626001.rtss-phase3.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMC7618965.datoo2024.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMC7618965.datoo2024.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMC8121760.datoo2021.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMC8121760.datoo2021.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMID19064627.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMID21782519.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMID25913272.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMID33964223.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMID34432975.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMID38310910.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/PMID40975080.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/SR2026-qamar.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/SR2026-qamar.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/supporting-trials.extract.json": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/malaria-vaccines/sources/supporting-trials.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic malaria-vaccines",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "ssot/maribavir-cmv/maribavir-cmv.json": {
+   "radius": 1,
+   "why": "belongs to topic maribavir-cmv",
+   "topics": [
+    "maribavir-cmv"
+   ]
+  },
+  "ssot/mavacamten-hcm-review/mavacamten-hcm-review.json": {
+   "radius": 1,
+   "why": "belongs to topic mavacamten-hcm-review",
+   "topics": [
+    "mavacamten-hcm-review"
+   ]
+  },
+  "ssot/mavacamten-ohcm/mavacamten-ohcm.json": {
+   "radius": 1,
+   "why": "belongs to topic mavacamten-ohcm",
+   "topics": [
+    "mavacamten-ohcm"
+   ]
+  },
+  "ssot/mavacamten-ohcm-review/mavacamten-ohcm-review.json": {
+   "radius": 1,
+   "why": "belongs to topic mavacamten-ohcm-review",
+   "topics": [
+    "mavacamten-ohcm-review"
+   ]
+  },
+  "ssot/mdr-tb-shortened/mdr-tb-shortened.json": {
+   "radius": 1,
+   "why": "belongs to topic mdr-tb-shortened",
+   "topics": [
+    "mdr-tb-shortened"
+   ]
+  },
+  "ssot/men-acwy-auto-full-review/men-acwy-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic men-acwy-auto-full-review",
+   "topics": [
+    "men-acwy-auto-full-review"
+   ]
+  },
+  "ssot/menacwy-booster/menacwy-booster.json": {
+   "radius": 1,
+   "why": "belongs to topic menacwy-booster",
+   "topics": [
+    "menacwy-booster"
+   ]
+  },
+  "ssot/menacyw-healthy-volunteers-auto-full-review/menacyw-healthy-volunteers-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic menacyw-healthy-volunteers-auto-full-review",
+   "topics": [
+    "menacyw-healthy-volunteers-auto-full-review"
+   ]
+  },
+  "ssot/meropenem-auto-full-review/meropenem-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic meropenem-auto-full-review",
+   "topics": [
+    "meropenem-auto-full-review"
+   ]
+  },
+  "ssot/mipomersen-hofh/mipomersen-hofh.json": {
+   "radius": 1,
+   "why": "belongs to topic mipomersen-hofh",
+   "topics": [
+    "mipomersen-hofh"
+   ]
+  },
+  "ssot/mitral-funcmr-review/mitral-funcmr-review.json": {
+   "radius": 1,
+   "why": "belongs to topic mitral-funcmr-review",
+   "topics": [
+    "mitral-funcmr-review"
+   ]
+  },
+  "ssot/moxifloxacin-respi/moxifloxacin-respi.json": {
+   "radius": 1,
+   "why": "belongs to topic moxifloxacin-respi",
+   "topics": [
+    "moxifloxacin-respi"
+   ]
+  },
+  "ssot/netarsudil-ocular-hypertension-auto-full-review/netarsudil-ocular-hypertension-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic netarsudil-ocular-hypertension-auto-full-review",
+   "topics": [
+    "netarsudil-ocular-hypertension-auto-full-review"
+   ]
+  },
+  "ssot/nirsevimab-infant-rsv-review/nirsevimab-infant-rsv-review.json": {
+   "radius": 1,
+   "why": "belongs to topic nirsevimab-infant-rsv-review",
+   "topics": [
+    "nirsevimab-infant-rsv-review"
+   ]
+  },
+  "ssot/nirsevimab-infant-rsv-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic nirsevimab-infant-rsv-review",
+   "topics": [
+    "nirsevimab-infant-rsv-review"
+   ]
+  },
+  "ssot/olmesartan-htn/olmesartan-htn.json": {
+   "radius": 1,
+   "why": "belongs to topic olmesartan-htn",
+   "topics": [
+    "olmesartan-htn"
+   ]
+  },
+  "ssot/omecamtiv-heartfail/omecamtiv-heartfail.json": {
+   "radius": 1,
+   "why": "belongs to topic omecamtiv-heartfail",
+   "topics": [
+    "omecamtiv-heartfail"
+   ]
+  },
+  "ssot/omecamtiv-hf/omecamtiv-hf.json": {
+   "radius": 1,
+   "why": "belongs to topic omecamtiv-hf",
+   "topics": [
+    "omecamtiv-hf"
+   ]
+  },
+  "ssot/omecamtiv-hfref/omecamtiv-hfref.json": {
+   "radius": 1,
+   "why": "belongs to topic omecamtiv-hfref",
+   "topics": [
+    "omecamtiv-hfref"
+   ]
+  },
+  "ssot/pcsk9-inhibitors-cv-review/pcsk9-inhibitors-cv-review.json": {
+   "radius": 1,
+   "why": "belongs to topic pcsk9-inhibitors-cv-review",
+   "topics": [
+    "pcsk9-inhibitors-cv-review"
+   ]
+  },
+  "ssot/pcsk9-review/pcsk9-review.json": {
+   "radius": 1,
+   "why": "belongs to topic pcsk9-review",
+   "topics": [
+    "pcsk9-review"
+   ]
+  },
+  "ssot/pediatric-hiv-art/pediatric-hiv-art.json": {
+   "radius": 1,
+   "why": "belongs to topic pediatric-hiv-art",
+   "topics": [
+    "pediatric-hiv-art"
+   ]
+  },
+  "ssot/pitavastatin-auto-full-review/pitavastatin-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic pitavastatin-auto-full-review",
+   "topics": [
+    "pitavastatin-auto-full-review"
+   ]
+  },
+  "ssot/plazomicin-infection-auto-full-review/plazomicin-infection-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic plazomicin-infection-auto-full-review",
+   "topics": [
+    "plazomicin-infection-auto-full-review"
+   ]
+  },
+  "ssot/posaconazole-fungal/posaconazole-fungal.json": {
+   "radius": 1,
+   "why": "belongs to topic posaconazole-fungal",
+   "topics": [
+    "posaconazole-fungal"
+   ]
+  },
+  "ssot/prevnar15-pneumo/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/prevnar15-pneumo.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/sources/INDEX.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/sources/NCT02037984.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/sources/NCT02547649.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/sources/NCT03547167.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/sources/NCT03620162.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/sources/NCT03692871.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/sources/NCT03848065.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/sources/NCT03921424.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/prevnar15-pneumo/sources/NCT03950622.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic prevnar15-pneumo",
+   "topics": [
+    "prevnar15-pneumo"
+   ]
+  },
+  "ssot/raltegravir-hiv/raltegravir-hiv.json": {
+   "radius": 1,
+   "why": "belongs to topic raltegravir-hiv",
+   "topics": [
+    "raltegravir-hiv"
+   ]
+  },
+  "ssot/registration/rekor-signing-key.pub.pem": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/registration/VERIFY.md": {
+   "radius": 0,
+   "why": "shared data/asset, not a build module",
+   "topics": []
+  },
+  "ssot/remdesivir-covid/remdesivir-covid.json": {
+   "radius": 1,
+   "why": "belongs to topic remdesivir-covid",
+   "topics": [
+    "remdesivir-covid"
+   ]
+  },
+  "ssot/rifapentine-tb/rifapentine-tb.json": {
+   "radius": 1,
+   "why": "belongs to topic rifapentine-tb",
+   "topics": [
+    "rifapentine-tb"
+   ]
+  },
+  "ssot/riociguat-pah/riociguat-pah.json": {
+   "radius": 1,
+   "why": "belongs to topic riociguat-pah",
+   "topics": [
+    "riociguat-pah"
+   ]
+  },
+  "ssot/rivaroxaban-acs-review/rivaroxaban-acs-review.json": {
+   "radius": 1,
+   "why": "belongs to topic rivaroxaban-acs-review",
+   "topics": [
+    "rivaroxaban-acs-review"
+   ]
+  },
+  "ssot/rivaroxaban-vasc-review/rivaroxaban-vasc-review.json": {
+   "radius": 1,
+   "why": "belongs to topic rivaroxaban-vasc-review",
+   "topics": [
+    "rivaroxaban-vasc-review"
+   ]
+  },
+  "ssot/rosuvastatin-auto-full-review/rosuvastatin-auto-full-review.json": {
+   "radius": 1,
+   "why": "belongs to topic rosuvastatin-auto-full-review",
+   "topics": [
+    "rosuvastatin-auto-full-review"
+   ]
+  },
+  "ssot/rosuvastatin-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic rosuvastatin-auto-full-review",
+   "topics": [
+    "rosuvastatin-auto-full-review"
+   ]
+  },
+  "ssot/rotavirus-vaccine-africa-review/rotavirus-vaccine-africa-review.json": {
+   "radius": 1,
+   "why": "belongs to topic rotavirus-vaccine-africa-review",
+   "topics": [
+    "rotavirus-vaccine-africa-review"
+   ]
+  },
+  "ssot/rotavirus-vaccine-africa-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic rotavirus-vaccine-africa-review",
+   "topics": [
+    "rotavirus-vaccine-africa-review"
+   ]
+  },
+  "ssot/sacubitril-heartfail/sacubitril-heartfail.json": {
+   "radius": 1,
+   "why": "belongs to topic sacubitril-heartfail",
+   "topics": [
+    "sacubitril-heartfail"
+   ]
+  },
+  "ssot/sacubitril-valsartan-hf/sacubitril-valsartan-hf.json": {
+   "radius": 1,
+   "why": "belongs to topic sacubitril-valsartan-hf",
+   "topics": [
+    "sacubitril-valsartan-hf"
+   ]
+  },
+  "ssot/sarilumab-covid/sarilumab-covid.json": {
+   "radius": 1,
+   "why": "belongs to topic sarilumab-covid",
+   "topics": [
+    "sarilumab-covid"
+   ]
+  },
+  "ssot/selexipag-pah/selexipag-pah.json": {
+   "radius": 1,
+   "why": "belongs to topic selexipag-pah",
+   "topics": [
+    "selexipag-pah"
+   ]
+  },
+  "ssot/ser109-cdi/ser109-cdi.json": {
+   "radius": 1,
+   "why": "belongs to topic ser109-cdi",
+   "topics": [
+    "ser109-cdi"
+   ]
+  },
+  "ssot/sglt2-ckd-review/sglt2-ckd-review.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-ckd-review",
+   "topics": [
+    "sglt2-ckd-review"
+   ]
+  },
+  "ssot/sglt2-hf/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sglt2-hf.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/EMA_FORXIGA_AR.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/EMA_FORXIGA_PI.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/EMA_FORXIGA_PI.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/EMA_FORXIGA_STEPS.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/EMA_JARDIANCE_AR.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/EMA_JARDIANCE_PI.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/EMA_JARDIANCE_PI.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/EMA_JARDIANCE_STEPS.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/FDA_202293_202293Orig1s024MultidisciplineR.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/FDA_202293_202293Orig1s024MultidisciplineR.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/FDA_LABEL_FARXIGA.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/FDA_LABEL_FARXIGA.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/FDA_LABEL_JARDIANCE.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/FDA_LABEL_JARDIANCE.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/FDA_REVIEW_ABSENCE_PROBE.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/NCT03036124.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/NCT03057951.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/NCT03057977.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/NCT03315143.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/NCT03521934.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/NCT03619213.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/NCT04157751.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_DAPA_HF_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_DELIVER_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_EMPEROR_PRESERVED_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_EMPEROR_REDUCED_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_EMPULSE_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_EMPULSE_PMC8938265.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_PM_JHUND2022_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_PM_JHUND2022_PMC9499855.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_PM_VADUGANATHAN2022_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_PM_ZANNAD2020_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_SCORED_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/OA_SOLOIST_WHF_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID31535829.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID32865377.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID32877652.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID33200891.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID33200892.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID34449189.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID35228754.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID36027570.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID36030328.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PMID36041474.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-hf/sources/PM_JHUND2022_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-hf",
+   "topics": [
+    "sglt2-hf"
+   ]
+  },
+  "ssot/sglt2-mace-cvot-review/sglt2-mace-cvot-review.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-mace-cvot-review",
+   "topics": [
+    "sglt2-mace-cvot-review"
+   ]
+  },
+  "ssot/sglt2-mace-cvot-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic sglt2-mace-cvot-review",
+   "topics": [
+    "sglt2-mace-cvot-review"
+   ]
+  },
+  "ssot/sotagliflozin-hf/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sotagliflozin-hf.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/appraisal/PUBLISHED_COMPARISON.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/appraisal/ROB2.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/search/PRISMA_counts.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/search/SCREEN_A.tsv": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/search/SCREEN_A_TALLY.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/search/SEARCH_sotagliflozin.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/D5_REGISTRATION_HISTORY_NCT03315143.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/D5_REGISTRATION_HISTORY_NCT03521934.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/EMA_ZYNQUISTA_OVERVIEW.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/EMA_ZYNQUISTA_OVERVIEW.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/EMA_ZYNQUISTA_WITHDRAWAL.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/EMA_ZYNQUISTA_WITHDRAWAL.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/FDA_216203_216203Orig1s000IntegratedR.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/FDA_216203_IntegratedR.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/FDA_LABEL_INPEFA.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/FDA_LABEL_INPEFA.pdf": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/NCT03315143.ctgov.history-index.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/NCT03315143.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/NCT03315143.ctgov.v0_2017-10-16.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/NCT03521934.ctgov.history-index.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/NCT03521934.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/NCT03521934.ctgov.v0_2018-04-30.json": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/OA_PM_BANTOUNOU2025_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/OA_PM_VADUGANATHAN2022_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/OA_SCORED_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/OA_SOLOIST_WHF_abstract.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/PMID33200891.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/PMID33200892.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotagliflozin-hf/sources/PRIOR_SYNTHESIS_SEARCH_RECORD.txt": {
+   "radius": 1,
+   "why": "belongs to topic sotagliflozin-hf",
+   "topics": [
+    "sotagliflozin-hf"
+   ]
+  },
+  "ssot/sotatercept-pah/sotatercept-pah.json": {
+   "radius": 1,
+   "why": "belongs to topic sotatercept-pah",
+   "topics": [
+    "sotatercept-pah"
+   ]
+  },
+  "ssot/sotatercept-pah-auto2/sotatercept-pah-auto2.json": {
+   "radius": 1,
+   "why": "belongs to topic sotatercept-pah-auto2",
+   "topics": [
+    "sotatercept-pah-auto2"
+   ]
+  },
+  "ssot/tecovirimat-mpox/tecovirimat-mpox.json": {
+   "radius": 1,
+   "why": "belongs to topic tecovirimat-mpox",
+   "topics": [
+    "tecovirimat-mpox"
+   ]
+  },
+  "ssot/thiamine-sepsis/thiamine-sepsis.json": {
+   "radius": 1,
+   "why": "belongs to topic thiamine-sepsis",
+   "topics": [
+    "thiamine-sepsis"
+   ]
+  },
+  "ssot/tigecycline-ciai/CODEX_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/GEMINI_VERDICT.txt": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/tigecycline-ciai.json": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/NCT00081744.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/NCT00136201.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/NCT00230971.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/NCT01721408.ctgov.json": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/NCT01721408.outcomes-one-per-line.json": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMC10122415.fulltext.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMC6783191.fulltext.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMID16080072.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMID16080073.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMID16236177.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMID20663130.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMID20670293.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMID30584308.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMID31577763.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/PMID37085768.pubmed.xml": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/SUPERSEDED-sidecar.TIGECYCLINE_INFECTION_AUTO_REVIEW.json": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-ciai/sources/TIGE-ciai.extract.txt": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-ciai",
+   "topics": [
+    "tigecycline-ciai"
+   ]
+  },
+  "ssot/tigecycline-infection/tigecycline-infection.json": {
+   "radius": 1,
+   "why": "belongs to topic tigecycline-infection",
+   "topics": [
+    "tigecycline-infection"
+   ]
+  },
+  "ssot/warfarin-af/warfarin-af.json": {
+   "radius": 1,
+   "why": "belongs to topic warfarin-af",
+   "topics": [
+    "warfarin-af"
+   ]
+  }
+ },
+ "build_closure": [
+  "ssot/atomic_write.py",
+  "ssot/build_app_v2.py",
+  "ssot/build_tabbed.py",
+  "ssot/do_not_rebuild.py",
+  "ssot/field_aliases.py",
+  "ssot/figures.py",
+  "ssot/grade_authority.py",
+  "ssot/manuscript_guard.py",
+  "ssot/paper.py",
+  "ssot/paper_projector.py",
+  "ssot/projectors.py",
+  "ssot/projectors2.py",
+  "ssot/qualification_fields.py",
+  "ssot/rob_block.py",
+  "ssot/statement.py",
+  "ssot/wysiwyg.py"
+ ],
+ "changed": []
+}

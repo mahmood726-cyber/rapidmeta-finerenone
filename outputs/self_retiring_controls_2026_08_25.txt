@@ -1,7 +1,7 @@
-CHECKS DECLARING A CONTROL VIA require_controls: 62
+CHECKS DECLARING A CONTROL VIA require_controls: 106
 
-  control built from a SYNTHETIC input (durable)   : 57
-  control pointing at a LIVE corpus instance       : 5
+  control built from a SYNTHETIC input (durable)   : 98
+  control pointing at a LIVE corpus instance       : 8
 
 A LIVE control is the strongest evidence a check works on THIS corpus, and the
 most fragile: fix the instance and the control tests a case that no longer exists.
@@ -12,6 +12,10 @@ did, or quietly starts passing.
       control delivered_constructions            "delivered_constructions", ("SGLT2_HF_REVIEW carries 'ELIGIBILITY turns' (hand-confirmed by a census lane)", b
   scripts\audit_p46_limbs_reach_a_reader.py
       control audit_p46_limbs_reach_a_reader     "cab-prep-hiv-review's comparison probe, confirmed on the public host at " "2026-08-21, is found in the delive
+  scripts\audit_pooled_claim_without_pool_2026_08_25.py
+      control pooled-claim-without-pool          "pooled-claim-without-pool", ("FINERENONE_REVIEW.html at %s, the page the student quoted" % PRE_FIX, real_posi
+  scripts\audit_search_claim_contradiction_2026_08_25.py
+      control abstract-claims-a-search-the-object-says-never-ran "abstract-claims-a-search-the-object-says-never-ran", ("AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html AS COMMITTED AT
   scripts\audit_why_six_topics_have_no_page.py
       control audit_why_six_topics_have_no_page  "cab-prep-hiv-review's own NCTs are found in its own delivered page", bool(cab_ncts) and all(n in cab_html for
   scripts\lint_container_repr_on_a_page.py
@@ -22,3 +26,5 @@ did, or quietly starts passing.
 
 def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding= " in src def main(): sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace") bad,
+  scripts\lint_scope_derivations_agree.py
+      control lint_scope_derivations_agree       "a paper-tab page present in the index and absent from PAGE_MAP is " "refused", _only_bad, ["NEW_REVIEW.html"]

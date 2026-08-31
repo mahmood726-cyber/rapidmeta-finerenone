@@ -1,0 +1,266 @@
+{
+ "everything a third party needs to rebuild this page": {
+  "state": "LANDED",
+  "reason": "Reproducibility promise made derive-or-refuse; the page now names what is missing.",
+  "evidence": "126 pages; planted both ways",
+  "commit": "675a2fceb"
+ },
+ "every registration listed below was read in full on from clinicaltrials gov": {
+  "state": "LANDED",
+  "reason": "The 'read in full' claim is now derived from all_ranks_read_utc, the field that warrants it.",
+  "evidence": "7 pages; 12 tests",
+  "commit": "2ae6998fa"
+ },
+ "no pooled estimate risk of bias assessment or certainty rating is published for this question": {
+  "state": "LANDED",
+  "reason": "Sentence derived from what the object publishes. Class was 15 pages; the DEFECT was 2.",
+  "evidence": "attr-cm-review and early-rhythm-control-af changed; 12 unchanged; mavacamten-hcm object absent",
+  "commit": "59b484ca7"
+ },
+ "the full model output for every pooled outcome the call the estimator the heterogeneity statistics and the back transformed interval is reproduced verbatim as e": {
+  "state": "Q4",
+  "reason": "Not a defect. The universal claim was TESTED against every page in the class: true on 8, vacuous on 1 (attr-pn-review holds no pooled outcome, so 'every pooled outcome' ranges over an empty set), 1 object absent (incretin-hfpef). Nothing to fix.",
+  "evidence": "verified by walking results.by_outcome[*].r_output.verbatim on all 10 topics",
+  "commit": null
+ },
+ "a screening record is held on this object and the flow it supports is shown in the methods": {
+  "state": "Q4",
+  "reason": "Not a defect. Already derive-or-refuse: emitted only under `elif isinstance(_scr, dict) and _scr`, and the sentence itself discloses in capitals that the completed PRISMA checklist and flow diagram are NOT held, with the reason. It states a limit rather than hiding one.",
+  "evidence": "ssot/paper_projector.py:4503-4508",
+  "commit": null
+ },
+ "this review reports against prisma a screening record is held on this object and the flow it supports is shown in the methods": {
+  "state": "Q4",
+  "reason": "Same emitter as the 11-page screening-record class -- one string, counted twice by the class splitter because two page renderings differ in leading words. Not an independent class.",
+  "evidence": "ssot/paper_projector.py:4504",
+  "commit": null
+ },
+ "no pooled estimate was produced for this outcome so no model was fitted and none is described": {
+  "state": "Q4",
+  "reason": "Not a defect. This is the REFUSAL branch: it appends to s.refusals when no pool occurred, which is the behaviour the rubric asks for. Fixing it would remove a refusal.",
+  "evidence": "ssot/paper_projector.py:2944-2949",
+  "commit": null
+ },
+ "the interval excludes no difference": {
+  "state": "ESCALATED",
+  "reason": "The visual abstract states this from the Wald interval alone. On sotagliflozin the page's own Hartung-Knapp sensitivity spans the null, so the travelling artefact carries the confident reading and leaves the contradiction behind. Changing a travelling claim about named drugs needs a human reading step.",
+  "evidence": "ESC-TRAVELLING-004",
+  "commit": null
+ },
+ "computable but uninformative at k": {
+  "state": "Q4",
+  "reason": "Not a defect -- it is the refusal working. The GOSH plot is deliberately not drawn at small k and the graphic states the reason (the whole subset space is 2^k-1 points). Fixing it would remove a refusal and put a picture of nothing on the page.",
+  "evidence": "ssot/projectors2.py:1240-1249",
+  "commit": null
+ },
+ "of trials were confirmed the drug is part of the randomised comparison": {
+  "state": "Q4",
+  "reason": "Not a defect, and TESTED rather than assumed. The sentence is derived from n_studied / n_not_studied / n_undecidable with a separate branch for each, and returns None where no check was recorded. The denominator was the thing worth checking -- a check covering fewer trials than the page pools would report reach as coverage -- and it matches the object's trial list on 10 of 10 pages, 0 mismatches.",
+  "evidence": "verified across all 10 topics",
+  "commit": null
+ },
+ "every row carries the value the verbatim sentence it was read from a resolvable link to the source": {
+  "state": "Q4",
+  "reason": "Not a defect, and TESTED on served bytes. The sentence carries its own guarantee -- 'where any of those is absent the row says so rather than omitting the value' -- so an empty cell would break it. 27 rows across the class's cached pages, 0 empty cells.",
+  "evidence": "1 page not cached",
+  "commit": null
+ },
+ "one row per extracted value every row carries the value the verbatim sentence it was read from a resolvable link to the source": {
+  "state": "Q4",
+  "reason": "Same emitter as the 9-page 'every row carries the value' class (ssot/projectors.py:1564-1568) -- one string split into two classes by differing leading words. Not an independent class.",
+  "evidence": null,
+  "commit": null
+ },
+ "what was found registered trial": {
+  "state": "Q4",
+  "reason": "LOCATED after a real attempt -- ssot/statement.py:511. The class-key locator missed it because the key spans a `%d` format placeholder AND a `</strong>` tag, so no contiguous word-run exists in the source. Not a defect: the count is len(trials), the plural is derived, a missing title renders 'title not recorded in the registry read' rather than a blank, and the else-branch refuses explicitly.",
+  "evidence": "ssot/statement.py:511-520",
+  "commit": null
+ },
+ "figure not drawn this pool was withdrawn": {
+  "state": "Q4",
+  "reason": "LOCATED -- ssot/paper_projector.py:4845. Not a defect, it is the refusal working: a forest plot is the pooled claim in picture form, so it is deliberately not drawn for a withdrawn pool and the reason is stated. Fixing it would re-publish a retraction.",
+  "evidence": "ssot/paper_projector.py:4845",
+  "commit": null
+ },
+ "information sources source layers": {
+  "state": "Q4",
+  "reason": "LOCATED -- ssot/projectors2.py:304. Derived from len(canon['sources']); no claim beyond the count.",
+  "evidence": "ssot/projectors2.py:304",
+  "commit": null
+ },
+ "effect scale reported on the log scale": {
+  "state": "Q4",
+  "reason": "A factual statement of the pooling scale, not a claim that can be false. NOTE: my re-locator matched ssot/add_f1000_fields.py:50 on a 4-word run ('on the log scale') and that is a FALSE location -- that script is hardcoded to ssot/arni-hfref alone, so it cannot emit on 5 pages. A short fallback run buys reach at the cost of precision.",
+  "evidence": "location recorded as uncertain",
+  "commit": null
+ },
+ "of trial was confirmed the drug is part of the randomised comparison trial was given in every arm so it is background therapy rather than what the trial randomi": {
+  "state": "Q4",
+  "reason": "Same emitter as the 10-page 'N of M trials were confirmed' class (ssot/statement.py:462, _identity_check_sentence). Singular/plural split it into two classes. Not independent, and already tested: denominator matches on 10 of 10.",
+  "evidence": null,
+  "commit": null
+ },
+ "whether these trials study this subject checked against each registration s arm structure on of trial was confirmed the drug is part of the randomised compariso": {
+  "state": "Q4",
+  "reason": "Same function as the confirmation class -- ssot/statement.py:459, the opening bit of _identity_check_sentence. Not independent.",
+  "evidence": null,
+  "commit": null
+ },
+ "registered endpoint definitions are recorded per trial on this object": {
+  "state": "Q4",
+  "reason": "Not a defect. TESTED: every trial on all 11 pages carries a registered-endpoint record. My FIRST test said 0 of 11 because I guessed the field names (registered_primary_counts, by_outcome) instead of reading what the objects hold, which is `registered_primaries`. Fourth field-name miss of this session, all four erring toward accusing the page.",
+  "evidence": "verified across 11 topics against the fields the objects actually carry",
+  "commit": null
+ },
+ "what is the effect on each trial s own registered primary outcome": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page. This one is a QUESTION string, not a claim -- it cannot be false.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "what it establishes is that a synthesis on this page pooled a clinical quantity that none of these registrations pre specified": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "all of seeded registrations register no clinical endpoint at any rank": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page. CHECKED: all 6 pages have k=0, poolable=False and no pooled interval. 0 contradictions.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "the registered primary of each trial read verbatim": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "trials and no two share a registered primary outcome family": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "not that any trial here is poor each is registered and reports its own primary": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "a topic that ends in a sourced non poolable verdict is a complete review not a failed one": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "estimand time to first event random effects": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "a single trial is reported as a single trial": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "what is the effect on the trial s own registered primary outcome": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page. This one is a QUESTION string, not a claim -- it cannot be false.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "if a further eligible trial is identified this verdict should be revisited": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "a risk of bias assessment grades trials contributing to a pooled result this page publishes none": {
+  "state": "Q4",
+  "reason": "Not a defect. Read verbatim from the objects: this is stored REFUSAL prose -- a non-poolable verdict carrying its reason, its date, the ranks read and the registration IDs. It recurs once per page because every non-poolable page stores a similar reason, which is the generator-boilerplate signature (findings/topics ~ 1), not one defect per page. CHECKED, not assumed: all 3 pages carrying this refusal publish no pooled outcome, so the sentence is true. This is also the field whose truthy value tripped my own membership-vs-property check earlier -- its VALUE is an honest refusal.",
+  "evidence": "read verbatim in the objects of this class",
+  "commit": null
+ },
+ "what this review does not give a clinician the number of events in each arm": {
+  "state": "LANDED",
+  "reason": "REOPENED from Q4 and fixed. I closed it as 'not a defect -- it names what is missing', having checked it was guarded and derived. It was not checked that what it names can EXIST for the outcome type: on a mmHg mean difference it asked for event counts and an NNT. Guarded and derived is not the same as applicable. 6 of 6 continuous-only pages carried it.",
+  "evidence": "two-tree proof on azilsartan; 6 tests",
+  "commit": "6c26eae94"
+ },
+ "a pooled result becomes possible if these trials report a shared clinical outcome": {
+  "state": "Q4",
+  "reason": "Not a defect. Branches on which limb of poolability failed (outcome / comparator / not-yet-reported) and states the condition that would change the verdict.",
+  "evidence": "ssot/statement.py:306-314",
+  "commit": null
+ },
+ "what would change this a pooled result becomes possible if these trials report a shared clinical outcome or if a trial that registers one is added to this quest": {
+  "state": "Q4",
+  "reason": "Same emitter as the 6-page 'a pooled result becomes possible' class, with the section heading included in the key. Not independent.",
+  "evidence": "ssot/statement.py:311",
+  "commit": null
+ },
+ "a forest plot is the pooled claim in picture form": {
+  "state": "Q4",
+  "reason": "Same refusal as the located 'figure not drawn / this pool was withdrawn' class: a forest plot is the pooled claim in picture form, so it is not drawn for a withdrawn pool.",
+  "evidence": "ssot/paper_projector.py:4845",
+  "commit": null
+ },
+ "the agreement rate is withheld pending adjudication": {
+  "state": "Q4",
+  "reason": "Not a defect -- a number withheld WITH its reason, and the sentence even corrects an earlier version of itself ('an earlier version of this sentence said the blinding had withheld it, and that was wrong'). Removing it would publish an unadjudicated agreement rate.",
+  "evidence": "ssot/projectors2.py:1042-1047",
+  "commit": null
+ },
+ "the review reports a pooled estimate for which no certainty assessment was made": {
+  "state": "Q4",
+  "reason": "Not a defect. DEPARTURE_DECLARATION refuses to invent a GRADE rating and declares the departure under a cited section, on the grounds that a rating produced without two assessors and an adjudicator is not a GRADE assessment whatever letter it carries.",
+  "evidence": "ssot/grade_authority.py:102-106",
+  "commit": null
+ },
+ "this is recorded as a declared departure under cochrane handbook iii the review reports a pooled estimate for which no certainty assessment was made": {
+  "state": "Q4",
+  "reason": "The same constant as the 5-page departure class -- ssot/grade_authority.py:102. Not independent.",
+  "evidence": null,
+  "commit": null
+ },
+ "risk of bias was assessed with rob": {
+  "state": "Q4",
+  "reason": "Not a defect, and CHECKED corpus-wide: the two sites that hardcode 'RoB 2' are reached only where RoB 2 data exists, and all 31 objects recording a tool record RoB 2 (arni-hfref writes 'Cochrane RoB-2', the same tool hyphenated). The other two sites derive the tool with %s. Latent risk only if a non-RoB-2 tool is ever introduced.",
+  "evidence": "ssot/paper_projector.py:2604,2613",
+  "commit": null
+ },
+ "no registered trial was identified for this question": {
+  "state": "Q4",
+  "reason": "Not a defect -- the else-branch of 'What was found', which refuses explicitly rather than rendering an empty table.",
+  "evidence": "ssot/statement.py:519",
+  "commit": null
+ },
+ "endpoint definitions read from the registry": {
+  "state": "Q4",
+  "reason": "Located to a DOCSTRING in ssot/build_app_v2.py:534-539 describing why endpoint definitions are surfaced to the reader. A docstring is not emitted, so this is not a rendered claim.",
+  "evidence": "location is narrative, not output",
+  "commit": null
+ },
+ "each trial s own registered primary outcome": {
+  "state": "Q4",
+  "reason": "A question/outcome-name string, not an assertion that can be false.",
+  "evidence": null,
+  "commit": null
+ },
+ "read this beside whether the estimand was established that flag records that every contributing trial measures the same quantity": {
+  "state": "Q4",
+  "reason": "Not a defect -- it BOUNDS a flag: it says estimand_established records that trials measure the same quantity and records NOTHING about what that quantity was measured against. Removing it would widen what the flag appears to establish.",
+  "evidence": "ssot/apply_contrast_gap_2026_08_20.py:46",
+  "commit": null
+ },
+ "index card is present for this page": {
+  "state": "Q4",
+  "reason": "NOT a page defect -- it is MY HARNESS. The class groups reviewer findings, and three of them say the review pack omitted `how_the_site_index_describes_this_page`, so the reviewers correctly declined to verify cross-surface agreement they had not been given. The one real disagreement in the group (colchicine-cvd-review: index k=2 / HR 0.75 vs page k=3) is RESOLVED on current served bytes -- the live index now reads 'Colchicine in ASCVD ... 3 withdrawn', agreeing with the page. Resolved by later work, not refuted. Pack gap logged for pass 2.",
+  "evidence": "checked against the live index 2026-08-28",
+  "commit": null
+ }
+}

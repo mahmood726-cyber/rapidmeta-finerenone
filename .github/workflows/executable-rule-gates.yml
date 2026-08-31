@@ -1,0 +1,37 @@
+name: executable-rule-gates
+
+# The full set, including the three page-reading gates the pre-push hook skips for time,
+# plus the meta-gate that plants a defect in each and asserts it still fails.
+#
+# WHY THE META-GATE IS IN CI AND NOT ONLY IN A COMMIT MESSAGE. Every gate here PASSES on the
+# corpus, because its pre-existing findings are frozen by name. That is exactly the state in
+# which a broken gate is invisible: green, installed, seeing nothing. verify_gates_can_fail
+# plants a defect in each one and asserts it fails, then asserts it recovers.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # gate 3 reads a pinned blob; a shallow clone cannot
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # NAMED BY WHAT IT RUNS, NOT BY A COUNT THAT GOES STALE. The step said "All nine
+      # gates" while run_all.py registered twelve. Nothing was skipped -- the step runs
+      # the whole registry -- but a label that misstates its own scope is how a scoped
+      # pass gets read as a complete one, and this repository has been bitten by exactly
+      # that ("53 apps" that were 1,522).
+      - name: Every gate registered in run_all
+        run: python gates/run_all.py
+
+      - name: The gates can still fail
+        run: python gates/verify_gates_can_fail.py

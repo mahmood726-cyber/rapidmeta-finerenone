@@ -331,6 +331,50 @@ def _what_would_change_it(obj):
             "measured outcome are available.")
 
 
+
+def _published_assessments(obj):
+    """Which of (risk-of-bias, certainty) this object ACTUALLY publishes.
+
+    Keyed on by_outcome entries that contain something, NOT on the presence of
+    the parent block or of a verdict field. Two traps sit here and both were
+    live:
+
+      * amoxicillin-aom carries a truthy `risk_of_bias_verdict` whose value
+        states the DOMAIN RULE ("RoB 2 domain 5 (Handbook 6.5 section 8.7)..."),
+        not a judgement about any trial.
+      * attr-cm-review carries a `certainty` block with six scaffolding keys
+        and an EMPTY by_outcome, so the block is truthy and publishes nothing.
+
+    Membership is not the property. Reading either field as a boolean would
+    have produced the same sentence this function exists to stop.
+    """
+    rb = ((obj.get("risk_of_bias") or {}).get("by_outcome") or {})
+    has_rob = any(isinstance(v, dict) and v for v in rb.values())
+    ce = ((obj.get("certainty") or {}).get("by_outcome") or {})
+    has_cert = any(isinstance(v, dict) and v for v in ce.values())
+    return has_rob, has_cert
+
+
+def _nothing_published_note(obj):
+    """The closing note, stating only what the object actually withholds."""
+    has_rob, has_cert = _published_assessments(obj)
+    because = " because there is no combined result for them to describe."
+    if not has_rob and not has_cert:
+        return ("No pooled estimate, risk-of-bias assessment or certainty rating "
+                "is published for this question," + because)
+    also = ("A risk-of-bias assessment and a certainty rating are"
+            if has_rob and has_cert else
+            "A risk-of-bias assessment is" if has_rob else
+            "A certainty rating is")
+    withheld = ("No pooled estimate is published for this question,"
+                if has_rob and has_cert else
+                "No pooled estimate or certainty rating is published for this question,"
+                if has_rob else
+                "No pooled estimate or risk-of-bias assessment is published for this "
+                "question,")
+    return ("%s%s %s published below and describe%s the trials, not a combined result."
+            % (withheld, because, also, "" if (has_rob and has_cert) else "s"))
+
 def _searched(obj):
     """What was checked and when, in one sentence, or None if nothing is recorded.
 
@@ -353,13 +397,35 @@ def _searched(obj):
         _vb = (_vb.get("what_verifies_this_object")
                or _vb.get("basis") or _vb.get("what_was_checked") or "")
     basis = _reader_safe(_sentence_case(str(_vb or "")))
-    dates = sorted({str(t.get("read_utc") or t.get("all_ranks_read_utc") or "")[:10]
-                    for t in ((obj.get("inputs") or {}).get("trials") or [])
-                    if isinstance(t, dict)} - {""})
+    # "READ IN FULL" IS A CLAIM ABOUT DEPTH, AND ONLY ONE FIELD WARRANTS IT.
+    # `all_ranks_read_utc` records that every registered rank was read; `read_utc`
+    # records only that a read happened. The sentence asserted the stronger claim
+    # whenever EITHER was present -- and the `or` preferred the weaker field, so a
+    # page could cite the shallower timestamp while claiming the deeper reading.
+    # Across the corpus 82 objects have all_ranks on every trial, 40 have only
+    # read_utc, and 1 has it on some: 41 objects were told they had been read in
+    # full on the strength of a timestamp that does not say so.
+    #
+    # DERIVE OR REFUSE: say "read in full" where every registration warrants it,
+    # say what was actually done where it does not, and name the split where the
+    # object is mixed rather than rounding it to either end.
+    _tr = [t for t in ((obj.get("inputs") or {}).get("trials") or []) if isinstance(t, dict)]
+    _full = [t for t in _tr if t.get("all_ranks_read_utc")]
+    dates = sorted({str(t.get("all_ranks_read_utc") or t.get("read_utc") or "")[:10]
+                    for t in _tr} - {""})
     registries = sorted({r for _, _, r in _trials(obj) if r})
     if registries and dates:
-        return ("Every registration listed below was read in full on %s from %s."
-                % (dates[-1], " and ".join(registries)))
+        if _tr and len(_full) == len(_tr):
+            what = "was read in full"
+        elif _full:
+            what = ("was read in full for %d of the %d registrations below, and retrieved "
+                    "without a recorded rank-by-rank read for the rest"
+                    % (len(_full), len(_tr)))
+        else:
+            what = ("was retrieved -- this object records no rank-by-rank read, so it does "
+                    "not establish that every registered outcome was examined")
+        return ("Every registration listed below %s on %s from %s."
+                % (what, dates[-1], " and ".join(registries)))
     return basis
 
 
@@ -428,13 +494,37 @@ def statement_html(obj, e):
     # project holds is that an absence DECLARES itself with a reason, in the markup a
     # reader's eye and a checker both recognise, rather than being inferred from a short
     # page. Same content; stated as what it is.
+    # THREE STATES, BECAUSE "WE FOUND NOTHING" AND "WE DID NOT LOOK" ARE DIFFERENT CLAIMS.
+    #
+    # This branch told a reader the page should be read "as A SEARCH THAT FOUND NOTHING". Four
+    # live objects reach it -- caspofungin-fungal, emtricitabine-hiv, etesevimab-covid,
+    # men-acwy -- and NONE of them holds a search, a screening record, a PRISMA flow or a
+    # k-cascade. There is nothing in any of them recording that a search was ever executed, and
+    # one says so in its own words: WE NEVER LOOKED. Asserting a search found nothing, when no
+    # search is recorded, is a claim about the world made from an absence in our own file.
+    #
+    # THE OBVIOUS FIX DOES NOT WORK, and testing it is why this helper exists. `searched` is
+    # non-empty for all four -- it returns "Conditions, arm groups with types, and registered
+    # outcome measures at every rank", which describes WHICH FIELDS OF A REGISTRATION WERE READ,
+    # not that a search was run. Gating on it would have fired never and looked like a fix.
+    _search_run = any(
+        (obj.get(k) not in (None, "", [], {}))
+        for k in ("search", "screening", "prisma_flow", "k_cascade"))
     if not trials:
         out.append(
             "<div class='absent-state' role='note'><strong>No trial was identified for "
             "this question.</strong> This review holds no contributing trial, so there is "
             "no evidence here to summarise, pool or assess. What was checked and when is "
             "given below, so that this is read as a search that found nothing rather than "
-            "as a page that failed to load.</div>")
+            "as a page that failed to load.</div>"
+            if _search_run else
+            "<div class='absent-state' role='note'><strong>No trial records are held on "
+            "this object, and no search record is held either.</strong> This page holds no "
+            "contributing trial, and it also holds no search, screening record, PRISMA flow "
+            "or screening cascade &mdash; so it cannot tell you whether a registered trial "
+            "for this question exists. Read this as a page that has not looked, NOT as a "
+            "search that found nothing. The two are different claims and only the first is "
+            "supported here.</div>")
 
     if question:
         out.append("<p><strong>Question.</strong> %s</p>" % e(question))
@@ -449,9 +539,16 @@ def statement_html(obj, e):
             out.append("<tr><td>%s</td><td>%s</td></tr>"
                        % (e(nct), e(label or "title not recorded in the registry read")))
         out.append("</table>")
-    else:
+    elif _search_run:
         out.append("<p><strong>What was found.</strong> No registered trial was "
                    "identified for this question.</p>")
+    else:
+        # The same distinction, in the sentence a reader is most likely to quote. "No
+        # registered trial was identified" reads as a finding about the evidence base; without
+        # a search record it is only a fact about this file.
+        out.append("<p><strong>What was found.</strong> No trial records are held on this "
+                   "object. Because no search or screening record is held either, this page "
+                   "cannot conclude that no registered trial exists for this question.</p>")
 
     # WHAT THE TRIALS FOUND, WHERE THEY FOUND ANYTHING.
     #
@@ -499,8 +596,10 @@ def statement_html(obj, e):
         out.append("<p><strong>Whether these trials study this subject.</strong> %s</p>"
                    % e(identity))
     out.append("<p><strong>What would change this.</strong> %s</p>" % e(change))
-    out.append("<p><small>No pooled estimate, risk-of-bias assessment or certainty rating "
-               "is published for this question, because there is no combined result for "
-               "them to describe.</small></p>")
+    # This sentence was emitted unconditionally on 15 pages. On two of them --
+    # attr-cm-review and early-rhythm-control-af -- the page displays an
+    # assessor-column risk-of-bias table a few sections further down, so the
+    # page denied publishing something it was publishing. Derived now.
+    out.append("<p><small>%s</small></p>" % e(_nothing_published_note(obj)))
     out.append("</div>")
     return "\n".join(out)

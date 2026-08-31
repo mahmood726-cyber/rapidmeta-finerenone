@@ -91,6 +91,36 @@ def _page_generated_utc():
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
 
+def _repro_note(reg, c0):
+    """The reproducibility promise, DERIVED from whether it is true on this page.
+
+    THE LARGEST SINGLE CLASS IN THE REVIEW REGISTER: 130 findings across 126
+    pages, one string. "Everything a third party needs to rebuild this page" was
+    printed unconditionally, including on pages whose Canonical object cell is an
+    em dash. A reader cannot rebuild a page from an object that is not recorded,
+    so there the sentence is not a weak claim but a false one -- and it is the
+    worst kind available here: a promise of VERIFIABILITY made by a page that
+    cannot be verified.
+
+    DERIVE OR REFUSE, AND REFUSE ONLY THE HALF THAT IS FALSE. The figures really
+    do download carrying exactly the values shown whatever the object situation,
+    so that sentence survives every branch. Dropping it too would substitute a
+    softer claim in the other direction, and saying less than is true is also not
+    saying what is true.
+    """
+    figures = ("Each figure on the Analysis tab downloads as an SVG carrying exactly "
+               "the values shown.")
+    missing = []
+    if not (reg or {}).get("path"):
+        missing.append("no canonical object is recorded")
+    if not (c0 or {}).get("sha"):
+        missing.append("no registered commit is recorded")
+    if not missing:
+        return "Everything a third party needs to rebuild this page. " + figures
+    return ("This page CANNOT be rebuilt from what is recorded here: %s. %s"
+            % (" and ".join(missing), figures))
+
+
 def _v(x, absent="—", limit=None):
     """Escape a value for HTML, rendering ABSENCE as a dash rather than as the word "None".
 
@@ -344,16 +374,65 @@ def paper_studio(canon, res, p):
               % (NL, NL, NL, NL, chips, NL, NL, NL))
 
 
+
+# t_{k-1, .975} against the normal quantile. A prediction interval's width is
+# t * sqrt(tau2 + se^2); when t is much larger than z, almost all of that width
+# is the SMALL-SAMPLE CORRECTION rather than the estimated heterogeneity, and
+# the interval stops describing where a future study would land.
+_T_CRIT = {2: 12.70620, 3: 4.302653, 4: 3.182446, 5: 2.776445, 6: 2.570582,
+           7: 2.446912, 8: 2.364624, 9: 2.306004, 10: 2.262157}
+_Z_CRIT = 1.959963985
+
+
+def _pi_is_informative(k):
+    """Show a prediction interval only where the data, not t, sets its width.
+
+    THE THRESHOLD IS DERIVED, NOT CHOSEN. Show when t_{k-1} < 2z:
+
+        k = 2   t = 12.706   6.48x z   the interval is the critical value
+        k = 3   t =  4.303   2.20x z   still dominated by it
+        k = 4   t =  3.182   1.62x z   data-dominated  <- first k that qualifies
+        k = 10  t =  2.262   1.15x z
+
+    Correcting the arithmetic of a k=2 interval is not enough. sglt2-hf's
+    corrected interval runs 0.358 to 1.715 -- honest, and close to
+    uninformative. Derive-or-refuse applies to what the interval is FOR, not
+    only to how it was computed.
+    """
+    if not isinstance(k, int) or k < 2:
+        return False, ("no prediction interval is shown: one is undefined below two "
+                       "studies.")
+    t = _T_CRIT.get(k)
+    if t is None:
+        return (True, "") if k > 10 else (False, "")
+    if t < 2 * _Z_CRIT:
+        return True, ""
+    return False, ("No prediction interval is shown for this pool. At k = %d the "
+                   "t critical value is %.3f against a normal quantile of %.3f, so "
+                   "%.1f times the interval's width would be the small-sample "
+                   "correction rather than the estimated heterogeneity -- it would "
+                   "describe the critical value, not where a future study is likely "
+                   "to fall. An interval is shown from k = 4, where that factor "
+                   "drops below two." % (k, t, _Z_CRIT, t / _Z_CRIT))
+
 def statistics_tables(res, p):
     pan = res.get("panels") or {}
     cp = res.get("count_panels") or {}
     out, rows = "", ""
     pr = pan.get("prediction")
     if pr:
-        rows += ("    <tr><th>Prediction interval</th><td class='num'>%s to %s</td>"
-                 "<td><small>%s</small></td></tr>%s"
-                 % (pj.fmt(pr["pi_low"]), pj.fmt(pr["pi_high"]),
-                    p(pr.get("convention", "")), NL))
+        _k = res.get("k")
+        if _k is None:
+            _k = len([r for r in (res.get("per_trial") or []) if isinstance(r, dict)])
+        _ok, _why = _pi_is_informative(_k)
+        if _ok:
+            rows += ("    <tr><th>Prediction interval</th><td class='num'>%s to %s</td>"
+                     "<td><small>%s</small></td></tr>%s"
+                     % (pj.fmt(pr["pi_low"]), pj.fmt(pr["pi_high"]),
+                        p(pr.get("convention", "")), NL))
+        else:
+            rows += ("    <tr><th>Prediction interval</th><td class='num'>not shown</td>"
+                     "<td><small>%s</small></td></tr>%s" % (p(_why), NL))
     tc = pan.get("tau2_ci")
     if tc:
         rows += ("    <tr><th>Between-study variance</th><td class='num'>%s (%s to "
@@ -625,9 +704,15 @@ def output_card(canon, p):
         pl = r.get("pooled") or {}
         g = r.get("grade") or {}
         ks = r.get("k_status") or {}
-        sof += ("    <tr><td>%s</td><td class='num'>%s%s</td><td class='num'>%s</td>"
+        # data-pool ON THE ROW, NOT ON EACH CELL. Every number in this row -- the k, the
+        # pooled point and its interval -- comes from the SAME pool, so the row is the
+        # honest unit. The pool's id is the object's own key under results.by_outcome;
+        # there is no separate pool_id field, and inventing one here would create a second
+        # name for a thing that already has one.
+        sof += ("    <tr data-pool=\"%s\"><td>%s</td><td class='num'>%s%s</td>"
+                "<td class='num'>%s</td>"
                 "<td>%s</td></tr>%s"
-                % (p(o["name"]), pj.fmt(r.get("k")),
+                % (p(oid), p(o["name"]), pj.fmt(r.get("k")),
                    " (lower bound)" if ks.get("is_lower_bound") else "",
                    ("%s %s (%s to %s)" % (_v((pl.get("measure", ""))),
                                           pj.fmt(pl["point"]),
@@ -667,7 +752,13 @@ def output_card(canon, p):
         # Measured 2026-08-26: 16 of 155 objects carry a build_stamp at all and 137 of 149
         # delivered pages carry no standard line, so "is this current" was unanswerable for
         # 92 percent of the corpus.
-        ("Source object SHA-256",
+        # A 16-character value cannot be labelled "SHA-256": the digest is 64 hex
+        # characters and this is the first 16 of them. The label now says what is
+        # actually shown, so a reader can reproduce it exactly. The value is left
+        # alone deliberately -- scripts/figure_detectors.py matches [0-9a-f]{16}
+        # against it, and widening the field would have it capture a prefix and
+        # call it the whole digest, which is the same defect one layer down.
+        ("Source object SHA-256, first 16 hex characters",
          "<code>%s</code>" % e(__import__("hashlib").sha256(
              __import__("json").dumps(canon, sort_keys=True, separators=(",", ":"),
                                       ensure_ascii=False).encode("utf-8")).hexdigest()[:16])),
@@ -712,8 +803,7 @@ def output_card(canon, p):
           "that exists now, not the one this page was built against."
           % (e(_generator_stamp()[0]), e(_generator_stamp()[1])))),
         ("Statistical engine", p((first.get("cross_engine") or {}).get("engine", ""))),
-    ], "Everything a third party needs to rebuild this page. Each figure on the "
-       "Analysis tab downloads as an SVG carrying exactly the values shown.")
+    ], _repro_note(reg, c0))
     # THE FOOTNOTES ARE NOT DECORATION. A downgrade with its reason removed is a letter,
     # and "See comment" with no comment is worse than the dash it replaced. Every superscript
     # emitted above resolves to one of these, and the table refuses to render if one does not.
@@ -1537,7 +1627,59 @@ def _screening_ledger_fragment(canon):
     return ""
 
 
-def build(canon):
+def _artefact_kind(canon):
+    """review | tool -- what KIND of thing this page is, decided from the object.
+
+    WHY. Establishing what 1,463 served pages ARE took a census, a structural-signature
+    classifier, live sampling, a cross-lane join and 58 pages opened by hand. 744 of them
+    present the full apparatus of a systematic review -- PRISMA, GRADE, AMSTAR-2, RoB-2 --
+    with `--` in every result slot, at URLs ending `_REVIEW.html`. A reader is invited to
+    run them and the URL says they are invited to believe them. One attribute answers it.
+
+    THE RULE IS THE POPULATED OUTCOME, NOT THE APPARATUS. A shell carries every table a
+    review carries; what it does not carry is a result. Measured 2026-08-27 over PAGE_MAP:
+    149 objects hold at least one outcome with a pooled estimate, an effect or a k, and 14
+    hold none -- which reproduces the census's own "14 current-generation without a store".
+
+    THIS GENERATOR EMITS TWO OF THE FOUR KINDS. `redirect` and `landing` are produced
+    elsewhere and are NOT claimed here; a page built by this function is never one of them,
+    so asserting the vocabulary's other half from here would be a guess.
+    """
+    by = (canon.get("results") or {}).get("by_outcome") or {}
+    for v in by.values():
+        if isinstance(v, dict) and (v.get("pooled") or v.get("effect") or v.get("k")):
+            return "review"
+    return "tool"
+
+
+def _store_declaration(canon):
+    """The page's own object path, for the served bytes. Derives, VERIFIES, or refuses.
+
+    WHY THIS EXISTS. Measured across the corpus on 2026-08-27: only 31 of 144 pages declare
+    their object's identity in their served bytes, while 138 declare the generator that
+    built them. The corpus records HOW a page was made and not WHAT IT IS ABOUT -- which is
+    why attributing a page to its object has been forensic rather than a lookup, and why six
+    separate defects in one night were all attribution guesses.
+
+    DERIVE-AND-VERIFY, NOT DERIVE. `ssot/<app_id>/<app_id>.json` reproduces the PAGE_MAP
+    entry for 163 of 163 objects, so derivation is currently exact. It is still checked
+    against the filesystem before being asserted, because PAGE_MAP existing at all is
+    evidence the convention has not always held, and a convention is not a contract. An
+    object whose derived path does not resolve gets an explicit refusal rather than a path
+    that is merely plausible -- a wrong store path is worse than none, because a reader or a
+    check would follow it.
+    """
+    app = canon.get("app_id")
+    if not app or not isinstance(app, str):
+        return None, "object records no app_id"
+    rel = "ssot/%s/%s.json" % (app, app)
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if not os.path.exists(os.path.join(root, rel)):
+        return None, "derived store path does not resolve: %s" % rel
+    return rel, None
+
+
+def build(canon, store_path=None):
     # AN OBJECT WITH NO TITLE AND NO RESULTS IS NOT A PAPER, AND THIS SAYS SO ONCE.
     #
     # 14 topics are empty shells -- no `results` key, no `title`. Building them produced a
@@ -1798,8 +1940,17 @@ def build(canon):
     # property a reader cannot see is not a property the page has.
     body += _standard_block(canon, e_)
     body = _caption_tables(body)
+    _store, _store_why = (store_path, None) if store_path else _store_declaration(canon)
+    # ON <html>, NOT IN A COMMENT. A page must be able to state what it is about in bytes a
+    # grep can read, which is the whole point -- and this is the element `data-artefact` is
+    # proposed for, so the two declarations sit together rather than in two conventions.
+    _store_attr = (' data-store="%s"' % e_(_store) if _store
+                   else ' data-store="" data-store-absent="%s"' % e_(_store_why or "unknown"))
+    # SAME ELEMENT AS data-store, deliberately: one declared surface rather than two
+    # conventions a reader of this code has to learn separately.
+    _store_attr += ' data-artefact="%s"' % e_(_artefact_kind(canon))
     return """<!doctype html>
-<html lang="en">
+<html lang="en"%s>""" % _store_attr + """
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>%s</title>
@@ -1969,6 +2120,11 @@ if __name__ == "__main__":
     # The check belongs where the write happens.
     import do_not_rebuild as _dnr
     _dnr.check(sys.argv[2])
+    # AND THE GENERATOR PIN, IN THE PATH RATHER THAN IN ANYONE'S NOTES. A rebuild from a
+    # generator older than a served renderer fix reverts that fix. Refused before anything
+    # is written, beside the do-not-rebuild refusal, because a rule kept in prose gets
+    # violated -- twice tonight already.
+    _dnr.check_generator_pin()
 
     obj = json.load(open(sys.argv[1], encoding="utf-8"))
     out = sys.argv[2]
@@ -2002,5 +2158,150 @@ if __name__ == "__main__":
     # delivered page untouched.
     import manuscript_guard as _mg
     _mg.enforce(_html, out)
+    # ⛔ THE DEFECT SUITE RUNS, REPORTS, AND IS EMBEDDED -- OR NOTHING IS EMITTED.
+    #
+    # Standing priority: the error-detector and methodology layer must WORK IN HARNESS, and
+    # "works" is a testable state rather than an aspiration: for every review the harness
+    # produces, the suite RAN, it REPORTED, and its result is IN THE PAGE. This is the only
+    # form of protection that has survived on this project. Five times in one week a rule
+    # existed, was correct, and was called by nothing -- including the entire gate suite,
+    # which was installed, invoked and INERT while its log showed success.
+    #
+    # Placed on the WRITE PATH, beside the do-not-rebuild refusal and the generator pin,
+    # because a check that lives in a caller script does not run when a different caller
+    # writes the file.
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))), "scripts", "lane_rob"))
+    #
+    # ⛔ AND THE FAILURE MODE IS DELIBERATE, NOT ACCIDENTAL. When this was first wired the
+    # integrity module happened to be syntactically broken, the import raised, and the build
+    # exited 1 without writing -- the right shape BY ACCIDENT. A fail-safe that works by
+    # accident is one refactor away from being a silent skip: the first person who wraps this
+    # in a `try: ... except: pass` to "make the build more robust" turns the whole protection
+    # off, and the log will say success.
+    #
+    # So both failures are caught and both REFUSE with a named reason. NEVER add a bare except
+    # here, and never let this fall through to the write.
+    # ⛔ A SUBGROUP ESTIMATE MAY NOT BE RENDERED WITHOUT ITS ANALYSIS STATUS. The dapivirine age
+    # strata are post hoc in the source's own first four words; a page showing 56% without that
+    # turns a hypothesis-generating subgroup into a finding. If this refuses, the fix is to
+    # record the status or drop the subgroup -- never to relax the check.
+    try:
+        import subgroup_guard as _sg
+        _sg.enforce(obj, out)
+    except Exception as _e:
+        if type(_e).__name__ == "SubgroupRefusal":
+            raise SystemExit(str(_e))
+        raise SystemExit(
+            "BUILD REFUSED: the subgroup guard could not run (%s: %s)."
+            % (type(_e).__name__, _e))
+    # ⛔ A NUMBER MUST CARRY THE LABEL OF THE ROWS IT WAS COMPUTED FROM. Refuses the build when
+    # a pooled figure would be published under a count source or estimand its own inputs do not
+    # carry -- the near-swap that nearly put the registry-as-submitted 0.703 under a headline
+    # that is the adjudicated 0.713.
+    try:
+        import estimand_label_gate as _elg
+        _elg.enforce(obj, out)
+    except Exception as _e:
+        if type(_e).__name__ == "LabelMismatch":
+            raise SystemExit(str(_e))
+        raise SystemExit(
+            "BUILD REFUSED: the estimand-label gate could not run (%s: %s). A page whose numbers "
+            "cannot be checked against their own inputs does not build."
+            % (type(_e).__name__, _e))
+    # The estimand statement: what quantity this page pools, and whether the trials analysed
+    # it. Placed before the integrity check so that a failure here is caught by the same
+    # refusal discipline, and so the section is inside the page the suite then examines.
+    try:
+        import estimand_statement as _est
+        _html = _est.inject(_html, obj)
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the estimand component failed (%s: %s). A page that cannot say "
+            "what it is estimating does not build." % (type(_e).__name__, _e))
+    # Both intervals, and which one is reported. Same refusal discipline: an interval whose
+    # estimator is not stated is a number a reader cannot compare with anyone else's.
+    try:
+        import both_intervals as _bi
+        _html = _bi.inject(_html, obj)
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the interval component failed (%s: %s). A page that reports one "
+            "interval without showing what the other estimator gives does not build."
+            % (type(_e).__name__, _e))
+    # How current this page is against its designated comparator. Network failure inside the
+    # component is a stated NOT_YET_ATTEMPTED on the page, not a build failure -- the build only
+    # refuses if the component itself is broken.
+    try:
+        import currency_query as _cur
+        _html = _cur.inject(_html, obj)
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the currency component failed (%s: %s). A page that cannot say how "
+            "old its evidence base is does not build." % (type(_e).__name__, _e))
+    # ⛔ THE CLINICAL COMPONENTS, ON THE WRITE PATH FOR THE SAME REASON AS THE OTHERS.
+    #
+    # These are the sections the blinded judges weighted highest, and until now every one of
+    # them was HAND-WRITTEN onto one page. A hand-written section wins once. The acceptance
+    # rule is regeneration: if the page cannot be rebuilt to its winning state, the improvement
+    # was never in the harness -- so each of these derives from the SSOT object or REFUSES
+    # visibly, and each carries its own controls and a measured coverage fraction.
+    #
+    # ⚠️ AND THE REFUSAL PATH IS THE COMMON ONE, not the exception. Most objects in this corpus
+    # cannot supply a baseline risk, a subgroup block, or a safety table. They will render a
+    # named refusal, which is the honest output and is what stops a silent skip from reporting
+    # this component's reach as the corpus's state.
+    for _name, _mod, _why in (
+            ("absolute effects", "absolute_effects",
+             "A page that gives a ratio and no absolute effect leaves a clinician without the "
+             "quantity they act on"),
+            # ⛔ subgroup_efficacy'S RENDERER IS RETIRED. ONE FINDING, ONE KEY, ONE RENDERER.
+            # The store key is `subgroups`, feeding build_app_v2's outcome section, which
+            # predates both lanes -- "the renderer existed all along". Rendering the same
+            # stratum through a second component put the safety-critical 18-to-21 result on the
+            # page TWICE, from two keys, with no way for a maintainer to tell which was
+            # authoritative. ⚠️ The module survives as the READER clinical_reading derives C1
+            # and C4 through; only its section is withdrawn.
+            ("other outcomes", "other_outcomes",
+             "A page that reports benefit and not harms is not a review"),
+            ("count provenance", "count_provenance",
+             "A page that does not say which counts it used, or what quantity it pooled, is "
+             "asking to be trusted rather than checked"),
+            ("clinical reading", "clinical_reading",
+             "A page that leaves the reader to assemble the clinical meaning from six tables "
+             "has done the analysis and not the review"),
+            ("audit trail", "audit_trail",
+             "A page whose numbers cannot be resolved to a document and a sentence is asking "
+             "to be believed"),
+            # ⭐ THE ONE AXIS THE COMPARATOR WON. All six blinded judges named formal GRADE
+            # certainty for our own estimate. The assessment was already in the object and the
+            # page printed none of it -- the hand-built pilot contains the string "GRADE" zero
+            # times. A rendering gap, not a methods gap, and it cost us the only axis we lost.
+            ("certainty profile", "certainty_profile",
+             "A review that rates its own certainty and does not print the rating has done "
+             "the work and withheld the result")):
+        try:
+            _c = __import__(_mod)
+            _html = _c.inject(_html, obj)
+        except Exception as _e:
+            raise SystemExit(
+                "BUILD REFUSED: the %s component failed (%s: %s). %s, so this does not build."
+                % (_name, type(_e).__name__, _e, _why))
+    try:
+        import integrity_section as _isec
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the integrity layer could not be loaded (%s: %s). No review is "
+            "emitted without the defect suite having run and reported. Fix the layer; do not "
+            "bypass this." % (type(_e).__name__, _e))
+    try:
+        _html = _isec.inject(_html)
+        _isec.assert_present(_html, out)
+    except SystemExit:
+        raise
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the integrity layer raised while checking this page (%s: %s). A "
+            "suite that errors has not passed." % (type(_e).__name__, _e))
     open(out, "w", encoding="utf-8").write(_html)
     print("built %s (%d bytes)" % (out, os.path.getsize(out)))

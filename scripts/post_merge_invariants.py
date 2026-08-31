@@ -25,6 +25,15 @@ So this asserts the MEASUREMENTS, not the tree:
 Exit 1 on any drift, naming what moved and in which direction. Update the
 expected values ONLY with a stated reason -- a baseline nobody re-reads is how
 erosion starts.
+
+⛔ AND MEASURE EVERY EXPECTED VALUE FROM A COMMIT, NEVER FROM THE WORKING TREE.
+This worktree is shared: at any moment it carries other lanes' uncommitted
+edits. The first version of this file baselined question_pico_declared at 4 by
+reading the working tree; three of those four declarations lived only in
+another lane's unsaved changes. The number was therefore unreproducible from
+any commit, and the first merge this file guarded was accused of reverting a
+correction that had never been committed by anyone. The instrument was right
+and its baseline was fiction.
 """
 import io
 import json
@@ -46,8 +55,19 @@ EXPECT = {
         "return means is_authored stopped being invoked"),
     "estimand_declared": (21,
         "same gate; 39 is the ungated value"),
-    "question_pico_declared": (4,
-        "four topics declare all four axes with authored populations"),
+    "question_pico_declared": (1,
+        "ONE topic -- dapivirine -- declares all four axes with authored "
+        "populations, measured from the COMMIT. This baseline read 4 until "
+        "2026-08-31, and the 4 was wrong: it was measured in the shared "
+        "worktree, whose working tree carried three other lanes' UNCOMMITTED "
+        "stores (alirocumab-lipid, apixaban-vte-treatment, gepotidacin-uti). "
+        "Those declarations exist in nobody's history, so no merge could "
+        "preserve them and this invariant refused the first merge it ever "
+        "guarded -- naming a regression that had not happened. "
+        "A BASELINE MEASURED FROM A WORKING TREE IS NOT A BASELINE: it is "
+        "anchored to state that changes under it, so it retires itself and "
+        "then accuses the next change. Measure from HEAD, or from a named "
+        "commit, and say which"),
     "index_entry_declared": (0,
         "no topic carries the sentence its index tile shows"),
     "dapivirine_declared": (5,

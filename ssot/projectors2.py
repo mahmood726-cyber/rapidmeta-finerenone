@@ -668,6 +668,14 @@ def grade_section(res, p, canon=None, oid=None):
     # asserting and denying in the same box, and the derivation is the worse half: it
     # names the withheld level in full.
     _res = _ga.resolve(canon, oid) if (canon and oid) else None
+    # KEYED ON THE RESOLVED STATE, NOT ON A NAMED SUBSET OF IT. This read
+    # `state == "PENDING"` and fell through to the stored value for every other non-RATED
+    # state -- so sglt2-hf rendered "Certainty: high" for a WITHDRAWN pool, publishing a
+    # rating about an estimate that has been taken down. That is the same false-claim
+    # family as the pending case, left standing beside the fix for it, by the same hand in
+    # the same hour. Anything the resolver does not call RATED has no level to publish, and
+    # a state added later arrives guarded instead of unguarded.
+    _withheld = bool(_res and _res.get("state") != "RATED")
     _pending = bool(_res and _res.get("state") == "PENDING")
     rows = ""
     for k in GRADE_DOMAINS:
@@ -680,7 +688,7 @@ def grade_section(res, p, canon=None, oid=None):
         # marking them pending would assert something false about them. With the
         # risk-of-bias cell pending, no reader can total the domains into a rating, which
         # is the contradiction that needed removing.
-        if _pending and k == "risk_of_bias":
+        if _withheld and _pending and k == "risk_of_bias":
             rating = ("<strong>pending</strong>")
             basis = ("This domain is not final: %s Its recorded reasoning is kept with the "
                      "assessment rather than shown here as a settled judgement."
@@ -697,8 +705,8 @@ def grade_section(res, p, canon=None, oid=None):
                  % (p(g["starting_point"]),
                     " &mdash; " + p(because) if because else "", NL))
     deriv = ("  <p><small>%s</small></p>%s" % (p(g["certainty_derivation"]), NL)
-             if g.get("certainty_derivation") and not _pending else "")
-    if _pending:
+             if g.get("certainty_derivation") and not _withheld else "")
+    if _withheld:
         deriv = ("  <p><small>The stored derivation of this rating is not shown, because "
                  "it ends in the level this review is withholding. It is held with the "
                  "assessment and will be published with the adjudicated "
@@ -730,8 +738,9 @@ def grade_section(res, p, canon=None, oid=None):
             "    <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way"
             "</th></tr>%s%s  </table>%s</div>%s%s"
             % (NL, NL,
-               ("<span title=\"%s\">Pending &mdash; not rated</span>"
-                % e(str(_res.get("comment", ""))[:400])) if _pending
+               ("<span title=\"%s\">%s</span>"
+                % (e(str(_res.get("comment", ""))[:400]),
+                   e(str(_res.get("cell") or "not rated")))) if _withheld
                else p(g["certainty"]),
                NL, start, deriv, NL, NL, rows, NL, NL,
                effect))
@@ -852,21 +861,171 @@ def _interval_caption(pooled, null_value):
                    % (_fmt_v(lo), _fmt_v(hi), _fmt_v(nv)))
 
 
+
+def _analysed_n_for_outcome(canon, res):
+    """(total, matched, wanted) analysed participants for THIS outcome's trials only.
+
+    Keyed on registration id. Returns the counts so the caller can refuse when a
+    contributing trial could not be matched, rather than publishing a partial sum.
+    """
+    # ONE ENTRY PER CONTRIBUTING TRIAL, NOT PER IDENTIFIER STRING. The first version
+    # collected every id on every per_trial row into one set, so a two-trial pool carrying
+    # both `nct` and `trial_id` produced FOUR "wanted" ids, matched two, and tripped the
+    # caller's refusal on every outcome in the corpus. A guard that fires everywhere is as
+    # useless as one that never fires, and this one would have blanked a number that was
+    # finally correct.
+    wanted = []
+    for r in (res.get("per_trial") or []):
+        if not isinstance(r, dict):
+            continue
+        ids = {str(r[k]).strip() for k in ("nct", "trial_id", "id") if r.get(k)}
+        if ids:
+            wanted.append(ids)
+    if not wanted:
+        return 0, 0, 0
+    trials = [t for t in ((canon.get("inputs") or {}).get("trials") or [])
+              if isinstance(t, dict)]
+    total, matched = 0, 0
+    for ids in wanted:
+        for t in trials:
+            keys = {str(t.get(k)).strip() for k in ("nct", "id", "name") if t.get(k)}
+            if keys & ids:
+                matched += 1
+                for a in (t.get("arms") or []):
+                    if isinstance(a, dict):
+                        total += a.get("participants") or 0
+                break
+    return total, matched, len(wanted)
+
+
 def visual_abstract(canon, res, outcome, p):
     """The graphical abstract, projected. Under the same gates as any figure."""
     pooled = res.get("pooled") or {}
     if pooled.get("point") is None:
         return ""
-    n_total = 0
-    for t in (canon.get("inputs") or {}).get("trials", []):
-        for a in (t.get("arms") or []):
-            n_total += a.get("participants") or 0
+    # THE PARTICIPANT COUNT BELONGED TO THE PAGE, NOT TO THE POOL, AND IT TRAVELLED.
+    #
+    # This summed arms across EVERY trial on the object. On iv-iron-hf all four visual
+    # abstracts read "2 trials, 6,716 participants" -- 6,716 being the sum over all six
+    # pools (2,245 + 1,105 + 0 + 0 + 3,065 + 301), while the two-trial pool each abstract
+    # names holds 2,245. The total silently absorbed HEART-FID's 3,065 and CONFIRM-HF's
+    # 301, single-trial pools for entirely different outcomes. So it told a reader a
+    # two-trial result rested on three times the evidence it does, four times over, and it
+    # refuted itself on its own face: AFFIRM-AHF plus IRONMAN is 2,245.
+    #
+    # A visual abstract is a STANDALONE graphic. It travels without the page that would
+    # have corrected it, which makes a wrong number here worse than the same number in
+    # prose.
+    #
+    # JOINED ON THE REGISTRATION ID, not the trial name. per_trial rows carry `nct` and
+    # `trial_id`; matching on acronym is the bad-key failure that gave three parties three
+    # different answers on the KCCQ outcome.
+    n_total, _n_matched, _n_wanted = _analysed_n_for_outcome(canon, res)
+    _n_total_note = ""
+    # THE DISAGREEING INTERVAL, wherever it is stored. Hartung-Knapp intervals
+    # live under at least eight different keys in this corpus; reading one of
+    # them found 2 pools and reading all of them found 6.
+    def _hk(node, depth=0):
+        import re as _re
+        if depth > 6:
+            return None
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if _re.search(r"hartung|knapp|hksj|knha", str(k), _re.I)                         and isinstance(v, dict) and v.get("ci_low") is not None                         and v.get("ci_high") is not None:
+                    return (v["ci_low"], v["ci_high"])
+                got = _hk(v, depth + 1)
+                if got:
+                    return got
+        elif isinstance(node, list):
+            for v in node[:40]:
+                got = _hk(v, depth + 1)
+                if got:
+                    return got
+        return None
+    _alt_iv = _hk(res)
+    if not n_total:
+        # NAME THE REASON, DO NOT JUST WITHHOLD THE NUMBER. On alirocumab-lipid
+        # two trials recovered on 2026-08-19 carry `enrolled` but no `arms`, so
+        # the ANALYSED total cannot be summed even though enrolment can. The old
+        # rendering ("n/a participants") invited the reading that no count
+        # existed anywhere, when 4,431 enrolled is recorded on the object and is
+        # simply a different quantity.
+        _cn = {str(x.get("nct") or x.get("trial_id")) for x in (res.get("per_trial") or [])
+               if isinstance(x, dict)}
+        _tr = [t for t in ((canon.get("inputs") or {}).get("trials") or [])
+               if isinstance(t, dict) and str(t.get("nct") or t.get("id")) in _cn]
+        _no_arms = [t for t in _tr if not t.get("arms")]
+        if _no_arms and _tr:
+            _enr = sum(int(t.get("enrolled") or 0) for t in _tr)
+            _n_total_note = ("%d of %d contributing trials record no analysed arm counts"
+                             % (len(_no_arms), len(_tr)))
+            if _enr and all(t.get("enrolled") for t in _tr):
+                _n_total_note += ("; %s were enrolled across all %d, but enrolment is not "
+                                  "the analysed total" % ("{:,}".format(_enr), len(_tr)))
+    if _n_wanted and _n_matched != _n_wanted:
+        # AND IT REFUSES RATHER THAN UNDERSTATING. If a contributing trial cannot be
+        # matched to an arm count, the sum is not this pool's total and must not be shown
+        # as one -- a quietly smaller wrong number is not an improvement on a larger one.
+        n_total = 0
+        _n_total_note = ("%d of %d contributing trials could not be matched to a "
+                         "registered arm count" % (_n_wanted - _n_matched, _n_wanted))
     g = res.get("grade") or {}
     sens = res.get("sensitivity") or {}
     loo = ""
-    rows = [a for a in (sens.get("analyses") or []) if isinstance(a, dict)]
-    kept = [a for a in rows if a.get("still_excludes_null")]
-    if rows:
+    _all_sens = [a for a in (sens.get("analyses") or []) if isinstance(a, dict)]
+
+    # A LEAVE-ONE-OUT SENTENCE MUST COUNT LEAVE-ONE-OUT REFITS, AND NOTHING ELSE.
+    # tigecycline-ciai/cure_toc_me holds EIGHT sensitivity rows and only THREE remove a study;
+    # the other five change the summary statistic, the event definition, the model or the
+    # analysis population. Counting all eight made the denominator wrong, and because none of
+    # the eight carries `still_excludes_null` the numerator came out 0 -- so the page said "no
+    # refit excludes no difference; the estimate does not survive removal of any single trial"
+    # while its own leave-one-out table showed removal of study-3xx still excluding the null.
+    #
+    # THE SELECTOR MUST ACCEPT BOTH CONVENTIONS. Selecting on `id` alone is the obvious fix and
+    # is unsafe class-wide: only 1 of 13 page-outcomes with sensitivity rows uses leave-out ids,
+    # and 12 of 13 use a legacy non-empty `omitted`. Dropping those would delete a true sentence
+    # from twelve pages to fix one.
+    def _is_leave_one_out(a):
+        return (str(a.get("id") or "").startswith("leave-out")
+                or a.get("omitted") not in (None, "")
+                or " by removing " in str(a.get("changed") or "").lower())
+
+    # DERIVE THE VERDICT WHERE THE BOOLEAN IS ABSENT, AND REFUSE WHERE IT CANNOT BE DERIVED.
+    # `still_excludes_null` is honoured when stored. Otherwise it is read off the stored
+    # interval against this outcome's null -- 1 for a ratio, 0 for a difference. A row that
+    # supplies neither is UNDECIDABLE and must not be silently counted as "does not exclude",
+    # which is how a missing field became a false claim about robustness in the first place.
+    _measure = str((res.get("pooled") or {}).get("measure")
+                   or res.get("measure") or outcome.get("measure") or "").upper()
+    _null = 0.0 if _measure in ("MD", "SMD", "RD", "WMD") else 1.0
+
+    def _excludes_null(a):
+        if isinstance(a.get("still_excludes_null"), bool):
+            return a["still_excludes_null"]
+        # TWO SCHEMAS, AND READING ONLY ONE TURNS A READABLE REFIT INTO AN UNREADABLE ONE.
+        # tigecycline nests the interval under `result`; apixaban-vte-treatment stores it on
+        # the ROW ITSELF ({"omitted": "CARAVAGGIO", "point": ..., "ci_low": ...}). Reading
+        # only the nested shape declared all three apixaban refits unreadable and printed
+        # "3 refits cannot be read here" about three rows that each carry an interval.
+        # Same family as as_posted's eight schemas: a reader written against one shape
+        # reports the others as absent.
+        r = a.get("result") or a.get("refit") or a
+        lo, hi = r.get("ci_low"), r.get("ci_high")
+        if isinstance(lo, (int, float)) and isinstance(hi, (int, float)):
+            return not (lo <= _null <= hi)
+        return None
+
+    rows = [a for a in _all_sens if _is_leave_one_out(a)]
+    _verdicts = [_excludes_null(a) for a in rows]
+    _undecidable = [v for v in _verdicts if v is None]
+    kept = [a for a, v in zip(rows, _verdicts) if v is True]
+    if rows and _undecidable:
+        loo = ("Leave-one-out: %d refit%s cannot be read here, because %d of them store "
+               "neither an exclusion verdict nor an interval. No count is given rather than "
+               "one that treats an unreadable refit as a refit that failed."
+               % (len(rows), "" if len(rows) == 1 else "s", len(_undecidable)))
+    elif rows:
         # A SENTENCE ABOUT A NUMBER MUST BE A FUNCTION OF THAT NUMBER.
         # The previous version appended "the estimate does not survive removal of the
         # largest trial" unconditionally, reading `kept` for the count and then ignoring it
@@ -874,6 +1033,18 @@ def visual_abstract(canon, res, outcome, p):
         # does not survive removal of the largest trial" -- which is not merely contradictory,
         # it is false: if every refit excludes the null then the estimate DOES survive.
         # Measured before the fix: 6 of 12 emitted sentences were self-falsifying.
+        _k = res.get("k") if res.get("k") is not None else len(res.get("per_trial") or [])
+
+        # THE OTHER LANE'S IMPLEMENTATION SUPERSEDES MINE AND IS STRICTLY BETTER.
+        # This lane independently fixed the same class last night: absent read as negative,
+        # and non-refit rows counted as refits. Merging brought both fixes into one function
+        # and the duplicate is removed rather than left to run twice, because two counts of
+        # one quantity is how a page ends up asserting whichever ran last.
+        #
+        # Theirs wins on the part that matters: it derives the null from the MEASURE -- 0 for
+        # MD/SMD/RD, 1 for a ratio -- where mine defaulted to 1 and would have miscounted
+        # every mean-difference outcome. It also filters to leave-one-out rows BEFORE this
+        # point, so the selection my version repeated has already happened.
         _k = res.get("k") if res.get("k") is not None else len(res.get("per_trial") or [])
         _n, _tot = len(kept), len(rows)
         if _k == 2:
@@ -887,19 +1058,27 @@ def visual_abstract(canon, res, outcome, p):
             loo = ("Leave-one-out: all %d refits still exclude no difference; the estimate "
                    "survives removal of any single trial." % _tot)
         elif _n == 0:
-            loo = ("Leave-one-out: no refit excludes no difference; the estimate does not "
-                   "survive removal of any single trial." % ())
+            loo = ("Leave-one-out: none of the %d refits excludes no difference; the estimate "
+                   "does not survive removal of any single trial." % _tot)
         else:
             loo = ("Leave-one-out: %d of %d refits still exclude no difference; the estimate "
-                   "does not survive removal of every single trial."
-                   % (_n, _tot))
+                   "does not survive removal of every single trial." % (_n, _tot))
     return fig(visual_abstract_svg(
         canon.get("title", ""), canon.get("question", ""),
         (res["k"] if res.get("k") is not None else len(res.get("per_trial") or [])),
         "{:,}".format(n_total) if n_total else None,
         pooled.get("measure", ""), pooled["point"], pooled.get("ci_low"),
         pooled.get("ci_high"), outcome.get("null_value", 1),
-        g.get("certainty"), outcome.get("name", ""), loo),
+        # THE EIGHTH CONSUMER, AND IT SAT INSIDE A FIGURE. This read `grade.certainty`
+        # straight off the object, so the visual abstract printed "GRADE certainty: low"
+        # on a page whose certainty column, GRADE card and abstract had all stopped
+        # publishing a level. My own verification of that page checked the column, the
+        # card and the abstract -- and not the figure text, which is reach reported as
+        # coverage inside a verification step. A corpus gate reading the DELIVERED page
+        # found it; nothing that read the generator could have.
+        _ga.resolve(canon, outcome.get("id"))["cell"]
+        if outcome.get("id") else g.get("certainty"),
+        outcome.get("name", ""), loo, _n_total_note, _alt_iv),
         "Visual abstract", "visual-abstract.svg",
         _interval_caption(pooled, outcome.get("null_value", 1)))
 
@@ -1370,7 +1549,10 @@ def rob2_card(canon, p):
             "  <p>%s</p>%s</div>%s%s%s"
             % (NL, NL, p(rb.get("assembler_excluded", "")), NL,
                p(rb.get("variant", "")), NL, p(rb.get("unit_of_assessment", "")), NL,
-               p(a[0].get("model", "")), p(f1), p(a[1].get("model", "")), p(f2),
+               p(a[0].get("model", "")), p(f1),
+               p(a[1].get("model", "")) if len(a) > 1 else
+               e("no second assessor is recorded for this review"),
+               p(f2) if f2 else e("none"),
                p(rb.get("blinding", "")), NL,
                NL, p(f1), p(f2),
                ("<th>Carried</th>" if has_carried else ""), NL, rows, NL, NL,

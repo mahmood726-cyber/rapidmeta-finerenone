@@ -173,3 +173,33 @@ outputs/pubmed_esearch_cache/
 # asks whether the export set is an artefact or a by-product and says not to
 # resolve it by committing the current files.
 figs/*.tiff
+
+# figs/ export by-products -- 2026-08-27. Two lanes wrote this rule independently and
+# the merge kept both observations, because each names a different thing it breaks.
+#
+# Regenerable by ssot/figures.py on demand and consumed only by the F1000 submission path,
+# so nothing is lost by not tracking them. They were untracked AND unignored, which makes
+# `git status --porcelain` permanently non-empty -- and scratch rebuilds in any worktree
+# recreate figs/_raster_cache/, so the pollution returns on every branch that lacks this
+# rule rather than staying where it was first noticed.
+#
+# The consequence worth recording: scripts/lane_rob/provenance.py calls `git status
+# --porcelain` WITHOUT --untracked-files=no, so every provenance record this lane wrote
+# carried git_dirty=true because of these by-products. A dirtiness flag that is true for
+# untracked scratch is a flag that tells you nothing, and it was reported as if it told you
+# something. Fixed at the source by the lane that found it: provenance.py now passes
+# --untracked-files=no and reports the untracked count separately, so the flag means
+# tracked modifications and nothing else.
+#
+# The structural fix -- per-topic figure directories instead of one shared mutable name
+# across 53 topics -- remains open in TOOLING-QUEUE.md. This only stops the by-products
+# poisoning the build stamp.
+figs/*.eps
+figs/*.png
+figs/*.tiff
+figs/*_src.svg
+figs/_raster_cache/
+
+# regeneration_test.py writes its rebuilt pages here. Per-worktree by construction, so
+# two lanes cannot collide; never part of the corpus.
+out/regen/

@@ -1,0 +1,140 @@
+[
+  {
+    "item": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html / registered-trial summary table omits status and enrolment",
+    "site": {
+      "emitter": "ssot/statement.py:534-540",
+      "source_tuple": "ssot/statement.py:145-168",
+      "caller": "ssot/build_tabbed.py:941-944"
+    },
+    "code_quoted": "ssot/statement.py:145-168\n145:def _trials(obj):\n146:    out = []\n147:    for t in (obj.get(\"inputs\") or {}).get(\"trials\") or []:\n148:        if not isinstance(t, dict):\n149:            continue\n150:        nct = str(t.get(\"nct\") or t.get(\"registration\") or \"\").strip()\n151:        if nct:\n152:            # `label` FIRST WAS THE WRONG FIELD. This corpus stores the trial's name under\n153:            # `name` -- SOLOIST-WHF, SPRINT, CLEAR-Outcomes -- and `label` is mostly absent,\n154:            # so 74 trials across 19 pages rendered the fallback \"title not recorded in the\n155:            # registry read\". That fallback is not merely blank, it is a false claim ABOUT\n156:            # THE REGISTRY: it tells a reader the registration carried no title when in fact\n157:            # we read the wrong key. `registration_brief_title` is the registry's own words\n158:            # and is taken before giving up.\n159:            #\n160:            # The identical mistake was made twice more in one evening -- a prototype report\n161:            # reading `label`, and a field census guessing `n_randomised` for `enrolled` --\n162:            # so the rule earned here is: when a value looks absent corpus-wide, print the\n163:            # observed key list before believing it.\n164:            name = (str(t.get(\"name\") or \"\").strip()\n165:                    or str(t.get(\"label\") or \"\").strip()\n166:                    or str(t.get(\"registration_brief_title\") or \"\").strip())\n167:            out.append((nct, name, str(t.get(\"registry\") or \"\").strip()))\n168:    return out\n\nssot/statement.py:534-540\n534:    if trials:\n535:        out.append(\"<p><strong>What was found.</strong> %d registered trial%s:</p>\"\n536:                   % (len(trials), \"\" if len(trials) == 1 else \"s\"))\n537:        out.append(\"<table><tr><th>Registration</th><th>Trial</th></tr>\")\n538:        for nct, label, _reg in trials:\n539:            out.append(\"<tr><td>%s</td><td>%s</td></tr>\"\n540:                       % (e(nct), e(label or \"title not recorded in the registry read\")))\n\nssot/build_tabbed.py:941-944\n941:    try:\n942:        import statement as _stmt\n943:        if _stmt.holds_no_poolable_evidence(canon):\n944:            return _stmt.statement_html(canon, e)",
+    "radius_file": "6/155 topic objects by gate7 radius_map for ssot/statement.py",
+    "radius_file_source": "Read-only gate7 derivation: imported gates/gate7_blast_radius.py and called radius_map(repo, gate). It returned {\"radius\": 6, \"why\": \"outside the build closure, names 6 topic id(s)\", \"topics\": [\"amoxicillin-aom\", \"antimalarial-act\", \"attr-cm-review\", \"bempedoic-acid-review\", \"early-rhythm-control-af\", \"intensive-bp-review\"]}. I did not invoke gate7 main because python gates/gate7_blast_radius.py writes out/gate7_blast_radius.json, which conflicts with this task's write-only out/cw/slice2.json rule.",
+    "radius_behaviour": "95/113 PAGE_MAP entries that satisfy statement.holds_no_poolable_evidence(obj) have at least one inputs.trials row and would receive the added Status and Enrolment columns; this is 95/163 PAGE_MAP entries overall. Deduped object count is 89/107 unique no-poolable SSOT objects, 89/152 unique PAGE_MAP objects overall. Trial-row cells affected: 270 duplicate-aware PAGE_MAP trial rows, or 257 deduped unique-object trial rows.",
+    "radius_behaviour_how": "Imported ssot/statement.py read-only, loaded ssot/PAGE_MAP.json, evaluated holds_no_poolable_evidence(obj), counted objects/pages with non-empty dict rows under inputs.trials. Duplicate-aware counts iterate PAGE_MAP page entries; deduped counts iterate set(PAGE_MAP.values()). Frozen gepotidacin and excluded HFREF_NMA_AUTO_FULL_REVIEW.html were checked and are 0/95 in this behaviour set.",
+    "kinds": {
+      "denominator": "95 PAGE_MAP entries in the statement-table behaviour set",
+      "live pages": {
+        "count": "94/95",
+        "how": "served HTML exists, is not a redirect by refresh/window.location/redirect text, and title/tombstone markers do not mark it retired"
+      },
+      "retired tombstones": {
+        "count": "1/95",
+        "pages": [
+          "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html"
+        ]
+      },
+      "redirect stubs": {
+        "count": "0/95",
+        "pages": []
+      },
+      "missing served html": {
+        "count": "0/95",
+        "pages": []
+      }
+    },
+    "intersects_must_not_break": {
+      "count": "1/29",
+      "pages": [
+        "BEMPEDOIC_ACID_REVIEW.html"
+      ]
+    },
+    "patch_old": "def _trials(obj):\n    out = []\n    for t in (obj.get(\"inputs\") or {}).get(\"trials\") or []:\n        if not isinstance(t, dict):\n            continue\n        nct = str(t.get(\"nct\") or t.get(\"registration\") or \"\").strip()\n        if nct:\n            name = (str(t.get(\"name\") or \"\").strip()\n                    or str(t.get(\"label\") or \"\").strip()\n                    or str(t.get(\"registration_brief_title\") or \"\").strip())\n            out.append((nct, name, str(t.get(\"registry\") or \"\").strip()))\n    return out\n\n    if trials:\n        out.append(\"<p><strong>What was found.</strong> %d registered trial%s:</p>\"\n                   % (len(trials), \"\" if len(trials) == 1 else \"s\"))\n        out.append(\"<table><tr><th>Registration</th><th>Trial</th></tr>\")\n        for nct, label, _reg in trials:\n            out.append(\"<tr><td>%s</td><td>%s</td></tr>\"\n                       % (e(nct), e(label or \"title not recorded in the registry read\")))\n        out.append(\"</table>\")",
+    "patch_new": "def _trials(obj):\n    out = []\n    for t in (obj.get(\"inputs\") or {}).get(\"trials\") or []:\n        if not isinstance(t, dict):\n            continue\n        nct = str(t.get(\"nct\") or t.get(\"registration\") or \"\").strip()\n        if nct:\n            name = (str(t.get(\"name\") or \"\").strip()\n                    or str(t.get(\"label\") or \"\").strip()\n                    or str(t.get(\"registration_brief_title\") or \"\").strip())\n            out.append((nct, name, str(t.get(\"registry\") or \"\").strip()))\n    return out\n\n\ndef _trial_meta_by_nct(obj):\n    out = {}\n    for t in (obj.get(\"inputs\") or {}).get(\"trials\") or []:\n        if not isinstance(t, dict):\n            continue\n        nct = str(t.get(\"nct\") or t.get(\"registration\") or \"\").strip()\n        if nct:\n            out[nct] = t\n    return out\n\n\ndef _present_count(v):\n    if v is None or v == \"\":\n        return \"not recorded\"\n    return str(v)\n\n    meta = _trial_meta_by_nct(obj)\n    if trials:\n        out.append(\"<p><strong>What was found.</strong> %d registered trial%s:</p>\"\n                   % (len(trials), \"\" if len(trials) == 1 else \"s\"))\n        out.append(\"<table data-cw-marker='cw-slice2-statement-trial-status-enrolment-marker-20260828'><tr><th>Registration</th><th>Trial</th><th>Status</th><th>Enrolment</th></tr>\")\n        for nct, label, _reg in trials:\n            m = meta.get(nct, {})\n            status = str(m.get(\"design\") or m.get(\"status\") or \"not recorded\").strip() or \"not recorded\"\n            enrolment = _present_count(m.get(\"enrolled\"))\n            out.append(\"<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\"\n                       % (e(nct), e(label or \"title not recorded in the registry read\"),\n                          e(status), e(enrolment)))\n        out.append(\"</table>\")",
+    "three_states": "Enrolment is a three-state field: absent/null/blank means not recorded, numeric 0 means known zero enrolled, and positive numeric means known positive enrolment. The obvious two-state truthiness test collapses known zero into absent. Measured over the behaviour set: 1/270 duplicate-aware trial rows has enrolled == 0 (BOSENTAN_PH_NOT_GROUP1_REVIEW.html / NCT00625469), 28/270 have positive numeric enrolled, and 241/270 are missing/blank/null.",
+    "marker": "cw-slice2-statement-trial-status-enrolment-marker-20260828",
+    "marker_absent_verified": "Verified before writing this JSON: PowerShell set $m to the marker, then ran rg -n --fixed-strings $m ssot and rg -n --fixed-strings $m -g '*.html' .; both returned RG_EXIT=1 / no matches. Full-tree marker checks were avoided because out/cw/log2.txt records command lines and contaminates grep with the marker text.",
+    "obvious_fix": "One-line version: add an Enrolment cell with str(m.get(\"enrolled\") or \"not recorded\") and a Status cell with m.get(\"design\") or m.get(\"status\") or \"not recorded\".",
+    "obvious_fix_would_fire": "It would fire partially but is not safe: tested over 270/270 duplicate-aware behaviour-set trial rows, the truthiness expression would render 242/270 as not recorded; 1/270 of those is a known zero-enrolment trial (BOSENTAN_PH_NOT_GROUP1_REVIEW.html / NCT00625469) that must render 0, not not recorded.",
+    "notes": "The bosentan object itself holds all 8/8 trial NCTs, design values, and enrolled counts, including NCT00625469 with design WITHDRAWN and enrolled 0. The per-page worker was right not to land this in a page file; the emitting table is class-wide."
+  },
+  {
+    "item": "ceftazidime-avibactam-auto-full-review / canonical object exists via data-store but reproducibility card says no canonical object is recorded",
+    "site": {
+      "repro_note_emitter": "ssot/build_tabbed.py:90-117",
+      "repro_card_fields_and_call": "ssot/build_tabbed.py:667-742",
+      "verified_store_source": "ssot/build_tabbed.py:1507-1531 and 1753-1758"
+    },
+    "code_quoted": "ssot/build_tabbed.py:90-117\n90:def _repro_note(reg, c0):\n91:    \"\"\"The reproducibility promise, DERIVED from whether it is true on this page.\n92:\n93:    THE LARGEST SINGLE CLASS IN THE REVIEW REGISTER: 130 findings across 126\n94:    pages, one string. \"Everything a third party needs to rebuild this page\" was\n95:    printed unconditionally, including on pages whose Canonical object cell is an\n96:    em dash. A reader cannot rebuild a page from an object that is not recorded,\n97:    so there the sentence is not a weak claim but a false one -- and it is the\n98:    worst kind available here: a promise of VERIFIABILITY made by a page that\n99:    cannot be verified.\n100:\n101:    DERIVE OR REFUSE, AND REFUSE ONLY THE HALF THAT IS FALSE. The figures really\n102:    do download carrying exactly the values shown whatever the object situation,\n103:    so that sentence survives every branch. Dropping it too would substitute a\n104:    softer claim in the other direction, and saying less than is true is also not\n105:    saying what is true.\n106:    \"\"\"\n107:    figures = (\"Each figure on the Analysis tab downloads as an SVG carrying exactly \"\n108:               \"the values shown.\")\n109:    missing = []\n110:    if not (reg or {}).get(\"path\"):\n111:        missing.append(\"no canonical object is recorded\")\n112:    if not (c0 or {}).get(\"sha\"):\n113:        missing.append(\"no registered commit is recorded\")\n114:    if not missing:\n115:        return \"Everything a third party needs to rebuild this page. \" + figures\n116:    return (\"This page CANNOT be rebuilt from what is recorded here: %s. %s\"\n117:            % (\" and \".join(missing), figures))\n\nssot/build_tabbed.py:667-676 and 742\n667:    reg = canon.get(\"registration\") or {}\n668:    c0 = (reg.get(\"commits\") or [{}])[0]\n669:    first = next(iter(((canon.get(\"results\") or {}).get(\"by_outcome\") or {}).values()), {})\n670:    repro = pj.kv_card(\"Reproducibility artifact\", [\n671:        (\"Canonical object\", \"<code>%s</code>\" % _v((reg.get(\"path\", \"\")))),\n672:        (\"Registered at\", \"<code>%s</code> %s\" % (_v(c0.get(\"sha\", \"\"), limit=12),\n673:                                                  _v((c0.get(\"committed_utc\", \"\"))))),\n674:        (\"Permalink\", (\"<a href='%s'>%s</a>\" % (e(c0[\"permalink\"]), e(c0[\"permalink\"])))\n675:         if c0.get(\"permalink\") else \"\"),\n676:        (\"Schema\", _v((canon.get(\"schema_version\", \"\")))),\n742:    ], _repro_note(reg, c0))\n\nssot/build_tabbed.py:1507-1531 and 1753-1758\n1507:def _store_declaration(canon):\n1524:    app = canon.get(\"app_id\")\n1525:    if not app or not isinstance(app, str):\n1526:        return None, \"object records no app_id\"\n1527:    rel = \"ssot/%s/%s.json\" % (app, app)\n1528:    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n1529:    if not os.path.exists(os.path.join(root, rel)):\n1530:        return None, \"derived store path does not resolve: %s\" % rel\n1531:    return rel, None\n1753:    _store, _store_why = (store_path, None) if store_path else _store_declaration(canon)\n1757:    _store_attr = (' data-store=\"%s\"' % e_(_store) if _store\n1758:                   else ' data-store=\"\" data-store-absent=\"%s\"' % e_(_store_why or \"unknown\"))",
+    "radius_file": "155/155 topic objects by gate7 radius_map for ssot/build_tabbed.py",
+    "radius_file_source": "Read-only gate7 derivation: imported gates/gate7_blast_radius.py and called radius_map(repo, gate). It returned {\"radius\": 155, \"why\": \"in the build closure: every topic is built through it (it also special-cases 6 topic ids, which does not narrow it)\"}. I did not invoke gate7 main because python gates/gate7_blast_radius.py writes out/gate7_blast_radius.json, which conflicts with this task's write-only out/cw/slice2.json rule.",
+    "radius_behaviour": "Source-level old/new behaviour for the proposed reproducibility-card patch: 148/163 PAGE_MAP entries are non-redirect full pages with missing registration.path but a verified _store_declaration(canon) path, so the Canonical object cell and _repro_note canonical-object limb would change on rebuild. Excluding frozen gepotidacin leaves 147/162 non-frozen PAGE_MAP entries. The wider source condition is 162/163 PAGE_MAP entries with missing registration.path and verified store; 14/162 are current redirect stubs produced elsewhere and do not receive this build() card. The currently served exact no-canonical sentence appears on 123/163 PAGE_MAP entries; that is a served-bytes symptom count, not the generator behaviour radius.",
+    "radius_behaviour_how": "Imported ssot/build_tabbed.py read-only, loaded ssot/PAGE_MAP.json, called _store_declaration(canon), and counted entries where registration.path is absent but the derived store path resolves. Current served-page kind was classified from HTML refresh/window.location/redirect text and Retired-title/tombstone markers. ssot/build_tabbed.py itself states at lines 1496-1498 that redirect and landing pages are produced elsewhere, so redirect stubs are reported but not counted as receiving the build() reproducibility card. HFREF_NMA_AUTO_FULL_REVIEW.html is excluded and is 0/163 in PAGE_MAP; gepotidacin is frozen and is 1/148 of the non-redirect source behaviour set, so the landable in-scope count is 147/148 after excluding it.",
+    "kinds": {
+      "denominator": "148 non-redirect PAGE_MAP entries with missing registration.path and verified _store_declaration path; 147/148 are in scope after excluding gepotidacin",
+      "live pages": {
+        "count_raw": "147/148",
+        "count_in_scope_excluding_gepotidacin": "146/147"
+      },
+      "retired tombstones": {
+        "count_raw": "1/148",
+        "count_in_scope_excluding_gepotidacin": "1/147",
+        "pages": [
+          "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html"
+        ]
+      },
+      "redirect stubs_reported_not_in_build_card_behaviour": {
+        "count": "14/162 wider source-condition entries",
+        "pages": [
+          "BAMLANIVIMAB_OUTP_AUTO_FULL_REVIEW.html",
+          "BEZLOTOXUMAB_CDIFF_AUTO_FULL_REVIEW.html",
+          "CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html",
+          "CVNCOV_SARSCOV2_AUTO_FULL_REVIEW.html",
+          "DABIGATRAN_VTE_AUTO_FULL_REVIEW.html",
+          "ERTAPENEM_INFECT_AUTO_FULL_REVIEW.html",
+          "LEFAMULIN_CAP_AUTO_FULL_REVIEW.html",
+          "LENACAPAVIR_PREP_REVIEW.html",
+          "MAVACAMTEN_OHCM_AUTO_FULL_REVIEW.html",
+          "OMECAMTIV_HFREF_AUTO_FULL_REVIEW.html",
+          "OMECAMTIV_HF_AUTO_FULL_REVIEW.html",
+          "PCSK9_REVIEW.html",
+          "SACUBITRIL_VALSARTAN_HF_AUTO_FULL_REVIEW.html",
+          "SOTATERCEPT_PAH_AUTO_2.html"
+        ]
+      }
+    },
+    "intersects_must_not_break": {
+      "count": "27/29",
+      "pages": [
+        "AGYW_HIV_PREP_REVIEW.html",
+        "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+        "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+        "APIXABAN_VTE_TREATMENT_REVIEW.html",
+        "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+        "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+        "BEMPEDOIC_ACID_REVIEW.html",
+        "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+        "BOCOCIZUMAB_LIPID_REVIEW.html",
+        "CAB_PREP_HIV_REVIEW.html",
+        "CANGRELOR_PCI_REVIEW.html",
+        "CEFTAROLINE_AUTO_FULL_REVIEW.html",
+        "EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html",
+        "FINERENONE_CV_REVIEW.html",
+        "ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html",
+        "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html",
+        "INCRETIN_HFpEF_REVIEW.html",
+        "IV_IRON_HF_REVIEW.html",
+        "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+        "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+        "ROSUVASTATIN_AUTO_FULL_REVIEW.html",
+        "ROTAVIRUS_VACCINE_AFRICA_REVIEW.html",
+        "ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html",
+        "SGLT2_HF_REVIEW.html",
+        "SGLT2_MACE_CVOT_REVIEW.html",
+        "SOTAGLIFLOZIN_HF_REVIEW.html",
+        "TIGECYCLINE_CIAI_SSOT.html"
+      ],
+      "not_touched": [
+        "ARNI_HF_REVIEW.html",
+        "HFREF_NMA_AUTO_FULL_REVIEW.html"
+      ]
+    },
+    "patch_old": "def _repro_note(reg, c0):\n    figures = (\"Each figure on the Analysis tab downloads as an SVG carrying exactly \"\n               \"the values shown.\")\n    missing = []\n    if not (reg or {}).get(\"path\"):\n        missing.append(\"no canonical object is recorded\")\n    if not (c0 or {}).get(\"sha\"):\n        missing.append(\"no registered commit is recorded\")\n    if not missing:\n        return \"Everything a third party needs to rebuild this page. \" + figures\n    return (\"This page CANNOT be rebuilt from what is recorded here: %s. %s\"\n            % (\" and \".join(missing), figures))\n\n    reg = canon.get(\"registration\") or {}\n    c0 = (reg.get(\"commits\") or [{}])[0]\n    first = next(iter(((canon.get(\"results\") or {}).get(\"by_outcome\") or {}).values()), {})\n    repro = pj.kv_card(\"Reproducibility artifact\", [\n        (\"Canonical object\", \"<code>%s</code>\" % _v((reg.get(\"path\", \"\")))),\n...\n    ], _repro_note(reg, c0))\n...\n    _store, _store_why = (store_path, None) if store_path else _store_declaration(canon)",
+    "patch_new": "def _repro_note(reg, c0, canonical_store=None):\n    figures = (\"Each figure on the Analysis tab downloads as an SVG carrying exactly \"\n               \"the values shown.\")\n    if canonical_store and not (reg or {}).get(\"path\"):\n        figures = (\"Canonical object recorded via data-store attribute. \" + figures)\n    missing = []\n    if not ((reg or {}).get(\"path\") or canonical_store):\n        missing.append(\"no canonical object is recorded\")\n    if not (c0 or {}).get(\"sha\"):\n        missing.append(\"no registered commit is recorded\")\n    if not missing:\n        return \"Everything a third party needs to rebuild this page. \" + figures\n    return (\"This page CANNOT be rebuilt from what is recorded here: %s. %s\"\n            % (\" and \".join(missing), figures))\n\n    reg = canon.get(\"registration\") or {}\n    c0 = (reg.get(\"commits\") or [{}])[0]\n    _store_for_repro, _store_why_for_repro = ((store_path, None) if store_path\n                                              else _store_declaration(canon))\n    canonical_path = reg.get(\"path\") or _store_for_repro or \"\"\n    first = next(iter(((canon.get(\"results\") or {}).get(\"by_outcome\") or {}).values()), {})\n    repro = pj.kv_card(\"Reproducibility artifact\", [\n        (\"Canonical object\", \"<code data-cw-marker='cw-slice2-build-tabbed-canonical-store-marker-20260828'>%s</code>\" % _v(canonical_path)),\n...\n    ], _repro_note(reg, c0, _store_for_repro))\n...\n    _store, _store_why = _store_for_repro, _store_why_for_repro",
+    "three_states": "Canonical object availability is a three-state question: registration.path explicitly records the canonical object; registration.path is absent but _store_declaration(canon) derives and verifies ssot/<app_id>/<app_id>.json; or neither a recorded nor verified derived path exists. Current _repro_note answers only two states because it tests registration.path truthiness, so ceftazidime is incorrectly grouped with truly unrecorded canonical objects even though _store_declaration returns ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json. Registered commit is a separate state and remains absent for 162/162 wider source-condition entries.",
+    "marker": "cw-slice2-build-tabbed-canonical-store-marker-20260828",
+    "marker_absent_verified": "Verified before writing this JSON: PowerShell set $m to the marker, then ran rg -n --fixed-strings $m ssot and rg -n --fixed-strings $m -g '*.html' .; both returned RG_EXIT=1 / no matches. Full-tree marker checks were avoided because out/cw/log2.txt records command lines and contaminates grep with the marker text.",
+    "obvious_fix": "One-line version: change only the Canonical object row to use reg.get(\"path\") or _store_declaration(canon)[0].",
+    "obvious_fix_would_fire": "It would fire only on the table cell and would not fix the defect sentence. Tested over the 162/163 wider source-condition PAGE_MAP entries: a card-only fallback would change 162/162 Canonical object cells, but current _repro_note(reg, c0) still returns a string containing no canonical object is recorded for 162/162 because _repro_note receives only reg and c0.",
+    "notes": "This item is reported, not landable in this pass, because ssot/build_tabbed.py is explicitly out of scope and taken last separately. Ceftazidime evidence checked: ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json has app_id ceftazidime-avibactam-auto-full-review and trials NCT02475733 and NCT02497781; served CEFTAZIDIME_AVIBACTAM_AUTO_FULL_REVIEW.html has data-store and both NCTs, but also the no-canonical/no-commit reproducibility sentence. Frozen gepotidacin is excluded from the in-scope count; HFREF_NMA_AUTO_FULL_REVIEW.html is excluded and is not present in PAGE_MAP."
+  }
+]

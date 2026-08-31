@@ -1,0 +1,42 @@
+{
+ "gate": {
+  "gate": "6  NCT BESIDE THE NAME",
+  "what": "a trial name in reader-facing prose must carry its registration, and the name beside a registration must be the one the registry gives",
+  "kinds": {
+   "render site naming a trial": 18,
+   "  with NO registration in the same fragment": 15,
+   "  with a registration in the same fragment": 3,
+   "trial name in rendered prose": 136,
+   "  with a registration within 300c": 136,
+   "pinned registration, nearest name AGREES with the registry": 4
+  },
+  "expected_cases": {
+   "prose:NCT01539226": "NCT01539226 appears in served prose with a pinned trial name beside it (The Ring Study)",
+   "prose:NCT01617096": "NCT01617096 appears in served prose with a pinned trial name beside it (ASPIRE)"
+  },
+  "cases_seen": [
+   "prose:NCT00509106",
+   "prose:NCT00621504",
+   "prose:NCT01539226",
+   "prose:NCT01617096"
+  ],
+  "cases_not_seen": [],
+  "control": {
+   "negatives": 9,
+   "false_positives": 0,
+   "fp_rate": 0.0,
+   "examples": []
+  },
+  "notes": [
+   "ratchet: 15 frozen, 15 now, 0 retired, 0 NEW. A PASS means no new instances, not a clean corpus.",
+   "ratchet: 2 frozen, 0 now, 2 retired, 0 NEW. A PASS means no new instances, not a clean corpus.",
+   "  retired since the freeze (remove them from GATE6_KNOWN_SWAPS.json): AGYW_HIV_PREP_REVIEW.html NCT01539226, AGYW_HIV_PREP_REVIEW.html NCT01617096",
+   "arm B counts prose names WITHOUT a registration nearby: 0 of 136",
+   "arm B is reported, not enforced, in this run: 0 bare prose names is a class fix at the generator (arm A), not 155 page edits."
+  ],
+  "findings": []
+ },
+ "generator_bare_sites": [],
+ "prose_bare_names": [],
+ "swaps": []
+}

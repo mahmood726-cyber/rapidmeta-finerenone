@@ -34,6 +34,95 @@ _NOT_RECORDED_PREFIXES = ("not recorded", "not available", "not stated", "no rec
                           "not established", "not captured")
 
 
+
+_SCALE_WORDS = {"log": "log", "natural": "natural", "linear": "linear", "none": "none"}
+_RATIO_MEASURES = {"HR", "OR", "RR", "IRR", "SHR", "SMR"}
+
+
+
+_PI_T = {2: 12.70620, 3: 4.302653, 4: 3.182446, 5: 2.776445, 6: 2.570582,
+         7: 2.446912, 8: 2.364624, 9: 2.306004, 10: 2.262157}
+_PI_Z = 1.959963985
+
+
+def _pi_informative(k):
+    """(show?, reason). THE THRESHOLD IS DERIVED: show when t_{k-1} < 2z.
+
+        k=2  t=12.706  6.48x z   the interval IS the critical value
+        k=3  t= 4.303  2.20x z   still dominated by it
+        k=4  t= 3.182  1.62x z   data-dominated  <- first k that qualifies
+
+    Correcting a k=2 interval's arithmetic is not enough. sglt2-hf corrected to
+    0.358-1.715: honest, and close to uninformative. Derive-or-refuse applies to
+    what the interval is FOR, not only to how it was computed.
+    """
+    if not isinstance(k, int) or k < 2:
+        return False, ("No prediction interval is shown: one is undefined below two "
+                       "studies.")
+    t = _PI_T.get(k)
+    if t is None:
+        return (True, "") if k > 10 else (False, "")
+    if t < 2 * _PI_Z:
+        return True, ""
+    return False, ("No prediction interval is shown for this pool. At k = %d the t "
+                   "critical value is %.3f against a normal quantile of %.3f, so %.1f "
+                   "times the interval's width would be the small-sample correction "
+                   "rather than the estimated heterogeneity -- it would describe the "
+                   "critical value rather than where a future study is likely to fall. "
+                   "An interval is shown from k = 4, where that factor drops below two."
+                   % (k, t, _PI_Z, t / _PI_Z))
+
+
+def _pi_block(res, fmt, p, NL):
+    """The prediction-interval row, shown or refused with its reason."""
+    pi = res.get("prediction_interval") or {}
+    k = res.get("k")
+    if not isinstance(k, int):
+        k = len([r for r in (res.get("per_trial") or []) if isinstance(r, dict)])
+    ok, why = _pi_informative(k)
+    if not ok:
+        return ("  <p class='num'>Prediction interval not shown</p>" + NL
+                + "  <p><small>" + p(why) + "</small></p>" + NL)
+    out = ("  <p class='num'>Prediction interval " + fmt(pi["low"]) + " to "
+           + fmt(pi["high"]) + "</p>" + NL)
+    if pi.get("what_it_says"):
+        out += "  <p><small>" + p(pi["what_it_says"]) + "</small></p>" + NL
+    return out
+
+def _esc(x):
+    """Same semantics as the nested `e` at line ~436, which is not in scope here."""
+    return html.escape("—" if x is None else str(x))
+
+
+def _scale_phrase(outcome, res):
+    """The effect scale, DERIVED OR REFUSED -- never guessed.
+
+    A ratio measure with no recorded scale is an object defect. It is named as one here
+    rather than smoothed over, because the previous default rendered the minority value
+    ('natural', stored on 10 outcomes against 'log' on 70) as though it were recorded.
+    """
+    raw = outcome.get("effect_scale")
+    scale = _SCALE_WORDS.get(str(raw).strip().lower()) if raw is not None else None
+    if scale is None:
+        measure = str((res.get("pooled") or {}).get("measure")
+                      or outcome.get("measure") or "").strip().upper()
+        if measure in _RATIO_MEASURES:
+            phrase = ("on a scale this object does not record &mdash; and %s is a ratio "
+                      "measure, which is combined on the log scale, so the missing field "
+                      "is a gap in this object rather than a property of the result"
+                      % _esc(measure))
+        else:
+            phrase = "on a scale this object does not record"
+    else:
+        phrase = "on the %s scale" % _esc(scale)
+    if res.get("estimand_established") is True:
+        return "pooled " + phrase
+    if res.get("source_page_pooled") or res.get("poolable"):
+        return ("combined " + phrase + "; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the "
+                "contributing trials have not been shown to measure the same quantity")
+    return "reported " + phrase + "; nothing is pooled on this outcome"
+
+
 def _recorded(v):
     """False for None, blank, and any string that opens with an absence marker."""
     if v is None:
@@ -123,7 +212,13 @@ def _house_rule_table(res, p, e):
     for label, est, lo, hi in (
             ("as published", pub.get("estimator") or "as stored",
              pub.get("ci_low"), pub.get("ci_high")),
-            ("sensitivity (Handbook 10.10.4.5)", hr.get("estimator") or "Hartung-Knapp",
+            # A METHOD NAME ASSERTED FROM ABSENCE IS A CLAIM. Latent -- 18 served
+            # pages render this table and none labels a row "Hartung-Knapp", so the
+            # default has never fired on a delivered page -- but it is one missing field
+            # away from naming a method nobody chose. Its neighbour on the line below,
+            # `pub.get("estimator") or "as stored"`, was already honest.
+            ("sensitivity (Handbook 10.10.4.5)",
+             hr.get("estimator") or "an estimator this object does not name",
              hr.get("ci_low"), hr.get("ci_high"))):
         if lo is None or hi is None:
             continue
@@ -266,8 +361,21 @@ def _favoured_arm(res, outcome):
     f = res.get("favours")
     tx = outcome.get("treatment_node") or "the intervention"
     ct = outcome.get("comparator_node") or "the comparator"
-    way = ("higher is better" if outcome.get("direction_of_benefit") == "higher"
-           else "lower is better")
+    # POLARITY IS DERIVED, NEVER DEFAULTED. The previous line tested
+    # `== "higher"` and sent EVERYTHING else to "lower is better" -- so an
+    # outcome storing the full phrase "higher is better" rendered as its own
+    # opposite (KCCQ 0-100, pooled MD +7.43, labelled "lower is better"), and
+    # 21 outcomes recording that the direction was NOT KNOWN rendered as a
+    # confident directional claim. A default is an assertion the object never
+    # made. Unknown polarity must REFUSE, not pick the common case.
+    _POLARITY = {"higher": "higher is better",
+                 "higher is better": "higher is better",
+                 "lower": "lower is better",
+                 "lower is better": "lower is better"}
+    _raw = outcome.get("direction_of_benefit")
+    way = _POLARITY.get(str(_raw).strip().lower()) if _raw is not None else None
+    if way is None:
+        way = "direction of benefit not recorded for this outcome"
     if f == "neither":
         return f"neither arm; the interval spans the null ({way})"
     if f == "treatment":
@@ -283,6 +391,48 @@ def fmt(x):
     if isinstance(x, float) and x == int(x):
         return str(int(x))
     return str(x)
+
+
+def held(d, key):
+    """Read a field that MAY be absent, returning None rather than raising.
+
+    A direct subscript here crashed the build on 57 of 141 objects in this
+    corpus, at four keys: 'target_source_id', 'search_note', 'known_limitation',
+    and -- the instructive one -- the literal string 'not recorded on the page
+    this object was extracted from', which an object stores AS a source id and
+    which was then used as a dict key.
+
+    The crash was the generator failing SAFE: it refused to render rather than
+    asserting something the object does not hold. But it failed at BUILD time,
+    so the honest sentence never got written and every affected page stayed
+    frozen at whatever it last said -- including four pages whose fix was
+    already on main and could not reach a reader.
+
+    Deliberately absence handling, not try/except: the caller must decide what
+    to SAY when a field is missing, and saying it is the point.
+    """
+    if not isinstance(d, dict):
+        return None
+    v = d.get(key)
+    if v is None:
+        return None
+    if isinstance(v, str) and not v.strip():
+        return None
+    return v
+
+
+def source_name(srcs, sid):
+    """The name of a registered source, or None if it is not registered.
+
+    `sid` is frequently an absence sentinel rather than an id. Looking that up
+    as a dict key is what produced 20 of the 57 build failures.
+    """
+    if not isinstance(srcs, dict) or not isinstance(sid, str):
+        return None
+    rec = srcs.get(sid)
+    if not isinstance(rec, dict):
+        return None
+    return held(rec, "name")
 
 
 def _interval(eff, p=lambda s: s):
@@ -528,7 +678,7 @@ def _not_contributing(canon, p, e):
     rows = ""
     for st in studies:
         link = st.get("source_url")
-        reg = st.get("id") or ""
+        reg = st.get("id") or st.get("nct") or st.get("registration") or ""
         linkhtml = ('<a href="%s" rel="noopener">%s</a>' % (e(link), e(reg))
                     if link else e(reg) or "—")
         rows += ("    <tr><td><strong>%s</strong><br><small>%s</small></td>"
@@ -979,12 +1129,12 @@ def _outcome_section(canon, oid, p, e):
             # "what would a new trial show", which here is three times wider. It
             # was held in the object and rendered nowhere, so the only interval
             # on the headline card was the one that understates the spread.
-            + ((f"  <p class='num'>Prediction interval "
-                f"{fmt(res['prediction_interval']['low'])} to "
-                f"{fmt(res['prediction_interval']['high'])}</p>" + NL
-                + ((f"  <p><small>{p(res['prediction_interval']['what_it_says'])}"
-                    f"</small></p>" + NL)
-                   if res["prediction_interval"].get("what_it_says") else ""))
+            # AND IT IS SHOWN ONLY WHERE IT INFORMS -- see _pi_informative.
+            # At k = 2, t = 12.706 against z = 1.960, so the interval describes
+            # the critical value rather than the data. The refusal states the
+            # threshold so a reader can check it, and the same pool crosses back
+            # to shown as it grows.
+            + (_pi_block(res, fmt, p, NL)
                if isinstance(res.get("prediction_interval"), dict)
                and res["prediction_interval"].get("low") is not None else "")
             # AND THE ESTIMATOR CAVEAT, WHERE THE ESTIMATOR IS NAMED. A page that
@@ -1109,9 +1259,22 @@ def _outcome_section(canon, oid, p, e):
         # stratifies by anything else would have had its strata announced as
         # age groups. The object says what its strata are; the default is the
         # wording the first object to carry strata already ships.
-        sg_head = res.get("subgroup_heading", "By age stratum")
+        # A HEADING THAT NAMES A STRATIFICATION THE OBJECT NEVER DECLARED. This
+        # defaulted to "By age stratum", and prevnar15-pneumo renders it over a subgroup
+        # table on an object that carries no subgroup_heading. It is accurate there BY
+        # LUCK -- the strata happen to be age bands -- and exactly one object in the
+        # corpus carries the field at all. The next page to lack it gets the same heading
+        # whether or not it is about age. Refuse rather than name it.
+        sg_head = res.get("subgroup_heading")
         sg_foot = res.get("subgroup_footnote")
-        subgroups = (f"<div class='card'>\n  <h2>{e(sg_head)}</h2>\n  <table>\n"
+        # AND THE HEADING IS OMITTED WHEN THE OBJECT DOES NOT DECLARE IT, not filled with
+        # a placeholder. `e(None)` would print "None" over a real table, which is the same
+        # class of defect one step worse. A table with no heading is honest; a table headed
+        # with a stratification nobody declared is not.
+        _sg_h2 = f"  <h2>{e(sg_head)}</h2>\n" if sg_head else (
+            "  <p><small>This object does not record what these strata are grouped by, so "
+            "no heading is given for them.</small></p>\n")
+        subgroups = (f"<div class='card'>\n{_sg_h2}  <table>\n"
                      f"    <tr><th>Stratum</th><th>Trials</th>"
                      f"<th>{e(outcome.get('measure'))} (95% CI)</th><th>I&sup2;</th>"
                      f"<th>What this stratum mixes</th></tr>\n{srows}  </table>\n"
@@ -1345,15 +1508,22 @@ def _outcome_section(canon, oid, p, e):
             # patient global assessment. The object was honest; the renderer read the
             # wrong field. FIFTH instance of the generator class -- prose asserting a
             # property the generator never verified against the object.
-            + row("Effect scale",
-                  (f"pooled on the {e(outcome.get('effect_scale', 'natural'))} scale"
-                   if res.get("estimand_established") is True else
-                   (f"combined on the {e(outcome.get('effect_scale', 'natural'))} scale; "
-                    f"ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have "
-                    f"not been shown to measure the same quantity"
-                    if res.get("source_page_pooled") or res.get("poolable") else
-                    f"reported on the {e(outcome.get('effect_scale', 'natural'))} "
-                    f"scale; nothing is pooled on this outcome")))
+            # SIXTH INSTANCE, AND THE DEFAULT GUESSED THE MINORITY VALUE. `effect_scale`
+            # defaulted to 'natural', so sglt2-hf's harmonised_cvdeath_or_hhf -- which
+            # stores measure "HR" and NO scale -- rendered "reported on the natural
+            # scale". A hazard ratio is a log-scale quantity, and both sibling outcomes on
+            # that same page store 'log', so the page contradicted itself across three
+            # rows for anyone who read them.
+            #
+            # Corpus-wide the field stores log 70, natural 10, linear 2, none 1. The
+            # default was the LESS likely truth, which is the worst available choice for a
+            # statistical claim: absence rendered as the minority value with the same
+            # confidence as a recorded one.
+            #
+            # Derive or refuse, as _favoured_arm now does. 91 of 174 outcomes record no
+            # effect_scale at all, and that is an OBJECT defect to be surfaced rather than
+            # papered over here.
+            + row("Effect scale", _scale_phrase(outcome, res))
             + "  </table>" + NL + "</div>" + NL)
 
     # THE COLUMN HEADER MUST NOT NAME AN INTERVAL LEVEL THE ROWS DO NOT CARRY.
@@ -1378,8 +1548,75 @@ def _outcome_section(canon, oid, p, e):
 {rows}  </table>
   <p><small>{p(outcome.get('definition_note'))}</small></p>
 </div>
-{_endpoint_definitions(canon, oid, p, e)}{_not_contributing(canon, p, e)}{hb}{sens}{dissent}{subgroups}{note}</section>
+{_endpoint_definitions(canon, oid, p, e)}{_not_contributing(canon, p, e)}{_published_reports_read(canon, p, e)}{hb}{sens}{dissent}{subgroups}{note}</section>
 """
+
+
+def _published_reports_read(canon, p, e):
+    """The published reports, in the papers' own words. ADDITIVE: emits nothing without them.
+
+    WHY IT EXISTS. colchicine-pericarditis named an extraction file that had been sitting in
+    this repository since 19 August -- four trials with citation, PMID, DOI, and verbatim
+    quotes for population, comparator and primary outcome -- and the object held none of it.
+    Recovered into `inputs.trials[].published_report_read` on 28 August, and then MEASURED at
+    served bytes: 0 of 4 trials had any of it on the page, because nothing rendered the field.
+    Evidence recovered into a store that no reader can see is not recovered.
+
+    WHY IT IS NOT A `per_trial` ROW, and this is the point of the section. `per_trial` is a
+    POOL-INPUT structure: 176 of 182 rows corpus-wide carry trial_id, measure, point and an
+    interval ON A COMMON SCALE. These four trials report four different quantities, so putting
+    them there would assert the commensurability the extraction refutes -- and the builder
+    refused it outright with KeyError: 'trial_id'. The schema was right. This section is
+    therefore an EVIDENCE TABLE and says so; it publishes no estimate and no pool.
+
+    RADIUS. build_app_v2.py is in the build closure, so its radius is every topic -- 155,
+    acknowledged in gates/BLAST_RADIUS_ACK.json. The BEHAVIOUR radius is 1: the section renders
+    only where a trial carries `published_report_read`, and exactly one object does.
+    """
+    trials = [t for t in (canon.get("inputs") or {}).get("trials") or []
+              if isinstance(t, dict) and t.get("published_report_read")]
+    if not trials:
+        return ""
+    rows = ""
+    for t in trials:
+        r = t["published_report_read"]
+
+        def q(key):
+            v = r.get(key) or {}
+            if not isinstance(v, dict):
+                return ""
+            txt, where = v.get("quote"), v.get("where")
+            if not txt:
+                return ""
+            return ("<br><small>&ldquo;%s&rdquo;%s</small>"
+                    % (e(txt), (" &mdash; %s" % e(where)) if where else ""))
+
+        ident = e(t.get("acronym_the_registration_declares") or t.get("nct") or "")
+        link = ("<a href='https://clinicaltrials.gov/study/%s' rel='noopener'>%s</a>"
+                % (e(t.get("nct")), e(t.get("nct")))) if t.get("nct") else ""
+        pmid = ("<a href='https://pubmed.ncbi.nlm.nih.gov/%s/' rel='noopener'>PMID %s</a>"
+                % (e(r.get("pmid")), e(r.get("pmid")))) if r.get("pmid") else ""
+        state = e(r.get("extraction_state") or "")
+        rows += ("    <tr><td><strong>%s</strong><br><small>%s</small></td>"
+                 "<td>%s%s</td><td>%s%s</td>"
+                 "<td><small>%s<br>%s%s</small></td></tr>\n"
+                 % (ident, link,
+                    e((r.get("population_as_the_paper_states_it") or {}).get("value") or ""),
+                    q("population_as_the_paper_states_it"),
+                    e((r.get("primary_outcome_as_the_paper_states_it") or {}).get("value") or ""),
+                    q("primary_outcome_as_the_paper_states_it"),
+                    e(r.get("citation") or ""), pmid,
+                    ("<br>%s" % state) if state else ""))
+    return ("<div class='card'>" + NL
+            + "  <h3>What the published reports say, in their own words</h3>" + NL
+            + "  <p><small>Read from the published reports and quoted verbatim, with the "
+              "section each quote came from. THIS IS AN EVIDENCE TABLE, NOT A POOL: the "
+              "trials below do not report a common quantity, which is why this review "
+              "publishes no combined estimate.</small></p>" + NL
+            + "  <table>" + NL
+            + "    <tr><th>Trial</th><th>Population, as the paper states it</th>"
+              "<th>Primary outcome, as the paper states it</th><th>Source</th></tr>" + NL
+            + rows + "  </table>" + NL + "</div>" + NL)
 
 
 def _page(canon, sections, p, e):
@@ -1464,10 +1701,10 @@ def _page(canon, sections, p, e):
             for x in sc.get("excluded", []))
         screening = (
             f"<div class='card'>\n  <h2>What the search found, and what was kept</h2>\n"
-            f"  <p>{p(sc['search_note'])}</p>\n"
-            f"  <p><strong>Eligible:</strong> {p(sc['eligibility'])}</p>\n"
+            f"  <p>{p(held(sc, 'search_note') or 'This object does not record how its search was run.')}</p>\n"
+            f"  <p><strong>Eligible:</strong> {p(held(sc, 'eligibility') or 'not recorded in this object')}</p>\n"
             f"  <h3>Excluded, with reasons</h3>\n  <ul>\n{xs}  </ul>\n"
-            f"  <p><small>{p(sc['known_limitation'])}</small></p>\n</div>\n")
+            f"  <p><small>{p(held(sc, 'known_limitation') or 'This object records no known limitation of its search.')}</small></p>\n</div>\n")
 
     # RESULTS THE OBJECT READ AND DID NOT USE. The screening block answers which
     # TRIALS are here. It has never answered which ROWS are in which pool, and an
@@ -1576,8 +1813,8 @@ def _page(canon, sections, p, e):
         recon = (
             "<div class='card'>\n  <h2>Reconciliation against the published "
             "synthesis of the same literature</h2>\n"
-            f"  <p>{p(srcs[r['target_source_id']]['name'])}</p>\n"
-            f"  <p class='warn'><small>{p(r['access_limitation'])}</small></p>\n"
+            f"  <p>{p(source_name(srcs, held(r, 'target_source_id')) or 'The synthesis reconciled against is not registered as a source in this object.')}</p>\n"
+            f"  <p class='warn'><small>{p(held(r, 'access_limitation') or 'No access limitation is recorded for this comparison.')}</small></p>\n"
             + block("What matches", r.get("matches"), ["item", "detail"])
             + block("What this object corrects", r.get("corrections"),
                     ["item", "review_reports", "this_object"])
@@ -1594,9 +1831,10 @@ def _page(canon, sections, p, e):
     ma = canon.get("methodological_authority")
     if ma:
         arows = "".join(
-            f"    <tr><td class='num'>{e(s['section'])}</td>"
-            f"<td>{p(s['title'])}</td><td><small>{p(s['used_for'])}</small></td></tr>\n"
-            for s in ma["sections_relied_on"])
+            f"    <tr><td class='num'>{e(held(s, 'section') or '&mdash;')}</td>"
+            f"<td>{p(held(s, 'title') or 'not recorded')}</td>"
+            f"<td><small>{p(held(s, 'used_for') or 'not recorded')}</small></td></tr>\n"
+            for s in (held(ma, "sections_relied_on") or []) if isinstance(s, dict))
         authority = (
             f"<div class='card'>\n  <h2>The methods authority these decisions rest "
             f"on</h2>\n  <p>{p(ma['reference'])}<br><small>{e(ma['url'])}</small></p>\n"
@@ -1644,10 +1882,27 @@ def _page(canon, sections, p, e):
                if net.get("multi_arm_covariance_note") else "")
             + "</div>" + NL)
 
+    # A source record is occasionally a bare STRING rather than a dict -- an
+    # absence sentinel stored where a record belongs. Calling .get() on it raised
+    # AttributeError and killed the build on 10 objects. Malformed records are
+    # RENDERED, not skipped: dropping them would shrink the source count a reader
+    # sees without saying so, which is the denominator defect one layer down.
+    # Partitioned by the POSITIVE property -- "is a record" -- rather than by a
+    # negative guard, so neither arm is defined by an absence and neither can
+    # silently swallow the other. Both arms are rendered; nothing is excluded.
+    _recs, _bad = [], []
+    for _v in srcs.values():
+        (_recs if isinstance(_v, dict) else _bad).append(_v)
     sources = "".join(
-        f"    <tr><td>{p(v['layer'])}</td><td>{p(v['name'])}<br>"
-        f"<small>{e(v['url'])}</small></td><td><small>{p(v['access_note'])}</small></td></tr>\n"
-        for v in sorted(srcs.values(), key=lambda x: x.get("layer_rank", 99)))
+        f"    <tr><td>{p(held(v, 'layer') or 'not recorded')}</td>"
+        f"<td>{p(held(v, 'name') or 'not recorded')}<br>"
+        f"<small>{e(held(v, 'url') or '')}</small></td>"
+        f"<td><small>{p(held(v, 'access_note') or 'not recorded')}</small></td></tr>\n"
+        for v in sorted(_recs, key=lambda x: x.get("layer_rank", 99)))
+    sources += "".join(
+        "    <tr><td>not recorded</td><td>This source is stored as plain text rather "
+        f"than as a record: {p(str(v)[:120])}</td><td><small>not recorded</small></td></tr>\n"
+        for v in _bad)
 
     return f"""<meta charset="utf-8">
 <title>{p(canon['title'])}</title>

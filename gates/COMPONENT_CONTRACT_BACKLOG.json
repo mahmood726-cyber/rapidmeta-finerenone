@@ -1,0 +1,31 @@
+{
+ "_what": "The generator components that were wired onto the write path BEFORE gate 15's contract existed, each with what it lacks. gate15_component_contract.py refuses a NEW non-conformance or a REGRESSION in a recorded one; it does not refuse this backlog.",
+ "_why_a_ratchet_and_not_a_clearance": "gates/run_all.py runs in .githooks/pre-push and THAT GATE HAS NO OVERRIDE. Failing on four components that four other lanes did not introduce would block every push in the repository on a pre-existing backlog, and a gate people cannot push past is a gate that gets deleted. Passing on them silently would make this the available-but-not-operative shape the suite exists to expose. The backlog is printed on every run so it cannot quietly become permanent.",
+ "_the_contract": {
+  "a": "def inject(html, canon) -- two positional parameters",
+  "b": "def render(canon) -- one positional parameter",
+  "c": "a module-level MARKER constant",
+  "d": "inject consults MARKER before appending, so it is idempotent",
+  "e": "def plant() reachable from __main__ via a \"--plant\" literal",
+  "f": "def coverage() plus a \"--coverage\" literal in __main__",
+  "g": "plant() contains at least one assert"
+ },
+ "_measured": "7 of 11 wired components satisfy the contract on 2026-08-30. The seven that do are the ones written against it: absolute_effects, subgroup_efficacy, other_outcomes, count_provenance, clinical_reading, audit_trail, certainty_profile.",
+ "_what_would_clear_it": "Scaffolds for the plant/coverage halves are generated at F:/claude-temp/regen-lane/codex/scaffold_*.py. They deliberately STOP at a TODO for the model answer: a control whose expected answer was invented by the same process that wrote the component is a tautology, so the assertion has to be keyed to something established outside the code, and that is a judgement a person makes.",
+ "both_intervals": {
+  "missing": ["e", "f", "g"],
+  "why": "Landed before the contract. It has inject/render/MARKER and is idempotent; it has no plant() and no coverage(). ⚠️ Its model answer is the one that most needs a human: the component's whole point is that at k=2 the modified Hartung-Knapp multiplier is t on ONE degree of freedom, 12.7062 against 1.96, and an assertion on that has to be keyed to the t-distribution rather than to the component's own arithmetic."
+ },
+ "currency_query": {
+  "missing": ["e", "f", "g"],
+  "why": "Landed before the contract. ⚠️ It is the one component that performs RETRIEVAL, so a plant that exercises it must not depend on the network: the model answer has to be a stored response, and the refusal control has to assert that a network failure renders NOT_YET_ATTEMPTED on the page rather than 'nothing has changed'. That distinction is the component's reason for existing and it is not mechanical to test."
+ },
+ "estimand_statement": {
+  "missing": ["e", "f", "g"],
+  "why": "Landed before the contract. Its refusal control is the interesting half: a page that cannot say what it is estimating must not build, so the control has to assert that the BUILD REFUSES, not merely that the section is absent."
+ },
+ "integrity_section": {
+  "missing": ["a", "c", "d", "e", "f", "g"],
+  "why": "⛔ NOT THE SAME KIND OF GAP AS THE OTHER THREE. This component renders from the ASSEMBLED HTML rather than from the topic object -- its signature is inject(html) and render(html) -- so contract items a, c and d are not things it is failing to do, they are things the contract as written does not fit. A separate displayed-bytes instrument reached the same conclusion independently and now names it UNCHECKABLE by signature rather than counting 141 render errors against it. ⚠️ The right resolution is probably to widen the contract to admit a second component shape, not to bend this component into the first; that is a design decision and it is recorded here rather than taken."
+ }
+}

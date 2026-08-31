@@ -48,7 +48,7 @@
   "n_with_the_outcome_at_some_rank": 9,
   "n_of_those_with_posted_results": 8,
   "n_that_actually_pool": 3,
-  "what_asking_it_bought_and_what_it_did_not": "IT BOUGHT THE REVIEW ITS ENTIRE POOL. All three contributing results were found by asking at every rank: two of the three are SECONDARY outcomes in trials whose registered PRIMARY is a bleeding endpoint, so a review reading primaries only would have reported that they contribute nothing. IT DID NOT BUY POOLABILITY: eight trials answered yes and five of the eight still do not pool, each for a named reason. The prophylaxis half of this pair ran the identical discipline and its poolable set went 3 -> 8. HERE IT WENT 8 -> 3. THE METHOD HAS NO DIRECTION -- asking is not a way of finding more trials, it is a way of finding out.",
+  "what_asking_it_bought_and_what_it_did_not": "IT BOUGHT THE REVIEW ITS ENTIRE POOL. All three contributing results were found by asking at every rank: two of the three are SECONDARY outcomes in trials whose registered PRIMARY is a bleeding endpoint, so a review reading primaries only would have reported that they contribute nothing. IT DID NOT BUY POOLABILITY: eight trials answered yes and five of the eight still do not pool; the coherence_screen records why: NCT00643201 and NCT00633893 have no recurrent-VTE measure without a death term, NCT04168203 and NCT03196349 are extended-anticoagulation trials rather than acute-treatment trials, and NCT02744092 posts a percentage for a drug-class contrast rather than an arm-level apixaban count. The prophylaxis half of this pair ran the identical discipline and its poolable set went 3 -> 8. HERE IT WENT 8 -> 3. THE METHOD HAS NO DIRECTION -- asking is not a way of finding more trials, it is a way of finding out.",
   "per_trial_ranks_read": {
    "NCT00643201": 21,
    "NCT01780987": 6,
@@ -801,7 +801,8 @@
      "captured_how": "Rscript ssot/apx_treatment_pool.R, stdout captured to a file and read back unchanged. Not retyped.",
      "reproduces_the_stored_value": "YES, and the one difference is stated rather than smoothed. Point 0.7763 and lower bound 0.3437 reproduce exactly; Q 1.2575 on 2 df and I^2 0.00% reproduce exactly. The upper bound refits to 1.7531 against a stored 1.7532 -- a difference of 1 in the fourth decimal, which is rounding in the stored value and not a disagreement about the model.",
      "the_first_refit_was_wrong_and_that_is_the_point": "A plain REML/z fit reproduced the point, Q and I^2 EXACTLY and returned 0.5356 to 1.1251 against the stored 0.3437 to 1.7532. Identical point and heterogeneity with a different interval means the inputs were right and the SPECIFICATION was wrong. The stored value was therefore investigated rather than overwritten, and it was correct: the interval is Knapp-Hartung on t(k-1) = t(2) = 4.3027 with the scale factor floored at max(1, Q/(k-1)), and with Q/(k-1) = 0.6288 the floor binds.",
-     "supersedes": "results.by_outcome.recurrent_vte.r_output_superseded, a P6 refusal that was correct until this output existed. IT WAS BRIEFLY DESTROYED rather than superseded: the script that wrote this block assigned the key wholesale and its only guard was that the object grew -- which it did, because the replacement was larger than what it replaced. Restored by comparing KEY PATHS against a backup."
+     "supersedes": "results.by_outcome.recurrent_vte.r_output_superseded, a P6 refusal that was correct until this output existed. IT WAS BRIEFLY DESTROYED rather than superseded: the script that wrote this block assigned the key wholesale and its only guard was that the object grew -- which it did, because the replacement was larger than what it replaced. Restored by comparing KEY PATHS against a backup.",
+     "prediction_interval_on_t_k_minus_1_2026_08_28": "This transcript is quoted verbatim and is NOT edited. metafor's predict() takes its quantile from the FIT, and a default rma() is test=\"z\", so the pi.lb/pi.ub printed above are normal-quantile bounds. The Handbook interval for the same fit, on t_{k-1}, is given here beside it rather than in place of it."
     },
     "estimator_note_superseded_2026_08_20": "Paule-Mandel between-study variance with a Knapp-Hartung interval on k-1 degrees of freedom, floored at max(1, Q/(k-1)). The house rule refuses DerSimonian-Laird below k=10 and this pool is k=3. DL+Wald is carried alongside because it is what the PROPHYLAXIS half of this pair reported at k=4 -- SO THAT HALF IS NOW OWED THE SAME CORRECTION, and this note is the record of the debt rather than a silent divergence between two pages built the same night.",
     "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was Paule-Mandel; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
@@ -2951,10 +2952,10 @@
     "state": "HELD",
     "reason": "14 cells: 11 READ with source path and verbatim text, 3 DERIVED with the method named."
    },
-   "P6_analysis_output": {
-    "state": "REFUSING",
-    "reason": "No quotable model output exists: k=3 and the pool on this page was computed outside R, so there is a synthesis and no quotation. The absence is recorded as a finding with its cause and what would close it."
-   },
+    "P6_analysis_output": {
+     "state": "HELD",
+     "reason": "Quotable REML/metafor output is held at results.by_outcome.recurrent_vte.r_output.verbatim, with the call recorded at results.by_outcome.recurrent_vte.r_output.call."
+    },
    "P7_published_comparison": {
     "state": "REFUSING",
     "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
@@ -2999,11 +3000,11 @@
    "P3_inclusion_criteria",
    "P4_preconditions",
    "P5_extraction_table",
+   "P6_analysis_output",
    "P8_registration_identity"
   ],
   "refusing": [
    "P18_restatement_is_reproducible",
-   "P6_analysis_output",
    "P7_published_comparison"
   ],
   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."

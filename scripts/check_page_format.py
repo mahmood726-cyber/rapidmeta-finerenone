@@ -94,6 +94,14 @@ def check(path, fmt):
 
 
 def main(argv):
+    # ⭐ --gate MAKES THIS ABLE TO FAIL. Without it the file was a REPORT wearing
+    # a `check_` name: its only terminal return was `return 0`, so a page with
+    # ZERO of the eight required tabs exited 0 -- verified by execution, not by
+    # reading. That is verification theatre on the one format that is the
+    # deliverable. The default stays a report (exit 0) so nothing that runs it
+    # today changes behaviour; --gate is the verdict mode.
+    gate = "--gate" in argv
+    argv = [a for a in argv if a != "--gate"]
     fmt = load_format()
     declared = len(fmt["required_tabs"])
     if argv:
@@ -105,25 +113,44 @@ def main(argv):
           % (declared, fmt.get("_status", "")[:40]))
     print("unit: REQUIRED PRESENT / REQUIRED DECLARED. Extras reported, never netted.\n")
 
-    hist, rows, seen, tombstones = {}, [], 0, []
+    # ⭐ EVERY CANDIDATE LANDS IN A NAMED BUCKET AND THE BUCKETS MUST SUM.
+    # This loop carried `if not os.path.exists(full): continue` and
+    # `if got is None: continue` -- two negative guards in a corpus walk, so a
+    # page listed in PAGE_MAP but MISSING FROM DISK was dropped before being
+    # counted anywhere and the denominator shrank in silence. That is the
+    # defect this file's own tombstone comment warns about, one branch away.
+    hist, rows, seen, tombstones, absent = {}, [], 0, [], []
     for pg in pages:
         full = pg if os.path.isabs(pg) else os.path.join(_ROOT, pg)
-        if not os.path.exists(full):
+        if os.path.exists(full):
+            seen += 1
+        else:
+            absent.append(os.path.basename(pg))
             continue
-        seen += 1
         got = check(full, fmt)
-        if got is None:
+        if got is not None:
+            present, missing, ek, eu, npanels = got
+        else:
             tombstones.append(os.path.basename(pg))
             continue
-        present, missing, ek, eu, npanels = got
         hist[len(present)] = hist.get(len(present), 0) + 1
         rows.append((os.path.basename(pg), len(present), missing, ek, eu))
 
     # ⭐ THE POPULATION, BY KIND -- never a bare total. A tombstone is not a review page and
     # not a defect; it is a third thing, and it must leave the denominator explicitly rather
     # than by being silently skipped.
+    if len(rows) + len(tombstones) + len(absent) != len(pages):
+        raise SystemExit(
+            "REFUSED: buckets do not sum (%d review + %d tombstone + %d absent "
+            "!= %d candidates). A candidate fell through every named bucket, "
+            "which is the silent drop this walk was rewritten to prevent."
+            % (len(rows), len(tombstones), len(absent), len(pages)))
     print("PAGE MAP ENTRIES  : %d" % len(pages))
     print("  files found     : %d" % seen)
+    print("  LISTED BUT ABSENT FROM DISK (counted, not dropped): %d" % len(absent))
+    if absent:
+        print("     %s" % ", ".join(a[:34] for a in absent[:6])
+              + (" ... and %d more" % (len(absent) - 6) if len(absent) > 6 else ""))
     print("  RETIRED-REVIEW TOMBSTONES (excluded, not defects): %d" % len(tombstones))
     print("  REVIEW PAGES -- the real denominator             : %d\n" % len(rows))
     if tombstones:
@@ -154,6 +181,20 @@ def main(argv):
     print("\nEXTRA tabs present but not required (reported, not credited):")
     for k, v in sorted(extras.items(), key=lambda kv: -kv[1]):
         print("   %-16s on %3d pages" % (k, v))
+
+    if gate:
+        short = [(n, m) for n, c, m, _, _ in rows if c < declared]
+        print()
+        if short:
+            print("REFUSED: %d of %d review page(s) carry fewer than the %d "
+                  "declared required tabs." % (len(short), len(rows), declared))
+            for n, m in short[:20]:
+                print("   %-52s missing %s" % (n[:52], ",".join(m)))
+            if len(short) > 20:
+                print("   ... and %d more" % (len(short) - 20))
+            return 1
+        print("ALL %d review page(s) carry all %d declared required tabs."
+              % (len(rows), declared))
     return 0
 
 

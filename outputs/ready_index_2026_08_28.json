@@ -1,0 +1,1849 @@
+{
+ "head": "38fa144aec3ace1428c7785ae265e676e8e5fbce",
+ "computed_at_commit": "38fa144aec3ace1428c7785ae265e676e8e5fbce",
+ "computed_at_date": "2026-08-28",
+ "criterion_legs": [
+  {
+   "leg": 1,
+   "states": "the page has a store object in PAGE_MAP and that file parses",
+   "reads": [
+    "ssot/PAGE_MAP.json",
+    "<object>.json"
+   ]
+  },
+  {
+   "leg": 2,
+   "states": "some outcome has pooled.point not null AND a non-empty per_trial list AND none of the refusal fields set",
+   "reads": [
+    "<object>.results.by_outcome.*.pooled.point",
+    "<object>.results.by_outcome.*.per_trial",
+    "<object>.results.by_outcome.*.withdrawn_reason",
+    "<object>.results.by_outcome.*.withdrawn_note",
+    "<object>.results.by_outcome.*.not_poolable_reason",
+    "<object>.results.by_outcome.*.absent_reason"
+   ]
+  },
+  {
+   "leg": 3,
+   "states": "the page exists on disk and is served",
+   "reads": [
+    "<page>.html"
+   ]
+  },
+  {
+   "leg": 4,
+   "states": "the build stamp on the served page CONTAINS every commit in REQUIRED_GENERATOR_COMMITS as a git ancestor -- not merely that a stamp is present",
+   "reads": [
+    "<page>.html Generator build stamp",
+    "ssot/do_not_rebuild.py REQUIRED_GENERATOR_COMMITS",
+    "git merge-base --is-ancestor <required> <stamp>"
+   ]
+  }
+ ],
+ "reproduce": {
+  "how": "run scripts/build_ready_index_2026_08_28.py at the commit named below; it reads only the fields listed under each leg and writes this file",
+  "expected": "27 pages PASS the criterion. 3 of those resolve to an object another page already represents and are deduplicated away, leaving 24. 2 more are RULED_IN by instruction and do NOT pass. The index carries 26 cards.",
+  "arithmetic": "27 pass - 3 deduped + 2 ruled in = 26 cards",
+  "population": "164 pages evaluated = 163 in PAGE_MAP plus 1 ruled in from outside it (HFREF has no store object, which is its leg-1 failure)",
+  "if_you_get_a_different_number": "that is a FINDING, not a mystery -- compare the per-page verdicts below and name the leg that disagrees"
+ },
+ "verdicts": [
+  {
+   "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ABLATION_AF_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ACS_ANTIPLATELET_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "AGYW_HIV_PREP_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "AMOXICILLIN_AOM_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ANIDULAFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "APIXABAN_ACS_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "APIXABAN_AF_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "APIXABAN_VTE_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "APIXABAN_VTE_TREATMENT_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "ARNI_HF_REVIEW.html",
+   "verdict": "RULED_IN",
+   "criterion_result": "FAIL",
+   "failed_leg": "leg 4: stamp fa7ef6686 predates all seven required generator commits",
+   "why_present": "Mahmood: ARNI is a flagship. It is the corpus's ONLY hand-authored manuscript and it CANNOT be rebuilt to pass honestly -- measured, a rebuild reproduces just 10.5% of the served text and would replace 89.6% with projection. Indexed as-is, with the older build stated on the card rather than concealed.",
+   "note": "PRESENT BY INSTRUCTION, NOT BY THE CRITERION. It does not pass and is not counted as passing."
+  },
+  {
+   "page": "ATTR_CM_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ATTR_PN_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+   "verdict": "DEDUPED",
+   "criterion_result": "PASS",
+   "duplicate_of": "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+   "note": "passes the criterion but resolves to the SAME object file as the page named; one review, one card"
+  },
+  {
+   "page": "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "BAMLANIVIMAB_COVID_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BAMLANIVIMAB_OUTP_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BEMPEDOIC_ACID_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "BEZLOTOXUMAB_CDIFF_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BEZLOTOXUMAB_CDI_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "verdict": "DEDUPED",
+   "criterion_result": "PASS",
+   "duplicate_of": "BOCOCIZUMAB_LIPID_REVIEW.html",
+   "note": "passes the criterion but resolves to the SAME object file as the page named; one review, one card"
+  },
+  {
+   "page": "BOCOCIZUMAB_LIPID_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "BOSENTAN_PAH_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CAB_PREP_HIV_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "CANGRELOR_PCI_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "CASIRIVIMAB_COVID_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CASPOFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CEFEPIME_TAZ_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CEFTAROLINE_AUTO_FULL_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "CEFTAZIDIME_AVIBACTAM_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CEFTOLOZANE_INFECTION_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_CVD_CORONARY_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_CVD_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_ICH_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_MIXED_ASCVD_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_PAD_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_PERICARDITIS_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_PERIPROCEDURAL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_STROKE_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COVID19_VACCINES_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COVID_ORAL_ANTIVIRALS_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CVNCOV_COVID19_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CVNCOV_SARSCOV2_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_AF_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_STROKE_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_CEREBRAL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_EXTENDED_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_SURGICAL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_TREATMENT_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DELAMANID_TB_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DOAC_AF_NMA_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DOAC_AF_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DOAC_CANCER_VTE_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DORAVIRINE_HIV_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DORAVIRINE_HIV_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DORIPENEM_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DROTRECOGIN_SEPSIS_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EARLY_RHYTHM_CONTROL_AF_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EDOXABAN_CANCER_VTE_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EDOXABAN_VTE_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "EMTRICITABINE_HIV_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ENOXAPARIN_VTE_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ERAVACYCLINE_INFECTION_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ERTAPENEM_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ERTAPENEM_INFECT_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ETESEVIMAB_COVID_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ETRIPAMIL_PAROXYSMAL_SUPRAVENTRICU_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVINACUMAB_HOFH_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVOLOCUMAB_ASCVD_AUTO_2.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVOLOCUMAB_ASCVD_AUTO_2_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVOLOCUMAB_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVOLOCUMAB_MIXED_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FCM_HF_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FIDAXOMICIN_CDIFF_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FIDAXOMICIN_CDI_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FINERENONE_CV_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "FINERENONE_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FONDAPARINUX_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FONDAPARINUX_VTE_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "EXCLUDED BY NAME: three open findings and unverified trial labels -- held out deliberately, not a failure to qualify"
+  },
+  {
+   "page": "HEPATITIS_B_TAF_TDF_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "HFREF_NMA_AUTO_FULL_REVIEW.html",
+   "verdict": "RULED_IN",
+   "criterion_result": "FAIL",
+   "failed_leg": "leg 1: no store object in PAGE_MAP",
+   "why_present": "Mahmood: index it now that the patient-facing claims, the NNT, the ranking and the integrity score are stripped and 0.8619 carries its true ACEI-versus-Placebo label.",
+   "note": "PRESENT BY INSTRUCTION, NOT BY THE CRITERION. It does not pass and is not counted as passing."
+  },
+  {
+   "page": "HIV_LA_PREP_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "HIV_PREP_INJECTABLE_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "INCLISIRAN_HOFH_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "INCRETIN_HFpEF_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "INFLUENZA_RECOMBINANT_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "INTENSIVE_BP_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "IVERMECTIN_LF_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "IV_IRON_HF_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "LEFAMULIN_CAP_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "LENACAPAVIR_HIV_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "LENACAPAVIR_PREP_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "LENACAPAVIR_PREP_SSOT.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "LINEZOLID_MRSA_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MALARIA_ACT_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MALARIA_VACCINE_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MARIBAVIR_CMV_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MAVACAMTEN_HCM_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MAVACAMTEN_OHCM_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MAVACAMTEN_OHCM_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MDR_TB_SHORTENED_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MENACWY_BOOSTER_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MENACYW_HEALTHY_VOLUNTEERS_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MEN_ACWY_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MEROPENEM_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MIPOMERSEN_HOFH_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MITRAL_FUNCMR_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MOXIFLOXACIN_RESPI_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "NETARSUDIL_OCULAR_HYPERTENSION_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "OMECAMTIV_HEARTFAIL_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "OMECAMTIV_HFREF_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "OMECAMTIV_HF_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PCSK9_INHIBITORS_CV_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PCSK9_LIPID_NMA_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PCSK9_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PEDIATRIC_HIV_ART_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PITAVASTATIN_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PLAZOMICIN_INFECTION_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "POSACONAZOLE_FUNGAL_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PREVNAR15_PNEUMO_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RALTEGRAVIR_HIV_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "REMDESIVIR_COVID_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RIFAPENTINE_TB_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RIOCIGUAT_PAH_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RIVAROXABAN_ACS_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RIVAROXABAN_VASC_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ROSUVASTATIN_AUTO_FULL_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "ROTAVIRUS_VACCINE_AFRICA_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html",
+   "verdict": "DEDUPED",
+   "criterion_result": "PASS",
+   "duplicate_of": "ROTAVIRUS_VACCINE_AFRICA_REVIEW.html",
+   "note": "passes the criterion but resolves to the SAME object file as the page named; one review, one card"
+  },
+  {
+   "page": "SACUBITRIL_HEARTFAIL_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SACUBITRIL_VALSARTAN_HF_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SARILUMAB_COVID_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SELEXIPAG_PAH_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SER109_CDI_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SGLT2_CKD_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SGLT2_HF_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "SGLT2_MACE_CVOT_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "SOTAGLIFLOZIN_HF_REVIEW.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "SOTATERCEPT_PAH_AUTO_2.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SOTATERCEPT_PAH_AUTO_2_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SOTATERCEPT_PAH_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "TECOVIRIMAT_MPOX_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "THIAMINE_SEPSIS_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "TIGECYCLINE_CIAI_SSOT.html",
+   "verdict": "PASS",
+   "criterion_result": "PASS"
+  },
+  {
+   "page": "TIGECYCLINE_INFECTION_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "WARFARIN_AF_AUTO_FULL_REVIEW.html",
+   "verdict": "FAIL",
+   "criterion_result": "FAIL",
+   "failed_leg": "2. no outcome with a pooled point AND per-trial rows"
+  }
+ ],
+ "n_pages_evaluated": 164,
+ "n_pass_criterion": 27,
+ "n_pass_and_indexed": 24,
+ "n_ruled_in": 2,
+ "n_deduped": 3,
+ "n_cards_on_index": 26,
+ "keep": [
+  {
+   "page": "AGYW_HIV_PREP_REVIEW.html",
+   "object": "ssot/agyw-hiv-prep-review/agyw-hiv-prep-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Dapivirine vaginal ring versus placebo ring for HIV prevention in women"
+  },
+  {
+   "page": "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "object": "ssot/alirocumab-lipid/alirocumab-lipid.json",
+   "outcomes": [
+    "ldlc_pct_change_wk24"
+   ],
+   "stamp": "a441e4187",
+   "title": "Alirocumab versus placebo: percent change in calculated LDL cholesterol at week 24"
+  },
+  {
+   "page": "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+   "object": "ssot/apixaban-vte-prophylaxis/apixaban-vte-prophylaxis.json",
+   "outcomes": [
+    "major_vte"
+   ],
+   "stamp": "a441e4187",
+   "title": "Apixaban thromboprophylaxis: four trials, four different primary composites, and one estimand all four register below the primary"
+  },
+  {
+   "page": "APIXABAN_VTE_TREATMENT_REVIEW.html",
+   "object": "ssot/apixaban-vte-treatment/apixaban-vte-treatment.json",
+   "outcomes": [
+    "recurrent_vte"
+   ],
+   "stamp": "a441e4187",
+   "title": "Apixaban for the treatment of venous thromboembolism: eight trials report an outcome named for recurrent VTE, and three of them count the sa"
+  },
+  {
+   "page": "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+   "object": "ssot/azilsartan-chlorthalidone-vs-olmesartan-hctz/azilsartan-chlorthalidone-vs-olmesartan-hctz.json",
+   "outcomes": [
+    "sbp_change_wk8"
+   ],
+   "stamp": "a441e4187",
+   "title": "Azilsartan medoxomil plus chlorthalidone against olmesartan medoxomil plus hydrochlorothiazide on change in clinic systolic blood pressure: "
+  },
+  {
+   "page": "BEMPEDOIC_ACID_REVIEW.html",
+   "object": "ssot/bempedoic-acid-review/bempedoic-acid-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Bempedoic acid and major cardiovascular events"
+  },
+  {
+   "page": "BOCOCIZUMAB_LIPID_REVIEW.html",
+   "object": "ssot/bococizumab-lipid-review/bococizumab-lipid-review.json",
+   "outcomes": [
+    "ldlc_pct_change_wk12"
+   ],
+   "stamp": "a441e4187",
+   "title": "Bococizumab and LDL cholesterol: the measure was corrected in 2026, and the evidence base was checked for the first time in 2026-08"
+  },
+  {
+   "page": "CAB_PREP_HIV_REVIEW.html",
+   "object": "ssot/cab-prep-hiv-review/cab-prep-hiv-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Long-acting injectable cabotegravir versus daily oral TDF/FTC for HIV pre-exposure prophylaxis"
+  },
+  {
+   "page": "CANGRELOR_PCI_REVIEW.html",
+   "object": "ssot/cangrelor-pci-review/cangrelor-pci-review.json",
+   "outcomes": [
+    "corrected_composite_3component"
+   ],
+   "stamp": "a441e4187",
+   "title": "Cangrelor versus clopidogrel at percutaneous coronary intervention"
+  },
+  {
+   "page": "CEFTAROLINE_AUTO_FULL_REVIEW.html",
+   "object": "ssot/ceftaroline-auto-full-review/ceftaroline-auto-full-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Ceftaroline fosamil versus ceftriaxone in bacterial pneumonia"
+  },
+  {
+   "page": "EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html",
+   "object": "ssot/empagliflozin-hf-auto-full-review/empagliflozin-hf-auto-full-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Empagliflozin in adults with heart failure"
+  },
+  {
+   "page": "FINERENONE_CV_REVIEW.html",
+   "object": "ssot/finerenone-cv/finerenone-cv.json",
+   "outcomes": [
+    "cv_composite_first"
+   ],
+   "stamp": "a441e4187",
+   "title": "Finerenone against placebo in chronic kidney disease with type 2 diabetes: the cardiovascular composite, pooled from the two pivotal trials"
+  },
+  {
+   "page": "ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html",
+   "object": "ssot/icosapent-lipid-auto-full-review/icosapent-lipid-auto-full-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Difference Between AMR101 (Ethyl Icosapentate) and Placebo Treatment Groups in Triglyceride Lowering Effect"
+  },
+  {
+   "page": "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html",
+   "object": "ssot/inclisiran-lipid-kidney-auto-full-review/inclisiran-lipid-kidney-auto-full-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Inclisiran for elevated low-density lipoprotein cholesterol in HeFH, ascvd or ASCVD-risk equivalents"
+  },
+  {
+   "page": "INCRETIN_HFpEF_REVIEW.html",
+   "object": "ssot/incretin-hfpef-review/incretin-hfpef-review.json",
+   "outcomes": [
+    "kccq_css_change"
+   ],
+   "stamp": "a441e4187",
+   "title": "Incretin therapies in heart failure with preserved ejection fraction"
+  },
+  {
+   "page": "IV_IRON_HF_REVIEW.html",
+   "object": "ssot/iv-iron-hf/iv-iron-hf.json",
+   "outcomes": [
+    "hfh_cvd_recurrent",
+    "hfh_cvd_first",
+    "hfh_recurrent",
+    "acm"
+   ],
+   "stamp": "a441e4187",
+   "title": "Intravenous iron against placebo or usual care in heart failure with iron deficiency: six outcomes under four effect measures, pooled within"
+  },
+  {
+   "page": "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+   "object": "ssot/lefamulin-cabp-auto-full-review/lefamulin-cabp-auto-full-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Lefamulin versus moxifloxacin in community-acquired bacterial pneumonia"
+  },
+  {
+   "page": "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+   "object": "ssot/nirsevimab-infant-rsv-review/nirsevimab-infant-rsv-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Nirsevimab versus placebo for medically attended RSV lower respiratory tract infection in infants"
+  },
+  {
+   "page": "ROSUVASTATIN_AUTO_FULL_REVIEW.html",
+   "object": "ssot/rosuvastatin-auto-full-review/rosuvastatin-auto-full-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Rosuvastatin in adults with stroke"
+  },
+  {
+   "page": "ROTAVIRUS_VACCINE_AFRICA_REVIEW.html",
+   "object": "ssot/rotavirus-vaccine-africa-review/rotavirus-vaccine-africa-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Rotavirus vaccines for severe rotavirus gastroenteritis in Africa"
+  },
+  {
+   "page": "SGLT2_HF_REVIEW.html",
+   "object": "ssot/sglt2-hf/sglt2-hf.json",
+   "outcomes": [
+    "harmonised_cvdeath_or_hhf",
+    "threecomp_cvdeath_hhf_urgent"
+   ],
+   "stamp": "a441e4187",
+   "title": "SGLT2 inhibitors against placebo in chronic heart failure across the ejection fraction spectrum: the four randomised outcome trials that rep"
+  },
+  {
+   "page": "SGLT2_MACE_CVOT_REVIEW.html",
+   "object": "ssot/sglt2-mace-cvot-review/sglt2-mace-cvot-review.json",
+   "outcomes": [
+    "primary"
+   ],
+   "stamp": "a441e4187",
+   "title": "Multiple trial-declared outcomes: Time to the First Occurrence of Any of the Following Adjudicated Components of the Primary Composite Endpo"
+  },
+  {
+   "page": "SOTAGLIFLOZIN_HF_REVIEW.html",
+   "object": "ssot/sotagliflozin-hf/sotagliflozin-hf.json",
+   "outcomes": [
+    "hfcv_total",
+    "hfcv_first"
+   ],
+   "stamp": "a441e4187",
+   "title": "Sotagliflozin against placebo across its pivotal cardiovascular outcome programme: three separate estimands, never merged -- two pooled with"
+  },
+  {
+   "page": "TIGECYCLINE_CIAI_SSOT.html",
+   "object": "ssot/tigecycline-ciai/tigecycline-ciai.json",
+   "outcomes": [
+    "cure_toc_me"
+   ],
+   "stamp": "a441e4187",
+   "title": "Tigecycline versus imipenem/cilastatin for complicated intra-abdominal infection: clinical cure at test-of-cure"
+  },
+  {
+   "page": "ARNI_HF_REVIEW.html",
+   "object": "ssot/arni-hfref/arni-hfref.json",
+   "outcomes": [
+    "cvdeath_or_hfh_first"
+   ],
+   "stamp": "fa7ef6686",
+   "title": "Sacubitril/valsartan in adults with heart failure and reduced ejection fraction",
+   "admitted_by_ruling": "Mahmood: ARNI is a flagship. It is the corpus's ONLY hand-authored manuscript and it CANNOT be rebuilt to pass honestly -- measured, a rebuild reproduces just 10.5% of the served text and would replace 89.6% with projection. Indexed as-is, with the older build stated on the card rather than concealed.",
+   "fails": "leg 4: stamp fa7ef6686 predates all seven required generator commits"
+  },
+  {
+   "page": "HFREF_NMA_AUTO_FULL_REVIEW.html",
+   "object": null,
+   "outcomes": [],
+   "stamp": "none",
+   "title": "RapidMeta Cardiology | HFrEF GDMT network: all-cause mortality (audit-first, full-functionality)",
+   "admitted_by_ruling": "Mahmood: index it now that the patient-facing claims, the NNT, the ranking and the integrity score are stripped and 0.8619 carries its true ACEI-versus-Placebo label.",
+   "fails": "leg 1: no store object in PAGE_MAP"
+  }
+ ],
+ "n_keep": 26,
+ "excluded_by_name": {
+  "GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html": "three open findings and unverified trial labels -- held out deliberately, not a failure to qualify"
+ },
+ "excluded_by_name_no_store": {},
+ "admitted_by_ruling": [
+  {
+   "page": "ARNI_HF_REVIEW.html",
+   "fails": "leg 4: stamp fa7ef6686 predates all seven required generator commits",
+   "ruling": "Mahmood: ARNI is a flagship. It is the corpus's ONLY hand-authored manuscript and it CANNOT be rebuilt to pass honestly -- measured, a rebuild reproduces just 10.5% of the served text and would replace 89.6% with projection. Indexed as-is, with the older build stated on the card rather than concealed."
+  },
+  {
+   "page": "HFREF_NMA_AUTO_FULL_REVIEW.html",
+   "fails": "leg 1: no store object in PAGE_MAP",
+   "ruling": "Mahmood: index it now that the patient-facing claims, the NNT, the ranking and the integrity score are stripped and 0.8619 carries its true ACEI-versus-Placebo label."
+  }
+ ],
+ "deduplicated_by_object": [
+  {
+   "page": "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+   "duplicate_of": "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+   "object": "ssot/azilsartan-chlorthalidone-vs-olmesartan-hctz/azilsartan-chlorthalidone-vs-olmesartan-hctz.json"
+  },
+  {
+   "page": "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "duplicate_of": "BOCOCIZUMAB_LIPID_REVIEW.html",
+   "object": "ssot/bococizumab-lipid-review/bococizumab-lipid-review.json"
+  },
+  {
+   "page": "ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html",
+   "duplicate_of": "ROTAVIRUS_VACCINE_AFRICA_REVIEW.html",
+   "object": "ssot/rotavirus-vaccine-africa-review/rotavirus-vaccine-africa-review.json"
+  }
+ ],
+ "held": [
+  {
+   "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ABLATION_AF_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ACS_ANTIPLATELET_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "AMOXICILLIN_AOM_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ANIDULAFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "APIXABAN_ACS_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "APIXABAN_AF_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "APIXABAN_VTE_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ARNI_HF_REVIEW.html",
+   "why": "4. stamp fa7ef6686 is missing 8 required generator commit(s): 36ae41332,509dde275,561ebb9dd,767a8de9a,7f18a5da2,95bddba58,a441e4187,c5409eaa1"
+  },
+  {
+   "page": "ATTR_CM_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ATTR_PN_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BAMLANIVIMAB_COVID_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BAMLANIVIMAB_OUTP_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BEZLOTOXUMAB_CDIFF_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BEZLOTOXUMAB_CDI_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOSENTAN_PAH_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CASIRIVIMAB_COVID_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CASPOFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CEFEPIME_TAZ_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CEFTAZIDIME_AVIBACTAM_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CEFTOLOZANE_INFECTION_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_CVD_CORONARY_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_CVD_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_ICH_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_MIXED_ASCVD_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_PAD_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_PERICARDITIS_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_PERIPROCEDURAL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COLCHICINE_STROKE_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COVID19_VACCINES_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "COVID_ORAL_ANTIVIRALS_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CVNCOV_COVID19_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "CVNCOV_SARSCOV2_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_AF_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_STROKE_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_CEREBRAL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_EXTENDED_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_SURGICAL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DABIGATRAN_VTE_TREATMENT_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DELAMANID_TB_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DOAC_AF_NMA_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DOAC_AF_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DOAC_CANCER_VTE_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DORAVIRINE_HIV_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DORAVIRINE_HIV_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DORIPENEM_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "DROTRECOGIN_SEPSIS_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EARLY_RHYTHM_CONTROL_AF_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EDOXABAN_CANCER_VTE_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EDOXABAN_VTE_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EMTRICITABINE_HIV_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ENOXAPARIN_VTE_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ERAVACYCLINE_INFECTION_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ERTAPENEM_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ERTAPENEM_INFECT_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ETESEVIMAB_COVID_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "ETRIPAMIL_PAROXYSMAL_SUPRAVENTRICU_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVINACUMAB_HOFH_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVOLOCUMAB_ASCVD_AUTO_2.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVOLOCUMAB_ASCVD_AUTO_2_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVOLOCUMAB_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "EVOLOCUMAB_MIXED_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FCM_HF_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FIDAXOMICIN_CDIFF_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FIDAXOMICIN_CDI_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FINERENONE_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FONDAPARINUX_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "FONDAPARINUX_VTE_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html",
+   "why": "EXCLUDED BY NAME: three open findings and unverified trial labels -- held out deliberately, not a failure to qualify"
+  },
+  {
+   "page": "HEPATITIS_B_TAF_TDF_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "HIV_LA_PREP_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "HIV_PREP_INJECTABLE_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "INCLISIRAN_HOFH_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "INFLUENZA_RECOMBINANT_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "INTENSIVE_BP_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "IVERMECTIN_LF_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "LEFAMULIN_CAP_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "LENACAPAVIR_HIV_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "LENACAPAVIR_PREP_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "LENACAPAVIR_PREP_SSOT.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "LINEZOLID_MRSA_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MALARIA_ACT_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MALARIA_VACCINE_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MARIBAVIR_CMV_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MAVACAMTEN_HCM_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MAVACAMTEN_OHCM_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MAVACAMTEN_OHCM_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MDR_TB_SHORTENED_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MENACWY_BOOSTER_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MENACYW_HEALTHY_VOLUNTEERS_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MEN_ACWY_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MEROPENEM_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MIPOMERSEN_HOFH_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MITRAL_FUNCMR_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "MOXIFLOXACIN_RESPI_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "NETARSUDIL_OCULAR_HYPERTENSION_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "OMECAMTIV_HEARTFAIL_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "OMECAMTIV_HFREF_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "OMECAMTIV_HF_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PCSK9_INHIBITORS_CV_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PCSK9_LIPID_NMA_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PCSK9_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PEDIATRIC_HIV_ART_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PITAVASTATIN_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PLAZOMICIN_INFECTION_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "POSACONAZOLE_FUNGAL_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "PREVNAR15_PNEUMO_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RALTEGRAVIR_HIV_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "REMDESIVIR_COVID_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RIFAPENTINE_TB_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RIOCIGUAT_PAH_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RIVAROXABAN_ACS_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "RIVAROXABAN_VASC_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SACUBITRIL_HEARTFAIL_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SACUBITRIL_VALSARTAN_HF_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SARILUMAB_COVID_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SELEXIPAG_PAH_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SER109_CDI_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SGLT2_CKD_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SOTATERCEPT_PAH_AUTO_2.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SOTATERCEPT_PAH_AUTO_2_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "SOTATERCEPT_PAH_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "TECOVIRIMAT_MPOX_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "THIAMINE_SEPSIS_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "TIGECYCLINE_INFECTION_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  },
+  {
+   "page": "WARFARIN_AF_AUTO_FULL_REVIEW.html",
+   "why": "2. no outcome with a pooled point AND per-trial rows"
+  }
+ ],
+ "selector": "POSITIVE keep-list: store object + pooled.point with per_trial rows + no refusal + a generator stamp on the served page"
+}

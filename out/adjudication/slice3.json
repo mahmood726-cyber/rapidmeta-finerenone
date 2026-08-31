@@ -1,0 +1,79 @@
+[
+  {
+    "page": "TIGECYCLINE_CIAI_SSOT.html",
+    "key": "the stored refit gives i squared",
+    "state": "UPHELD",
+    "page_quote_1": "The stored refit gives tau^2 0.000025, Q 2.1564 on 2 df, p = 0.3402, I-squared 1.16%.",
+    "page_quote_2": "The trials' results were closely consistent with one another: I-squared, the share of the variation between them that is more than chance alone would produce, was 7.29%; the estimated variance of the true effects between trials (tau-squared) was 2.5e-05, the heterogeneity test statistic Q was 2.16, on degrees of freedom 2.",
+    "reason": "After stripping script/style and reading visible text, the page gives two different I-squared values for the same tau-squared/Q/df heterogeneity result. Targeted extraction found one visible occurrence of I-squared 1.16%, one of 7.29%, and one rounded paper-summary occurrence of I-squared 7.3%.",
+    "fix_proposed": null,
+    "fix_touches_reader_facing_number": false,
+    "fix_names_a_trial": false
+  },
+  {
+    "page": "TIGECYCLINE_CIAI_SSOT.html",
+    "key": "the analysis population is part of the estimand and this pool crosses it",
+    "state": "UPHELD",
+    "page_quote_1": "Identical across the pooled trials: indication, comparator, outcome definition and analysis population.",
+    "page_quote_2": "The analysis population is part of the estimand and this pool crosses it. Read from the registrations on 2026-08-21: NCT00081744 registers 'no primary outcome is recorded on this registration' (population: None recorded); NCT00136201 registers 'Clinical response for all microbiologically evaluable and microbiologically modified intent-to-treat subjects' (population: ME and m-mITT); NCT01721408 registers 'Clinical Response at the Test-of-Cure (TOC) Assessment Within the Clinically Evaluable (CE) Population' (population: CE). The populations pooled are CE and ME and m-mITT.",
+    "reason": "The served text both declares analysis population identical as a ground for pooling and says the same pool crosses the analysis-population estimand boundary. The second passage also supplies the conflicting population labels.",
+    "fix_proposed": null,
+    "fix_touches_reader_facing_number": false,
+    "fix_names_a_trial": false
+  },
+  {
+    "page": "TIGECYCLINE_CIAI_SSOT.html",
+    "key": "no adjudication has been performed so this review holds no final risk of bias judgement",
+    "state": "UPHELD",
+    "page_quote_1": "No level is published for this outcome -- not the recorded one, not a more cautious one, and not a midpoint -- because choosing one would be the judgement that has not been made.",
+    "page_quote_2": "Very LOW certainty. An open-label trial contributes to a pooled assessed endpoint; one contributing trial registers no primary outcome and so cannot be checked at all; the pool crosses analysis populations; and the inferiority conclusion does not survive the Hartung-Knapp adjustment at k = 3.",
+    "reason": "The page explicitly denies publishing any certainty level, but visible paper text immediately presents a Very LOW certainty statement. The GRADE table also shows pending/not-final language, so the defect is the page carrying both a denial of a final level and an apparent level.",
+    "fix_proposed": null,
+    "fix_touches_reader_facing_number": false,
+    "fix_names_a_trial": false
+  },
+  {
+    "page": "TIGECYCLINE_CIAI_SSOT.html",
+    "key": "leave one out no refit excludes no difference the estimate does not survive removal of any single trial",
+    "state": "UPHELD",
+    "page_quote_1": "Leave-one-out: no refit excludes no difference; the estimate does not survive removal of any single trial.",
+    "page_quote_2": "the study set, by removing study-301 | 0.9107 (0.8542 to 0.971) | 0% | still excludes the null",
+    "reason": "The visible abstract/figure text says no leave-one-out refit excludes no difference, but the visible sensitivity table says the refit removing study-301 still excludes the null. Targeted extraction found the study-301 leave-one-out row once.",
+    "fix_proposed": null,
+    "fix_touches_reader_facing_number": false,
+    "fix_names_a_trial": false
+  },
+  {
+    "page": "TIGECYCLINE_CIAI_SSOT.html",
+    "key": "the registrations fetched do not use non inferiority so the design question is unresolved from the registry",
+    "state": "UPHELD",
+    "page_quote_1": "And not that these are non-inferiority trials: The registrations fetched do not use that word, so the design question is unresolved from the registry rather than assumed.",
+    "page_quote_2": "\"nonInferiorityType\": \"NON_INFERIORITY_OR_EQUIVALENCE\", \"nonInferiorityComment\": \"Non-inferiority was concluded if the lower limit of the 2-sided CI for the difference in cure rates between treatment groups (tigecycline minus imipenem/cilastatin) was greater than -15%.\"",
+    "reason": "After stripping script/style, the body text contains a displayed NCT01721408 registry-result JSON block with non-inferiority fields and a -15% criterion. That contradicts the page's statement that the fetched registrations do not use the word.",
+    "fix_proposed": null,
+    "fix_touches_reader_facing_number": false,
+    "fix_names_a_trial": false
+  },
+  {
+    "page": "APIXABAN_VTE_TREATMENT_REVIEW.html",
+    "key": "no quotable model output exists",
+    "state": "UPHELD",
+    "page_quote_1": "No quotable model output exists: k=3 and the pool on this page was computed outside R, so there is a synthesis and no quotation.",
+    "page_quote_2": "Analysis output — recurrent_vte (quoted verbatim) | —  |  call: Rscript ssot/fit_from_per_trial.R apixaban-vte-treatment recurrent_vte | R version 4.6.0 (2026-04-24 ucrt) | metafor 5.0.1 | run_utc 2026-08-21",
+    "reason": "The visible text has one refusal saying no quotable model output exists and one visible section headed as quoted verbatim analysis output with an Rscript call, R version, and metafor version. These are not consistent.",
+    "fix_proposed": null,
+    "fix_touches_reader_facing_number": false,
+    "fix_names_a_trial": false
+  },
+  {
+    "page": "COLCHICINE_MIXED_ASCVD_REVIEW.html",
+    "key": "whether these trials study this subject checked against each registration s arm structure on of trials were confirmed could not be decided this way",
+    "state": "CANNOT_TELL",
+    "page_quote_1": "Checked against each registration's arm structure on 2026-08-25. 4 of 5 trials were confirmed: the drug is part of the randomised comparison. 1 could NOT be decided this way, because the registered arm names do not name the intervention the way this review does.",
+    "page_quote_2": "Included studies | — https://clinicaltrials.gov/study/NCT02162303 | — https://clinicaltrials.gov/study/NCT04073797 | — https://clinicaltrials.gov/study/NCT04181996 | — https://clinicaltrials.gov/study/NCT06930885 | — https://clinicaltrials.gov/study/NCT07654231",
+    "reason": "The page provides the numerator and denominator for the arm-structure check, and the visible text contains five unique NCT IDs, but it does not attach confirmed/unverified status to any individual NCT. From the served page alone, the reader cannot tell which one of the five is the unresolved trial; this is not a trial-result or registry-evidence question.",
+    "fix_proposed": null,
+    "fix_touches_reader_facing_number": false,
+    "fix_names_a_trial": false
+  }
+]

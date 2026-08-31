@@ -201,6 +201,7 @@ def audit():
         by_url.setdefault(url, []).append(txt)
 
     rows, drift, agree, unmapped, ghosted = [], [], 0, [], []
+    split_identity = []
     ghosted_hard, ghosted_soft = [], []
     for url, labels in sorted(by_url.items()):
         obj_path = object_for(url)
@@ -230,7 +231,15 @@ def audit():
         # was right and the evidence for it was blank. A reviewer reading that
         # output would have concluded the extractor was broken and ignored a
         # correct finding.
+        # ⭐ THE WORST LABEL IS SCORED, NOT ONLY THE BEST. Taking the maximum
+        # share across a URL's labels means ONE CORRECT ANCHOR ABSOLVES A WRONG
+        # ONE -- and "the tile and the table describe the same URL as two
+        # different reviews" is the exact defect this module was written for.
+        # It could not see its own founding case: AGYW_HIV_PREP_REVIEW.html
+        # carries two anchors, the tile at 0.36 and the table row at 0.00, and
+        # the URL was scored AGREEING on the strength of the tile alone.
         best, best_txt = -1.0, ""
+        worst, worst_txt = 2.0, ""
         for txt in labels:
             lw = _norm(txt)
             if not lw:
@@ -238,6 +247,8 @@ def audit():
             share = len(ow & lw) / float(len(ow))
             if share > best:
                 best, best_txt = share, txt
+            if share < worst:
+                worst, worst_txt = share, txt
         blob = json.dumps(d, ensure_ascii=False)
         ghosts = entity_drift(best_txt, blob)
         rows.append((url, round(best, 2), otitle, best_txt, ghosts))
@@ -252,6 +263,10 @@ def audit():
             (ghosted_hard if hard else ghosted_soft).append(
                 (url, hard or ghosts, otitle, best_txt))
             ghosted.append((url, ghosts, otitle, best_txt))
+        # A URL described two ways has already failed, whichever way is right.
+        if len(labels) > 1 and worst < 0.34 <= best:
+            split_identity.append((url, round(worst, 2), round(best, 2),
+                                   worst_txt, best_txt))
         if best < 0.34:
             drift.append((url, round(best, 2), otitle, best_txt))
         else:
@@ -261,6 +276,7 @@ def audit():
             "n_mapped_to_an_object": len(rows), "n_unmapped": len(unmapped),
             "unmapped_sample": unmapped[:8],
             "agree": agree, "drift": drift, "rows": rows,
+            "split_identity": split_identity,
             "ghosted": ghosted, "ghosted_hard": ghosted_hard,
             "ghosted_soft": ghosted_soft}
 
@@ -325,7 +341,26 @@ def main():
         negative=("a label naming a trial the object DOES contain is not drift",
                   entity_drift("The Ring Study (NCT01539226)",
                                "... NCT01539226 ... The Ring Study ..."),
-                  []))
+                  # ⛔ THIS SLOT IS `must_not_be`, NOT `expected`. It held [] --
+                  # which is precisely what a CORRECT run returns -- so the
+                  # control could only ever fail, and this audit REFUSED on its
+                  # own negative control from the day it was wired and has never
+                  # once printed a count. Not merge drift: instrument_controls.py
+                  # is byte-identical at the merge base, at HEAD and on
+                  # origin/main. A control wired to fail is not a strict control,
+                  # it is a silent retirement of the instrument.
+                  ["NCT01539226"]))
+    # ⭐ AND THE API'S `must_not_be` CANNOT SAY "must be empty": it passes for
+    # every value except the forbidden one, so a garbage answer clears it. The
+    # two-sided assertion is made here, explicitly.
+    _neg = entity_drift("The Ring Study (NCT01539226)",
+                        "... NCT01539226 ... The Ring Study ...")
+    if list(_neg) != []:
+        raise SystemExit(
+            "REFUSED: the negative control returned %r, not []. A trial the "
+            "object DOES contain was reported as drift, so every count this "
+            "instrument prints would be an over-flag. NO COUNT IS PRINTED."
+            % (_neg,))
     if "--selftest" in sys.argv:
         print("INDEX IDENTITY DRIFT -- SELFTEST")
         print(json.dumps(selftest(), indent=1, ensure_ascii=False))
@@ -350,6 +385,26 @@ def main():
     print()
     n = r["n_mapped_to_an_object"]
     print("  index label AGREES with object title : %d of %d" % (r["agree"], n))
+    _sp = r.get("split_identity") or []
+    # ⭐ TWO TIERS, for the reason the ghost tiers have two: a bare count
+    # mixing a real defect with four harmless short labels is a count
+    # nobody acts on. A SHORTENED label still shares words with the title
+    # ("Cangrelor in PCI" vs "Cangrelor versus clopidogrel at PCI"); a
+    # DIFFERENT REVIEW shares none. 0.00 is the discriminator, and on this
+    # corpus exactly one entry sits there -- the founding case.
+    _hard = [x for x in _sp if x[1] <= 0.0]
+    _soft = [x for x in _sp if x[1] > 0.0]
+    print("  ONE URL DESCRIBED TWO WAYS (one anchor agrees AND another does not,")
+    print("  which is the defect this module was written for): %d of %d"
+          % (len(_sp), n))
+    print("     NO WORDS IN COMMON -- a different review at the same URL : %d"
+          % len(_hard))
+    print("     shares some words -- most likely a shortened label      : %d"
+          % len(_soft))
+    for _u, _w, _b, _wt, _bt in _hard + _soft:
+        print("    %-40s best %.2f / worst %.2f" % (_u[:40], _b, _w))
+        print("        agrees   : %s" % (_bt[:94] or "(empty)"))
+        print("        does not : %s" % (_wt[:94] or "(empty)"))
     print("  DRIFTED (shares < 34%% of title words): %d of %d"
           % (len(r["drift"]), n))
     print()
