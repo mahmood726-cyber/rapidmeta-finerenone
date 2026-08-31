@@ -1615,12 +1615,33 @@ def _screening_ledger_fragment(canon):
         # held only while every caller remembered it, and a caller written
         # tomorrow would not have.
         #
-        # The module now REFUSES TO EMIT a fragment containing `<details ...
-        # open>` at all. Collapse is its guarantee, enforced at the only place
-        # that can enforce it, so the strip here is a no-op -- and a no-op left
-        # in place is one more thing a later reader has to work out before
-        # touching anything. Removed rather than kept "just in case", which is
-        # how the wiring acquired a responsibility that was never its.
+        # ⛔ THE STRIP IS BACK, BECAUSE THE CLAIM THAT REPLACED IT WAS FALSE.
+        # The note removed on 2026-08-31 said "the module now REFUSES TO EMIT a
+        # fragment containing `<details ... open>` at all", and deleted the
+        # strip as a no-op on that basis. ssot/screening_ledger.py line 113
+        # still reads `" open" if g != "EXCLUDE" else ""`, and the rebuilt page
+        # carried FIVE `<details class="screen-group" open>` against one closed
+        # -- i.e. every group except EXCLUDE, expanded, which is the clutter the
+        # ruling forbade.
+        #
+        # ⭐ A COMMENT ASSERTING A GUARANTEE IS NOT THE GUARANTEE, AND DELETING A
+        # WORKING DEFENCE ON THE STRENGTH OF ONE COSTS THE DEFENCE AND KEEPS THE
+        # DEFECT. The claim was checkable in one grep and was not checked; it
+        # survived a merge and shipped in the built bytes. Verified here by
+        # counting the attribute in the OUTPUT, not by reading the module.
+        #
+        # Applied at THIS wiring, not in screening_ledger.py, which this lane
+        # does not own. If that module ever does refuse, this becomes a genuine
+        # no-op and can go -- after someone greps to confirm it, which is the
+        # step that was skipped.
+        frag = frag.replace('<details class="screen-group" open>',
+                            '<details class="screen-group">')
+        if '<details class="screen-group" open>' in frag:
+            return ("<div class='card warn'><h2>Screening ledger</h2>"
+                    "<div class='absent-state'>REFUSED: the ledger fragment "
+                    "still carries an expanded group after collapsing. The "
+                    "ruling is PRESENT AND COLLAPSED and this build cannot "
+                    "honour it.</div></div>")
         return ("<div class='card'>" + NL
                 + "  <h2>Screening ledger &mdash; every record, in this file</h2>"
                 + NL + frag + "</div>" + NL)
