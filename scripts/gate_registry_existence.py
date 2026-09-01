@@ -43,6 +43,7 @@ NO NETWORK. Reads the local AACT snapshot, so it can run in a hook or a sandbox.
 import argparse
 import csv
 import glob
+import hashlib
 import io
 import json
 import os
@@ -162,37 +163,60 @@ def check(known, pages=None):
 
 
 def selftest(known):
-    """PLANT a fabricated id, require refusal, restore, assert the restoration."""
+    """PLANT a fabricated id, require refusal, restore, PROVE the restoration.
+
+    ⛔ THIS TEST DAMAGED A SERVED PAGE AND THEN REPORTED THAT IT HAD NOT.
+
+    The first version read the victim in TEXT mode and wrote it back the same way.
+    Universal-newline decoding turned every CRLF into LF, and writing with
+    newline="" put LF back -- so the restore silently stripped 6,166 bytes from
+    ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html, changing all 6,166 lines.
+
+    ⭐ AND THE CHECK THAT WAS SUPPOSED TO CATCH IT COMPARED THE DECODED STRING TO
+    THE DECODED STRING -- `restored == original`, both lossy, both text-mode. It
+    compared a thing to a copy of itself and printed "restored byte-identical:
+    True" over a corrupted file. That is precisely the defect this module's own
+    docstring diagnoses in check_10_nct_in_auto_include_vs_realdata, committed by
+    the module that names it.
+
+    ⇒ The victim is now read and written as BYTES, and the restoration is proved
+    by sha256 of the file on disk against the sha256 taken before the plant.
+    """
     victim = None
     for f in sorted(glob.glob(os.path.join(ROOT, "*.html"))):
-        txt = open(f, encoding="utf-8", errors="replace").read()
+        raw = open(f, "rb").read()                      # BYTES, not text
+        txt = raw.decode("utf-8", "replace")
         m = AUTO_RE.search(txt)
         if m and NCT_RE.findall(m.group(1)):
-            victim, original, mm = f, txt, m
+            victim, original_raw, mm, original_txt = f, raw, m, txt
             break
     if not victim:
         sys.exit("SELFTEST INCONCLUSIVE: no page carries an AUTO_INCLUDE set")
 
     fake = "NCT09999999"
     assert fake not in known, "planted id must not really exist"
+    sha_before = hashlib.sha256(original_raw).hexdigest()
     before, _ = check(known, [victim])
-    planted = original[:mm.start(1)] + mm.group(1) + ", '%s'" % fake \
-        + original[mm.end(1):]
-    open(victim, "w", encoding="utf-8", newline="").write(planted)
+
+    planted_txt = (original_txt[:mm.start(1)] + mm.group(1) + ", '%s'" % fake
+                   + original_txt[mm.end(1):])
+    open(victim, "wb").write(planted_txt.encode("utf-8"))
     try:
         after, _ = check(known, [victim])
         fired = fake in after
     finally:
-        open(victim, "w", encoding="utf-8", newline="").write(original)
+        open(victim, "wb").write(original_raw)          # the ORIGINAL BYTES back
 
-    restored = open(victim, encoding="utf-8", errors="replace").read()
-    ok_restore = restored == original
+    sha_after = hashlib.sha256(open(victim, "rb").read()).hexdigest()
+    ok_restore = sha_after == sha_before
     after_restore, _ = check(known, [victim])
 
     print("PLANT TEST on %s" % os.path.basename(victim))
     print("  before plant   : %d rejects" % len(before))
     print("  planted %s -> gate fired: %s" % (fake, fired))
-    print("  file restored byte-identical : %s" % ok_restore)
+    print("  sha256 before  : %s" % sha_before[:32])
+    print("  sha256 after   : %s" % sha_after[:32])
+    print("  restored, proved by sha256 of the bytes on disk : %s" % ok_restore)
     print("  after restore  : %d rejects (must equal before)" % len(after_restore))
     ok = fired and ok_restore and set(after_restore) == set(before)
     print("  SELFTEST %s" % ("PASS" if ok else "FAIL"))
