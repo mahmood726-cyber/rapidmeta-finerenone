@@ -162,6 +162,18 @@ GATES = [
     # CLEARED. Root cause is one point, not 88: build_binary_sidecar.py is never told the
     # store refuses. Remedy specified, not applied, in
     # SPEC-sidecar-must-honour-store-refusals-2026-08-31.md -- that script is another lane's.
+    # ADDED 2026-09-01. scripts/check_correction_pins.py was written, worked, and was
+    # called by nothing -- gate 8 named it the same night ("named like a gate, can fail,
+    # and nothing runs it"). This gate RUNS that detector and reads the JSON it writes;
+    # counting verdict words in its stdout gave 8 records where there are 5, because each
+    # CONTROL line carries a verdict word twice.
+    #
+    # AHEAD_OF_BRANCH is a THIRD STATE and it had to be invented: two records pin bytes
+    # produced by a399b442f on paper-studio/manuscript-review. Calling that BROKEN would
+    # blame a correct record for a merge that has not happened. It is never counted as
+    # verified, and the remedy it names is a merge, never an edit to a hash.
+    ("gate20_correction_pins",
+     "a correction must pin bytes that can still be obtained", "fast"),
     ("gate17_unpoolable_override",
      "nothing may publish a pool the store has recorded a refusal for", "fast"),
 ]
