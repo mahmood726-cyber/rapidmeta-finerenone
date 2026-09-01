@@ -58,15 +58,17 @@ check("M2 clean sibling: the stem does not collapse DIFFERENT concepts",
       "'hypotension' is not 'hypertension' after stemming")
 
 print("")
-print("=== M3  the KNOWN over-refusal that is NOT patched, recorded as a failing case ===")
-# ⚠️ REPORTED, NOT FIXED. `dyslipidaemia` (British) vs `Dyslipidemias` still refuses,
-# because the verifier does not apply the frozen rule's `ae` normalisation. Patching a gate
-# after seeing which cases it caught is how a gate stops measuring anything, so this stands
-# as a NAMED open defect with a test that asserts the CURRENT behaviour and says so.
-check("M3 KNOWN OPEN: British 'dyslipidaemia' is still refused",
-      not M.record_matches("dyslipidaemia", "Dyslipidemias"),
-      "asserts the DEFECT, not the requirement -- one-line fix deliberately deferred, "
-      "see REPORT-CONDITION-MESH-V2 section 2")
+print("=== M3  the British spelling -- LANDED, so this now asserts the REQUIREMENT ===")
+# ⭐ THIS ASSERTION WAS FLIPPED. It used to assert the DEFECT -- that `dyslipidaemia` was
+# refused -- as a named open item. The fix landed by reusing `rekey_rule.norm` rather than
+# adding a second spelling table, so the test now says what the code is SUPPOSED to do.
+check("M3 British 'dyslipidaemia' matches MeSH 'Dyslipidemias'",
+      M.record_matches("dyslipidaemia", "Dyslipidemias"),
+      "the frozen rule's ae rewrite, applied symmetrically to both sides")
+check("M3 clean sibling: the ae rewrite does not collapse DIFFERENT concepts",
+      not M.record_matches("haemorrhage", "Hemothorax")
+      and M.record_matches("haemorrhage", "Hemorrhage"),
+      "haemorrhage->hemorrhage matches; hemothorax is still a different concept")
 
 print("")
 print("=== M4  DETECTOR CONTROL -- can the broadening step return a positive at all? ===")

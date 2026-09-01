@@ -86,9 +86,22 @@ def _tokens(s):
     different tokens, the record verifier calls a CORRECT record a mismatch, and a working
     expansion is refused. That is over-flagging -- the failure mode that matters here --
     committed inside the check written to prevent the opposite error.
+
+    ⭐ AND THE BRITISH SPELLING, LANDED RATHER THAN LEFT NAMED. `dyslipidaemia` against MeSH's
+    `Dyslipidemias` was refused as a mismatch: the singularisation fixed the plural and
+    nothing handled the inserted vowel. The fix REUSES `rekey_rule.norm`, which already
+    carries the project's `ae` rewrites and is applied symmetrically to both sides, rather
+    than re-implementing the rule here -- a second spelling table would be a second source
+    for one rule, which is the defect that let an amendment reach the controls and not the
+    twenty.
+
+    ⚠️ This is a corpus case and it was deliberately deferred once. It is landed now under
+    an explicit instruction, and `plant_mesh_lookup` M3 is flipped from asserting the DEFECT
+    to asserting the REQUIREMENT, so the test says what the code is supposed to do.
     """
+    from rekey_rule import norm as _rulenorm
     out = []
-    for w in re.sub(r"[^a-z0-9]+", " ", (s or "").lower()).split():
+    for w in _rulenorm(s or "").split():
         if len(w) > 4 and w.endswith("s") and not w.endswith("ss"):
             w = w[:-1]
         if w and w not in _STOP:
@@ -119,7 +132,9 @@ def record_matches(query, descriptor):
     ⚠️ This was changed after seeing a failure, and the distinction matters. The failing case
     was SYNTHETIC -- written to test discrimination, not drawn from the corpus -- so fixing
     it does not tune the gate to the data it is about to judge. The British-spelling
-    over-refusal in M3 IS a corpus case and is deliberately left unpatched for that reason.
+    over-refusal WAS left unpatched for the opposite reason -- it is a corpus case -- and has
+    since been landed under an explicit instruction by reusing `rekey_rule.norm`; see
+    `_tokens`.
     """
     q, d = set(_tokens(query)), set(_tokens(descriptor))
     if not q or not d:
