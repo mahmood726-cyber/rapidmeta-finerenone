@@ -9,7 +9,7 @@ Every claim below is stamped **MEASURED** (with the command), **INFERRED**, or *
 
 | gap | before | now | state |
 |---|---|---|---|
-| 1 · RoB has no sentence-level provenance | absent | **mechanical retriever, coverage@3 = 0.398 vs chance 0.012** | **baseline shipped, error rate declared** |
+| 1 · RoB has no sentence-level provenance | absent | **locates the supporting REGION: coverage@3 = 0.398 vs chance 0.012. Does NOT identify the supporting CLAIM: SJS +0.035 over chance, and its destruction test says that is not the lexicon's doing** | **partial — region yes, claim no; second scoring bounded the first** |
 | 2 · cannot say what screening missed | absent | **micro recall 10.4%, pre-registered, truncation-free** | **number exists, and it is bad** |
 | 3 · no certainty rating | absent | **mechanical GRADE inputs; certainty structurally refused** | **shipped, 10/10 controls** |
 
@@ -181,3 +181,82 @@ I² undefined returns **`None`, never `0`** — a blank and a zero are different
    filter. The apparatus is the asset; 10.4% is just its first reading.
 3. **Wire Gap 3's emitter into the render path as data** — the page shows the inputs and says
    plainly that no certainty is rated and why.
+
+---
+
+# GAP 1 — SECOND INDEPENDENT SCORING (SJS), AND WHAT IT OVERTURNS
+
+**MEASURED** — `ROBBR_DIR=robbr python rob_provenance_sjs.py` (true `rc=1`)
+
+The same fixed lexicon, scored on a different RoBBR split with a different task format.
+**It does not survive the second scoring, and the controls are what caught it.**
+
+| scoring | task | result | chance | lift | n |
+|---|---|---|---|---|---|
+| **SSR** | retrieve supporting sentences from a paper | coverage@3 **0.398** | 0.012 | **+0.386** | 284 |
+| **SJS** | pick which of 7 statements supports the judgement | accuracy **0.178** | 0.143 | **+0.035** | 422 |
+
+## ⛔ The plant-the-defect control REFUSED to collapse, so the number was not reported
+
+Destroying the lexicon entirely — every domain pattern replaced with one that matches
+nothing — moved SJS accuracy **0.178 → 0.166**, against a chance floor of 0.143.
+
+**The lexicon contributes essentially nothing on this task.** The harness printed
+`collapse observed: NO -- CHECK IS INERT`, returned `VERDICT controls FAILED -- number not
+reportable`, and exited 1.
+
+⇒ **A plant-the-defect check earns its keep precisely when it does NOT collapse.** Had this
+only ever been run on SSR, where it collapses 0.398 → 0.095, I would have carried "the
+lexicon works" into the next component.
+
+## The mechanism, measured rather than guessed
+
+**MEASURED: a mean of 0.56 of the seven options score above zero on the domain lexicon**, and
+inspection shows why — *all seven distractors are statements about the same RoB domain*. A
+worked example (`blinding of outcome assessment`):
+
+```
+[3] score 0.3612  "Comment: no information on whether laboratory assessors were blinded."
+[6] score 0.0216  "The study reported that blinding was unveiled only after ..."   <-- CORRECT
+```
+
+The lexicon picked the densest cue-bearing option. The correct one was the statement that is
+**factually true of this paper**.
+
+⇒ **SSR asks a TOPICAL question — which sentences concern this domain. SJS asks a FACTUAL
+one — which claim about this domain is true here.** The lexicon answers the first and is
+blind to the second.
+
+## What this does and does not overturn
+
+**Does NOT overturn:** SSR's 0.398 remains valid *for what it measures* — locating the
+domain-relevant region of a report. The second scoring bounded the interpretation; it did not
+falsify the measurement.
+
+**DOES overturn:** any reading of 0.398 as "the retriever identifies the supporting
+sentence". **It identifies the supporting REGION.** Choosing among competing claims within
+that region is a separate capability the lexicon does not have, at all.
+
+## ⭐ And the boundary falls exactly on the cite/judge line
+
+Deciding which of several domain-relevant statements is true of a paper **is a judgement**.
+It is the same act Gap 3 structurally refuses for GRADE certainty. So the honest position is
+not that the retriever is weak at SJS — it is that **SJS is not a citing task**, and our
+component is deliberately a citing component.
+
+**Publishable form, and the only one that should be quoted:**
+
+> A mechanical Handbook-domain lexicon locates the supporting region for a Cochrane RoB
+> judgement at 0.398 aspect coverage in the top 3 sentences, 33× chance — **and it misses 60%
+> of aspects at k=3.** On a second, independent split requiring the correct claim to be chosen
+> among plausible same-domain distractors, it performs at **+0.035 over chance, which its own
+> destruction test shows is not attributable to the lexicon at all.**
+
+Never quote the 33× without both the 60% miss and the SJS null.
+
+## Housekeeping defect found in my own reporting, same session
+
+The first SJS run was piped to `tail`, which reported **`rc=0` while the script returned
+`rc=1`**. `$?` through a pipe is the last stage's exit code. Caught within minutes of writing
+the carry-over note about impossible scores — **owning a rule is not the same as the rule
+firing.** Re-run unpiped: `TRUE rc=1`.
