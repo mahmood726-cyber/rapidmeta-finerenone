@@ -37,7 +37,7 @@ REPO = H.repo_root()
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 
 BASELINE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "GATE16_CROSS_SURFACE_BASELINE.json")
+                        "GATE19_CROSS_SURFACE_BASELINE.json")
 
 # THE NAMED POSITIVE MUST BE SYNTHETIC, NOT A LIVE DEFECT.
 #
@@ -56,7 +56,7 @@ SYNTHETIC_FLIP = "synthetic-direction-flip"
 
 
 def main(argv):
-    gate = H.Gate("16 CROSS SURFACE",
+    gate = H.Gate("19 CROSS SURFACE",
                   "three served surfaces must not disagree about one review")
     gate.requires_control()
 

@@ -104,8 +104,44 @@ GATES = [
     # Refuses on a NEW (code, page) pair OR a rise in unique pairs -- both arms are needed,
     # and the count arm was UNFIREABLE on first writing because it compared a set size
     # against a raw finding count (48 can never exceed 67). Fixed before registering.
-    ("gate16_cross_surface",
+    #
+    # RENUMBERED 16 -> 19 on 2026-09-01. Another lane landed gate16_reader_can_check
+    # on main while this one sat unpushed, so two gates printed "16". The published
+    # one keeps the number; the unpushed one moves. A duplicate gate number makes
+    # every downstream report ambiguous about which gate a verdict belongs to.
+    ("gate19_cross_surface",
      "three served surfaces must not disagree about one review", "fast"),
+    # ADDED 2026-09-01. Being correctable is the claim this corpus makes, and a
+    # correction a reader cannot see does not make good on it. Of 44 pages classed
+    # PUBLISHED_CORRECTION, 36 pin a phrase: 1 pin is PHRASE_UNUSABLE (it cuts an
+    # HTML entity in half, so it can never be asserted either way) and the other
+    # 35 all RENDER in visible text. 0 failing.
+    #
+    # AN EARLIER DRAFT OF THIS COMMENT SAID "29 render, 2 markup-only, 5 ABSENT
+    # FROM THE PAGE BYTES". That was wrong and it was wrong toward alarm. It came
+    # from the raw substring matcher this comment's last paragraph warns against:
+    # markup splits a sentence into runs, so the 5 "destroyed retractions" were
+    # phrases interrupted by an inline <strong> or a newline inside a <p>. No
+    # published correction is missing. Verified on 2026-09-01 by re-running every
+    # RENDERS verdict through a DELIBERATELY STRICTER normaliser -- tag-strip,
+    # unescape and whitespace-collapse only, with no space-before-punctuation
+    # repair and no entity-cut allowance -- which disagreed on 0 of 35. The pin
+    # file (scripts/baselines/published_corrections.json) was not touched, so the
+    # passes were not bought by relaxing what is asserted.
+    #
+    # The brief said no correction renders anywhere. That was TWO ARTEFACTS UNDER ONE
+    # WORD: the corrections/ DIRECTORY renders nowhere (another lane, proven by plant),
+    # while in-page correction TEXT renders on 29 of 36. This gate is about the second.
+    #
+    # The 8 with no pinned phrase are UNASSERTABLE, NOT CLEAN: named in the coverage
+    # line, never counted as passing. Normalisation is part of the check -- markup
+    # splits a sentence into runs, so a raw substring test scores every markup-spanning
+    # phrase as absent, which is larger, more dramatic and wrong.
+    #
+    # IT RATCHETS at 7, OWED - NOT CLEARED. Named positives are SYNTHETIC, so they
+    # cannot retire when the seven are fixed.
+    ("gate18_correction_renders",
+     "a pinned correction phrase must appear in visible text", "fast"),
     # ADDED 2026-08-31, and it is the better instrument. Every other cross-artefact check
     # here compares two surfaces and inherits that comparison's reach; this one compares an
     # artefact against OUR OWN RECORDED REFUSALS, so it has no reach limit. The store writes
