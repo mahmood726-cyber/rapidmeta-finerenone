@@ -114,6 +114,64 @@ def _participants(canon):
     return (total or None), seen
 
 
+def _participants_for(canon, oid, k_stored):
+    """Participants ANALYSED for THIS outcome, from the cells the effect uses.
+
+    Returns (n or None, k_derived, state). The states are:
+
+      DERIVED        every trial the object counts for this outcome also
+                     holds per-arm counts, so the total is a total.
+      PARTIAL_CELLS  some contributing trials hold counts and some do not. No
+                     number is returned. A sum over the subset would be an
+                     UNDERSTATEMENT, and an understatement is more dangerous
+                     than the overstatement it replaces because it reads as
+                     conservative.
+      NO_CELLS       no contributing trial holds per-arm counts.
+
+    Read in this order, both outcome-specific:
+      1. by_outcome[oid].analysed = {treatment, control}
+      2. by_outcome[oid].control.n + by_outcome[oid].treatment.n
+    A trial-level enrolment attached to a specific outcome is the error being
+    fixed here, so it is never a fallback.
+    """
+    total = 0
+    k_cells = 0
+    k_named = 0
+    for t in ((canon.get("inputs") or {}).get("trials") or []):
+        if isinstance(t, dict) is False:
+            continue
+        e = (t.get("by_outcome") or {}).get(oid)
+        if isinstance(e, dict) is False:
+            continue
+        k_named += 1
+        got = None
+        a = e.get("analysed")
+        if isinstance(a, dict):
+            tx, cx = a.get("treatment"), a.get("control")
+            if _plain_int(tx) and _plain_int(cx) and tx >= 0 and cx >= 0:
+                got = tx + cx
+        if got is None:
+            c, tr = e.get("control"), e.get("treatment")
+            if isinstance(c, dict) and isinstance(tr, dict):
+                cn, tn = c.get("n"), tr.get("n")
+                if _plain_int(cn) and _plain_int(tn) and cn >= 0 and tn >= 0:
+                    got = cn + tn
+        if got is not None:
+            total += got
+            k_cells += 1
+    if k_cells == 0:
+        return None, 0, "NO_CELLS"
+    expected = k_stored if _plain_int(k_stored) and k_stored > 0 else k_named
+    if k_cells != expected:
+        return None, k_cells, "PARTIAL_CELLS"
+    return total, k_cells, "DERIVED"
+
+
+def _plain_int(v):
+    """An int that is not a bool. `isinstance(True, int)` is True in Python."""
+    return isinstance(v, int) and isinstance(v, bool) is False
+
+
 def _is_ratio(measure):
     return str(measure or "").strip().upper() in (
         "RR", "OR", "HR", "RATE_RATIO", "RATERATIO", "IRR")
@@ -231,14 +289,31 @@ def sof_card(canon, p=None):
                       "absolute effect can be shown.</div>\n")
             continue
         any_row = True
+        n_row, k_row, n_state = _participants_for(canon, oid, rec.get("k"))
+        if n_state == "DERIVED":
+            n_cell = _e(n_row)
+            k_cell = _e(k_row)
+        elif n_state == "PARTIAL_CELLS":
+            n_cell = ("not held: per-arm counts for %s of %s studies"
+                      % (_e(k_row), _e(k)))
+            k_cell = _e(k) if k else "not held"
+        else:
+            n_cell = "not held"
+            k_cell = _e(k) if k else "not held"
         inner += ("  <table>\n"
-                  "    <tr><th>Relative effect</th><th>№ participants</th>"
-                  "<th>№ studies</th></tr>\n"
+                  "    <tr><th>Relative effect</th><th>No. participants analysed</th>"
+                  "<th>No. studies</th></tr>\n"
                   "    <tr><td><strong>%s %s</strong> (%s to %s)</td>"
                   "<td>%s</td><td>%s</td></tr>\n  </table>\n"
                   % (_e(measure), _e(point), _e(lo), _e(hi),
-                     _e(n_part) if n_part else "not held",
-                     _e(k) if k else "not held"))
+                     n_cell, k_cell))
+        inner += ("  <p><small>Participants is the number ANALYSED for this "
+                  "outcome, summed from the same per-arm counts the effect "
+                  "above is computed from -- not the number the trials "
+                  "enrolled, which is a larger and different quantity. Where "
+                  "some contributing trial holds no per-arm counts the cell "
+                  "says so rather than showing a sum over the trials that "
+                  "do, because a partial sum is not a total.</small></p>\n")
         if _is_ratio(measure):
             observed = _observed_baselines(canon, oid)
             rows = _absolute_rows(
