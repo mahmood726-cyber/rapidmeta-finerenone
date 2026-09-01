@@ -29,6 +29,7 @@ WHY THESE THREE, AND IN THIS ORDER OF VALUE.
 NO NETWORK. NO TOPIC NAMES.
 """
 import html
+import re
 
 _MAX_LEDGER_ROWS = 4000          # a bound, declared, not a silent truncation
 
@@ -212,6 +213,12 @@ def search_card(canon, p=None):
 
 
 # ------------------------------------------------------------ EXTRACTION ----
+# Built with chr(92) so no shell transport can turn the word-boundary
+# escapes into 0x08 -- that exact defect sat inside a green gate in this
+# repo, matching nothing, because grep renders 0x08 as blank.
+_BARE_NCT = re.compile(chr(92) + 'ANCT' + chr(92) + 'd{8}' + chr(92) + 'Z')
+
+
 def extraction_rows_card(canon, p=None):
     """Every extracted per-trial value, EACH LINKED TO WHERE IT CAME FROM."""
     res_by = ((canon.get("results") or {}) if isinstance(canon.get("results"), dict)
@@ -232,6 +239,26 @@ def extraction_rows_card(canon, p=None):
                 continue
             link = source_link(t)
             label = t.get("label") or t.get("trial_id") or t.get("nct") or "?"
+            # ⛔ A BARE NCT IN THE TRIAL COLUMN IS AN ABSENCE WEARING A VALUE.
+            # Where ClinicalTrials.gov records no acronym, the ingest stored the
+            # registration id AS the label, so the Trial column reads
+            # "NCT02913326" and a reader is left to conclude either that the id
+            # IS the trial's name or that we failed to look it up. NEITHER IS
+            # TRUE, and saying which costs one clause.
+            #
+            # Verified against the registry API before writing this sentence,
+            # rather than asserting it: NCT02913326, NCT00152971 and NCT06551402
+            # all return acronym=None. Each DOES carry a briefTitle, so the name
+            # exists and is one click away -- what is missing is the short form.
+            #
+            # Measured in this tree: 10 rows across 2 pages
+            # (DABIGATRAN_VTE_CEREBRAL 4, DABIGATRAN_VTE_SURGICAL 6).
+            if _BARE_NCT.match(str(label).strip()):
+                label_html = ('%s <small class="muted">&mdash; the registry '
+                              'records no acronym for this trial</small>'
+                              % _e(str(label).strip()))
+            else:
+                label_html = _e(label)
             if link:
                 linked += 1
                 ident = _a(link[0], t.get("nct") or t.get("trial_id") or "source")
@@ -246,7 +273,7 @@ def extraction_rows_card(canon, p=None):
             rows += ("    <tr><td>%s</td><td>%s</td><td>%s</td>"
                      "<td>%s %s (%s to %s)</td><td><small>%s</small></td>"
                      "<td><small>%s</small></td></tr>\n"
-                     % (_e(label), ident, _e(via),
+                     % (label_html, ident, _e(via),
                         _e(t.get("measure") or ""), _e(t.get("point")),
                         _e(t.get("ci_low")), _e(t.get("ci_high")),
                         _e(counts), _e(t.get("provenance") or t.get("derivation") or "")))
