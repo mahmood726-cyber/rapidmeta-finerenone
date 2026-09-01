@@ -317,123 +317,184 @@ def sof_card(canon, p=None):
 def etd_coverage_card(canon, p=None):
     """EVIDENCE-TO-DECISION COVERAGE MAP -- Handbook 15.6.
 
-    ⛔ THIS TAB DECLINES MOST OF ITS CELLS AND THAT IS THE HANDBOOK-CORRECT
-    ANSWER. An evidence-to-decision framework needs values, resource use,
-    equity, acceptability and feasibility. The Handbook places those with the
-    review authors and a guideline panel -- they are NOT derivable from trial
-    data and never were. So the deliverable is a COMPLETE, DECLARED map of which
-    considerations this review can inform and which it cannot. The empty cells
-    are the point: a panel handed 4 of 12 filled cells and a named reason for
-    each blank is better served than one handed prose that reads as though it
-    covered all twelve."""
+    THIS TAB DECLINES MOST OF ITS CELLS AND THAT IS THE HANDBOOK-CORRECT ANSWER. An
+    evidence-to-decision framework needs values, resource use, equity, acceptability and
+    feasibility. The Handbook places those with the review authors and a guideline panel --
+    they are NOT derivable from trial data and never were. So the deliverable is a COMPLETE,
+    DECLARED map of which considerations this review can inform and which it cannot. The
+    empty cells are the point.
+
+    RULING 1 -- TWO STATES ONLY, AND `PARTIALLY INFORMED` IS ABOLISHED.
+
+    This card previously emitted PARTIALLY INFORMED, CANNOT BE DETERMINED and NOT APPLICABLE
+    alongside INFORMED and NOT ADDRESSED, and scored anything beginning INFORMED or PARTIALLY
+    as informed. The decisive case was `Is the problem a priority?`, which printed PARTIALLY
+    INFORMED beside the reason "whether the problem is a priority in a given jurisdiction is
+    not a property of those trials" -- A MARK CONTRADICTING THE REASON PRINTED NEXT TO IT.
+
+    That is the third independent instance of this defect: a probe here that fell back
+    question -> title so the named field was not the field doing the work; AGYW's authored
+    block, which called the same row PARTIALLY INFORMED; and this. Three instances make it a
+    class, not a slip. A third state exists only to soften, and softening is what this tab
+    exists to refuse.
+
+    SO: INFORMED -- and it must NAME THE FIELD that informs it -- or NOT ADDRESSED. A mark
+    and its reason are now generated from ONE decision, so a row cannot print a reason that
+    denies its own mark.
+
+    ABOLISHING THE THIRD STATE IS NOT THE SAME AS DEMOTING EVERYTHING IN IT. Each of the
+    three partials was decided on whether the review holds evidence a panel would USE for
+    that consideration, and they did not go the same way:
+      problem      DEMOTED. Trial populations say who was studied, not whether the problem
+                   outranks competing claims on the same budget. Its own reason says so.
+      undesirable  INFORMED, naming the harms field. "Two summary categories, not a full
+                   harms review" QUALIFIES the mark; it does not deny it.
+      equity       INFORMED, naming the registry extraction. Who was eligible -- sex, age
+                   bounds, countries -- is evidence a panel uses for equity, because who was
+                   excluded is the equity question.
+
+    RULING 2 -- RENDER THE MAP ALWAYS; SCORE THE PANEL EMPTY WHEN NOTHING IS INFORMED.
+
+    This card used to DROP the twelve-row table when nothing was informed, returning one
+    sentence instead -- so 112 of 141 live topics showed no map at all, which is precisely
+    where a complete declared map of the unanswered is most informative. The sentence "the
+    empty cells are the point" survived in the branch where cells are FILLED and the table
+    was dropped in the branch where they are ALL EMPTY.
+
+    THE GUARD THAT MOTIVATED THAT IS CORRECT AND IS PRESERVED, NOT OVERRULED: a twelve-row
+    table of NOT ADDRESSED must not register as a populated tab and jump pages to 8 of the
+    ruled 8 in one pass. The two concerns are separable and were only ever conflated because
+    the content detector counts RENDERED ELEMENTS:
+
+        what a READER SEES   -- the full map, always
+        what a COUNTER SCORES -- empty, when nothing is informed
+
+    So when informed == 0 the map is wrapped in a container carrying
+    `data-scores-as-empty="1"`, and `projectors.tabbed_body` excludes marked regions before
+    applying the content floor. The scorer now reads DERIVED STATE declared by the producer
+    instead of inferring it from the presence of a <table>. THE TAB COUNT MUST NOT MOVE
+    BECAUSE OF THIS CHANGE, and the control asserts exactly that, per object, both ways.
+    """
     blocks = _blocks(canon)
     live = [(oid, rec) for oid, rec in blocks
             if not (rec.get("pooled") or {}).get("withdrawn")
             and (rec.get("pooled") or {}).get("point") is not None]
-    has_effect = bool(live)
-    has_certainty = any((rec.get("grade") or {}).get("certainty")
-                        for _, rec in live if isinstance(rec.get("grade"), dict))
-    harms_key = [k for k in canon.keys()
-                 if isinstance(k, str) and k.startswith("harms_")]
-    reg_key = [k for k in canon.keys()
-               if isinstance(k, str) and k.startswith("registry_extraction_")]
-    trials = (canon.get("inputs") or {}).get("trials") or []
-    has_population = any(isinstance(t, dict) and t.get("population") for t in trials)
 
+    effect_field = ("results.by_outcome.%s.pooled" % live[0][0]) if live else None
+    certainty_field = None
+    for oid, rec in live:
+        g = rec.get("grade")
+        if isinstance(g, dict) and g.get("certainty"):
+            certainty_field = "results.by_outcome.%s.grade.certainty" % oid
+            break
+    harms_field = next((k for k in sorted(canon)
+                        if isinstance(k, str) and k.startswith("harms_")), None)
+    registry_field = next((k for k in sorted(canon)
+                           if isinstance(k, str)
+                           and k.startswith("registry_extraction_")), None)
+
+    # (mark, reason, field). `field` is REQUIRED whenever the mark is INFORMED and is
+    # asserted by the control: an informed mark nobody can check against a named field is
+    # the same defect as a k that changes without a named trial list.
+    ADDRESSED = "NOT ADDRESSED"
     answers = {
         "problem_is_a_priority": (
-            ("PARTIALLY INFORMED",
-             "The populations the contributing trials enrolled are recorded on "
-             "this object and are shown in the Extraction tab. Whether the "
-             "problem is a priority in a given jurisdiction is not a property of "
-             "those trials.")
-            if has_population else
-            ("NOT ADDRESSED", "No trial population is recorded on this object.")),
+            ADDRESSED,
+            "Whether a problem is a priority ranks it against competing claims on the same "
+            "budget. The trial populations recorded here say who was studied; they are not "
+            "a property that can rank the problem, and this review does not rank it.",
+            None),
         "desirable_anticipated_effects": (
-            ("INFORMED", "The pooled relative effect and its interval, with an "
-                         "absolute-effect grid, are in the Summary of Findings "
-                         "tab.")
-            if has_effect else
-            ("NOT ADDRESSED", "No pooled estimate is held for any outcome.")),
+            ("INFORMED",
+             "The pooled relative effect and its interval, with an absolute-effect grid, "
+             "are in the Summary of Findings tab.", effect_field)
+            if effect_field else
+            (ADDRESSED, "No pooled estimate is held for any outcome.", None)),
         "undesirable_anticipated_effects": (
-            ("PARTIALLY INFORMED",
-             "Serious adverse events and deaths per arm, with denominators, are "
-             "read from the registry and shown in the Extraction tab. That is "
-             "two summary categories, not a full harms review.")
-            if harms_key else
-            ("NOT ADDRESSED", "No harms block is held on this object.")),
+            ("INFORMED",
+             "Serious adverse events and deaths per arm, with denominators, are read from "
+             "the registry and shown in the Extraction tab. That is two summary categories "
+             "and not a full harms review, which bounds what it supports rather than "
+             "withdrawing it.", harms_field)
+            if harms_field else
+            (ADDRESSED,
+             "No harms block is held on this object. THAT IS NOT A FINDING OF NO HARM -- it "
+             "is an absence of extraction, and a panel must treat it as unmeasured rather "
+             "than as reassurance.", None)),
         "certainty_of_evidence": (
-            ("INFORMED", "GRADE certainty is stored and is shown beside each "
-                         "outcome in the Summary of Findings tab.")
-            if has_certainty else
-            ("NOT ADDRESSED", "No GRADE certainty is stored for any outcome.")),
-        "values": ("NOT ADDRESSED",
-                   "No study of how people weigh these outcomes was sought or "
-                   "synthesised. This is a review of trial effects."),
+            ("INFORMED",
+             "GRADE certainty is stored and is shown beside each outcome in the Summary of "
+             "Findings tab.", certainty_field)
+            if certainty_field else
+            (ADDRESSED, "No GRADE certainty is stored for any outcome.", None)),
+        "values": (
+            ADDRESSED,
+            "No study of how people weigh these outcomes was sought or synthesised. This is "
+            "a review of trial effects.", None),
         "balance_of_effects": (
-            "CANNOT BE DETERMINED",
-            "A balance requires values. With values unaddressed, a balance "
-            "statement would be the review author's preference wearing a "
-            "panel's authority."),
-        "resources_required": ("NOT ADDRESSED", "No cost input of any kind is held."),
-        "certainty_of_resource_evidence": ("NOT APPLICABLE", "No resource evidence."),
-        "cost_effectiveness": ("NOT ADDRESSED",
-                               "No economic evaluation was sought."),
+            ADDRESSED,
+            "A balance requires values. With values unaddressed, a balance statement would "
+            "be the review author's preference wearing a panel's authority.", None),
+        "resources_required": (
+            ADDRESSED, "No cost input of any kind is held.", None),
+        "certainty_of_resource_evidence": (
+            ADDRESSED,
+            "No resource evidence is held, so there is no certainty to rate in it.", None),
+        "cost_effectiveness": (
+            ADDRESSED, "No economic evaluation was sought.", None),
         "equity": (
-            ("PARTIALLY INFORMED",
-             "Eligibility as registered -- sex, age bounds and countries -- is "
-             "read from the registry and shown in the Extraction tab. Who was "
-             "eligible bounds who the result can speak for.")
-            if reg_key else
-            ("NOT ADDRESSED", "No registry extraction is held on this object.")),
-        "acceptability": ("NOT ADDRESSED",
-                          "Acceptability studies are outside this review's scope."),
-        "feasibility": ("NOT ADDRESSED",
-                        "Implementation and delivery are outside this review's "
-                        "scope."),
+            ("INFORMED",
+             "Eligibility as registered -- sex, age bounds and countries -- is read from "
+             "the registry and shown in the Extraction tab. Who was eligible bounds who the "
+             "result can speak for, and who was excluded is the equity question.",
+             registry_field)
+            if registry_field else
+            (ADDRESSED, "No registry extraction is held on this object.", None)),
+        "acceptability": (
+            ADDRESSED, "Acceptability studies are outside this review's scope.", None),
+        "feasibility": (
+            ADDRESSED,
+            "Implementation and delivery are outside this review's scope.", None),
     }
 
     rows = ""
     informed = 0
     for key, question in ETD_DOMAINS:
-        ans, why = answers.get(key, ("NOT ADDRESSED", "Not held."))
-        if ans.startswith(("INFORMED", "PARTIALLY")):
+        ans, why, field = answers.get(key, (ADDRESSED, "Not held.", None))
+        if ans == "INFORMED":
             informed += 1
-        cls = "ok" if ans.startswith(("INFORMED", "PARTIALLY")) else "warn"
+            why = "%s Informed by <code>%s</code>." % (why, _e(field))
+            cls = "ok"
+        else:
+            cls = "warn"
         rows += ("    <tr class='%s'><td>%s</td><td><strong>%s</strong></td>"
                  "<td><small>%s</small></td></tr>\n"
-                 % (cls, _e(question), _e(ans), _e(why)))
-    # ⛔ A MAP WITH NOTHING INFORMED IS A DECLINATION, NOT CONTENT, AND IT MUST
-    # SCORE AS ONE. This table is twelve <tr> rows whatever it says, so a page
-    # that can answer NONE of the twelve would still register as a populated tab
-    # under the content detector -- the detector looks for evidence-bearing
-    # elements outside `absent-state`, and a row saying "NOT ADDRESSED" is an
-    # element. That is a loophole this very build would have walked through, and
-    # it flatters in exactly the direction we were warned about: eleven pages
-    # jumping to 8/8 in one pass.
-    #
-    # So when the map informs nothing, the whole card is wrapped as an
-    # absent-state block. The reader still sees the complete twelve-row map --
-    # nothing is hidden -- but the tab is scored EMPTY, which is the truth.
+                 % (cls, _e(question), _e(ans), why))
+
+    table = ("  <p><small>Format: %s. The twelve considerations below are the GRADE "
+             "Evidence-to-Decision framework, reproduced in full whether or not this review "
+             "can answer them.</small></p>\n"
+             "  <table>\n    <tr><th>Consideration</th><th>Answer</th>"
+             "<th>From this review</th></tr>\n%s  </table>\n"
+             % (_e(HANDBOOK_ETD), rows))
+
     if informed == 0:
-        return ("  <div class='absent-state'>\n"
-                "  <p>Format: %s. This review can inform NONE of the twelve "
-                "GRADE Evidence-to-Decision considerations. The full map is "
-                "reproduced so the gap is legible, and this panel is marked as "
-                "carrying no content, because it does not.</p>\n"
-                "  </div>\n" % _e(HANDBOOK_ETD))
-    return ("  <p><small>Format: %s. The twelve considerations below are the "
-            "GRADE Evidence-to-Decision framework, reproduced in full whether or "
-            "not this review can answer them.</small></p>\n"
-            "  <table>\n    <tr><th>Consideration</th><th>Answer</th>"
-            "<th>From this review</th></tr>\n%s  </table>\n"
-            "  <div class='absent-state'><strong>%d of %d considerations "
-            "informed or partially informed; %d not addressed.</strong> The empty "
-            "cells are the point. An evidence-to-decision framework needs values, "
-            "resource use, equity, acceptability and feasibility; the Handbook "
-            "places those with the review authors and a guideline panel, and they "
-            "are not derivable from trial data. A panel handed a complete map of "
-            "what is unanswered is better served than one handed prose that reads "
-            "as though it covered all twelve.</div>\n"
-            % (_e(HANDBOOK_ETD), rows, informed, len(ETD_DOMAINS),
-               len(ETD_DOMAINS) - informed))
+        # THE MAP IS STILL RENDERED IN FULL. The wrapper is what the COUNTER reads, not what
+        # the reader loses: `data-scores-as-empty` tells tabbed_body to exclude this region
+        # before applying the content floor, so an all-declining map cannot flatter the tab
+        # count while the reader still gets every row and every reason.
+        return ("  <div class='absent-state' data-scores-as-empty=\"1\">\n"
+                "  <p><strong>This review can inform NONE of the twelve GRADE "
+                "Evidence-to-Decision considerations.</strong> The full map is reproduced "
+                "below so the gap is legible by row, and this panel is scored as carrying "
+                "no content, because it carries none.</p>\n%s  </div>\n" % table)
+
+    return (table +
+            "  <div class='absent-state'><strong>%d of %d considerations informed; %d not "
+            "addressed.</strong> The empty cells are the point. An evidence-to-decision "
+            "framework needs values, resource use, equity, acceptability and feasibility; "
+            "the Handbook places those with the review authors and a guideline panel, and "
+            "they are not derivable from trial data. A panel handed a complete map of what "
+            "is unanswered is better served than one handed prose that reads as though it "
+            "covered all twelve. Every informed row names the field it is informed by.</div>"
+            "\n" % (informed, len(ETD_DOMAINS), len(ETD_DOMAINS) - informed))

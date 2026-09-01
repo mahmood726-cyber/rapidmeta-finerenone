@@ -1825,6 +1825,38 @@ _TAB_HASH_JS = """<script>
 </script>"""
 
 
+_UNSCORED_OPEN = re.compile(r"<div[^>]*data-scores-as-empty[^>]*>", re.I)
+_DIV_TAG = re.compile(r"</?div[^>]*>", re.I)
+
+
+def _without_unscored_regions(body):
+    """`body` with every data-scores-as-empty region removed, for SCORING only.
+
+    DEPTH-COUNTED, NOT REGEX-MATCHED. A marked block can be followed by other cards in the
+    same panel, so a greedy `.*` would eat them and score a populated panel empty -- a
+    failure in the direction that looks like rigour and hides real content. Nested <div>s are
+    counted so the region ends at ITS OWN closing tag.
+
+    This NEVER touches what is rendered. It returns a copy used to measure.
+    """
+    out, pos = [], 0
+    while True:
+        m = _UNSCORED_OPEN.search(body, pos)
+        if not m:
+            out.append(body[pos:])
+            return "".join(out)
+        out.append(body[pos:m.start()])
+        depth, i = 1, m.end()
+        while depth and i < len(body):
+            t = _DIV_TAG.search(body, i)
+            if not t:
+                i = len(body)
+                break
+            depth += -1 if t.group(0).startswith("</") else 1
+            i = t.end()
+        pos = i
+
+
 def tabbed_body(canon, parts, page):
     """Distribute the already-built parts across the tabs the spec declares.
 
@@ -1845,8 +1877,25 @@ def tabbed_body(canon, parts, page):
             if got:
                 chunks.append("<h2>%s</h2>%s%s" % (d["name"], NL, "".join(got)))
         body = "".join(chunks)
-        text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", body)).strip()
-        data = len(re.findall(r"<(?:table|svg|li)[ >/]", body))
+        # WHAT A READER SEES AND WHAT A COUNTER SCORES ARE DIFFERENT QUESTIONS, and this
+        # line used to answer both with one variable. A producer can now declare a region
+        # NOT EVIDENCE-BEARING with data-scores-as-empty="1"; the region is still rendered
+        # in `body` and still reaches the reader, and it is excluded HERE, before the floor.
+        #
+        # THE CASE THAT FORCED IT. The evidence-to-decision map must show all twelve
+        # considerations even when the review can answer none of them -- a declared complete
+        # map of the unanswered is the content. But twelve <tr> rows are exactly what `data`
+        # counts, so rendering it would have registered an all-declining panel as populated
+        # and jumped pages to 8 of the ruled 8 for no reason but a change of rendering.
+        # Dropping the map avoided the flattery at the cost of the content; excluding the
+        # marked region costs neither.
+        #
+        # SO THE SCORER READS DERIVED STATE THE PRODUCER DECLARES, rather than inferring
+        # evidence from the presence of a <table>. A panel whose only content is marked
+        # scores empty, which is the truth about it.
+        scored = _without_unscored_regions(body)
+        text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", scored)).strip()
+        data = len(re.findall(r"<(?:table|svg|li)[ >/]", scored))
         # THE DATA LIMB IS A TEST FOR A DATA PANEL, AND THE PAPER TAB IS NOT ONE.
         # `data < 1` catches an analysis tab that talks about a forest plot without carrying
         # one, which is a real protection worth keeping. A MANUSCRIPT IS PROSE BY DEFINITION
