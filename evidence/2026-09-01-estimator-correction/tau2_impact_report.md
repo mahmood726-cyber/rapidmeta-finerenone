@@ -1,0 +1,397 @@
+ACCEPTANCE TEST: PASS
+SHIPPED tau2: 0
+CORRECT tau2: 0.000725309395531
+CONTROL relative error vs 0.00072531: 8.33394155986e-07
+CONTROL iterations: shipped 1, correct 37
+
+# tau2 impact report
+
+## A. Sidecar accounting
+- Total JSON sidecars found in `outputs/r_validation/*.json`: 747
+- Non-underscore candidate sidecars: 746
+- Examined sidecars: 708 / 747 total JSON sidecars; 708 / 746 non-underscore candidates
+- Skipped sidecars: 39 / 747 total JSON sidecars
+- Skip reasons:
+  - fewer than 2 trial rows with numeric yi and positive vi: 22; examples: AFLIBERCEPT_HD.json, ALDO_SYNTHASE.json, ANTIAMYLOID_AD.json, ATTR_PN.json, AVACINCAPTAD_GA.json
+  - trials missing or not a list: 16; examples: AD_PEDIATRIC_BIOLOGIC_NMA.json, ANTIPSYCHOTICS_SCHIZO.json, CONGENITAL_ADRENAL_HYPER_NMA.json, CVNCOV_COVID19_AUTO_FULL.json, CVNCOV_SARSCOV2_AUTO_FULL.json
+  - basename starts with '_' (excluded by instruction): 1; examples: _audit_vs_engine.json
+
+## B. Stored tau2 estimator match
+- Denominator: 708 examined sidecars
+- Stored tau2 matches SHIPPED recomputation within 1e-9 relative: 337 / 708
+- Stored tau2 matches CORRECT recomputation within 1e-9 relative: 256 / 708
+- Stored tau2 matches both: 250 / 708
+- Stored tau2 matches neither: 365 / 708
+- Relative-match rule: exact equality passes; otherwise `abs(a-b)/max(abs(a),abs(b)) <= 1e-9`.
+
+## C. Zero stored tau2 recovered as positive
+- Denominator: 708 examined sidecars
+- Stored tau2 exactly 0.0: 336 / 708
+- Among stored-zero sidecars, CORRECT tau2 strictly positive: 86 / 336
+
+## D. Null-crossing impact among C
+- Denominator: 86 sidecars with stored tau2 exactly 0.0 and CORRECT tau2 > 0.0
+- Shipped OR CI excludes 1 but corrected OR CI includes 1: 3 / 86
+- First 20 by sidecar name:
+
+| Sidecar | Shipped OR CI | Correct OR CI | Shipped tau2 | Correct tau2 |
+|---|---:|---:|---:|---:|
+| BIMEKIZUMAB_AS_AUTO_FULL.json | 0.131051841916 to 0.997104783768 | 0.101171138832 to 1.78958699877 | 0 | 0.191513361335 |
+| BIMEKIZUMAB_AXIAL_AUTO_FULL.json | 0.131051841916 to 0.997104783768 | 0.101171138832 to 1.78958699877 | 0 | 0.191513361335 |
+| VANDETANIB_LUNG_AUTO_FULL.json | 1.10221151906 to 3.10576460935 | 0.938620498312 to 3.38314987265 | 0 | 0.0579910023693 |
+
+## E. Pooled log odds-ratio movement
+- Denominator: 708 examined sidecars
+- min |log(OR_correct) - log(OR_shipped)|: 0
+- median |log(OR_correct) - log(OR_shipped)|: 0.0116908447072
+- 90th percentile |log(OR_correct) - log(OR_shipped)|: 0.214475975741
+- max |log(OR_correct) - log(OR_shipped)|: 2.60841205774
+
+## Iteration notes
+- SHIPPED increment-form sidecars that reached the 200-iteration generator cap: 331 / 708
+- CORRECT direct-assignment sidecars that reached the 100000-iteration cap: 0 / 708
+- Trial rows ignored before file-level eligibility checks:
+  - missing/non-numeric yi or vi: 55
+
+## Errors hit and resolutions
+- Preflight `git status --short` timed out after about 11.9 seconds; resolved by keeping the run scoped to read-only inspection plus the single requested report write, with no source edits or staging.
+- A broad `rg` scan across `scripts` and all `outputs/r_validation` JSON files timed out after about 21.7 seconds because it produced very large output; resolved by using targeted generator inspection and direct JSON parsing for the actual analysis.
+- Post-write `git status --short -- outputs\tau2_impact_report.md` timed out after about 22.3 seconds; resolved by verifying the report directly with `Get-Item` and `Get-Content`, and making no claim about full worktree cleanliness.
+- ABATACEPT_PSA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ABATACEPT_RA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ACS_ANTIPLATELET.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ACUTE_HF_DIURESIS_NEW.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ADALIMUMAB_RA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ADC_HER2_LOW.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ADC_HER2_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ADJUVANT_IO_PAN_TUMOR.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- AGYW_HIV_PREP.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ALECTINIB_ALK_NSCLC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ALIROCUMAB_LIPID_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ALK_NSCLC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ALOGLIPTIN_T2D_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ALOPECIA_JAKI.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- AML_TARGETED_NEW.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- AML_VEN_FLT3_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- AMOXICILLIN_AOM_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ANCA_VASCULITIS_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ANIDULAFUNGIN_CANDIDA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ANIFROLUMAB_LUPUS_2_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ANIFROLUMAB_LUPUS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ANIFROLUMAB_SLE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ANTI_PDL1_BLADDER.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ANTIFUNGAL_NEWER_RESISTANT.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- APIXABAN_ACS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- APIXABAN_AF_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- APREPITANT_PONV_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ARNI_HF.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ARPI_NMCRPC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ATOPIC_DERM_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- AVALGLUCOSIDASE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- AVALGLUCOSIDASE_POMPE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- AXSPA_BIOLOGICS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BARIATRIC_RYGB_VS_SG.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BARICITINIB_SLE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BEVACIZUMAB_RENAL_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BIMEKIZUMAB_HS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BIMEKIZUMAB_PSORIASIS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BIMEKIZUMAB_PSORIATIC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BOCOCIZUMAB_LIPID_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BPAL_MDRTB.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BRONCHIECTASIS_BROAD_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BTKI_CLL_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BUDESONIDE_IBD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- BUPROPION_SMOKING_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CABOZANTINIB_THYROID_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CANAGLIFLOZIN_DKD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CANAKINUMAB_SJIA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CANGRELOR_PCI.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CAPLACIZUMAB_TTP_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CARBAPENEM_RESISTANT_ABX.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CARDIORENAL_DKD_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CART_B_CELL_LYMPHOMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CART_DLBCL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CASIRIVIMAB_COVID_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CD_BIOLOGICS_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CDK46_BREAST_CANCER.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CEFTAROLINE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CEFTOLOZANE_INFECTION_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CERITINIB_ALK_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CERVICAL_CANCER_IO_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CGRP_MIGRAINE_PREVENT.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CHECKPOINT_MELANOMA_1L.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CHRONIC_URTICARIA_BIOLOGICS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- COLCHICINE_CVD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- COPD_BIOLOGICS_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- COVID19_HOSPITALIZED_TX.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- COVID19_VACCINES.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- COVID_ORAL_ANTIVIRALS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CRC_TARGETED_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CRSWNP_BIOLOGIC_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- CYTISINICLINE_SMOKING_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DABIGATRAN_VTE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DACOMITINIB_LUNG_AUTO_2_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DACOMITINIB_LUNG_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DAPRODUSTAT_ANAEMIA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DAPT_DE_ESCALATION_PCI.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DELGOCITINIB_AD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DELGOCITINIB_HAND_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DENOSUMAB_BONE_MET_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DEPRESSION_NEW_RAPID.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DERISOMALTOSE_IRON_DEFICIENCY_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DERUXTECAN_NONSMALL_CELL_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DIABETIC_RETINOPATHY.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DIMETHYL_FUMARATE_MS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DOAC_AF.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DOAC_CANCER_VTE.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DOLUTEGRAVIR_ART_SSA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DONANEMAB_AD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DROTRECOGIN_SEPSIS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DRY_EYE_NEW_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DUCHENNE_GENE_THERAPY.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- DULOXETINE_DEPRESSION_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ECALLANTIDE_HAE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ECULIZUMAB_NMOSD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EFGARTIGIMOD_ITP_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ELAFIBRANOR_NASH_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ELAFIBRANOR_PBC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ELAGOLIX_ENDO_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ELAGOLIX_ENDOMETRIOSIS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ELAGOLIX_FIBROIDS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ELAGOLIX_HMB_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EMICIZUMAB_HEMA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EMTRICITABINE_HIV_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ENDOMETRIAL_IO_PARP.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EOSINOPHILIC_DISEASES_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EPILEPSY_NEW_AEDS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EPTINEZUMAB_CHRONIC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EPTINEZUMAB_MIGRAINE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ERAVACYCLINE_INFECTION_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ERDAFITINIB_BLADDER_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ETANERCEPT_RA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ETEPLIRSEN_DMD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ETRASIMOD_UC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ETROLIZUMAB_UC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EVOBRUTINIB_MS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EVOLOCUMAB_DYSLIPIDEMIA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EVT_BASILAR.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EVT_EXTENDED_WINDOW.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- EVT_LARGECORE.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- FARICIMAB_DME_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- FASINUMAB_OA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- FENFLURAMINE_SEIZURE.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- FEZOLINETANT_HOT_FLASHES_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- FIDAXOMICIN_CDI_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- FITUSIRAN_HEM_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- FITUSIRAN_HEMA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- FLUTICASONE_ASTHMA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- FRAGILITY_FRACTURE.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GALCANEZUMAB_MIGRAINE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GANTENERUMAB_AD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GEFAPIXANT_COUGH_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GLOMERULONEPHRITIS_BIOLOGICS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GLP1_CVOT.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GLP1_CVOT_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GLP1_MASH.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GnRH_ANTAGONISTS_GYN.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GOSERELIN_PROSTATE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GRANISETRON_CINV_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GUANFACINE_ADHD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GUSELKUMAB_ARTHRITIS_PSORIATIC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GUSELKUMAB_PSORIASIS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- GVHD_NEW_AGENTS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HAE_PROPHYLAXIS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HAP_VAP_NEW_ABX_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HCC_1L.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HCV_DAA_NEW_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HEAD_NECK_IO_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HEMOPHILIA_FACTOR_PROPHYLAXIS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HEMOPHILIA_NEW_AGENTS_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HER2_LOW_ADC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HFNC_NIV_RESP_FAILURE.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HFpEF_DRUGS_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HIDRADENITIS_SUPPURATIVA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HIFPH_CKD_ANEMIA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HIV_ART_TIMING.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HIV_LA_PREP.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HIV_PREP_INJECTABLE.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- HYDROCORTISONE_SEPTIC_SHOCK.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IBD_BIOLOGICS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ICODEC_DIABETES_MELLITUS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IL23_PSA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IL_PSORIASIS_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- INFLIXIMAB_RA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IO_CHEMO_NSCLC_1L.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IPF_ANTIFIBROTICS_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IRON_ISOMALTOSIDE_IDA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ISOMALTOSIDE_IRON_DEFICIENCY_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ITP_NEW_AGENTS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IV_IRON_HF.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IXEKIZUMAB_AS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IXEKIZUMAB_AXIAL_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IXEKIZUMAB_PSA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- IXEKIZUMAB_PSORIASIS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- JAK_RA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- JAK_UC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- JAKI_AD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- JAKI_RA_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- LAPATINIB_BREAST_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- LEBRIKIZUMAB_AD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- LENACAPAVIR_HIV_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- LESINURAD_GOUT_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- LIPID_HUB.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- LIXISENATIDE_T2D_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- LUPUS_NEW_BIOLOGICS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MALARIA_VACCINE.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MALARIA_VACCINES.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MARIBAVIR_CMV_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MASH_DRUGS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MAVACAMTEN_HCM.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MDR_TB_SHORTENED.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MDS_NEW_AGENTS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MELANOMA_NEOADJUVANT.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MEN_ACWY_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MENACWY_BOOSTER_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MENVEO_MEN_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MEROPENEM_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MIRIKIZUMAB_CROHN_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MIRIKIZUMAB_PSO_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MITRACLIP_TEER.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MITRAL_FUNCMR.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MM_1L_DARA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MM_NDMM_QUAD_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MOMETASONE_CRS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MS_BTK_INHIB_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MS_BTKI.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MS_S1P_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MYASTHENIA_GRAVIS_BIOLOGICS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- MYELOFIBROSIS_NEW_JAKI.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- NALDEMEDINE_OIC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- NALMEFENE_AUD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- NEOADJUVANT_IO_BREAST.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- NICOTINE_PATCH_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- NMOSD_BIOLOGICS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- NSCLC_PD1_1L.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- NSCLC_PERIOP_IO_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OBESITY_DRUGS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OBESITY_DUAL_TRIPLE_AGONIST.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OBETICHOLIC_NASH_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OLANZAPINE_CINV_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OLAPARIB_PANCREATIC2_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OLAPARIB_PANCREATIC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OLOKIZUMAB_RA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OMALIZUMAB_FOOD_ALLERGY_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OMARIGLIPTIN_TYPE_2_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OMEGA3_HIGHDOSE_CV.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ONTAMALIMAB_IBD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OPIOID_INDUCED_CONSTIPATION.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OSILODROSTAT_CUSHING_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OSIMERTINIB_EGFR_NSCLC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OVARIAN_PARP.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- OZANIMOD_CROHN_DISEASE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PACRITINIB_MF_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PAH_SOTATERCEPT_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PAH_THERAPY.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PALFORZIA_PEANUT_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PALOPEGTERIPARATIDE_HPP_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PARKINSON_NEW_AGENTS_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PARP_OVARIAN.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PASIREOTIDE_CUSHING_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PCSK9_INHIBITORS_CV.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PCV13_VACCINE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PD1_RCC_1L.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PEMBROLIZUMAB_PROSTATIC_NEOPLASMS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PERIPHERAL_DCB_PAD_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PFA_AF_PULSED_FIELD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PI3K_AKT_BC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PIBRENTASVIR_HEPATITIS_C_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PNH_NEW_COMPLEMENT.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- POLYCYTHEMIA_VERA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- POSTOP_AKI_PREVENTION.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PPH_BUNDLE.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PREVNAR15_PNEUMO_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PRIMROSE_ELAGOLIX_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PROSTATE_AR_NEXT_GEN.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PROSTATE_PARP_HRR_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PROSTATE_RADIOLIGAND_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- PSA_BIOLOGICS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RAVULIZUMAB_PNH_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RCC_1L.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RELUGOLIX_FIBROIDS_AUTO_2_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RELUGOLIX_HEAVY_MENSTRUAL_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RESLIZUMAB_ASTHMA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RISANKIZUMAB_CD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RISANKIZUMAB_PSORIASIS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RITUXIMAB_MG_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RIVAROXABAN_VASC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ROFLUMILAST_PSORIASIS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ROFLUMILAST_TOP_PSO_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ROMOSOZUMAB_OP.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ROTAVIRUS_VACCINE_AFRICA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ROTAVIRUS_VACCINE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ROXADUSTAT_ANEMIA_CKD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ROXADUSTAT_RENAL_ANEMIA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- ROZANOLIXIZUMAB_MG_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RUCAPARIB_PROSTATE2_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RUCAPARIB_PROSTATE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- RUFINAMIDE_EPILEPSY_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SARILUMAB_RA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SAXAGLIPTIN_T2D_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SBRT_OLIGOMETS_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SEBELIPASE_LAL_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SECUKINUMAB_AXIAL_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SECUKINUMAB_AXSPA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SECUKINUMAB_PSORIASIS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SELADELPAR_PBC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SEMAGLUTIDE_NASH_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SER109_CDI_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SEVERE_ASTHMA_BIOLOGICS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SGLT2_BROAD_OUTCOMES_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SGLT2_CKD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SGLT2_HF.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SGLT2I_HF_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SIMEPREVIR_HCV_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SIRUKUMAB_ARTHRITIS_RHEUMATOID_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SOTAGLIFLOZIN_HF.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- SPONDYLOARTHRITIS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- STROKE_THROMBECTOMY_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- STROKE_THROMBECTOMY_LATE_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TANEZUMAB_OA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TAVR_LOW_RISK.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TDXD_HER2LOW_BC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TENAPANOR_HYPERPHOS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TEPLIZUMAB_T1D_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TEPROTUMUMAB_TED_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TERIFLUNOMIDE_MS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TIGECYCLINE_INFECTION_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TOFACITINIB_AS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TOFACITINIB_PSA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TOFACITINIB_UC.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TOTAL_NEOADJ_RECTAL_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TRALOKINUMAB_AD_2_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TRALOKINUMAB_AD_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TRICUSPID_TEER_TMVR_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TRIPLE_THERAPY_COPD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TROP2_ADC_BROAD.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- TXA_NONCARDIAC_SURGERY.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- UC_BIOLOGICS_NMA.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- UPADACITINIB_CROHNS_DISEASE_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- UPADACITINIB_RA_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- UPADACITINIB_UC_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- USTEKINUMAB_PSO_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- USTEKINUMAB_PSORIASIS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- VANCOMYCIN_CDI_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- VARENICLINE_SMOKING_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- VENETOCLAX_CLL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- VIASKIN_PEANUT_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- VITAMIN_C_THIAMINE_SEPSIS.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- VOCLOSPORIN_LN_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- VOCLOSPORIN_LUPUS_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+- VORTIOXETINE_DEPRESSION_AUTO_FULL.json: shipped increment-form iteration reached its 200-iteration cap; resolved by using the capped value, matching `scripts/build_binary_sidecar.py` behavior.
+
+## Method constants
+- Sidecar inclusion: all `outputs/r_validation/*.json`; basename starting with `_` counted as an explicit skip.
+- Trial inclusion: `trials` rows with finite numeric `yi` and finite positive numeric `vi`.
+- SHIPPED tau2: increment update from `scripts/build_binary_sidecar.py`, `max_iter=200`, `tol=1e-10`, clamped at zero.
+- CORRECT tau2: direct Viechtbauer-form assignment with `+ 1/sum(w)`, `max_iter=100000`, `tol=1e-12`, clamped at zero.
+- Pooling: inverse-variance weights `1/(vi+tau2)`, HKSJ `se=sqrt(max(q,1)/sum(w))`, Student t quantile `t_{k-1,0.975}` from SciPy.
