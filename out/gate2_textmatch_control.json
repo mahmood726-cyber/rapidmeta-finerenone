@@ -9,11 +9,12 @@
    "positives (must match)": 126,
    "known negatives (must NOT match)": 378,
    "pages read": 48,
-   "out of scope (not a check/gate/lint/audit/sweep)": 677,
-   "in scope, does not match text": 53,
-   "text-matching check with NO measured precision": 188,
-   "text-matching check WITH a control or stated exemption": 44
+   "out of scope (not a check/gate/lint/audit/sweep)": 708,
+   "in scope, does not match text": 56,
+   "text-matching check with NO measured precision": 197,
+   "text-matching check WITH a control or stated exemption": 50
   },
+  "coverage": null,
   "expected_cases": {},
   "cases_seen": [],
   "cases_not_seen": [],
@@ -29,9 +30,64 @@
    "    false positives sit on pages of median 70905 chars against a corpus median of 47001 -- the confounder, visible.",
    "contiguous (registration within 300c): 126/126  (known-negative control 1/378 matched, measured false-positive rate 0.3%)",
    "    false positives sit on pages of median 107561 chars against a corpus median of 47001 -- the confounder, visible.",
-   "uncontrolled-matcher backlog: 188 frozen, 188 now, 0 retired, 0 NEW"
+   "uncontrolled-matcher backlog: 188 frozen, 197 now, 0 retired, 9 NEW"
   ],
-  "findings": []
+  "findings": [
+   {
+    "key": "NEW-COUNT-WITHOUT-MEASURED-PRECISION",
+    "detail": "gates/gate15_component_contract.py matches text and reports, with no known-negative control and no `# no-control:` reason. It is NEW since the backlog was frozen. A count without a measured precision is not a finding.",
+    "numerator": 9,
+    "denominator": 247
+   },
+   {
+    "key": "NEW-COUNT-WITHOUT-MEASURED-PRECISION",
+    "detail": "scripts/audit_index_identity_drift.py matches text and reports, with no known-negative control and no `# no-control:` reason. It is NEW since the backlog was frozen. A count without a measured precision is not a finding.",
+    "numerator": 9,
+    "denominator": 247
+   },
+   {
+    "key": "NEW-COUNT-WITHOUT-MEASURED-PRECISION",
+    "detail": "scripts/check_cross_surface_consistency.py matches text and reports, with no known-negative control and no `# no-control:` reason. It is NEW since the backlog was frozen. A count without a measured precision is not a finding.",
+    "numerator": 9,
+    "denominator": 247
+   },
+   {
+    "key": "NEW-COUNT-WITHOUT-MEASURED-PRECISION",
+    "detail": "scripts/check_page_format.py matches text and reports, with no known-negative control and no `# no-control:` reason. It is NEW since the backlog was frozen. A count without a measured precision is not a finding.",
+    "numerator": 9,
+    "denominator": 247
+   },
+   {
+    "key": "NEW-COUNT-WITHOUT-MEASURED-PRECISION",
+    "detail": "scripts/gate_screening_row_has_registration_id_2026_08_26.py matches text and reports, with no known-negative control and no `# no-control:` reason. It is NEW since the backlog was frozen. A count without a measured precision is not a finding.",
+    "numerator": 9,
+    "denominator": 247
+   },
+   {
+    "key": "NEW-COUNT-WITHOUT-MEASURED-PRECISION",
+    "detail": "scripts/gate_stored_estimate_declares_provenance_2026_08_27.py matches text and reports, with no known-negative control and no `# no-control:` reason. It is NEW since the backlog was frozen. A count without a measured precision is not a finding.",
+    "numerator": 9,
+    "denominator": 247
+   },
+   {
+    "key": "NEW-COUNT-WITHOUT-MEASURED-PRECISION",
+    "detail": "scripts/gate_unpoolable_override.py matches text and reports, with no known-negative control and no `# no-control:` reason. It is NEW since the backlog was frozen. A count without a measured precision is not a finding.",
+    "numerator": 9,
+    "denominator": 247
+   },
+   {
+    "key": "NEW-COUNT-WITHOUT-MEASURED-PRECISION",
+    "detail": "scripts/sweep_estimand_established_unrecorded_2026_08_27.py matches text and reports, with no known-negative control and no `# no-control:` reason. It is NEW since the backlog was frozen. A count without a measured precision is not a finding.",
+    "numerator": 9,
+    "denominator": 247
+   },
+   {
+    "key": "NEW-COUNT-WITHOUT-MEASURED-PRECISION",
+    "detail": "scripts/verify_served_page.py matches text and reports, with no known-negative control and no `# no-control:` reason. It is NEW since the backlog was frozen. A count without a measured precision is not a finding.",
+    "numerator": 9,
+    "denominator": 247
+   }
+  ]
  },
  "arm_a": {
   "naive (token anywhere on the page)": {
@@ -116,6 +172,7 @@
   "scripts/audit_first_poolability_triage.py",
   "scripts/audit_first_round2.py",
   "scripts/audit_flattering_default_2026_08_25.py",
+  "scripts/audit_index_identity_drift.py",
   "scripts/audit_manuscript_prose_doors.py",
   "scripts/audit_mitt_vs_allocated.py",
   "scripts/audit_mixed_contrast_pools.py",
@@ -163,6 +220,8 @@
   "scripts/card_alignment_gate.py",
   "scripts/check_card_object_consistency.py",
   "scripts/check_completed_unposted_for_publications_2026_08_19.py",
+  "scripts/check_cross_surface_consistency.py",
+  "scripts/check_page_format.py",
   "scripts/check_served_links.py",
   "scripts/citation_year_gate.py",
   "scripts/clone_contamination_gate.py",
@@ -188,6 +247,9 @@
   "scripts/gate_layer_vs_defect_layer_2026_08_26_audit.py",
   "scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py",
   "scripts/gate_paper_reads_as_prose_2026_08_22.py",
+  "scripts/gate_screening_row_has_registration_id_2026_08_26.py",
+  "scripts/gate_stored_estimate_declares_provenance_2026_08_27.py",
+  "scripts/gate_unpoolable_override.py",
   "scripts/generator_stamp_gate.py",
   "scripts/grim_benford_check.py",
   "scripts/headline_reproducible_gate.py",
@@ -252,6 +314,7 @@
   "scripts/standard_version_agreement_gate.py",
   "scripts/subject_match_gate.py",
   "scripts/sweep_abstract_denominator.py",
+  "scripts/sweep_estimand_established_unrecorded_2026_08_27.py",
   "scripts/sweep_grade_authority_shapes_2026_08_23.py",
   "scripts/sweep_mojibake.py",
   "scripts/sweep_phase_filter_recall_2026_08_19.py",
@@ -274,9 +337,11 @@
   "scripts/verify_projector_delta_2026_08_24.py",
   "scripts/verify_reject_charges_2026_08_24.py",
   "scripts/verify_search_record_reconciles.py",
+  "scripts/verify_served_page.py",
   "scripts/verify_shrink_is_safe_2026_08_24.py",
   "scripts/withdrawal_proportionality_sweep.py",
-  "scripts/withdrawal_reason_gate.py"
+  "scripts/withdrawal_reason_gate.py",
+  "gates/gate15_component_contract.py"
  ],
  "arm_b_controlled": [
   "scripts/audit_are_our_lessons_enforced_2026_08_23.py",
@@ -292,6 +357,7 @@
   "scripts/audit_self_disowning_values_2026_08_23.py",
   "scripts/audit_table1_rows_are_projected_2026_08_23.py",
   "scripts/audit_trial_identity_2026_08_25.py",
+  "scripts/audit_trial_label_identity.py",
   "scripts/audit_writers_guard_authored_prose_2026_08_23.py",
   "scripts/gate_built_and_linked_reconcile_2026_08_23.py",
   "scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py",
@@ -304,13 +370,18 @@
   "scripts/lint_zero_is_a_value_2026_08_23.py",
   "scripts/sweep_arm_roles_2026_08_28.py",
   "scripts/sweep_duplicate_statistics_2026_08_29.py",
+  "scripts/sweep_nonraw_regex_escapes_2026_08_29.py",
   "scripts/sweep_partial_repairs_2026_08_28.py",
   "scripts/sweep_planned_as_observed_2026_08_29.py",
+  "scripts/sweep_unanchored_authority_2026_08_30.py",
   "scripts/verify_served_bytes_2026_08_23_writer2.py",
   "scripts/verify_served_index_2026_08_28.py",
   "gates/gate10_noninferiority_pooled_as_superiority.py",
   "gates/gate11_one_statistic_one_value.py",
   "gates/gate12_planned_shown_as_observed.py",
+  "gates/gate13_nonraw_regex_escape.py",
+  "gates/gate14_unanchored_authority.py",
+  "gates/gate16_cross_surface.py",
   "gates/gate1_trial_identity.py",
   "gates/gate2_textmatch_control.py",
   "gates/gate3_one_reason_field.py",
@@ -324,5 +395,15 @@
   "gates/run_repo_checks.py",
   "gates/textmatch.py"
  ],
- "arm_b_new_since_freeze": []
+ "arm_b_new_since_freeze": [
+  "gates/gate15_component_contract.py",
+  "scripts/audit_index_identity_drift.py",
+  "scripts/check_cross_surface_consistency.py",
+  "scripts/check_page_format.py",
+  "scripts/gate_screening_row_has_registration_id_2026_08_26.py",
+  "scripts/gate_stored_estimate_declares_provenance_2026_08_27.py",
+  "scripts/gate_unpoolable_override.py",
+  "scripts/sweep_estimand_established_unrecorded_2026_08_27.py",
+  "scripts/verify_served_page.py"
+ ]
 }

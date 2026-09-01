@@ -1,0 +1,100 @@
+{
+ "frozen_utc": "2026-09-01",
+ "what": "cross-surface state of the comparator pages BEFORE the HTA/Guideline tabs land, so a later run compares against a recorded before rather than certifying after the fact",
+ "population": {
+  "drug_families": 10,
+  "independent_topics": 14,
+  "distinct_pages": 11,
+  "note": "TEN is the family count and ELEVEN is the page count. They are different populations and the gate runs over pages."
+ },
+ "source": "TWENTY_COMPARATORS.json topics[].our_page_filename",
+ "pages": {
+  "ABLATION_AF_REVIEW.html": {
+   "divergences": [],
+   "in_dashboard": false,
+   "ssot_state": null,
+   "served_pooled_OR": null
+  },
+  "ARNI_HF_REVIEW.html": {
+   "divergences": [
+    {
+     "code": "MEASURE_MISMATCH",
+     "detail": "index.html declares HR 0.8715 (0.7461-1.018) k=4; dashboard declares OR 0.851294 (0.669432-1.082564) k=3. Different estimands rendered under one column header."
+    }
+   ],
+   "in_dashboard": true,
+   "ssot_state": "LIVE",
+   "served_pooled_OR": 0.851294
+  },
+  "ATTR_PN_REVIEW.html": {
+   "divergences": [],
+   "in_dashboard": false,
+   "ssot_state": null,
+   "served_pooled_OR": null
+  },
+  "COLCHICINE_CVD_REVIEW.html": {
+   "divergences": [],
+   "in_dashboard": false,
+   "ssot_state": null,
+   "served_pooled_OR": null
+  },
+  "FINERENONE_CV_REVIEW.html": {
+   "divergences": [],
+   "in_dashboard": false,
+   "ssot_state": null,
+   "served_pooled_OR": null
+  },
+  "IV_IRON_HF_REVIEW.html": {
+   "divergences": [],
+   "in_dashboard": true,
+   "ssot_state": "LIVE",
+   "served_pooled_OR": null
+  },
+  "LENACAPAVIR_PREP_SSOT.html": {
+   "divergences": [],
+   "in_dashboard": false,
+   "ssot_state": null,
+   "served_pooled_OR": null
+  },
+  "NIRSEVIMAB_INFANT_RSV_REVIEW.html": {
+   "divergences": [
+    {
+     "code": "MEASURE_MISMATCH",
+     "detail": "index.html declares RR 0.2605 (0.1766-0.3845) k=2; dashboard declares OR 0.224222 (0.145574-0.34536) k=3. Different estimands rendered under one column header."
+    }
+   ],
+   "in_dashboard": true,
+   "ssot_state": "LIVE",
+   "served_pooled_OR": 0.224222
+  },
+  "SGLT2_HF_REVIEW.html": {
+   "divergences": [],
+   "in_dashboard": true,
+   "ssot_state": "LIVE",
+   "served_pooled_OR": null
+  },
+  "SGLT2_MACE_CVOT_REVIEW.html": {
+   "divergences": [
+    {
+     "code": "K_MISMATCH",
+     "detail": "index.html k=2, dashboard k=4 - same measure over different trial sets."
+    }
+   ],
+   "in_dashboard": true,
+   "ssot_state": "LIVE",
+   "served_pooled_OR": 0.905885
+  },
+  "SOTAGLIFLOZIN_HF_REVIEW.html": {
+   "divergences": [],
+   "in_dashboard": true,
+   "ssot_state": "LIVE",
+   "served_pooled_OR": null
+  }
+ },
+ "headline": {
+  "pages": 11,
+  "with_divergence": 3,
+  "clean": 8,
+  "all_diverging_rows_are": "LIVE -- served to readers now, not tombstones"
+ }
+}

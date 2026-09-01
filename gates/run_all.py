@@ -99,6 +99,83 @@ GATES = [
      "a reader can take a trial from the page and confirm it in the registry", "fast"),
     ("gate15_component_contract",
      "a wired generator component carries no controls", "fast"),
+    # ADDED 2026-08-31. Three served surfaces disagreed about the same review and no
+    # single-file gate could see it: the landing page served ARNI as HR 0.8715 k=4 while
+    # the dashboard served 0.85 k=3, and each file is internally consistent. Six reviews
+    # disagree on the DIRECTION of effect, one of them an HIV-prevention estimate that
+    # reads protective on one page and harmful on two others.
+    #
+    # IT RATCHETS, for the same reason gate 15 does. 67 divergences (48 unique code+page
+    # pairs) predate this gate; refusing on them would block every lane's push for a
+    # backlog no lane introduced. Frozen in gates/GATE16_CROSS_SURFACE_BASELINE.json marked
+    # OWED - NOT CLEARED, with the 6 DIRECTION_FLIPs named rather than buried in a total.
+    # Refuses on a NEW (code, page) pair OR a rise in unique pairs -- both arms are needed,
+    # and the count arm was UNFIREABLE on first writing because it compared a set size
+    # against a raw finding count (48 can never exceed 67). Fixed before registering.
+    #
+    # RENUMBERED 16 -> 19 on 2026-09-01. Another lane landed gate16_reader_can_check
+    # on main while this one sat unpushed, so two gates printed "16". The published
+    # one keeps the number; the unpushed one moves. A duplicate gate number makes
+    # every downstream report ambiguous about which gate a verdict belongs to.
+    ("gate19_cross_surface",
+     "three served surfaces must not disagree about one review", "fast"),
+    # ADDED 2026-09-01. Being correctable is the claim this corpus makes, and a
+    # correction a reader cannot see does not make good on it. Of 44 pages classed
+    # PUBLISHED_CORRECTION, 36 pin a phrase: 1 pin is PHRASE_UNUSABLE (it cuts an
+    # HTML entity in half, so it can never be asserted either way) and the other
+    # 35 all RENDER in visible text. 0 failing.
+    #
+    # AN EARLIER DRAFT OF THIS COMMENT SAID "29 render, 2 markup-only, 5 ABSENT
+    # FROM THE PAGE BYTES". That was wrong and it was wrong toward alarm. It came
+    # from the raw substring matcher this comment's last paragraph warns against:
+    # markup splits a sentence into runs, so the 5 "destroyed retractions" were
+    # phrases interrupted by an inline <strong> or a newline inside a <p>. No
+    # published correction is missing. Verified on 2026-09-01 by re-running every
+    # RENDERS verdict through a DELIBERATELY STRICTER normaliser -- tag-strip,
+    # unescape and whitespace-collapse only, with no space-before-punctuation
+    # repair and no entity-cut allowance -- which disagreed on 0 of 35. The pin
+    # file (scripts/baselines/published_corrections.json) was not touched, so the
+    # passes were not bought by relaxing what is asserted.
+    #
+    # The brief said no correction renders anywhere. That was TWO ARTEFACTS UNDER ONE
+    # WORD: the corrections/ DIRECTORY renders nowhere (another lane, proven by plant),
+    # while in-page correction TEXT renders on 29 of 36. This gate is about the second.
+    #
+    # The 8 with no pinned phrase are UNASSERTABLE, NOT CLEAN: named in the coverage
+    # line, never counted as passing. Normalisation is part of the check -- markup
+    # splits a sentence into runs, so a raw substring test scores every markup-spanning
+    # phrase as absent, which is larger, more dramatic and wrong.
+    #
+    # IT RATCHETS at 7, OWED - NOT CLEARED. Named positives are SYNTHETIC, so they
+    # cannot retire when the seven are fixed.
+    ("gate18_correction_renders",
+     "a pinned correction phrase must appear in visible text", "fast"),
+    # ADDED 2026-08-31, and it is the better instrument. Every other cross-artefact check
+    # here compares two surfaces and inherits that comparison's reach; this one compares an
+    # artefact against OUR OWN RECORDED REFUSALS, so it has no reach limit. The store writes
+    # `poolable: false` with a reason in full -- median 705 characters, none under 109 -- and
+    # 88 of its 108 refusals are overridden by a sidecar that publishes anyway. It would have
+    # caught all three served cases on day one, from the store alone.
+    #
+    # IT RATCHETS on the number that matters: SERVED overrides must not rise AND no new page
+    # may join the served set. Baseline outputs/override_gate_baseline.json, OWED - NOT
+    # CLEARED. Root cause is one point, not 88: build_binary_sidecar.py is never told the
+    # store refuses. Remedy specified, not applied, in
+    # SPEC-sidecar-must-honour-store-refusals-2026-08-31.md -- that script is another lane's.
+    # ADDED 2026-09-01. scripts/check_correction_pins.py was written, worked, and was
+    # called by nothing -- gate 8 named it the same night ("named like a gate, can fail,
+    # and nothing runs it"). This gate RUNS that detector and reads the JSON it writes;
+    # counting verdict words in its stdout gave 8 records where there are 5, because each
+    # CONTROL line carries a verdict word twice.
+    #
+    # AHEAD_OF_BRANCH is a THIRD STATE and it had to be invented: two records pin bytes
+    # produced by a399b442f on paper-studio/manuscript-review. Calling that BROKEN would
+    # blame a correct record for a merge that has not happened. It is never counted as
+    # verified, and the remedy it names is a merge, never an edit to a hash.
+    ("gate20_correction_pins",
+     "a correction must pin bytes that can still be obtained", "fast"),
+    ("gate17_unpoolable_override",
+     "nothing may publish a pool the store has recorded a refusal for", "fast"),
 ]
 
 
