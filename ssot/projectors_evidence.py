@@ -168,11 +168,58 @@ def search_card(canon, p=None):
                           "Sources searched — reported against retrieved. A "
                           "source whose reported count exceeds what was "
                           "retrieved is TRUNCATED and says so.")
-        # databases in the older shape
+        # ⛔ TWO SHAPES, AND JOINING BLINDLY CRASHED THE BUILD. This read
+        # `", ".join(dbs)` under a comment saying "databases in the older shape"
+        # -- and the newer shape is a list of DICTS:
+        #
+        #     {"database": "ClinicalTrials.gov API v2 -- CHOSEN QUERY",
+        #      "tool": "https://clinicaltrials.gov/api/v2/studies?..."}
+        #
+        # so the build died with "TypeError: sequence item 0: expected str
+        # instance, dict found" on 2 of the first 5 pages of a rebuild that was
+        # about to run over 148. A comment naming the shape it handles is not a
+        # guard against the shape it does not.
+        #
+        # ⭐ AND THE DICT SHAPE IS RICHER, so it is RENDERED rather than
+        # flattened: the database name, and its query as a link where the tool
+        # field is one. An entry of neither shape is NAMED, not skipped and not
+        # crashed on -- a source dropped silently from "Databases:" is a search
+        # that looks narrower than it was.
         dbs = b.get("databases")
         if dbs and not rows:
-            inner += _para("Databases: %s" % (", ".join(dbs)
-                                              if isinstance(dbs, list) else dbs))
+            if isinstance(dbs, str):
+                inner += _para("Databases: %s" % _e(dbs))
+            elif isinstance(dbs, list):
+                parts, odd = [], 0
+                for d in dbs:
+                    if isinstance(d, str):
+                        parts.append(_e(d))
+                    elif isinstance(d, dict):
+                        nm = str(d.get("database") or d.get("name")
+                                 or d.get("source") or "").strip()
+                        tool = str(d.get("tool") or d.get("url") or "").strip()
+                        if nm and tool.startswith("http"):
+                            parts.append("%s (%s)" % (_e(nm), _a(tool, "query")))
+                        elif nm:
+                            parts.append(_e(nm))
+                        else:
+                            odd += 1
+                    else:
+                        odd += 1
+                if parts:
+                    inner += _para("Databases: %s" % ", ".join(parts))
+                if odd:
+                    inner += _para("<em>%d source entr%s carried neither a name nor "
+                                   "a recognised shape and are NOT listed above. "
+                                   "They are counted here rather than dropped: a "
+                                   "source missing from this line makes the search "
+                                   "look narrower than it was.</em>"
+                                   % (odd, "y" if odd == 1 else "ies"))
+            else:
+                inner += _para("<em>the databases field is a %s, which this "
+                               "renderer cannot list; the search is not described "
+                               "here rather than being described wrongly.</em>"
+                               % type(dbs).__name__)
 
         cov = b.get("coverage_fraction")
         if isinstance(cov, dict):
