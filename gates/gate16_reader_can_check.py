@@ -164,16 +164,59 @@ def included_ids(canon):
     return ids
 
 
+# ⛔ THERE IS NO LENGTH CAP, AND ADDING ONE WAS A SECOND DEFECT IN THE FIX.
+# The first repair capped candidates at 80 characters on the reasoning that a
+# 300-character official title is not a name. True -- but 40 pages RENDER their
+# long label, and capping it made clause 1 INAPPLICABLE for them rather than
+# passing. The headline moved 138 -> 144 while the number of pages actually
+# CHECKED for clause 1 fell by 40.
+#
+#     A FIX THAT IMPROVES THE HEADLINE BY SHRINKING THE DENOMINATOR IS NOT A FIX.
+#
+# Short candidates are simply tried FIRST, because that is what a reader
+# recognises; the long label remains a candidate and still counts if the page
+# renders it.
+
+
 def trial_names(canon):
-    out = set()
+    """Candidate names PER TRIAL, in the order a reader would recognise them.
+
+    ⛔ THE FIRST VERSION READ `label` AND DEMANDED IT VERBATIM, WHICH IS WHY
+    CLAUSE 1 REPORTED SEVEN FAILING PAGES THAT ARE FINE. Some objects store the
+    registry's OFFICIAL TITLE in `label` -- 300+ characters, e.g. "A MULTICENTER,
+    INTERNATIONAL, PHASE 3, DOUBLE-BLIND, PLACEBO-CONTROLLED, RANDOMIZED STUDY TO
+    EVALUATE THE EFFICACY, SAFETY AND TOLERABILITY OF DAILY ORAL DOSING OF
+    TAFAMIDIS MEGLUMINE..." -- while the page renders the ACRONYM, which is what
+    a reader recognises:
+
+        ATTR-ACT | ... | NCT01994889 | <a href='.../study/NCT01994889'>
+
+    That is exactly what the clause exists to require, and it was scored as a
+    failure because a 300-character title appears nowhere on the page. THE PAGE
+    WAS RIGHT AND THE INSTRUMENT WAS ASKING THE WRONG QUESTION.
+
+    So: return every candidate a reader might see, and let the clause pass if ANY
+    of them sits beside a registration. A trial named by NONE of its candidates
+    is a DIFFERENT finding and is reported separately -- "the page names this
+    trial by none of the names the store holds" is not the same defect as "the
+    name is there and the registration is not", and merging them hid both.
+    """
+    per_trial = []
     for t in (canon.get("inputs") or {}).get("trials") or []:
-        if isinstance(t, dict):
-            v = t.get("label") or t.get("name") or t.get("acronym")
-            if isinstance(v, str) and len(v.strip()) >= 4:
-                for part in re.split(r"\s*/\s*", v.strip()):
-                    if len(part) >= 4:
-                        out.add(part)
-    return out
+        if not isinstance(t, dict):
+            continue
+        cands = []
+        for key in ("acronym", "short_name", "name", "label"):
+            v = t.get(key)
+            if not isinstance(v, str):
+                continue
+            for part in re.split(r"\s*/\s*", v.strip()):
+                part = part.strip()
+                if len(part) >= 4 and part not in cands:
+                    cands.append(part)
+        if cands:
+            per_trial.append(sorted(cands, key=len))
+    return per_trial
 
 
 def assess(page, html, canon):
@@ -188,18 +231,29 @@ def assess(page, html, canon):
         c1 = None
         ev["c1"] = "no trial names or no registrations in the object"
     else:
-        ok = 0
-        for nm in names:
+        ok = unnamed = 0
+        for cands in names:
+            seen_any = False
             hit = False
-            for m in re.finditer(re.escape(nm), body):
-                w = body[max(0, m.start() - NEAR_WINDOW):m.end() + NEAR_WINDOW]
-                if NCT.search(w) or OTHER_REG.search(w):
-                    hit = True
+            for nm in cands:
+                for m in re.finditer(re.escape(nm), body):
+                    seen_any = True
+                    w = body[max(0, m.start() - NEAR_WINDOW):m.end() + NEAR_WINDOW]
+                    if NCT.search(w) or OTHER_REG.search(w):
+                        hit = True
+                        break
+                if hit:
                     break
-            ok += 1 if hit else 0
+            if hit:
+                ok += 1
+            elif not seen_any:
+                unnamed += 1
         c1 = (ok == len(names))
-        ev["c1"] = "%d of %d name(s) have a registration within %d chars" % (
-            ok, len(names), NEAR_WINDOW)
+        ev["c1"] = ("%d of %d trial(s) have a registration within %d chars of a "
+                    "name the page renders%s"
+                    % (ok, len(names), NEAR_WINDOW,
+                       "; %d named by NONE of the store's candidates" % unnamed
+                       if unnamed else ""))
 
     # ---- clause 2: the registration is one click --------------------------
     if not ids:
