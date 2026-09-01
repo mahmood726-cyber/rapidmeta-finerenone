@@ -6,13 +6,13 @@
    "topic object (ssot/<t>/<t>.json)": 155,
    "other json under ssot/<t>/": 6,
    "A VERSIONED   -- hash, verbatim snapshot or commit; exactly re-checkable": 40,
-   "B TIMESTAMPED -- when it was read, not what was read": 1397,
+   "B TIMESTAMPED -- when it was read, not what was read": 1417,
    "C IDENTIFIER  -- names a mutable subject, pins no version": 868,
    "D NOTHING     -- no reference to what was judged": 484,
-   "writes a judgement but does not persist it to ssot/": 52,
-   "persists a judgement into ssot/": 58,
-   "  BYPASSES the stamped writer -- its judgements reference nothing": 41,
-   "  through the STAMPED writer": 17
+   "writes a judgement but does not persist it to ssot/": 84,
+   "persists a judgement into ssot/": 41,
+   "  through the STAMPED writer": 22,
+   "  BYPASSES the stamped writer -- its judgements reference nothing": 19
   },
   "coverage": null,
   "expected_cases": {
@@ -41,15 +41,16 @@
    "    C IDENTIFIER  -- names a mutable subject, pins no version      -> NOT-CHECKABLE",
    "    D NOTHING     -- no reference to what was judged               -> NOT-CHECKABLE",
    "kind-D backlog: 484 frozen, 484 now, 0 retired, 0 NEW",
-   "ratchet: 41 frozen, 41 now, 0 retired, 0 NEW. A PASS means no new instances, not a clean corpus.",
+   "ratchet: 41 frozen, 19 now, 22 retired, 0 NEW. A PASS means no new instances, not a clean corpus.",
+   "  retired since the freeze (remove them from JUDGEMENT_WRITER_BACKLOG.json): scripts/adjudicate_merge_pairs_2026_08_19.py, scripts/adjudicate_panel_claims_2026_08_25.py, scripts/benchmark_served_as_own_result_sweep.py, scripts/build_colchicine_readings_2026_08_19.py, scripts/compute_union_proofs_2026_08_19.py",
    "the stamp is wired at ssot/atomic_write.py::write_json (blast radius 155, acknowledged) and fires on ssot/<topic>/<topic>.json only.",
-   "exactly re-checkable: 40/2789 = 1.4% of stored judgements. The remainder are believed, not checked.",
+   "exactly re-checkable: 40/2809 = 1.4% of stored judgements. The remainder are believed, not checked.",
    "the fix is one field at the point of writing: block['subject_ref'] = subject_ref({the values judged})"
   ],
   "findings": []
  },
  "counts": {
-  "B TIMESTAMPED -- when it was read, not what was read": 1397,
+  "B TIMESTAMPED -- when it was read, not what was read": 1417,
   "C IDENTIFIER  -- names a mutable subject, pins no version": 868,
   "D NOTHING     -- no reference to what was judged": 484,
   "A VERSIONED   -- hash, verbatim snapshot or commit; exactly re-checkable": 40

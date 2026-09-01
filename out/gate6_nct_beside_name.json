@@ -8,8 +8,10 @@
    "  with a registration in the same fragment": 3,
    "trial name in rendered prose": 136,
    "  with a registration within 300c": 136,
-   "pinned registration, nearest name AGREES with the registry": 4
+   "pinned registration, nearest name AGREES with the registry": 5,
+   "pinned registration, nearest name AMBIGUOUS -- not assessable": 1
   },
+  "coverage": null,
   "expected_cases": {
    "prose:NCT01539226": "NCT01539226 appears in served prose with a pinned trial name beside it (The Ring Study)",
    "prose:NCT01617096": "NCT01617096 appears in served prose with a pinned trial name beside it (ASPIRE)"
@@ -28,15 +30,46 @@
    "examples": []
   },
   "notes": [
-   "ratchet: 15 frozen, 15 now, 0 retired, 0 NEW. A PASS means no new instances, not a clean corpus.",
+   "ratchet: 15 frozen, 15 now, 4 retired, 4 NEW. A PASS means no new instances, not a clean corpus.",
+   "  retired since the freeze (remove them from GATE6_KNOWN_BARE_SITES.json): ssot/build_tabbed.py:1345  fields=['name'], ssot/build_tabbed.py:402  fields=['trial'], ssot/build_tabbed.py:468  fields=['trial'], ssot/build_tabbed.py:648  fields=['name']",
    "ratchet: 2 frozen, 0 now, 2 retired, 0 NEW. A PASS means no new instances, not a clean corpus.",
    "  retired since the freeze (remove them from GATE6_KNOWN_SWAPS.json): AGYW_HIV_PREP_REVIEW.html NCT01539226, AGYW_HIV_PREP_REVIEW.html NCT01617096",
    "arm B counts prose names WITHOUT a registration nearby: 0 of 136",
    "arm B is reported, not enforced, in this run: 0 bare prose names is a class fix at the generator (arm A), not 155 page edits."
   ],
-  "findings": []
+  "findings": [
+   {
+    "key": "GENERATOR-EMITS-A-BARE-TRIAL-NAME",
+    "detail": "ssot/build_tabbed.py:1409  fields=['name'] interpolates a trial name with no registration in the same rendered fragment. A reader receives an identity claim with nothing beside it to contradict.",
+    "numerator": 4,
+    "denominator": 18
+   },
+   {
+    "key": "GENERATOR-EMITS-A-BARE-TRIAL-NAME",
+    "detail": "ssot/build_tabbed.py:466  fields=['trial'] interpolates a trial name with no registration in the same rendered fragment. A reader receives an identity claim with nothing beside it to contradict.",
+    "numerator": 4,
+    "denominator": 18
+   },
+   {
+    "key": "GENERATOR-EMITS-A-BARE-TRIAL-NAME",
+    "detail": "ssot/build_tabbed.py:532  fields=['trial'] interpolates a trial name with no registration in the same rendered fragment. A reader receives an identity claim with nothing beside it to contradict.",
+    "numerator": 4,
+    "denominator": 18
+   },
+   {
+    "key": "GENERATOR-EMITS-A-BARE-TRIAL-NAME",
+    "detail": "ssot/build_tabbed.py:712  fields=['name'] interpolates a trial name with no registration in the same rendered fragment. A reader receives an identity claim with nothing beside it to contradict.",
+    "numerator": 4,
+    "denominator": 18
+   }
+  ]
  },
- "generator_bare_sites": [],
+ "generator_bare_sites": [
+  "ssot/build_tabbed.py:1409  fields=['name']",
+  "ssot/build_tabbed.py:466  fields=['trial']",
+  "ssot/build_tabbed.py:532  fields=['trial']",
+  "ssot/build_tabbed.py:712  fields=['name']"
+ ],
  "prose_bare_names": [],
  "swaps": []
 }

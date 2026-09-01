@@ -3,16 +3,16 @@
   "gate": "8  CALLER AND WIRING",
   "what": "a gate with no caller cannot fail; a removal path with no precondition must not run",
   "kinds": {
-   "gates/ module that is a library, not a gate": 27,
-   "gate module with a main()": 18,
-   "  named by a caller": 18,
-   "repo gate/lint that CAN fail": 208,
-   "  called by a hook or CI": 49,
+   "gates/ module that is a library, not a gate": 30,
+   "gate module with a main()": 20,
+   "  named by a caller": 20,
+   "repo gate/lint that CAN fail": 219,
+   "  called by a hook or CI": 60,
    "named like a gate, has NO failing exit -- cannot fail at all": 59,
    "  CALLED BY NOTHING -- available, not operative": 159,
-   "not removal-shaped": 927,
-   "removal-shaped script": 17,
-   "  registered: NOT-A-CORPUS-REMOVAL": 14,
+   "not removal-shaped": 967,
+   "removal-shaped script": 19,
+   "  registered: NOT-A-CORPUS-REMOVAL": 16,
    "  registered: HISTORICAL": 2,
    "  registered: WIRED": 1
   },
@@ -33,7 +33,7 @@
    "examples": []
   },
   "notes": [
-   "append-only intact: out/ESCALATIONS.jsonl 3 records (HEAD 3), 4169 bytes normalised (HEAD 4169)",
+   "append-only intact: out/ESCALATIONS.jsonl 4 records (HEAD 4), 5593 bytes normalised (HEAD 5593)",
    "ratchet: 160 frozen, 159 now, 1 retired, 0 NEW. A PASS means no new instances, not a clean corpus.",
    "  retired since the freeze (remove them from UNCALLED_REPO_GATES.json): scripts/lint_shared_scratch_path_2026_08_24.py",
    "KNOWN BLIND SPOT, stated every run: a removal performed by os.replace/os.rename into a VARIABLE destination is not detected. prune_legacy_corpus_2026_08_26.py is exactly that shape and is covered by name in the registry, not by the detector. A NEW script of that shape would pass this gate."
