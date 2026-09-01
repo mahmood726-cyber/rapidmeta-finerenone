@@ -87,8 +87,16 @@ GATES = [
     # been demonstrated exactly once, by hand, on one page. A demonstration does not apply
     # to the next topic. Registering it here is what makes it operative; a check that runs
     # in CI after the push cannot block the push.
+    # ⛔ "fast", NOT "slow", AND THE RECLASSIFICATION IS THE POINT. Registered as
+    # "slow" it was SKIPPED by every push -- the pre-push chain runs --fast -- so the
+    # one gate measuring the number this project is judged on never blocked anything.
+    # The skip was PRINTED, which made it honest and not operative, and
+    #
+    #     A STRICTER GATE THAT IS NEVER INVOKED IS LOOSER THAN THE ONE IT REPLACED.
+    #
+    # It costs what it costs.
     ("gate16_reader_can_check",
-     "a reader can take a trial from the page and confirm it in the registry", "slow"),
+     "a reader can take a trial from the page and confirm it in the registry", "fast"),
     ("gate15_component_contract",
      "a wired generator component carries no controls", "fast"),
     # ADDED 2026-08-31. Three served surfaces disagreed about the same review and no

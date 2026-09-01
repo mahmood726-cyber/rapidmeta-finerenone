@@ -309,7 +309,20 @@ def figure_downloads(svg, stem, browser, workdir, outdir):
             from PIL import Image
             with Image.open(png) as im:
                 w, h = im.size
-        except (OSError, ValueError):                    # size is cosmetic; a bug is not
+        # ⛔ ImportError BELONGS HERE AND WAS THE ONLY PIL IMPORT OF THREE WITHOUT IT.
+        # Lines 176 and 240 both catch it; this one caught (OSError, ValueError) and
+        # let a missing Pillow raise straight through, so a fresh clone on a machine
+        # without it died PARTWAY THROUGH A BUILD -- and the repo was cloneable but not
+        # buildable, which is a much weaker claim than the one this project makes.
+        #
+        # The comment already said it: SIZE IS COSMETIC. Killing a whole page build for
+        # a cosmetic dimension is not a trade anyone would choose, and the inconsistency
+        # across three sibling imports is what made it invisible -- two of them degrade,
+        # so the behaviour "looks" handled wherever you happen to read.
+        #
+        # Pillow is now DECLARED in requirements.txt, which is the real fix; this is the
+        # defence in depth for the case where the declaration is not honoured.
+        except (ImportError, OSError, ValueError):       # size is cosmetic; a bug is not
             pass
         items.append(("PNG %s" % (("%dx%d" % (w, h)) if w else ""),
                       stem + ".png", _uri(png, "image/png"),

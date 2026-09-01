@@ -48,7 +48,40 @@ ROOT = os.path.dirname(HERE)
 NCT = re.compile(r"\bNCT\d{8}\b")
 
 
+_PAGE_MAP = None
+
+
 def store_for(page):
+    """PAGE_MAP first, the slug convention second.
+
+    ⛔ THE SLUG CONVENTION ALONE IS A GUESS ABOUT THE MAP, AND IT REFUSES SAFE
+    PAGES. Deriving ssot/<lower-hyphen>/<same>.json failed for
+    ABLATION_AF_HEART_FAILURE, ABLATION_AF_MEDICAL_THERAPY and AMOXICILLIN_AOM --
+    all three HAVE stores, named in ssot/PAGE_MAP.json -- so this refused them
+    with "no store resolves ... which is not the same as safe". True sentence,
+    wrong page: they are safe and it could not see the object.
+
+    Refusing is the safe DIRECTION and still the wrong ANSWER: a checker that
+    blocks legitimate work gets routed around, and then it protects nothing. This
+    is the sixth instance tonight of a convention standing in for a lookup, and
+    the fifth was in gate16 where it under-reported coverage as 4.1%.
+
+    Same resolution order as gates/gate16_reader_can_check.py, deliberately, so
+    the two instruments cannot disagree about which object a page belongs to.
+    """
+    global _PAGE_MAP
+    if _PAGE_MAP is None:
+        mp = os.path.join(ROOT, "ssot", "PAGE_MAP.json")
+        try:
+            with io.open(mp, encoding="utf-8") as fh:
+                _PAGE_MAP = json.load(fh)
+        except Exception:
+            _PAGE_MAP = {}
+    rel = _PAGE_MAP.get(page) or _PAGE_MAP.get("./" + page)
+    if isinstance(rel, str):
+        p = os.path.join(ROOT, rel.replace("/", os.sep))
+        if os.path.exists(p):
+            return p
     slug = re.sub(r"\.html$", "", page).lower().replace("_", "-")
     p = os.path.join(ROOT, "ssot", slug, slug + ".json")
     return p if os.path.exists(p) else None

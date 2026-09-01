@@ -1778,6 +1778,17 @@ def population_card(res, p):
 def bibliography_card(canon, p):
     """The reference list a reader would look up, and what is knowingly missing."""
     r = ((canon.get("manuscript") or {}).get("references") or {})
+    # registration -> the best name the OBJECT holds, from inputs.trials.
+    _by_reg = {}
+    for _t in (canon.get("inputs") or {}).get("trials") or []:
+        if not isinstance(_t, dict):
+            continue
+        _r = str(_t.get("nct") or _t.get("registration") or _t.get("id") or "").strip()
+        _n = next((str(_t[k]) for k in ("acronym", "short_name", "name", "label")
+                   if _t.get(k)), "")
+        if _r and _n:
+            _by_reg[_r] = _n
+
     inc = r.get("included_studies") or []
     reg = r.get("regulatory_documents") or []
     met = r.get("methods_and_guidance") or []
@@ -1790,9 +1801,40 @@ def bibliography_card(canon, p):
             if not isinstance(x, dict):
                 continue
             label = next((str(x[k]) for k in keys if x.get(k)), "")
+            # ⛔ AN EMPTY LABEL RENDERED AS A BARE DASH AND A URL, WHICH READS AS
+            # "we have no name for this trial" when the store HAS one under a key
+            # this list did not look at. ALIROCUMAB_LIPID's NCT02585778 carries
+            #     name = "Alirocumab versus placebo in insulin-treated diabetes
+            #             (ODYSSEY DM-INSULIN)"
+            # and the row still came out as "&mdash; https://clinicaltrials.gov/
+            # study/NCT02585778". A reader cannot tell an unnamed trial from an
+            # unlooked-for name, and the two are entirely different facts.
+            #
+            # If no key yields anything, SAY SO rather than emitting a dash: an
+            # absence stated is a decision, an absence rendered as punctuation is
+            # an oversight.
+            if not label:
+                # ⭐ THE OBJECT KNOWS THE NAME; THIS LIST WAS LOOKING IN THE WRONG
+                # PLACE. manuscript.references.included_studies carries `label`
+                # keys that are EMPTY STRINGS on some objects, while
+                # inputs.trials holds the real name under `name` --
+                #     "Alirocumab versus placebo in insulin-treated diabetes
+                #      (ODYSSEY DM-INSULIN)"
+                # -- so the row rendered a bare dash and a URL. A reader cannot
+                # distinguish an unnamed trial from an unlooked-for name.
+                #
+                # Joined on the REGISTRATION, which is the identity, never on
+                # position or on the label being compared to itself.
+                reg = str(x.get("registration") or x.get("nct") or "").strip()
+                label = _by_reg.get(reg, "")
+            if not label:
+                # Still nothing: SAY SO. An absence stated is a decision; an
+                # absence rendered as punctuation is an oversight.
+                label = "<em>no trial name recorded on this object</em>"
             url = x.get("publication_url") or x.get("url") or ""
+            _lab = label if label.startswith("<em>") else e(label)
             out += ("    <li>%s%s</li>%s"
-                    % (e(label),
+                    % (_lab,
                        (" &mdash; <a href='%s' rel='noopener'>%s</a>" % (e(str(url)), e(str(url))))
                        if url else "", NL))
         return out
@@ -1810,6 +1852,6 @@ def bibliography_card(canon, p):
             "  <h3>Included studies</h3>%s  <ul>%s%s  </ul>%s"
             "  <h3>Regulatory documents</h3>%s  <ul>%s%s  </ul>%s"
             "  <h3>Methods and guidance</h3>%s  <ul>%s%s  </ul>%s%s</div>%s"
-            % (NL, NL, NL, NL, li(inc, ("publication", "label")), NL,
+            % (NL, NL, NL, NL, li(inc, ("publication", "label", "name", "acronym", "short_name", "title")), NL,
                NL, NL, li(reg, ("label",)), NL,
                NL, NL, li(met, ("label",)), NL, omh, NL))

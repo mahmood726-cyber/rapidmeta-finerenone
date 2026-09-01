@@ -29,7 +29,6 @@ _refuse() {
     echo ""
     echo "REFUSED."
     echo ""
-    echo "  WHAT TO FIX -- paths named by the check itself (scanned: $_scope):"
     # SEPARATOR CLASS, AND IT COST A TEST RUN TO FIND. This pattern first required a
     # forward slash. scripts/lint_control_chars.py prints os.sep -- on Windows
     # `scripts\plant_refusal_names_the_offender.py:7` -- so the extractor found
@@ -56,6 +55,13 @@ _refuse() {
         _scan=$(cat "$_log" 2>/dev/null)
         _scope="the whole log -- this check printed no refusal block"
     fi
+    # ⛔ THE HEADER IS PRINTED HERE, NOT ABOVE. It named "$_scope" six lines
+    # BEFORE $_scope was assigned, so every refusal read "(scanned: )" --
+    # an empty parenthetical where the whole point was to say WHICH part of
+    # the log was searched. Harmless in effect and exactly the shape of the
+    # defect this helper exists to remove: a message that looks informative
+    # and tells the reader nothing.
+    echo "  WHAT TO FIX -- paths named by the check itself (scanned: $_scope):"
     _paths=$(grep -oE '(scripts|ssot|gates|evidence|outputs|figs|docs|tools)[\/\\][A-Za-z0-9_.@-]+([\/\\][A-Za-z0-9_.@-]+)*\.(py|json|html|md|txt|yml|yaml)(:[0-9]+)?' <<< "$_scan" 2>/dev/null | sort -u | head -25)
     if [ -n "$_paths" ]; then
         printf '%s\n' "$_paths" | sed 's/^/      /'

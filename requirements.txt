@@ -9,3 +9,17 @@ selenium>=4.15.0
 # cleanly when it is not installed, so playwright is optional for a quick run.
 pytest>=7.0
 playwright>=1.40  # optional: `pip install playwright && playwright install chromium`
+
+# ⛔ REQUIRED TO BUILD A PAGE, NOT OPTIONAL, AND ITS ABSENCE HERE BLOCKED A FRESH
+# CLONE ON A SECOND MACHINE. ssot/figures.py does `from PIL import Image` to
+# verify that a raster it has just written actually decodes -- a page that offers
+# a figure which is not a valid image is worse than one that offers none, so the
+# check is not removable. Without Pillow the build dies partway through and the
+# repo is cloneable but not buildable, which is a different and much weaker claim
+# than the one this project makes.
+#
+# It was absent because nothing in CI exercised a cold install: every machine that
+# had ever built a page already had Pillow from some other install. A dependency
+# that is only ever satisfied by accident is undeclared, not optional.
+Pillow>=10.0
+scipy>=1.11    # ssot interval component; without it every interval page REFUSES to build
