@@ -184,7 +184,7 @@ def render(row, sidecar):
     if row.get("store_adjudication") == "IDENTITY_UNVERIFIABLE":
         missing.append("a store ruling -- no shared trial registration proves "
                        "the same-named object describes this evidence")
-    if not row.get("baseline_spread"):
+    if row.get("baseline_spread") in (None, {}):
         missing.append("a per-trial baseline spread")
     missing.append("uncertainty in the baseline -- the interval above holds "
                    "the baseline FIXED and transforms only the relative "
@@ -218,7 +218,7 @@ def main():
     ap.add_argument("stem", help="sidecar stem, e.g. SGLT2_HF")
     a = ap.parse_args()
     path = os.path.join(ROOT, "outputs", "r_validation", a.stem + ".json")
-    if not os.path.exists(path):
+    if os.path.exists(path) is False:
         print("no such sidecar: %s" % path)
         return 2
     store, dropped = load_store()
