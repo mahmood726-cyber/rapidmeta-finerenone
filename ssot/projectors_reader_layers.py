@@ -144,7 +144,7 @@ def bibliographic_screen_card(canon, p=None):
 def registry_extraction_card(canon, p=None):
     """Participant flow, the arm-code inversion, and what the posted results
     answer in RoB 2."""
-    r = canon.get("registry_extraction_2026_08_30") or {}
+    r = _dated_block(canon, "registry_extraction")
     if not r:
         return ""
     inv = r.get("THE_ARM_CODE_INVERSION") or {}
@@ -242,9 +242,42 @@ def registry_extraction_card(canon, p=None):
 
 
 # ------------------------------------------------------------------ harms --
+def _dated_block(canon, prefix):
+    """The newest `<prefix>_YYYY_MM_DD` block on the object, or {}.
+
+    ⛔ THE KEY WAS HARDCODED TO ONE DATE. `canon.get("harms_2026_08_30")` means a
+    block extracted on any other day is INVISIBLE: the card returns "" and the
+    page looks like a topic that has no harms data, rather than one whose data
+    the renderer could not find. The two failure modes are indistinguishable on
+    the page, and only one of them is true."""
+    keys = sorted(k for k in canon.keys()
+                  if isinstance(k, str) and k.startswith(prefix + "_"))
+    for k in reversed(keys):
+        v = canon.get(k)
+        if isinstance(v, dict) and v:
+            return v
+    return {}
+
+
+def _arm_keys(per_trial):
+    """The two arm keys THIS block uses, in the order it stores them.
+
+    ⛔ THESE WERE HARDCODED TO "dapivirine" AND "placebo", inside a function whose
+    name promises nothing of the kind. Run against any other topic's block the
+    card rendered a full table of `None / None` under a Dapivirine column header
+    -- a dapagliflozin review asserting dapivirine data. It did not fail, it
+    published. The arm keys are a property of the block and are read from it."""
+    for v in (per_trial or {}).values():
+        if isinstance(v, dict):
+            arms = [k for k in v.keys() if k != "rr"]
+            if len(arms) == 2:
+                return arms
+    return []
+
+
 def harms_card(canon, p=None):
     """Harms, and the refusal to pool them."""
-    h = canon.get("harms_2026_08_30") or {}
+    h = _dated_block(canon, "harms")
     if not h:
         return ""
     inner = _para(h.get("_what"))
@@ -252,11 +285,15 @@ def harms_card(canon, p=None):
                        ("Deaths", "deaths")):
         blk = h.get(key) or {}
         per = blk.get("per_trial") or {}
-        if not per:
+        arms = _arm_keys(per)
+        if per and len(arms) == 2:
+            pass
+        else:
             continue
+        a_key, b_key = arms
         rows = ""
         for nct, v in per.items():
-            d, pl, rr = v.get("dapivirine", {}), v.get("placebo", {}), v.get("rr", {})
+            d, pl, rr = v.get(a_key, {}), v.get(b_key, {}), v.get("rr", {})
             rows += ("    <tr><td><code>%s</code></td>"
                      "<td>%s / %s</td><td>%s / %s</td>"
                      "<td><strong>%s</strong> (%s to %s)</td></tr>\n"
@@ -265,8 +302,11 @@ def harms_card(canon, p=None):
                         rr.get("point"), rr.get("ci_low"), rr.get("ci_high")))
         inner += (_h3(label)
                   + "  <table>\n    <tr><th>Registration</th>"
-                    "<th>Dapivirine</th><th>Placebo</th>"
-                    "<th>Risk ratio (95% CI)</th></tr>\n" + rows + "  </table>\n")
+                    "<th>%s</th><th>%s</th>"
+                    "<th>Risk ratio (95%% CI)</th></tr>\n"
+                    % (_e(a_key.replace("_", " ").title()),
+                       _e(b_key.replace("_", " ").title()))
+                  + rows + "  </table>\n")
         np_ = blk.get("⛔_NOT_POOLED") or {}
         if np_:
             inner += "  <div class='absent-state'>%s</div>\n" % _e(np_.get("why", ""))

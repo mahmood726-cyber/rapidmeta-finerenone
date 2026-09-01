@@ -18,6 +18,7 @@ sys.path.insert(0, HERE)
 
 import build_app_v2 as G          # noqa: E402
 import projectors_reader_layers as prl   # noqa: E402
+import projectors_sof as psof           # noqa: E402
 import projectors_generated as pgen        # noqa: E402
 import projectors_evidence as pev          # noqa: E402
 import screening_ledger as sled            # noqa: E402
@@ -1939,8 +1940,21 @@ def build(canon, store_path=None):
         # The cards come from the SPLIT reader renderings. `clinician` and
         # `public` are deliberately NOT given panels: ruled out in
         # page_format_v1.json, still rendered inside Scientific Output.
-        "hta": prl.hta_card(canon, p),
-        "guideline": prl.guideline_card(canon, p),
+        # ⛔ APPENDED, NOT SUBSTITUTED. AGYW is the only object holding a
+        # composed reader-rendering; it keeps it and gains the derived table
+        # beside it. Substituting would have dropped the corpus's only
+        # hand-built view without anyone noticing, because the tab would
+        # still have rendered something.
+        #
+        # WHAT THESE TABS ARE, DECIDED BY THE HANDBOOK RATHER THAN BY US:
+        # we invented "HTA view", could not fill it, and 160 of 161 objects
+        # carried nothing for it. The Handbook already names the artefact
+        # that belongs in each place, and naming it is what made them
+        # derivable -- ch. 14 Summary of Findings, ch. 15.6 the
+        # Evidence-to-Decision considerations.
+        "hta": prl.hta_card(canon, p) + psof.sof_card(canon, p),
+        "guideline": (prl.guideline_card(canon, p)
+                      + psof.etd_coverage_card(canon, p)),
         # WYSIWYG ONLY. The panel used to render the manuscript THREE times: the
         # document view, then manuscript_section's card version, then
         # paper_studio's draft. Fifteen headings appeared twice -- two Abstracts,
