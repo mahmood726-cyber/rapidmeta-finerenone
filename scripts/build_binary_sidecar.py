@@ -254,30 +254,73 @@ def reml_tau2(yis, vis, max_iter=1000, tol=1e-16):
 
     Do NOT "simplify" this back toward the old form. Both the direct
     assignment and the `1/sw` term are load-bearing, and
-    tests/test_metafor_oracle.py fails against 15 metafor-computed values if
+    tests/test_metafor_oracle.py fails against metafor-computed values if
     either is removed.
+
+    ROBUST FALLBACK ADDED 2026-09-01, and it was found the same way as the
+    original defect -- by an external oracle, not by inspection. The
+    fixed-point iteration below converges on most inputs but not all: on the
+    OMECAMTIV rows it settled at 0.0030576 where metafor returns 0.4893, a
+    factor of 160, and it settled LOW. Settling low is the same direction as
+    the bug this function was written to fix, and therefore just as
+    invisible.
+
+    A fixed point of f is a root of g(t) = f(t) - t. As t grows, w -> 1/t,
+    so f(t) -> mean((y-mu)^2 - v) + t/k and g(t) -> C - t*(1 - 1/k), which
+    goes to minus infinity for k >= 2. So g is bracketed and bisection is
+    guaranteed to find the root. An earlier attempt at bisection bracketed
+    sum(w^2*(...)) instead of g, which never crosses zero -- that failure was
+    a statement about the bracket, not about the method.
+
+    Iterate first (fast, and exact where it converges); bisect only where it
+    does not. Validated against 46 metafor values: 0 disagreements, worst
+    relative 3.6e-05.
     """
     k = len(yis)
     if k < 2:
         return 0.0
-    tau2 = 0.0
-    for _ in range(max_iter):
-        ws = [1.0 / (v + tau2) for v in vis]
+
+    def _f(t):
+        ws = [1.0 / (v + t) for v in vis]
         sw = sum(ws)
         mu = sum(w * y for w, y in zip(ws, yis)) / sw
         den = sum(w ** 2 for w in ws)
-        if den <= 0 or not math.isfinite(den):
-            return 0.0
         num = sum((w ** 2) * ((y - mu) ** 2 - v)
                   for w, y, v in zip(ws, yis, vis))
-        new_tau2 = num / den + 1.0 / sw
-        if not math.isfinite(new_tau2):
-            return tau2
-        new_tau2 = max(0.0, new_tau2)
-        if abs(new_tau2 - tau2) < tol:
-            return new_tau2
-        tau2 = new_tau2
-    return tau2
+        return num / den + 1.0 / sw
+
+    tau2 = 0.0
+    for _ in range(max_iter):
+        try:
+            nxt = _f(tau2)
+        except ZeroDivisionError:
+            return 0.0
+        if not math.isfinite(nxt):
+            break
+        nxt = max(0.0, nxt)
+        if abs(nxt - tau2) < tol:
+            return nxt
+        tau2 = nxt
+
+    # the iteration did not settle: solve g(t) = f(t) - t = 0 by bisection
+    def _g(x):
+        return _f(x) - x
+
+    if _g(0.0) <= 0.0:
+        return 0.0
+    hi = max(1e-6, max(vis)) * 10.0 + 1.0
+    for _ in range(200):
+        if _g(hi) < 0.0:
+            break
+        hi *= 2.0
+    lo = 0.0
+    for _ in range(300):
+        mid = 0.5 * (lo + hi)
+        if _g(mid) > 0.0:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
 
 
 def pool_binary(trials_xy):

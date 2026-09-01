@@ -22,11 +22,37 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from build_binary_sidecar import reml_tau2  # noqa: E402
 
 FIXTURE = os.path.join(ROOT, "tests", "fixtures", "metafor_oracle.json")
+# The 31 cases where our fixed-point iteration did NOT settle within its
+# iteration cap. metafor uses Fisher scoring with step-halving and converges
+# on all of them, so they are the cases most able to catch a solver that
+# stops early -- which is exactly what happened: on the OMECAMTIV rows the
+# plain fixed point returned 0.0030576 against metafor's 0.4893.
+NONCONV_IN = os.path.join(ROOT, "tests", "fixtures",
+                          "nonconverged_oracle_inputs.json")
+NONCONV_OUT = os.path.join(ROOT, "tests", "fixtures",
+                           "nonconverged_oracle_r_output.json")
 
 
 def _oracle():
     with open(FIXTURE, encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def _nonconverged():
+    """The hard cases, joined to metafor's answer for each."""
+    if not (os.path.exists(NONCONV_IN) and os.path.exists(NONCONV_OUT)):
+        return []
+    with open(NONCONV_IN, encoding="utf-8") as fh:
+        inputs = {i["id"]: i for i in json.load(fh)}
+    out = []
+    with open(NONCONV_OUT, encoding="utf-8") as fh:
+        for r in json.load(fh):
+            if r.get("ok") and r["id"] in inputs:
+                i = inputs[r["id"]]
+                out.append({"id": r["id"], "scale": "logOR", "yi": i["yi"],
+                            "vi": i["vi"], "metafor_tau2": r["tau2"],
+                            "metafor_version": "5.0.1"})
+    return out
 
 
 def test_the_oracle_fixture_exists_and_is_not_empty():
@@ -69,6 +95,61 @@ def test_reml_tau2_reproduces_metafor(item):
             "not invent some")
     else:
         assert got == pytest.approx(want, rel=1e-4)
+
+
+@pytest.mark.parametrize("item", _nonconverged(), ids=lambda f: f["id"])
+def test_reml_tau2_reproduces_metafor_on_the_hard_cases(item):
+    """The cases where a plain fixed point does not settle.
+
+    These caught a real defect in the CORRECTED estimator: on the OMECAMTIV
+    rows it returned 0.0030576 where metafor returns 0.4893, a factor of 160
+    -- and it erred LOW, the same direction as the original bug and equally
+    invisible. The bisection fallback exists because of these, so they are
+    the tests that defend it.
+    """
+    got = reml_tau2(item["yi"], item["vi"])
+    assert got == pytest.approx(item["metafor_tau2"], rel=1e-3)
+
+
+def test_the_hard_case_fixture_is_present_and_covers_omecamtiv():
+    """A fixture that silently vanished would make the test above vacuous."""
+    hard = _nonconverged()
+    assert len(hard) >= 25
+    assert any("OMECAMTIV" in h["id"] for h in hard), (
+        "the case that exposed the convergence defect must stay in the set")
+
+
+def test_a_plain_fixed_point_would_fail_the_hard_cases():
+    """Pins WHY the fallback is there, so removing it is a red test.
+
+    Reimplements the iterate-only form and requires it to disagree with
+    metafor on at least one hard case. If this ever passes, the fallback has
+    become unnecessary and can be reconsidered -- but not before.
+    """
+    def iterate_only(ys, vs, max_iter=1000, tol=1e-16):
+        t = 0.0
+        for _ in range(max_iter):
+            w = [1.0 / (v + t) for v in vs]
+            sw = sum(w)
+            mu = sum(a * y for a, y in zip(w, ys)) / sw
+            den = sum(a ** 2 for a in w)
+            num = sum((a ** 2) * ((y - mu) ** 2 - v)
+                      for a, y, v in zip(w, ys, vs))
+            nxt = max(0.0, num / den + 1.0 / sw)
+            if abs(nxt - t) < tol:
+                return nxt
+            t = nxt
+        return t
+
+    hard = _nonconverged()
+    if not hard:
+        pytest.skip("hard-case fixture absent")
+    disagreements = [h for h in hard
+                     if abs(iterate_only(h["yi"], h["vi"]) - h["metafor_tau2"])
+                     > 1e-3 * max(abs(h["metafor_tau2"]), 1e-12)]
+    assert disagreements, (
+        "the iterate-only form now agrees everywhere; the bisection fallback "
+        "may no longer be load-bearing")
 
 
 def test_the_old_increment_form_would_fail_this_suite():
