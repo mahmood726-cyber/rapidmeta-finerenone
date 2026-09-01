@@ -1,0 +1,160 @@
+{
+ "rubric_version": "rubric-1.0.0-2026-08-31",
+ "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1",
+ "harness_version": "scoring-harness-1.0.0-2026-09-01",
+ "harness_sha256": "e5689f6108742a67f1c052ddf2d264ab59deb5e46c2ee6cd1763108aac765177",
+ "comparators_sha256": "1f5807308cf5fabe9eca2e07cb26f35cc77c4ac2f2127e612876142f962670c3",
+ "repeat_instability": {
+  "rubric_tightening_refuse_only": 0.27,
+  "straight_repeat": 0.065,
+  "note": "Two runs agreeing on a count is not two runs agreeing: 5 of 7 was identical across two runs while a quarter of the labels changed."
+ },
+ "runner": "scripts/rekey20/score_pairs.py",
+ "dry_run": true,
+ "rows": [
+  {
+   "our_topic": "ablation-af-heart-failure",
+   "our_page": "ABLATION_AF_REVIEW.html",
+   "comparator_pmid": "40998847",
+   "comparator_title": "Meta-analysis of comprehensive prognostic evaluation in patients with atrial fibrillation complicated by heart failure after catheter ablation.",
+   "text_source": "oa_full_text",
+   "ours_labels": [
+    "NCT00643188",
+    "NCT00911508",
+    "NCT01288352",
+    "NCT01420393"
+   ],
+   "ours_k": 4,
+   "theirs_labels": [
+    "NCT05508256",
+    "NCT06125925"
+   ],
+   "theirs_k": 2,
+   "extractor": "opencomp registry_ids (one rule, both sides)",
+   "ours": {
+    "S2": {
+     "verdict": "NOT_SATISFIED",
+     "prisma_anchor": "PRISMA 2020 items 5, 20b",
+     "evidence": null,
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S3": {
+     "verdict": "SATISFIED",
+     "prisma_anchor": "PRISMA 2020 item 19",
+     "evidence": {
+      "file": "ABLATION_AF_REVIEW.html",
+      "offset": 4660,
+      "length": 1211,
+      "span": "each came from Trial / outcome Value as extracted Verbatim source sentence Source links Read or derived CASTLE-AF primary OR 0.62 (95% CI 0.43 to 0.87) “All-cause mortality or worsening heart failure requiring unplanned hospitalization” “The primary end point was a composite of death from any cause or hospitalization for worsening heart failure.” “the primary composite end point occurred in signif"
+     },
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S4": {
+     "verdict": "NOT_SCOREABLE_INPUTS_ABSENT",
+     "prisma_anchor": "OURS -- declared, not PRISMA",
+     "evidence": null,
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S5": {
+     "verdict": "NOT_SATISFIED",
+     "prisma_anchor": "PRISMA 2020 items 13e, 20c-d",
+     "evidence": {
+      "file": "ABLATION_AF_REVIEW.html",
+      "offset": 33164,
+      "length": 6,
+      "span": "d not. Quoted: “Afca decreased the risk of mortality (hazard ratio [HR], 0.62; 95% confidence interval [CI], 0.54-0.72; I2 = 54%), stroke (HR, 0.63; 95% CI, 0.56-0.70; I2 = 23%) and hospitalization for heart failure (HR, 0.64; 95% CI, 0.51-0.80;"
+     },
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S6": {
+     "verdict": "NOT_SATISFIED",
+     "prisma_anchor": "PRISMA 2020 item 7",
+     "evidence": {
+      "file": "ABLATION_AF_REVIEW.html",
+      "offset": 26922,
+      "length": 18,
+      "span": "is, 0.86 (95% CI 0.65 to 1.15). The row now carries that. Quoted: “Cox Proportional Hazard 0.86, 95% CI 0.65 to 1.15” — ClinicalTrials.gov NCT00911508, resultsSection, primary outcome Our RAFT-AF row against both the registry and the publication raft-af-coun"
+     },
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S7": {
+     "verdict": "NOT_SATISFIED",
+     "prisma_anchor": "PRISMA 2020 items 18, 20",
+     "evidence": {
+      "file": "ABLATION_AF_REVIEW.html",
+      "offset": 2677,
+      "length": 5,
+      "span": "no risk-of-bias level within 400 chars of: NCT00643188, NCT00911508, NCT01288352, NCT01420393"
+     },
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    }
+   },
+   "theirs": {
+    "S2": {
+     "verdict": "NOT_SATISFIED",
+     "prisma_anchor": "PRISMA 2020 items 5, 20b",
+     "evidence": null,
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S3": {
+     "verdict": "NOT_SATISFIED",
+     "prisma_anchor": "PRISMA 2020 item 19",
+     "evidence": {
+      "file": "PMID:40998847",
+      "offset": null,
+      "length": null,
+      "span": "no numeric row within 600 chars of: NCT05508256, NCT06125925"
+     },
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S4": {
+     "verdict": "NOT_SCOREABLE_INPUTS_ABSENT",
+     "prisma_anchor": "OURS -- declared, not PRISMA",
+     "evidence": null,
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S5": {
+     "verdict": "NOT_SATISFIED",
+     "prisma_anchor": "PRISMA 2020 items 13e, 20c-d",
+     "evidence": {
+      "file": "PMID:40998847",
+      "offset": 18383,
+      "length": 4,
+      "span": "group was 0.63 times that of the NCA group (95% CI, 0.51–0.77; P &lt; 0.0001), with high heterogeneity ( P &lt; 0.0001, I²=80.5%). Evaluation using the GRADE Evidence Profile system indicated a moderate recommendation for RCTs and very low reco"
+     },
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S6": {
+     "verdict": "NOT_SCOREABLE_MATERIAL_NOT_RETRIEVED",
+     "prisma_anchor": "PRISMA 2020 item 7",
+     "evidence": {
+      "file": "PMID:40998847",
+      "offset": 25279,
+      "length": 52,
+      "span": "ile system indicated a low recommendation for RCTs and very low recommendation for cohort studies.All results are shown in Table 2 , GRADE Evidence Profile in Supplementary Table S1 online, and the summary forest plot in Supplementary Fig. S2 online. L′Abbe plots and Galbraith radial plots a"
+     },
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    },
+    "S7": {
+     "verdict": "NOT_SATISFIED",
+     "prisma_anchor": "PRISMA 2020 items 18, 20",
+     "evidence": {
+      "file": "PMID:40998847",
+      "offset": 10071,
+      "length": 16,
+      "span": "no risk-of-bias level within 400 chars of: NCT05508256, NCT06125925; no outcome-level statement"
+     },
+     "rubric_sha256": "1ef22ec92775a6eea608e7e0ced7aaf34454aeb7cd9fe6f7344858d07823a1e1"
+    }
+   },
+   "derived": {
+    "S2": "TIE_NEITHER_SATISFIES",
+    "S3": "OURS_BETTER",
+    "S4": "NOT_SCOREABLE",
+    "S5": "TIE_NEITHER_SATISFIES",
+    "S6": "NOT_SCOREABLE",
+    "S7": "TIE_NEITHER_SATISFIES"
+   }
+  }
+ ]
+}
