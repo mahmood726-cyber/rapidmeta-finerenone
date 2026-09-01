@@ -93,7 +93,19 @@ def check(path, fmt):
     return present, missing, extra_known, extra_unknown, len(panels)
 
 
+_BASELINE = os.path.join(_ROOT, "scripts", "baselines",
+                         "page_format_baseline.json")
+
+
 def main(argv):
+    # ⭐ --gate MAKES THIS ABLE TO FAIL. Without it the file was a REPORT wearing
+    # a `check_` name: its only terminal return was `return 0`, so a page with
+    # ZERO of the eight required tabs exited 0 -- verified by execution, not by
+    # reading. That is verification theatre on the one format that is the
+    # deliverable. The default stays a report (exit 0) so nothing that runs it
+    # today changes behaviour; --gate is the verdict mode.
+    gate = "--gate" in argv
+    argv = [a for a in argv if a != "--gate"]
     fmt = load_format()
     declared = len(fmt["required_tabs"])
     if argv:
@@ -105,25 +117,44 @@ def main(argv):
           % (declared, fmt.get("_status", "")[:40]))
     print("unit: REQUIRED PRESENT / REQUIRED DECLARED. Extras reported, never netted.\n")
 
-    hist, rows, seen, tombstones = {}, [], 0, []
+    # ⭐ EVERY CANDIDATE LANDS IN A NAMED BUCKET AND THE BUCKETS MUST SUM.
+    # This loop carried `if not os.path.exists(full): continue` and
+    # `if got is None: continue` -- two negative guards in a corpus walk, so a
+    # page listed in PAGE_MAP but MISSING FROM DISK was dropped before being
+    # counted anywhere and the denominator shrank in silence. That is the
+    # defect this file's own tombstone comment warns about, one branch away.
+    hist, rows, seen, tombstones, absent = {}, [], 0, [], []
     for pg in pages:
         full = pg if os.path.isabs(pg) else os.path.join(_ROOT, pg)
-        if not os.path.exists(full):
+        if os.path.exists(full):
+            seen += 1
+        else:
+            absent.append(os.path.basename(pg))
             continue
-        seen += 1
         got = check(full, fmt)
-        if got is None:
+        if got is not None:
+            present, missing, ek, eu, npanels = got
+        else:
             tombstones.append(os.path.basename(pg))
             continue
-        present, missing, ek, eu, npanels = got
         hist[len(present)] = hist.get(len(present), 0) + 1
         rows.append((os.path.basename(pg), len(present), missing, ek, eu))
 
     # ⭐ THE POPULATION, BY KIND -- never a bare total. A tombstone is not a review page and
     # not a defect; it is a third thing, and it must leave the denominator explicitly rather
     # than by being silently skipped.
+    if len(rows) + len(tombstones) + len(absent) != len(pages):
+        raise SystemExit(
+            "REFUSED: buckets do not sum (%d review + %d tombstone + %d absent "
+            "!= %d candidates). A candidate fell through every named bucket, "
+            "which is the silent drop this walk was rewritten to prevent."
+            % (len(rows), len(tombstones), len(absent), len(pages)))
     print("PAGE MAP ENTRIES  : %d" % len(pages))
     print("  files found     : %d" % seen)
+    print("  LISTED BUT ABSENT FROM DISK (counted, not dropped): %d" % len(absent))
+    if absent:
+        print("     %s" % ", ".join(a[:34] for a in absent[:6])
+              + (" ... and %d more" % (len(absent) - 6) if len(absent) > 6 else ""))
     print("  RETIRED-REVIEW TOMBSTONES (excluded, not defects): %d" % len(tombstones))
     print("  REVIEW PAGES -- the real denominator             : %d\n" % len(rows))
     if tombstones:
@@ -154,6 +185,67 @@ def main(argv):
     print("\nEXTRA tabs present but not required (reported, not credited):")
     for k, v in sorted(extras.items(), key=lambda kv: -kv[1]):
         print("   %-16s on %3d pages" % (k, v))
+
+    if gate:
+        # ⛔ A GATE MUST NOT PASS ON AN EMPTY POPULATION. The first --gate run here measured
+        # ZERO pages -- the flag was being consumed as a pathspec -- and reported "OK: all 0
+        # review pages carry the full required tab set". A vacuous pass is the same defect
+        # class as a gate that cannot fail, and it is quieter: nothing measured reads as
+        # nothing wrong. This is the ONE piece kept from the superseded version; the ratchet
+        # below is better than what it replaced and the reason is recorded there.
+        if not rows:
+            print()
+            print("REFUSED: measured 0 review pages. A gate that passes on an empty "
+                  "population has not checked anything.")
+            return 1
+
+        # A RATCHET, NOT AN ULTIMATUM -- AND THE FIRST VERSION WAS AN ULTIMATUM.
+        # `--gate` originally refused any page carrying fewer than the declared
+        # eight. Measured over the corpus: 1 page of 149 carries 8/8 and 148
+        # carry 6/8, every one missing exactly hta and guideline, because the
+        # eight-tab format is newer than the pages. So the gate refused the
+        # whole corpus and blocked a push -- I had tested it on ONE page and on
+        # a planted bad one, both non-empty, and never on the population it
+        # would actually judge. A gate that refuses everything is as useless as
+        # one that refuses nothing, and it is louder about it.
+        #
+        # The rule that is worth enforcing is that a page MUST NOT LOSE A TAB,
+        # and that a NEW page arrives complete. Both are checked here; the
+        # baseline records where each page stands today and the count may only
+        # go up.
+        base = {}
+        if os.path.exists(_BASELINE):
+            with open(_BASELINE, encoding="utf-8") as fh:
+                base = json.load(fh).get("pages", {})
+        regressed, new_short = [], []
+        for n, c, m, _, _ in rows:
+            was = base.get(n)
+            if was is None:
+                if c < declared:
+                    new_short.append((n, c, m))
+            elif c < was:
+                regressed.append((n, was, c, m))
+        print()
+        if regressed or new_short:
+            if regressed:
+                print("REFUSED: %d page(s) LOST a required tab since the baseline."
+                      % len(regressed))
+                for n, was, c, m in regressed[:20]:
+                    print("   %-46s %d/%d -> %d/%d  missing %s"
+                          % (n[:46], was, declared, c, declared, ",".join(m)))
+            if new_short:
+                print("REFUSED: %d NEW page(s) arrive with fewer than the %d "
+                      "declared required tabs." % (len(new_short), declared))
+                for n, c, m in new_short[:20]:
+                    print("   %-46s %d/%d  missing %s"
+                          % (n[:46], c, declared, ",".join(m)))
+            return 1
+        at_full = sum(1 for _, c, _, _, _ in rows if c >= declared)
+        print("NO PAGE LOST A TAB, AND NO NEW PAGE ARRIVED SHORT.")
+        print("  %d of %d review page(s) carry all %d declared required tabs."
+              % (at_full, len(rows), declared))
+        print("  The remaining %d are baselined BELOW the declared set and are "
+              "owed, not cleared." % (len(rows) - at_full))
     return 0
 
 

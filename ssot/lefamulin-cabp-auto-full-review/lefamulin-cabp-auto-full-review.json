@@ -341,7 +341,7 @@
    "definition_note": "Registered endpoint definitions were read from every contributing registration on 2026-08-18; this text is the object's own record of them."
   }
  ],
- "question": "In Lefamulin versus moxifloxacin in community-acquired bacterial pneumonia, what is the effect on versus moxifloxacin (with or without linezolid in LEAP 1) on early clinical response?",
+ "question": "In Lefamulin versus moxifloxacin in community-acquired bacterial pneumonia, what is the effect of lefamulin versus moxifloxacin (with or without linezolid in LEAP 1) on early clinical response?",
  "generator_schema_patch_2026_08_18": {
   "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
   "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
@@ -941,7 +941,19 @@
     }
    ]
   },
-  "introduction": "This review asks: In Lefamulin versus moxifloxacin in community-acquired bacterial pneumonia, what is the effect on versus moxifloxacin (with or without linezolid in LEAP 1) on early clinical response?\n\nIt pools 2 randomised trials, against moxifloxacin (with or without linezolid in LEAP 1).\n\nThe outcome pooled is early clinical response.\n\nEvery count and denominator behind those estimates is read as follows. REGISTRY THROUGHOUT. Every count and denominator in this pool is read from ClinicalTrials.gov posted results. No publication figure is used and no value is imported.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+  "introduction": "This review asks: In Lefamulin versus moxifloxacin in community-acquired bacterial pneumonia, what is the effect of lefamulin versus moxifloxacin (with or without linezolid in LEAP 1) on early clinical response?\n\nIt pools 2 randomised trials, against moxifloxacin (with or without linezolid in LEAP 1).\n\nThe outcome pooled is early clinical response.\n\nEvery count and denominator behind those estimates is read as follows. REGISTRY THROUGHOUT. Every count and denominator in this pool is read from ClinicalTrials.gov posted results. No publication figure is used and no value is imported.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace.",
+  "introduction__derived_from": {
+   "inputs": [
+    "question"
+   ],
+   "by": "scripts/repair_paper_reads_terribly_2026_08_24.py",
+   "run_utc": "2026-08-24",
+   "authored": false,
+   "reconstructed": true,
+   "reconstructed_utc": "2026-08-30T23:56:35+00:00",
+   "reconstruction_basis": "The script's own source: it builds `question` as 'In <title>, what is the effect on <tail>?' and rewrites `manuscript.introduction` to open 'This review asks: <question>' in the same pass. Both rules are read from the committed script, not inferred from the values.",
+   "and_therefore": "This introduction is NOT an independent statement of the review's question. It restates `question`, which restates `title`. Treating the two as agreeing witnesses is one fact counted twice."
+  }
  },
  "bookkeeping_2026_08_21": {
   "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
@@ -1120,5 +1132,28 @@
   "derived_from": "index section sp-infectious-disease",
   "extracted_utc": "2026-08-26",
   "_note": "Extracted from index.html before the prune rewrote it. Not a clinical judgement: it records where the index placed this topic."
+ },
+ "question_prose_repaired_2026_08_30": {
+  "what": "Repaired 'what is the effect ON VERSUS x' to 'what is the effect OF <intervention> VERSUS x'. Grammar only.",
+  "the_intervention_came_from": "this object's own title, 'Lefamulin versus moxifloxacin in community-acquired bacterial pneumonia'. NOT from the contributing trials and NOT from any registry record.",
+  "introduced_by": "scripts/repair_paper_reads_terribly_2026_08_24.py, which built the question as 'In <title>, what is the effect on <tail>?' where the tail already began with 'versus'.",
+  "fields_changed": [
+   "question",
+   "manuscript.introduction"
+  ],
+  "WHAT_WAS_NOT_DONE": "⛔ NO POPULATION WAS ADDED. This question still states no population, and that is why the indirectness domain REFUSES to rate this outcome rather than deriving a rating from it. The population exists on this object in one place only -- the eligibility of the contributing trials -- and reading it off them would be inferring the question from the studies that answer it, which returns DIRECT by construction. An authored question is required and is an editorial decision, not a repair.",
+  "repaired_utc": "2026-08-30"
+ },
+ "question__derived_from": {
+  "inputs": [
+   "title"
+  ],
+  "by": "scripts/repair_paper_reads_terribly_2026_08_24.py",
+  "run_utc": "2026-08-24",
+  "authored": false,
+  "reconstructed": true,
+  "reconstructed_utc": "2026-08-30T23:56:35+00:00",
+  "reconstruction_basis": "The script's own source: it builds `question` as 'In <title>, what is the effect on <tail>?' and rewrites `manuscript.introduction` to open 'This review asks: <question>' in the same pass. Both rules are read from the committed script, not inferred from the values.",
+  "later_edited_by": "ssot/repair_effect_on_versus_2026_08_30.py -- grammar only, no population added"
  }
 }

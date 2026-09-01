@@ -134,11 +134,24 @@ def proofs_naming(module):
 
 
 def in_hook(module):
+    """True / False / None. None is NOT_ASSESSABLE -- the hook itself could not be read.
+
+    ⛔ THIS RETURNED `False` ON OSError, WHICH DOES NOT LOSE A FINDING -- IT MANUFACTURES
+    ONE. A coverage check that cannot open the hook file reported "this module is NOT wired
+    in", indistinguishable from having read the hook and found it absent. One unreadable
+    file would have reported EVERY module unwired, and the output would have looked like a
+    coverage collapse rather than a failed read.
+
+    ⚠️ AND THE RULE WAS ALREADY WRITTEN TWO FUNCTIONS BELOW, in `runs_green`: "an absent or
+    unrunnable file is an absence of evidence and the house rule is that absence is not
+    zero." The rule was stated in this file and violated in this file, twenty lines apart.
+    A convention held in prose does not bind the function next to it.
+    """
     try:
         with io.open(HOOK, encoding="utf-8", errors="replace") as fh:
             return module in fh.read()
     except OSError:
-        return False
+        return None
 
 
 def runs_green(module):
@@ -199,7 +212,13 @@ def main():
         green = runs_green(mod)
         parts = {"exists": exists, "wired": wired,
                  "proven": bool(proofs), "green": green}
-        ok = exists and wired and bool(proofs) and green is True
+        if wired is None:
+            # NOT_ASSESSABLE propagates rather than collapsing to False. `wired is True`
+            # below already refuses to close on it; this makes the reason visible instead of
+            # letting an unreadable hook look like an unwired module.
+            parts["wired_not_assessable"] = ("the hook file could not be read, so whether "
+                                             "this module is wired in is UNKNOWN -- not no")
+        ok = exists and wired is True and bool(proofs) and green is True
         if ok and p not in PARTIAL_BECAUSE:
             closed.append(p)
             state = "CLOSED"
