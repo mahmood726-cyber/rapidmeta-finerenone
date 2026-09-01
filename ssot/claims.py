@@ -47,6 +47,9 @@ CLAIM_SHAPES = {
     "counterpart_review": ("pubN", "checked_utc"),
     "evidence_source": ("read_utc",),
     "derived_value": (),
+    # A value computed AT RENDER from stored inputs. Required shape is what a checker needs
+    # to recompute it: the operation, where the inputs live, and what was rendered.
+    "render_derivation": ("op", "inputs", "produces", "by"),
     "authored_judgement": (),
     "trial_identifier": ("token_as_matched", "prefix_confirmed_in_fetched_record"),
     "unverifiable_claim": ("asserted_by", "citation_as_given", "indexes_searched",
@@ -59,6 +62,145 @@ ANY_OF = {"counterpart_review": ("cd", "doi")}
 
 class ClaimError(ValueError):
     pass
+
+
+# ---------------------------------------------------------------------------
+# RENDER-TIME DERIVATIONS
+#
+# ⭐ WHY THIS IS THE SAME PROJECT AS THE FABRICATION DETECTOR. A detector that asks "does
+# the store hold the number this page renders?" accuses EVERY DERIVED VALUE, and derivation
+# is the entire purpose of a projector. Measured on the dapivirine page: 1,801 distinct
+# rendered numbers, 1,761 found verbatim in the store, 40 not found -- and all 40 traced to
+# legitimate derivations (baseline x (1 - 0.703) at seven baselines, the same on both CI
+# bounds, and a link count computed over the ledger). 40 fires, 40 wrong. 0% precision BY
+# CONSTRUCTION, which is a fact about the design rather than a threshold to tune.
+#
+# ⛔ AND IT INVERTS: IT GETS WORSE AS THE PAGE GETS BETTER. Every improvement that computes
+# at render time -- an absolute-effect grid, a recompute envelope, a count over a ledger --
+# adds accusations. Shipped naively it would drive the corpus toward pages that show LESS.
+#
+# ⇒ So the declaration below is the prerequisite for that detector, not an ornament: it is
+# what makes the legitimate case and the fabricated case distinguishable from the page.
+# `absolute_effect` already knows `baseline x (1 - point)`; nothing writes it down where a
+# checker can read it.
+#
+# ⚠️ NAMED OPERATIONS, NEVER `eval`. A declaration that carries an expression string invites
+# a checker to evaluate page-supplied text. The op is a key into this registry; anything not
+# in it is refused rather than guessed.
+RENDER_OPS = {
+    # baseline risk x (1 - relative effect) -- the absolute-effect grid
+    "complement_product": lambda baseline, point: baseline * (1.0 - point),
+    "product": lambda a, b: a * b,
+    "difference": lambda a, b: a - b,
+    "ratio": lambda a, b: (a / b) if b else None,
+    "percent_of": lambda part, whole: (100.0 * part / whole) if whole else None,
+    "count": lambda items: len(items),
+}
+
+RENDER_TOLERANCE = 1e-6
+
+
+def verify_render(root, decl, tolerance=RENDER_TOLERANCE):
+    """Recompute a declared render-time derivation and compare it to what was rendered.
+
+    A declaration nobody recomputes is a comment. This is what turns it into evidence, and
+    it is the check the fabrication detector will call once per rendered number.
+    """
+    op = decl.get("op")
+    if op not in RENDER_OPS:
+        raise ClaimError("unknown render op %r -- declarations name an operation from "
+                         "RENDER_OPS; expressions are never evaluated" % (op,))
+    args = []
+    for spec in decl.get("inputs") or []:
+        if isinstance(spec, dict) and "literal" in spec:
+            args.append(spec["literal"])
+            continue
+        container, leaf = resolve(root, spec)
+        if container is None or leaf not in container:
+            raise ClaimError(
+                "render derivation names input %r which does not resolve on this object. "
+                "An input a checker cannot follow makes the declaration unverifiable, which "
+                "is the state it exists to remove." % (spec,))
+        args.append(container[leaf])
+    got = RENDER_OPS[op](*args)
+    want = decl.get("produces")
+    if want is None:
+        raise ClaimError("render derivation declares no `produces`, so nothing can be "
+                         "checked against the rendered value")
+    if got is None:
+        return False, got
+    try:
+        ok = abs(float(got) - float(want)) <= tolerance
+    except (TypeError, ValueError):
+        ok = got == want
+    return ok, got
+
+
+def emit_verified(root, decls, tolerance=RENDER_TOLERANCE):
+    """Emit ONLY the declarations that recompute. Returns (emitted, did_NOT_verify, by_class).
+
+    ⛔ A DECLARATION THAT DOES NOT RECOMPUTE IS NOT EMITTED. Emitting one launders a wrong
+    number into a CHECKABLE-LOOKING one -- strictly worse than leaving it undeclared, because
+    an undeclared value is visibly unverified while a declared-and-wrong value carries the
+    appearance of having been checked. The failures go to `did_NOT_verify` with their reason
+    and must be reported, never dropped.
+
+    ⚠️ AND THE TALLY IS PER CLASS, NEVER POOLED. `7 of 7 verified` was the headline on the
+    first real adoption of this shape -- pooled across the point estimate and both interval
+    bounds. Invert the bound logic and the same pooled figure reads:
+
+        point 7/7 ... lower 0/7 ... upper 0/7
+
+    ⇒ THE GUARDED DEFECT LEAVES THE LARGEST CLASS AT 100%, and a pooled rate hides exactly
+    the failure the check exists to find. Every declaration therefore carries a `class`, and
+    this returns a per-class breakdown that a caller must report as such.
+    """
+    emitted, failed, by_class = [], [], {}
+    for d in decls:
+        cls = d.get("class") or "unclassified"
+        slot = by_class.setdefault(cls, {"ok": 0, "failed": 0})
+        try:
+            ok, got = verify_render(root, d, tolerance=tolerance)
+        except ClaimError as exc:
+            slot["failed"] += 1
+            failed.append({**d, "did_not_verify": str(exc)})
+            continue
+        if ok:
+            slot["ok"] += 1
+            emitted.append(d)
+        else:
+            slot["failed"] += 1
+            failed.append({**d, "did_not_verify":
+                           "declaration recomputes to %r but `produces` says %r"
+                           % (got, d.get("produces"))})
+    return emitted, failed, by_class
+
+
+def render_verification_line(by_class):
+    """A per-class line. Refuses to produce a single pooled rate, by construction."""
+    if not by_class:
+        return "no declarations offered"
+    return " ... ".join(
+        "%s %d/%d" % (c, v["ok"], v["ok"] + v["failed"])
+        for c, v in sorted(by_class.items()))
+
+
+def undeclared(container, quantities):
+    """Quantities present on a container with NO render_derivation declaration.
+
+    ⛔ THIS IS THE REFUSAL HALF, AND IT IS THE ONE THAT DECIDES WHETHER ANY OF IT WORKS.
+    A declaration that is merely CONVENTIONAL exists wherever an author remembered, so a
+    checker built on it has the denominator "quantities whose authors were diligent" -- the
+    reach-as-population error moved to the contract layer.
+
+    ⚠️ THE CALLER MUST SUPPLY `quantities` FROM THE RENDERED ARTEFACT, not from what was
+    declared. A gate that asks "did everything declared verify?" is vacuous in the same way
+    a format check that measured zero pages reported "all 0 pages conform". The
+    non-vacuous denominator is the numbers a reader can actually see.
+    """
+    return [q for q in quantities
+            if not isinstance(container.get(str(q) + SUFFIX_EVIDENCE), dict)
+            or container.get(str(q) + SUFFIX_CLAIM) != "render_derivation"]
 
 
 def set_derived(obj, field, value, inputs, by, authored=False,
@@ -156,8 +298,33 @@ def corroborate(obj, a, b):
     return bool(oa) and bool(ob) and oa.isdisjoint(ob)
 
 
-def validate_claim(obj, field):
-    """Errors for one field's claim. Empty list means the claim carries its required shape."""
+def validate_claim(root, path):
+    """Errors for one field's claim. Empty list means the claim carries its required shape.
+
+    ⛔ ONE ADDRESSING CONVENTION, ENFORCED. `root` + a DOTTED PATH, exactly like `origins()`
+    and `resolve()`. A plain key still works, because a plain key is a one-segment path.
+
+    ⚠️ THIS FUNCTION USED TO TAKE (container, plain_key) WHILE ITS NEIGHBOURS TOOK (root,
+    dotted_path), AND THE MISMATCH RETURNED A SILENT CLEAN PASS. The natural composition --
+    iterate `walk_fields()`, hand each dotted path to `validate_claim` -- did a FLAT lookup
+    of "results.by_outcome.primary.question_pico__claim", missed, and returned [] for every
+    field in the corpus. A perfectly clean validation of nothing.
+
+    That is the THIRD instance of one class tonight: `origins()` resolving a dotted path as a
+    flat key and reporting INDEPENDENCE; a flat fixture that could not exercise a path
+    resolver; and this. I fixed the instance in `origins()` and left the class alive here.
+
+    ⇒ AND AN UNRESOLVABLE PATH NOW RAISES. A lookup that cannot distinguish "no claim here"
+    from "wrong address" is the default-conflates-absence defect, inside the module written
+    to prevent it. Absence must be a finding, never a silence.
+    """
+    container, leaf = resolve(root, path)
+    if container is None:
+        raise ClaimError(
+            "unresolvable path %r: it does not address a field on this object. Returning "
+            "'no errors' here would report a clean claim for something that is not there, "
+            "which is the silent-miss defect this module exists to refuse." % (path,))
+    obj, field = container, leaf
     kind = obj.get(field + SUFFIX_CLAIM)
     if kind is None:
         return []

@@ -194,7 +194,28 @@ def answer(question, response, tier, quote, document, section=None, url=None,
             "table_evidence": table_evidence,
             "section": section,
             "url": url,
-            "retrieved_utc": retrieved_utc}
+            "retrieved_utc": retrieved_utc,
+            # ⭐ CLAIM TYPING (ssot/claims.py). `response` IS the claim: what a NAMED
+            # DOCUMENT says about one signalling question. Typing it `evidence_source` makes
+            # the document class and the read date REQUIRED SHAPE, not optional metadata.
+            #
+            # ⛔ THIS IS THE DOMAIN WHERE UNSTATED PROVENANCE COSTS MOST. A NO_INFORMATION
+            # DESCRIBES THE DOCUMENT THAT WAS READ, not the trial -- so an answer that
+            # cannot say which document, of what class, read when, is not a weaker answer,
+            # it is an UNINTERPRETABLE one. Dapivirine sat unrated because nobody could see
+            # that its assessments came from registration design modules; recorded as a
+            # typed claim, that would have been a query rather than an investigation.
+            #
+            # ⚠️ `read_utc` IS PASSED THROUGH, NEVER DEFAULTED AND NEVER PARSED OUT OF THE
+            # DOCUMENT STRING. Where `retrieved_utc` was not supplied the claim fails
+            # validation, and that failure is the honest report: evidence read at an unknown
+            # moment, about a document that may since have changed.
+            "response__claim": "evidence_source",
+            "response__evidence": {"document": document,
+                                   "document_class": document_class,
+                                   "section": section,
+                                   "url": url,
+                                   "read_utc": retrieved_utc}}
 
 
 def store(canon):

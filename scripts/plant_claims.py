@@ -62,6 +62,116 @@ def t_dotted_paths_resolve_across_containers():
           C.origins(o, "nope.missing") == ["nope.missing"])
 
 
+def t_validate_claim_takes_a_dotted_path_on_a_REAL_object():
+    """⛔ PLANTED ON A REAL NESTED CORPUS OBJECT, NOT A FIXTURE.
+
+    Every other control here is synthetic, and synthetic fixtures are FLAT -- a flat fixture
+    cannot exercise a path resolver, which is why this class of defect has now survived two
+    fixture suites tonight. This one loads a real object off disk and plants into its nested
+    `results.by_outcome.<oid>` container, which is where the claims actually live.
+
+    The defect: validate_claim used to take (container, plain_key) while its neighbours took
+    (root, dotted_path). Handed a dotted path it did a flat lookup, missed, and returned []
+    -- a clean pass on a value that should have been refused.
+    """
+    print("\n[1c] DOTTED PATH INTO A REAL OBJECT -- must refuse, not silently pass")
+    import glob
+    import json as _json
+    # ⚠️ JSON FILES UNDER ssot/, NOT "the review corpus" -- the glob also matches
+    # SEARCH-RECORD.json, ADJUDICATION-RECORD.json and SCREENING-RECORD.json. Harmless here
+    # because this control takes the FIRST file carrying results.by_outcome and asserts a
+    # property of it; it reports no count. The label is corrected so nobody reuses the line
+    # believing it enumerates objects.
+    hits = sorted(glob.glob(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "ssot", "*", "*.json")))
+    canon = None
+    for p in hits:
+        try:
+            c = _json.load(open(p, encoding="utf-8"))
+        except Exception:
+            continue
+        byo = ((c.get("results") or {}).get("by_outcome") or {}) if isinstance(c, dict) else {}
+        if isinstance(byo, dict) and byo:
+            canon, oid = c, sorted(byo)[0]
+            break
+    if canon is None:
+        check("a real nested object was available to plant into", False, "none found")
+        return
+
+    res = canon["results"]["by_outcome"][oid]
+    path = "results.by_outcome.%s.__control_slot" % oid
+    # A value that CLAIMS to be a human judgement while recording that it was derived.
+    res["__control_slot"] = "not recorded on the page this object was extracted from"
+    res["__control_slot__claim"] = "authored_judgement"
+    res["__control_slot__derived_from"] = {"inputs": ["title"], "by": "__control_/x.py",
+                                           "run_utc": "2026-08-31", "authored": False}
+
+    errs = C.validate_claim(canon, path)
+    check("a DOTTED path into a nested container REFUSES", len(errs) >= 1, errs)
+    check("and the refusal names the recorded inputs",
+          any("records inputs" in e for e in errs), errs)
+
+    res["__control_slot__derived_from"] = {"inputs": [], "by": "a person",
+                                           "run_utc": "2026-08-31", "authored": True}
+    check("a genuinely authored slot PASSES via the same dotted path",
+          C.validate_claim(canon, path) == [])
+
+    try:
+        C.validate_claim(canon, "results.by_outcome.%s.nope.missing" % oid)
+        check("an UNRESOLVABLE path raises rather than returning a clean pass", False,
+              "it returned instead of raising")
+    except C.ClaimError as e:
+        check("an UNRESOLVABLE path raises rather than returning a clean pass",
+              "unresolvable" in str(e))
+
+
+def t_undeclared_quantity_from_the_RENDERED_page_must_fail():
+    """⛔ THE DENOMINATOR COMES FROM THE BUILT BYTES, NOT FROM WHAT WAS DECLARED.
+
+    A gate asking "did everything DECLARED verify?" is vacuous in exactly the way
+    check_page_format's first --gate run was, reporting "OK: all 0 review pages conform"
+    after measuring nothing. The non-vacuous question is "does every number A READER CAN SEE
+    have a declaration that reproduces it", so this plant pulls a real rendered value off a
+    real built page and asserts it is caught while undeclared.
+    """
+    print("\n[8] UNDECLARED QUANTITY, TAKEN FROM THE RENDERED PAGE")
+    import glob
+    import json as _json
+    import re as _re
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+    pages = sorted(glob.glob(os.path.join(root, "*REVIEW*.html")))
+    if not pages:
+        check("a built page was available", False, "none found")
+        return
+    html = open(pages[0], encoding="utf-8", errors="replace").read()
+    # Numbers a reader actually meets. Not a curated list -- whatever the page shows.
+    rendered = _re.findall(r">\s*(\d+\.\d{2,4})\s*<", html)
+    if not rendered:
+        check("the page rendered a decimal quantity", False, "none matched")
+        return
+    value = rendered[0]
+    container = {"q": float(value)}          # the page shows it; nothing declares it
+    missing = C.undeclared(container, ["q"])
+    check("an UNDECLARED rendered value is flagged", missing == ["q"],
+          "%s from %s -> %r" % (value, os.path.basename(pages[0]), missing))
+
+    # Declared but with the WRONG kind -- still undeclared for this purpose.
+    container["q__claim"] = "derived_value"
+    container["q__evidence"] = {}
+    check("a value declared under the WRONG claim kind is still flagged",
+          C.undeclared(container, ["q"]) == ["q"])
+
+    # Properly declared AND recomputing -> not flagged.
+    container["q__claim"] = "render_derivation"
+    container["q__evidence"] = {"op": "product", "inputs": [{"literal": 2.0},
+                                                            {"literal": 3.0}],
+                                "produces": 6.0, "by": "__control_/p.py"}
+    check("a properly declared value is NOT flagged",
+          C.undeclared(container, ["q"]) == [])
+    ok, got = C.verify_render(container, container["q__evidence"])
+    check("and its declaration recomputes", ok and got == 6.0)
+
+
 def t_authored_with_inputs_is_refused():
     print("\n[2] LAUNDERING -- authored=True with inputs must raise")
     try:
@@ -142,10 +252,12 @@ def t_unknown_claim_kind_is_refused():
 def main():
     print("KNOWN-ANSWER CONTROL: ssot/claims.py  (synthetic __control_ fixtures only)")
     for t in (t_derived_agreement_is_not_corroboration, t_dotted_paths_resolve_across_containers,
+              t_validate_claim_takes_a_dotted_path_on_a_REAL_object,
               t_authored_with_inputs_is_refused,
               t_counterpart_needs_its_shape, t_identifier_prefix_must_be_confirmed_in_the_record,
               t_unverifiable_is_its_own_state, t_unknown_origin_is_not_authored,
-              t_unknown_claim_kind_is_refused):
+              t_unknown_claim_kind_is_refused,
+              t_undeclared_quantity_from_the_RENDERED_page_must_fail):
         t()
     print("\n" + "=" * 66)
     if FAIL:

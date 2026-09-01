@@ -838,7 +838,19 @@
     }
    ]
   },
-  "introduction": "This review asks: In Multiple trial-declared outcomes: Participants With Any Event From the Composite of Death From Vascular Causes, Myocardial Infarction (MI), and Stroke | Number of Subjects Reaching the Composite Endpoint of Cardiovascular (CV) Death, Nonfatal Myocardial Infarction (MI), or | Number of Participants With BARC Type 2, 3, or 5, what do the contributing trials show?\n\nIt examines 4 randomised trials and DOES NOT POOL THEM.\n\nThe outcome sought is Multiple trial-declared outcomes: Participants With Any Event From the Composite of Death From Vascular Causes, Myocardial Infarction (MI), and Stroke | Number of Subjects Reaching the Composite Endpoint of Cardiovascular (CV) Death, Nonfatal Myocardial Infarction (MI), or | Number of Participants With BARC Type 2, 3, or 5.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+  "introduction": "This review asks: In Multiple trial-declared outcomes: Participants With Any Event From the Composite of Death From Vascular Causes, Myocardial Infarction (MI), and Stroke | Number of Subjects Reaching the Composite Endpoint of Cardiovascular (CV) Death, Nonfatal Myocardial Infarction (MI), or | Number of Participants With BARC Type 2, 3, or 5, what do the contributing trials show?\n\nIt examines 4 randomised trials and DOES NOT POOL THEM.\n\nThe outcome sought is Multiple trial-declared outcomes: Participants With Any Event From the Composite of Death From Vascular Causes, Myocardial Infarction (MI), and Stroke | Number of Subjects Reaching the Composite Endpoint of Cardiovascular (CV) Death, Nonfatal Myocardial Infarction (MI), or | Number of Participants With BARC Type 2, 3, or 5.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace.",
+  "introduction__derived_from": {
+   "inputs": [
+    "question"
+   ],
+   "by": "scripts/repair_paper_reads_terribly_2026_08_24.py",
+   "run_utc": "2026-08-24",
+   "authored": false,
+   "reconstructed": true,
+   "reconstructed_utc": "2026-08-30T23:56:12+00:00",
+   "reconstruction_basis": "The script's own source: it builds `question` as 'In <title>, what is the effect on <tail>?' and rewrites `manuscript.introduction` to open 'This review asks: <question>' in the same pass. Both rules are read from the committed script, not inferred from the values.",
+   "and_therefore": "This introduction is NOT an independent statement of the review's question. It restates `question`, which restates `title`. Treating the two as agreeing witnesses is one fact counted twice."
+  }
  },
  "risk_of_bias_verdict": null,
  "carried_contrasts": [],
@@ -957,5 +969,16 @@
   "n_not_studied": 0,
   "n_undecidable": 4,
   "what_undecidable_means": "The registered arm names do not name this intervention the way the review does, or the drug sits outside the experimental arm and registry arm-type labels are not reliable enough to judge on. It is NOT a pass and NOT a failure: this check could not decide, and no other check has looked."
+ },
+ "question__derived_from": {
+  "inputs": [
+   "title"
+  ],
+  "by": "scripts/repair_paper_reads_terribly_2026_08_24.py",
+  "run_utc": "2026-08-24",
+  "authored": false,
+  "reconstructed": true,
+  "reconstructed_utc": "2026-08-30T23:56:12+00:00",
+  "reconstruction_basis": "The script's own source: it builds `question` as 'In <title>, what is the effect on <tail>?' and rewrites `manuscript.introduction` to open 'This review asks: <question>' in the same pass. Both rules are read from the committed script, not inferred from the values."
  }
 }

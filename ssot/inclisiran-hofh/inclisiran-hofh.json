@@ -173,7 +173,19 @@
     }
    ]
   },
-  "introduction": "This review asks: In Inclisiran in participants with homozygous familial hypercholesterolemia versus placebo, what is the effect on the trial's own registered primary outcome?\n\nIt examines 1 randomised trial and DOES NOT POOL THEM.\n\nThe outcome sought is the trial's own registered primary outcome.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+  "introduction": "This review asks: In Inclisiran in participants with homozygous familial hypercholesterolemia versus placebo, what is the effect on the trial's own registered primary outcome?\n\nIt examines 1 randomised trial and DOES NOT POOL THEM.\n\nThe outcome sought is the trial's own registered primary outcome.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace.",
+  "introduction__derived_from": {
+   "inputs": [
+    "question"
+   ],
+   "by": "scripts/repair_paper_reads_terribly_2026_08_24.py",
+   "run_utc": "2026-08-24",
+   "authored": false,
+   "reconstructed": true,
+   "reconstructed_utc": "2026-08-30T23:56:33+00:00",
+   "reconstruction_basis": "The script's own source: it builds `question` as 'In <title>, what is the effect on <tail>?' and rewrites `manuscript.introduction` to open 'This review asks: <question>' in the same pass. Both rules are read from the committed script, not inferred from the values.",
+   "and_therefore": "This introduction is NOT an independent statement of the review's question. It restates `question`, which restates `title`. Treating the two as agreeing witnesses is one fact counted twice."
+  }
  },
  "bookkeeping_2026_08_21": {
   "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
@@ -246,5 +258,16 @@
   "derived_from": "index section sp-cardiology",
   "extracted_utc": "2026-08-26",
   "_note": "Extracted from index.html before the prune rewrote it. Not a clinical judgement: it records where the index placed this topic."
+ },
+ "question__derived_from": {
+  "inputs": [
+   "title"
+  ],
+  "by": "scripts/repair_paper_reads_terribly_2026_08_24.py",
+  "run_utc": "2026-08-24",
+  "authored": false,
+  "reconstructed": true,
+  "reconstructed_utc": "2026-08-30T23:56:33+00:00",
+  "reconstruction_basis": "The script's own source: it builds `question` as 'In <title>, what is the effect on <tail>?' and rewrites `manuscript.introduction` to open 'This review asks: <question>' in the same pass. Both rules are read from the committed script, not inferred from the values."
  }
 }

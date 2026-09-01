@@ -259,6 +259,14 @@ def _cli():
     if not a.corpus:
         ap.error("give --object or --corpus")
     here = os.path.dirname(os.path.abspath(__file__))
+    # ⚠️ THIS WALKS JSON FILES UNDER ssot/, NOT "THE CORPUS OF REVIEW OBJECTS".
+    # Measured 2026-08-31: the glob matches 161 files, of which 152 are objects carried in
+    # PAGE_MAP and 9 are not -- SEARCH-RECORD.json x3, ADJUDICATION-RECORD.json,
+    # SCREENING-RECORD.json, manuscript_docmodel.json, and two objects that have no page.
+    # ⇒ THE COUNTS BELOW WERE NEVER WRONG; THE LABEL WAS. Anything reported from here is
+    # "json files under ssot/", and a record is not a review. Named rather than silently
+    # filtered, because "not in PAGE_MAP" also catches real objects that simply have no page,
+    # and dropping those would trade a label error for a population error.
     files = [f for f in sorted(glob.glob(os.path.join(here, "*", "*.json")))
              if not f.endswith(".striptest")]
     em = de = tot = 0
