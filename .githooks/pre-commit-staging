@@ -20,10 +20,23 @@
 # The recurrence is itself the finding -- the set was enumerated from habit rather than from
 # `git ls-files`, so it will keep missing tracked directories until it is derived from them.
 #
+# corrections/ ADDED 2026-09-01, and the reason is the strongest of the three. A correction is
+# a RETRACTION RECORD. If it is untracked it does not travel: it works for whoever wrote it and
+# is absent for every other lane and every fresh clone -- the exact failure that hit two guards
+# last night, whose inputs sat in a directory that could not travel, so they passed for their
+# author and failed closed for everyone else. Of all the things in this repository, the record
+# of what we got WRONG is the one that most needs to survive a clone.
+#
+# This is the third directory named here, and that pattern is itself the finding: the set was
+# enumerated from habit rather than from `git ls-files`, so it keeps missing directories one at
+# a time. It is still NOT widened to every tracked directory -- outputs/, findings/, protocols/,
+# nma/, vendor/ and retired/ remain outside, deliberately, because a set that names everything
+# refuses nothing.
+#
 # The purpose is unchanged and is NOT widened. This still exists to refuse `git add -A`, and
 # it still refuses everything outside the named prefixes and a top-level markdown/config file.
 changed=$(git diff --cached --name-only)
-bad=$(printf '%s\n' "$changed" | grep -vE '^(ssot/|scripts/|\.githooks/|evidence/|tests/|[A-Za-z0-9_.-]+\.(md|json|txt|yml|yaml)$|\.gitignore$)' | head -20)
+bad=$(printf '%s\n' "$changed" | grep -vE '^(ssot/|scripts/|\.githooks/|evidence/|tests/|corrections/|[A-Za-z0-9_.-]+\.(md|json|txt|yml|yaml)$|\.gitignore$)' | head -20)
 if [ -n "$bad" ] && [ "$STAGING_WIDE" != "1" ]; then
   echo "REFUSED: staged paths outside the declared set." >&2
   echo "$bad" >&2
