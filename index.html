@@ -232,6 +232,44 @@ h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spac
 
   
 
+    <div id="twenty-comparators" style="margin:1.4rem 0;padding:1rem 1.2rem;border-left:5px solid #0F766E;background:#F0FDFA;font-size:.9rem;line-height:1.55">
+    <h2 style="margin:.1rem 0 .5rem;font-size:1.12rem;border:0;padding:0">Twenty open-access comparators, scored on a rule frozen before the first one was retrieved</h2>
+
+    <p style="margin:.4rem 0"><strong>The target was 40. The honest yield was 20. The standard was not moved.</strong> Both routes were on the table and fully costed. The selection criteria were frozen at commit <code>fe1f2fd</code> &mdash; before the first comparator was retrieved &mdash; and were <strong>never once amended</strong>: not for a new specialty, not for a target, not for a disappointing result.</p>
+
+    <p style="margin:.4rem 0">This replaces a Cochrane comparison that could not be scored. In a first run, one condition failed unanimously across both judge families: <em>we cannot enumerate Cochrane&rsquo;s included studies, because Cochrane does not publish them under any free route</em>. Against an open-access comparator that condition becomes satisfiable, so <strong>publishing an enumerable included-study list is a hard inclusion criterion here, not a quality bonus</strong>.</p>
+
+    <pre style="margin:.6rem 0;padding:.6rem .8rem;background:#fff;border:1px solid #99F6E4;overflow-x:auto;font-size:.83rem">6,182  candidate meta-analyses screened   (PubMed; no date, language or open-access filter)
+1,105  full text retrieved
+  442  EXAMINED   = retrieved AND an included-study list recovered
+   20  ELIGIBLE COMPARATORS
+
+20 comparators / 14 independent topics / 10 drug families / 24 paper-topic pairs
+
+frames:  cardiology 802 -> 12 · infectious disease 788 -> 2 · k>=4 1,998 -> 1 · remaining k>=2 2,594 -> 6
+155 topic objects disposed:  49 framed + 65 framed + 4 excluded on their own declarations + 37 at k&lt;2</pre>
+
+    <p style="margin:.4rem 0">The 37 are excluded <em>by arithmetic</em>: the match rule requires at least two overlapping trials, so a review with one contributing trial can never be matched by any comparator. The 4 are excluded on the objects&rsquo; own text &mdash; two say <em>&ldquo;DUPLICATE PAGE&rdquo;</em> and <em>&ldquo;RETIRED&rdquo;</em>, two are near-duplicates of framed topics.</p>
+
+    <h3 style="margin:.9rem 0 .3rem;font-size:1rem">Three caveats that a reader would otherwise find first</h3>
+    <ol style="margin:.2rem 0 .2rem 1.1rem;padding:0">
+      <li style="margin:.35rem 0"><strong>Summing the frames gives 21; the union is 20.</strong> One comparator is eligible in two frames. <strong>The sum is the wrong number</strong> and the union is the right one.</li>
+      <li style="margin:.35rem 0"><strong>PMID 40998847 is eligible against three of our ablation topics</strong> &mdash; 3 of the 24 pairs, one paper, <strong>one drug family</strong>. It is closer to one demonstration than three. Two further comparators each span two topics inside a single family, so 20 comparators produce 24 pairs and 17 of them produce one each. Every figure here is reported as <em>comparators / independent topics / drug families</em> and never as a pair count.</li>
+      <li style="margin:.35rem 0"><strong>A mechanism this project asserted, wrote into a frozen rule, and then measured to be false.</strong> The orchestrating instruction argued that at <em>k</em>&nbsp;&ge;&nbsp;4 the overlap threshold &ldquo;becomes reachable at half&rdquo;, and that sentence was written into the rule. <strong>The run disproved it.</strong> Half of a large <em>k</em> is a large absolute number: at <em>k</em>&nbsp;=&nbsp;26 the threshold demands <strong>13 overlapping trials</strong> and the best any comparator supplied was 4. The threshold is easiest at <em>k</em>&nbsp;=&nbsp;4&ndash;6 and <strong>degrades in both directions</strong> &mdash; it demands 100% overlap at <em>k</em>&nbsp;=&nbsp;2. <strong>The rule was not amended.</strong> It was frozen with its justification, the justification was wrong, and the refutation is published while the rule stands as run. That frame screened 1,998 candidates and returned one comparator.</li>
+    </ol>
+
+    <p style="margin:.5rem 0"><strong>Why the third caveat is the point.</strong> A protocol that records a mechanism its own run disproved &mdash; and does not quietly edit the rule to match the new understanding &mdash; cannot simultaneously be a protocol that was tuned toward a target. It costs a reader nothing to check, and it cost this project its most promising-looking route to 40.</p>
+
+    <h3 style="margin:.9rem 0 .3rem;font-size:1rem">What was frozen, and when</h3>
+    <p style="margin:.2rem 0">Selection rule <code>fe1f2fd</code> &middot; join ruled at <code>5a42600</code> &middot; infectious-disease inputs <code>7ad2538</code> &middot; <em>k</em>&nbsp;&ge;&nbsp;4 rule <code>05642cc</code> &middot; consolidated statement <code>10a5e74</code>. <strong>Every frame&rsquo;s inputs and every prediction were committed and pushed before that frame ran.</strong></p>
+
+    <p style="margin:.4rem 0"><strong>The join is the strongest single check.</strong> All three join options were computed and published <em>before</em> the choice, from one artefact: 22 comparators, 12, or 8. <strong>The chosen join gives 12 &mdash; smaller than the alternative &mdash; so the choice went against our own headline count.</strong> The evidence for it was a hand-read of three papers, not a look at which number was larger: a frozen trial acronym turned out to find <em>mentions</em> rather than <em>inclusions</em>, and two of the three papers read named the trial as <em>ongoing</em>.</p>
+
+    <p style="margin:.4rem 0;color:#334155"><strong>One correction to this page&rsquo;s own numbers, kept visible.</strong> A draft of this block said <em>451 examined</em>. Two frames had counted rows whose <em>retrieval</em> succeeded rather than rows that reached <em>examined</em>, and one figure had never been measured at all. An independent audit, given 451 as a known-answer control, failed it and reported 442. The figure above is 442.</p>
+
+    <p style="margin:.4rem 0;color:#334155">Quality here means <strong>prospectively registered in PROSPERO</strong> and nothing more &mdash; a procedural marker, not a measurement of conduct. It is the largest single filter on matched comparators, and it excludes some well-matched Cochrane reviews. Recorded, never adjusted.</p>
+  </div>
+
   <h2 id="sp-cardiology">Cardiology</h2>
   <div class="grid"><a href="HFREF_NMA_AUTO_FULL_REVIEW.html" class="card ready"><span class="name">HFrEF GDMT network</span><span class="pub">ACEI versus Placebo for all-cause mortality -- RR 0.8619 (0.6915 to 1.0743) · indexed by ruling; leg 1: no store object in PAGE_MAP</span></a><a href="BOCOCIZUMAB_LIPID_REVIEW.html" class="card ready"><span class="name">Bococizumab and LDL cholesterol</span><span class="pub">Pooled: MD -55.24 (-57.92 to -52.56), k=6</span></a><a href="ARNI_HF_REVIEW.html" class="card ready"><span class="name">Sacubitril/valsartan in adults with heart failure and reduced ejection…</span><span class="pub">Pooled: HR 0.8715 (0.7461 to 1.018), k=4 · indexed by ruling; leg 4: stamp fa7ef6686 predates all seven required generator commits</span></a><a href="APIXABAN_VTE_TREATMENT_REVIEW.html" class="card ready"><span class="name">Apixaban for the treatment of venous thromboembolism</span><span class="pub">Pooled: RR 0.7763 (0.3437 to 1.753), k=3</span></a><a href="APIXABAN_VTE_PROPHYLAXIS_REVIEW.html" class="card ready"><span class="name">Apixaban thromboprophylaxis</span><span class="pub">Pooled: RR 0.7433 (0.4371 to 1.264), k=4</span></a>
     
