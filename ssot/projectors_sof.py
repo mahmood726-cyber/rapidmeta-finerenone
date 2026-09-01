@@ -119,10 +119,15 @@ def _is_ratio(measure):
         "RR", "OR", "HR", "RATE_RATIO", "RATERATIO", "IRR")
 
 
-def _absolute_rows(measure, point, lo, hi):
-    """RR x baseline, at each grid baseline. Arithmetic, not a transfer claim."""
+def _absolute_rows(measure, point, lo, hi, grid=None):
+    """RR x baseline, at each baseline. Arithmetic, not a transfer claim.
+
+    `grid` is a sequence of baselines per 1000. When the caller supplies
+    OBSERVED control-arm risks they are used; otherwise BASELINE_GRID, the
+    assumed range, is used AND THE TABLE SAYS WHICH.
+    """
     rows = []
-    for b in BASELINE_GRID:
+    for b in (grid if grid else BASELINE_GRID):
         cell = []
         for v in (point, lo, hi):
             cell.append(None if not isinstance(v, (int, float)) else round(b * v, 1))
@@ -130,6 +135,55 @@ def _absolute_rows(measure, point, lo, hi):
             continue
         rows.append((b, cell[0], cell[1], cell[2], round(cell[0] - b, 1)))
     return rows
+
+
+def _observed_baselines(canon, oid):
+    """Control-arm risks OBSERVED in the trials contributing this outcome.
+
+    Handbook 14.1.3 asks for a range of plausible baseline risks. An assumed
+    grid satisfies the letter; the control arms of the very trials being
+    pooled satisfy it AND carry provenance -- every point is a risk some real
+    population in this evidence actually had, and the trial it came from is
+    named beside it.
+
+    Returns a list of (label, risk_per_1000, source) or [] when no control
+    arm is held, in which case the caller falls back to the assumed grid and
+    SAYS SO on the table.
+    """
+    rows = []
+    for t in ((canon.get("inputs") or {}).get("trials") or []):
+        if isinstance(t, dict) is False:
+            continue
+        e = (t.get("by_outcome") or {}).get(oid)
+        if isinstance(e, dict) is False:
+            continue
+        c = e.get("control")
+        if isinstance(c, dict) is False:
+            continue
+        ev, n = c.get("events"), c.get("n")
+        ev_ok = isinstance(ev, int) and isinstance(ev, bool) is False
+        n_ok = isinstance(n, int) and isinstance(n, bool) is False and n > 0
+        if ev_ok and n_ok and 0 <= ev <= n:
+            rows.append((t.get("id") or t.get("nct") or "?", ev, n))
+    if len(rows) == 0:
+        return []
+    risks = [(nm, ev / float(n)) for nm, ev, n in rows]
+    tot_e = sum(r[1] for r in rows)
+    tot_n = sum(r[2] for r in rows)
+    lo = min(risks, key=lambda x: x[1])
+    hi = max(risks, key=lambda x: x[1])
+    # ROUNDED AT SOURCE, not in the formatter. The baseline is both printed
+    # and multiplied, and a page that prints 84.2 while multiplying by
+    # 84.21052631578947 is not recomputable from the cells it shows. One
+    # decimal place is below the resolution of any control arm here.
+    out = [("lowest observed", round(lo[1] * 1000.0, 1),
+            "the control arm of %s" % lo[0]),
+           ("pooled", round((tot_e / float(tot_n)) * 1000.0, 1),
+            "all control arms, %d of %d" % (tot_e, tot_n))]
+    if hi[0] != lo[0]:
+        out.append(("highest observed", round(hi[1] * 1000.0, 1),
+                    "the control arm of %s" % hi[0]))
+    return out
 
 
 def _declination(canon, oid):
@@ -186,24 +240,38 @@ def sof_card(canon, p=None):
                      _e(n_part) if n_part else "not held",
                      _e(k) if k else "not held"))
         if _is_ratio(measure):
-            rows = _absolute_rows(measure, point, lo, hi)
+            observed = _observed_baselines(canon, oid)
+            rows = _absolute_rows(
+                measure, point, lo, hi,
+                [bl for _lab, bl, _src in observed] or None)
             body = ""
             for b, pt, l, h, diff in rows:
                 body += ("    <tr><td>%s per 1000</td><td>%s per 1000</td>"
                          "<td>%s to %s</td><td>%s</td></tr>\n"
                          % (b, pt, _e(l), _e(h), diff))
+            if observed:
+                kind = "Observed baseline risk"
+                prov = ("The baselines below are OBSERVED. Each is a control-"
+                        "arm risk from a trial in this pool, and the trial it "
+                        "came from is named: " +
+                        "; ".join(
+                            "%s = %.1f per 1000, from %s"
+                            % (lab, bl, whence)
+                            for lab, bl, whence in observed) + ". ")
+            else:
+                kind = "Assumed baseline risk"
+                prov = ("No control arm is held for this outcome, so the "
+                        "baselines below are ASSUMED and belong to no population "
+                        "in this evidence. ")
             inner += ("  <h3>Absolute effect, at baseline risks you choose</h3>\n"
-                      "  <p><small>Handbook 14.1.3 asks for absolute effects at "
-                      "STATED baseline risks. A single assumed baseline risk is a "
-                      "modelling choice made on behalf of a jurisdiction we do not "
-                      "know, so a GRID is given instead and the reader applies the "
-                      "row nearest their own incidence. This is arithmetic -- the "
-                      "relative effect multiplied by a baseline -- and it asserts "
-                      "nothing about whether this evidence transfers to that "
-                      "population. <strong>The grid is arithmetic the reader "
-                      "parameterises; the refusal below is about transfer. "
-                      "Different claims, kept apart.</strong></small></p>\n"
-                      "  <table>\n    <tr><th>Assumed baseline risk</th>"
+                      "  <p><small>" + _e(prov) + "Handbook 14.1.3 asks "
+                      "for absolute effects at STATED baseline risks. This is "
+                      "arithmetic -- the relative effect multiplied by a baseline "
+                      "-- and it asserts nothing about whether this evidence "
+                      "transfers to that population. <strong>The table is "
+                      "arithmetic; the refusal below is about transfer. Different "
+                      "claims, kept apart.</strong></small></p>\n"
+                      "  <table>\n    <tr><th>" + kind + "</th>"
                       "<th>Risk with intervention</th><th>95% CI</th>"
                       "<th>Difference</th></tr>\n" + body + "  </table>\n")
             d = _declination(canon, oid)
