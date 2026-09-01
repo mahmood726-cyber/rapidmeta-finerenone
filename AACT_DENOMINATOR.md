@@ -104,6 +104,16 @@ It is sponsor-declared and unvalidated — the same field family as the `phase: 
 reaching for "group_type" in `result_groups` gets a plausible-looking answer to a
 different question.
 
+**The snapshot is NOT a strict superset of the registry.** `NCT01445665` (COMPLETED, last
+updated 2018-11-16) is live on ClinicalTrials.gov and absent from the `2026-08-27` export.
+Absence from a snapshot is a fact about the snapshot, never about the trial.
+
+**⚠️ TWO AACT SNAPSHOTS ARE IN USE — DO NOT MERGE THEM SILENTLY.** This lane joined
+**`2026-08-27`** (data date; folder `2026-08-30`). The extraction lane is working from
+**`2026-08-30`**. Any figure carried between the two must state which, and the *data* date
+is the one that means anything — a folder name overstates its contents by a few days, in
+the direction that manufactures ghosts.
+
 **A producer must not pre-filter on a hand-made vocabulary.** An earlier build kept only
 whitelisted baseline titles and captured 2,075 of 2,076 trials; the one it lost proved the
 point. All baseline titles are now kept and the consumer filters.
@@ -134,6 +144,49 @@ not found in ClinicalTrials.gov, PubMed, or Europe PMC". This file is an indepen
 instrument agreeing with that disclosure, plus an exact inventory. What remains open is
 that these ids sit in `AUTO_INCLUDE_TRIAL_IDS`: **flagged unverified and still pooled.**
 Disclosed and excluded are different things, and only the second changes a number.
+
+---
+
+## 5b. ⛔⛔ ESCALATION — unverifiable ids are POOLED, not merely disclosed
+
+**Measured, controls passed, reported not fixed.**
+
+```
+CONTRIBUTES        43      live key in realData + effect data + in AUTO_INCLUDE_TRIAL_IDS
+DISCLOSED_ONLY      3
+distinct ids contributing : 43 of 45
+distinct pages affected   : 35
+```
+
+The pages encode the distinction themselves — `"NULLED:NCT01993004":{...}` is excluded,
+while `NCT00098560:{...,tE:35,cE:40,publishedHR:.88}` is live. Classifier validated on one
+known-NULLED and one known-live id before the table was believed.
+
+**All 43 carry `publishedHR, tE, cE, tN, cN, effect` and all 43 are in
+`AUTO_INCLUDE_TRIAL_IDS`.** A banner disclosing an id is not the same as excluding it from
+a pooled estimate.
+
+### ⭐ These are REAL trials under WRONG identifiers, not fabricated trials
+
+| trial | id in our store | resolves | actual registration |
+|---|---|---|---|
+| VICTAS | `NCT03509349` | 404 | `NCT03509350` — **one digit out** |
+| ROSE-AHF | `NCT01084557` | 404 | `NCT01132846` |
+| CHHIP | `NCT00424608` | 404 | **not on ClinicalTrials.gov** — UK ISRCTN |
+
+The contributing rows carry recognisable trial acronyms — ROSE-AHF, CHHIP, ALaCaRT,
+proPSMA, VICTAS, ELFIN, EMBRACE, AMACING, IN.PACT-AV, RESTORE-IMI-1, ADAPT-PLUS, EPIC-HR,
+IMPORT-HIGH. So the effect data may well be right; **the identifier through which a reader
+would verify it is not.** For a trial registered outside ClinicalTrials.gov (CHHIP,
+IMPORT-HIGH — both UK ISRCTN), an NCT id cannot be a transcription slip: there is no NCT
+to transcribe.
+
+⇒ This is an **identity and verifiability failure in the one claim the project rests on**,
+and the off-by-one (`…349` for `…350`) means a wrong id can resolve to a *different real
+trial* rather than to nothing.
+
+⛔ **Not fixed here. This is a retraction question for a person.** Full per-row inventory:
+`unverified_contribution.json`.
 
 ---
 
