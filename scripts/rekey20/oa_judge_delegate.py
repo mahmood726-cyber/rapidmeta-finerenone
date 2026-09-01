@@ -65,7 +65,14 @@ THE RULE, applied exactly:
 - COUNTERPART: the review's UNIT OF WORK is the topic's drug, or a coherent CLASS containing
   it, AND the review's POPULATION is the topic's condition.
 - A NARROWER OUTCOME SET does not disqualify. A DIFFERENT CONSTRUCT does (a harm signal, a
-  different disease, a dose-vs-dose comparison, a head-to-head against another active drug).
+  different disease, a dose-vs-dose comparison, a head-to-head against another active drug,
+  a cost-effectiveness analysis, a pharmacokinetic analysis, a study of who gets prescribed
+  the drug).
+- A RESTRICTED SUB-POPULATION IS A DIFFERENT POPULATION and is NOT a counterpart. If the
+  review narrows the topic's condition to a subgroup -- older patients, patients on
+  dialysis, end-stage renal disease, device-detected disease, one sex, one comorbidity, one
+  aetiology -- it answers a narrower question and must be NOT_COUNTERPART. The topic's
+  population is the condition as stated, unrestricted.
 - A LANDSCAPE review ("eighteen targeted drugs", "all medications for X") is NOT a class
   review and is NOT a counterpart.
 - UNDECIDABLE_BY_RULE only if the text genuinely does not say.
