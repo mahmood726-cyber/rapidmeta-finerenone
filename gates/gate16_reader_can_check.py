@@ -55,6 +55,7 @@ format. The baseline records where each page stands; the count may only improve.
 A gate that refuses 148 of 149 pages blocks every lane for a debt none of them
 incurred -- which this project shipped once already and will not again.
 """
+import html as _htmlmod
 import io
 import json
 import os
@@ -70,6 +71,9 @@ BASELINE = os.path.join(REPO, "scripts", "baselines", "reader_check_baseline.jso
 # DECLARED BEFORE THE FIRST RUN AND NOT TUNED AFTERWARDS.
 NEAR_WINDOW = 300
 API_SAMPLE = 3
+
+# Built with chr(92) so no shell transport can mangle the escape.
+SCRIPT_RE = re.compile('<script' + chr(92) + 'b.*?</script>', re.S)
 
 NCT = re.compile(r"\bNCT\d{8}\b")
 OTHER_REG = re.compile(r"\b(?:ISRCTN\d{6,8}|ACTRN\d{14}|ChiCTR[-A-Za-z0-9]{6,}"
@@ -87,12 +91,31 @@ CANNOT = re.compile(
 
 
 def _body(html):
-    """Rendered body: after the stylesheet, with scripts removed.
+    """Rendered body: after the stylesheet, scripts removed, ENTITIES DECODED.
 
     An id that appears only inside <script> is not something a reader can see,
-    and counting it would credit the page for a check nobody can perform."""
-    return re.sub(r"<script\b.*?</script>", " ",
-                  html.split("</style>", 1)[-1], flags=re.S)
+    and counting it would credit the page for a check nobody can perform.
+
+    ⛔ AND THE ENTITIES ARE DECODED, WHICH THE FIRST VERSION DID NOT DO. The
+    page escapes an apostrophe:
+
+        Efficacy of GSK Biologicals&#x27; Candidate Malaria Vaccine 257049
+        &mdash; https://clinicaltrials.gov/study/NCT00866619
+
+    while the store holds a literal apostrophe. A literal match against the
+    source therefore failed for a name that IS rendered, adjacent to its
+    registration, exactly as clause 1 requires -- and the page was scored as
+    failing.
+
+        COMPARE AGAINST WHAT A READER READS, NOT AGAINST THE BYTES.
+
+    This project has the same lesson written down from the other direction,
+    where a check against source reported 67 of 71 edits applied and the true
+    figure was 46. Markup and entities both break a literal match; both are
+    normalised here, once, so that no caller has to remember.
+    """
+    body = re.sub(SCRIPT_RE, ' ', html.split('</style>', 1)[-1])
+    return _htmlmod.unescape(body)
 
 
 def _panel(body, pid):
