@@ -1,0 +1,69 @@
+{
+ "recorded_utc": "2026-09-01",
+ "what": "A sidecar that pools trials absent from its own review is not a second opinion about the same question -- it is an answer to a different one. So it is never authoritative over the review, and a k disagreement between them is a MEMBERSHIP dispute, not a counting error.",
+ "how_measured": "for each comparator page with a sidecar, is every pooled NCT present ANYWHERE in the review page's bytes? Absent from the bytes means a reader cannot see it at all.",
+ "population": {
+  "comparator_pages": 11,
+  "with_a_sidecar": 9,
+  "no_sidecar_not_assessable": [
+   "FINERENONE_CV_REVIEW.html",
+   "LENACAPAVIR_PREP_SSOT.html"
+  ],
+  "note": "the two without a sidecar are NEITHER CLEAN NOR DIRTY -- there is no pool to examine. They are not counted as passing."
+ },
+ "headline": {
+  "assessable": 9,
+  "diverging": 2,
+  "clean": 7,
+  "trials_pooled_but_not_on_the_owning_page": 3
+ },
+ "not_systemic_here": "2 of 9 on this subset. Corpus-wide the earlier measurement was 69 of 607 id-checkable sidecars. Neither figure licenses the other.",
+ "divergences": [
+  {
+   "page": "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+   "review_own_estimand": "RR 0.2605 (0.1766 to 0.3845), k=2",
+   "review_own_estimand_source": "the page states 'Pooled result RR 0.2605 (0.1766 to 0.3845)' and its summary row reads k 2",
+   "index_card": "Pooled: RR 0.2605 (0.1766 to 0.3845), k=2 -- REPRODUCES THE PAGE EXACTLY",
+   "sidecar": "OR 0.224222 (0.145574 to 0.34536), k=3",
+   "pooled_but_absent_from_the_page": [
+    {
+     "nct": "NCT05437510",
+     "label": "HARMONIE"
+    }
+   ],
+   "index_table_row": "shows 3 trials and RR 0.21 (0.13-0.33) -- a THIRD surface, propagating the sidecar's trial set rather than the review's"
+  },
+  {
+   "page": "SGLT2_MACE_CVOT_REVIEW.html",
+   "review_own_estimand": "OR 0.9074 (0.831 to 0.9908), k=2",
+   "review_own_estimand_source": "the page states 'Pooled result OR 0.9074 (0.831 to 0.9908)' and its summary row reads 2",
+   "index_card": "Pooled: OR 0.9074 (0.831 to 0.9908), k=2 -- REPRODUCES THE PAGE EXACTLY",
+   "sidecar": "OR 0.905885 (0.797937 to 1.028437), k=4",
+   "pooled_but_absent_from_the_page": [
+    {
+     "nct": "NCT01032629",
+     "label": "CANVAS"
+    },
+    {
+     "nct": "NCT01986881",
+     "label": "VERTIS-CV"
+    }
+   ],
+   "index_table_row": "shows 4 trials and 3P-MACE HR 0.91 (0.85-0.98) -- a THIRD surface, propagating the sidecar's trial set rather than the review's",
+   "the_artefact_defends_itself": "ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have not been shown to measure the same quantity",
+   "quote_note": "that sentence is printed ON THE PAGE, by the review, before anyone went looking. The review disclosed this itself."
+  }
+ ],
+ "ruling_applied": "the card and page stay as they are; k=2 is the review's own k and the card reproduces it exactly. The sidecar's extra trials are DISCLOSED as a divergence and NEVER merged.",
+ "ruling_superseded": "an earlier ruling held the sidecar authoritative on the grounds that its trial set is coherent. Coherence AS A DRUG CLASS is not membership IN A REVIEW. Applying it would have replaced a published estimand with a derived one, and on SGLT2_MACE_CVOT would have flipped a served claim from significant (0.831-0.9908) to not significant (0.798-1.028).",
+ "consequence": "these two pages are blocked by a TRIAL-SET disagreement that no index edit resolves. The comparator ceiling cannot be raised by editing them.",
+ "clean": [
+  "ABLATION_AF_REVIEW.html",
+  "ARNI_HF_REVIEW.html",
+  "ATTR_PN_REVIEW.html",
+  "COLCHICINE_CVD_REVIEW.html",
+  "IV_IRON_HF_REVIEW.html",
+  "SGLT2_HF_REVIEW.html",
+  "SOTAGLIFLOZIN_HF_REVIEW.html"
+ ]
+}
