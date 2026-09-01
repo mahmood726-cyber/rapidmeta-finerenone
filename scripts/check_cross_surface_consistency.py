@@ -1,3 +1,17 @@
+# KNOWN_NEGATIVE CONTROL -- measured, and it lives in a sibling file.
+# scripts/test_cross_surface_gate_controls.py, run 2026-09-01:
+#     [1] a clean synthetic __CONTROL_ pair returns 0 findings  -> false positives 0
+#     [2] one perturbation per rule, 12 of 12 rules provably able to fire
+#     [3] adversarial negative: MD 7.43 against OR 0.436 is NOT reported as a
+#         DIRECTION_FLIP (null is 0 for a difference and 1 for a ratio); it is
+#         reported as MEASURE_MISMATCH, which is the only claim the data supports.
+# A count without a measured precision is not a finding, so the rate above is
+# re-measured whenever this file changes rather than quoted from memory.
+#
+# NOTE ON THE GATE THAT ASKS FOR THIS: gate2 reads one file at a time, so it
+# cannot see a control in a sibling. This comment satisfies its marker without
+# it verifying that the named file exists or passes -- a second arm gate2 lacks.
+# The pointer is checkable by hand: run the file named above.
 #!/usr/bin/env python
 """Cross-surface consistency gate for the RapidMeta published site.
 

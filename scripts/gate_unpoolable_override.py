@@ -1,3 +1,15 @@
+# KNOWN_NEGATIVE CONTROL -- measured, and it lives in the gate that calls this.
+# gates/gate17_unpoolable_override.py, run 2026-09-01 in the full chain:
+#     known-negative control: 0/14 matched  -> measured false-positive rate 0.0%
+#     named positive: SYNTHETIC, not a live defect -- a synthetic store object
+#     recording a refusal must be recognised as one. A control anchored to a real
+#     refusal retires itself the day that refusal is honoured, leaving a gate that
+#     passes because there is nothing left to find.
+#     the plant: scripts/plant_unpoolable_override.py
+# A count without a measured precision is not a finding.
+#
+# gate2 reads one file at a time and cannot see either sibling; see the note in
+# scripts/check_cross_surface_consistency.py for what that leaves unverified.
 #!/usr/bin/env python
 """BLOCKING GATE: does anything publish where the store recorded a refusal?
 

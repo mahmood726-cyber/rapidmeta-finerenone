@@ -70,6 +70,15 @@ KNOWN_NEGATIVE_CONTROLS = [
      "a Windows path is not a regex and its backslashes are deliberate"),
     ('print("done\\n")', 0, 0,
      "\\n is an intended newline, not a mangled regex escape"),
+    # ADDED 2026-09-01 after this detector accused 51 correct sites across 36 files.
+    # ast.walk visits the Constant PARTS of an f-string, and get_source_segment on a
+    # part returns the text WITHOUT the rf prefix -- so every raw f-string read as
+    # non-raw. It reported 4 against a script written the same night, which is how it
+    # was found: the accusation was checkable, and false.
+    ('D = "x"\np = re.compile(rf"{D}[a-z]+\\s+[0-9]+")', 0, 0,
+     "a RAW f-string is raw; the prefix lives on the JoinedStr, not on the parts"),
+    ('D = "x"\np = re.compile(f"{D}[a-z]+\\\\s+[0-9]+")', 0, 1,
+     "a NON-raw f-string with an escaped backslash is still latent"),
 ]
 
 
@@ -80,11 +89,40 @@ def scan_source(src, path="<control>"):
         tree = ast.parse(src)
     except SyntaxError:
         return None, None
+    # AN F-STRING'S PREFIX LIVES ON THE JoinedStr, NOT ON THE Constant PARTS that
+    # ast.walk yields. Without this map get_source_segment returns the inner text with
+    # no rf, every raw f-string reads as non-raw, and the detector accuses correct code.
+    parent = {}
+    for n in ast.walk(tree):
+        for c in ast.iter_child_nodes(n):
+            parent[c] = n
+
+    # A CONTROL IS NOT DATA -- SECOND INSTANCE, AND IT COST A BROKEN GATE.
+    # The vocabulary rule below (len(val) <= 2) covers the bare control characters
+    # that DEFINE the class. It does not cover the control TABLE, whose entries are
+    # whole source snippets written to carry the very escapes this detector looks
+    # for. Adding two f-string controls on 2026-09-01 therefore made the detector
+    # accuse itself twice and drove gate 13 to BROKEN -- a control counted as data,
+    # exactly the failure this file already documents one paragraph down.
+    # Scoped to the named table, not to any variable that looks like a control.
+    control_lines = set()
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Assign) and any(
+                isinstance(t, ast.Name) and t.id == "KNOWN_NEGATIVE_CONTROLS"
+                for t in n.targets):
+            for c in ast.walk(n.value):
+                if isinstance(c, ast.Constant) and isinstance(c.value, str):
+                    control_lines.add((c.lineno, c.col_offset))
     for node in ast.walk(tree):
         if not (isinstance(node, ast.Constant) and isinstance(node.value, str)):
             continue
+        if (node.lineno, node.col_offset) in control_lines:
+            continue
         val = node.value
-        seg = ast.get_source_segment(src, node) or ""
+        owner = node
+        if isinstance(parent.get(node), ast.JoinedStr):
+            owner = parent[node]
+        seg = ast.get_source_segment(src, owner) or ""
         hits = sorted(set(c for c in val if c in INTERPRETED))
         # A DETECTOR'S OWN VOCABULARY IS NOT AN INSTANCE OF WHAT IT DETECTS.
         # The first run flagged 8 sites and every one was a lookup-table key inside this

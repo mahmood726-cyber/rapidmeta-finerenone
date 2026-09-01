@@ -64,14 +64,23 @@ def main(argv):
 
     plant = subprocess.run([sys.executable, path, "--plant"], cwd=repo, capture_output=True)
     pout = plant.stdout.decode("utf-8", "replace")
-    held = plant.returncode == 0 and pout.count("[PASS]") == 6
+    # THE EXPECTED COUNT IS READ FROM THE DETECTOR, NOT HARDCODED. It was `== 6`, so
+    # ADDING A CONTROL broke the gate: on 2026-09-01 two controls were added for raw
+    # f-strings and the plant went 8/8, which the gate read as failure and reported
+    # BROKEN. A gate that refuses when its subject gains a control punishes exactly the
+    # change it exists to encourage, and the failure looks identical to a real one.
+    n_expected = detector_control_count(path)
+    n_pass = pout.count("[PASS]")
+    held = plant.returncode == 0 and n_pass == n_expected and n_expected > 0
     if held:
-        gate.control(6, 0, [], accuses=True)
+        gate.control(n_expected, 0, [], accuses=True)
         gate.saw("discriminates")
     else:
-        gate.control(6, 6, ["the detector's own plant did not hold"], accuses=True)
-        gate.broken("the detector's plant did not pass 6/6, so its counts are not usable. "
-                    "stdout: %s" % pout[-300:].replace(chr(10), " "))
+        gate.control(n_expected, n_expected,
+                     ["the detector's own plant did not hold"], accuses=True)
+        gate.broken("the detector's plant passed %d of the %d controls it declares, so its "
+                    "counts are not usable. stdout: %s"
+                    % (n_pass, n_expected, pout[-300:].replace(chr(10), " ")))
 
     proc = subprocess.run([sys.executable, path], cwd=repo, capture_output=True)
     if proc.returncode == 2:
@@ -139,6 +148,34 @@ def main(argv):
     return gate.report(denominator="%d Python files parsed; %d latent, %d frozen"
                        % (parsed, len(latent), len(found) - len(new)))
 
+
+
+# PLACED BELOW main() DELIBERATELY. Defining this above main() shifted every
+# line beneath it, and NONRAW_REGEX_ESCAPE_BACKLOG.json keys frozen sites by
+# file:line -- so the shift retired the real entry at :53 and manufactured a
+# NEW finding at :74 for a string that had not changed a byte. Python resolves
+# the name at call time, so main() reaches it from here. The keying is the real
+# defect and it is recorded as owed; not shifting lines is the cheap way to
+# avoid editing a frozen baseline in order to make a gate pass.
+def detector_control_count(path):
+    """How many known-negative controls does the detector DECLARE?
+
+    Read from its source, so adding a control cannot be mistaken for a failure.
+    Returns 0 if the table cannot be found, which fails closed: a detector whose
+    controls cannot be counted is not one whose counts should be trusted.
+    """
+    import ast as _ast
+    try:
+        tree = _ast.parse(open(path, encoding="utf-8").read())
+    except Exception:
+        return 0
+    for node in _ast.walk(tree):
+        if isinstance(node, _ast.Assign):
+            for t in node.targets:
+                if isinstance(t, _ast.Name) and t.id == "KNOWN_NEGATIVE_CONTROLS":
+                    if isinstance(node.value, (_ast.List, _ast.Tuple)):
+                        return len(node.value.elts)
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
