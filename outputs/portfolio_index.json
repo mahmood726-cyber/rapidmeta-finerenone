@@ -1,11 +1,11 @@
 {
  "generated": "2026-06-24T19:26:28",
- "n_total": 960,
- "n_pairwise": 847,
- "n_nma": 113,
- "n_with_r_validation": 731,
- "n_validated_provenance": 711,
- "n_stats_pending": 249,
+ "n_total": 19,
+ "n_pairwise": 19,
+ "n_nma": 0,
+ "n_with_r_validation": 17,
+ "n_validated_provenance": 9,
+ "n_stats_pending": 10,
  "rows": [
   {
    "file": "AGYW_HIV_PREP_REVIEW.html",
@@ -1866,5 +1866,24 @@
   "rows_whose_pooled_value_was_withdrawn_from_display": 0,
   "snapshot_generated": "2026-06-24T19:26:28",
   "what_this_does_NOT_check": "It does not compare the LIVE rows' NUMBERS against their objects. A row left LIVE may still be stale by value. And the UNMAPPED rows have no object at all -- they are uncheckable, never clean, and they are why any count here is a FLOOR."
+ },
+ "metadata_derivation": {
+  "derived_from": "rows[] at write time, by scripts/project_dashboard_index.py",
+  "denominator": "ssot_state == LIVE",
+  "n_rows_in_file": 71,
+  "n_not_live": 52,
+  "types_among_live": {
+   "Pairwise": 19
+  },
+  "previously_stored": {
+   "n_total": 960,
+   "n_pairwise": 847,
+   "n_nma": 113,
+   "n_with_r_validation": 731,
+   "n_validated_provenance": 711,
+   "n_stats_pending": 249
+  },
+  "why": "n_total read 960 beside 71 rows, of which 19 are LIVE. It rendered as 'Reviews shipped'. The stored counters were a second population that had stopped agreeing with the first, and nothing compared them. Deriving them here means they cannot disagree with their own rows again.",
+  "what_this_does_NOT_claim": "n_total counts rows this file can show are LIVE. The 52 not-live rows are tombstones and are counted above, not deleted. A row left LIVE may still be stale by value -- see projection.what_this_does_NOT_check."
  }
 }

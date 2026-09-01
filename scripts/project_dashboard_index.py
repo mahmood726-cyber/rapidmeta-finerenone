@@ -117,6 +117,63 @@ def fingerprint(pmap):
     return h.hexdigest()
 
 
+# ---------------------------------------------------------------------------
+# METADATA IS DERIVED FROM rows[], NEVER STORED BESIDE THEM.
+#
+# The snapshot stored n_total=960 next to 71 rows -- a 13.5x overstatement that
+# rendered on the dashboard as "Reviews shipped". No single-field check could
+# see it: every field was internally valid, and the two populations simply never
+# met. A stored count and the rows it describes are two populations under one
+# name, and they drift the moment either changes.
+#
+# LIVE is the denominator for anything the dashboard SERVES. The 52 not-live
+# rows are tombstones -- kept, labelled, and counted separately in the same
+# block, so completing the withdrawal never becomes hiding it.
+DERIVED_KEYS = ("n_total", "n_pairwise", "n_nma",
+                "n_with_r_validation", "n_validated_provenance", "n_stats_pending")
+
+
+def derive_metadata(snap):
+    """Recompute every headline counter from rows[]. Returns (derived, before)."""
+    rows = [r for r in (snap.get("rows") or []) if isinstance(r, dict)]
+    live = [r for r in rows if r.get("ssot_state") == LIVE]
+    types = {}
+    for r in live:
+        types[r.get("type")] = types.get(r.get("type"), 0) + 1
+    derived = {
+        "n_total": len(live),
+        "n_pairwise": types.get("Pairwise", 0),
+        "n_nma": types.get("NMA", 0),
+        "n_with_r_validation": sum(1 for r in live if r.get("k") is not None),
+        "n_validated_provenance": sum(
+            1 for r in live if isinstance(r.get("pooled_OR"), (int, float))),
+        "n_stats_pending": sum(
+            1 for r in live if not isinstance(r.get("pooled_OR"), (int, float))),
+    }
+    before = {k: snap.get(k) for k in DERIVED_KEYS}
+    snap.update(derived)
+    snap["metadata_derivation"] = {
+        "derived_from": "rows[] at write time, by scripts/project_dashboard_index.py",
+        "denominator": "ssot_state == LIVE",
+        "n_rows_in_file": len(rows),
+        "n_not_live": len(rows) - len(live),
+        "types_among_live": types,
+        "previously_stored": before,
+        "why": (
+            "n_total read 960 beside %d rows, of which %d are LIVE. It rendered as "
+            "'Reviews shipped'. The stored counters were a second population that had "
+            "stopped agreeing with the first, and nothing compared them. Deriving them "
+            "here means they cannot disagree with their own rows again."
+            % (len(rows), len(live))),
+        "what_this_does_NOT_claim": (
+            "n_total counts rows this file can show are LIVE. The %d not-live rows are "
+            "tombstones and are counted above, not deleted. A row left LIVE may still be "
+            "stale by value -- see projection.what_this_does_NOT_check."
+            % (len(rows) - len(live))),
+    }
+    return derived, before
+
+
 def project(snap, pmap):
     rows = snap.get("rows") or []
     tally, changed = {}, 0
@@ -173,6 +230,7 @@ def run(apply_changes=False):
     before = sum(1 for r in snap.get("rows") or []
                  if isinstance(r, dict) and isinstance(r.get("pooled_OR"), (int, float)))
     tally, changed = project(snap, pmap)
+    derived, meta_before = derive_metadata(snap)
     after = sum(1 for r in snap.get("rows") or []
                 if isinstance(r, dict) and isinstance(r.get("pooled_OR"), (int, float)))
 
@@ -181,6 +239,14 @@ def run(apply_changes=False):
     for k in sorted(tally, key=lambda x: -tally[x]):
         print("   %-18s %4d" % (k, tally[k]))
     print("\n   values withdrawn from display: %d" % changed)
+    md = snap["metadata_derivation"]
+    print("\n   METADATA DERIVED FROM rows[] (denominator: %s)" % md["denominator"])
+    for k in DERIVED_KEYS:
+        was = meta_before.get(k)
+        flag = "" if was == derived[k] else "   <- was %s" % was
+        print("      %-24s %4d%s" % (k, derived[k], flag))
+    print("      %-24s %4d   rows in file, %d not live (tombstones, kept)"
+          % ("(rows)", md["n_rows_in_file"], md["n_not_live"]))
     print("   objects fingerprint: %s" % snap["projection"]["objects_fingerprint"][:16])
     if apply_changes:
         with io.open(SNAP, "w", encoding="utf-8") as fh:
