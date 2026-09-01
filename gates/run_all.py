@@ -97,7 +97,12 @@ GATES = [
     # It costs what it costs.
     ("gate16_reader_can_check",
      "a reader can take a trial from the page and confirm it in the registry", "fast"),
-    ("gate15_component_contract",
+
+    # ADDED 2026-09-01, registered in the same commit that created it, because
+    # gate8 caught this very module written and left inert -- a check whose author
+    # left it uncalled in the session he wrote it to close an uncalled check.
+    ("gate17_registry_existence",
+     "no id that resolves to nothing may contribute a pooled row", "fast"),    ("gate15_component_contract",
      "a wired generator component carries no controls", "fast"),
 ]
 

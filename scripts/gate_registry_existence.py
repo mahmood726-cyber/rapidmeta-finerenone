@@ -207,6 +207,21 @@ def selftest(known):
     finally:
         open(victim, "wb").write(original_raw)          # the ORIGINAL BYTES back
 
+    # ---- KNOWN-NEGATIVE CONTROL ----------------------------------------
+    # ⭐ A gate that can only fire is not a gate. The positive plant above proves
+    # it CATCHES a fabricated id; this proves it does NOT ACCUSE a real one. An
+    # instrument with no measured false-positive rate is an assumption wearing a
+    # number, and an audit that accuses is more dangerous than one that misses.
+    real = sorted(known)[len(known) // 2]          # a genuine id from the snapshot
+    negative_txt = (original_txt[:mm.start(1)] + mm.group(1) + ", '%s'" % real
+                    + original_txt[mm.end(1):])
+    open(victim, "wb").write(negative_txt.encode("utf-8"))
+    try:
+        neg, _ = check(known, [victim])
+        false_positive = real in neg
+    finally:
+        open(victim, "wb").write(original_raw)
+
     sha_after = hashlib.sha256(open(victim, "rb").read()).hexdigest()
     ok_restore = sha_after == sha_before
     after_restore, _ = check(known, [victim])
@@ -218,7 +233,14 @@ def selftest(known):
     print("  sha256 after   : %s" % sha_after[:32])
     print("  restored, proved by sha256 of the bytes on disk : %s" % ok_restore)
     print("  after restore  : %d rejects (must equal before)" % len(after_restore))
-    ok = fired and ok_restore and set(after_restore) == set(before)
+    print("  CONTROL (positive): fabricated id planted -> gate fired: %s, expect True"
+          % fired)
+    print("  CONTROL (negative): real id %s planted -> gate accused it: %s, must be "
+          "False" % (real, false_positive))
+    ok = (fired and not false_positive and ok_restore
+          and set(after_restore) == set(before))
+    if ok:
+        print("  both controls held")          # the line a caller can read
     print("  SELFTEST %s" % ("PASS" if ok else "FAIL"))
     if not ok:
         sys.exit(1)
