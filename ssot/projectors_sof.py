@@ -1,3 +1,4 @@
+import re
 # -*- coding: utf-8 -*-
 """The HTA tab as a SUMMARY OF FINDINGS table, and the Guideline tab as an
 EVIDENCE-TO-DECISION COVERAGE MAP. Both derived. Neither composed.
@@ -244,6 +245,95 @@ def _observed_baselines(canon, oid):
     return out
 
 
+NEEDS_HORIZON = ("HR", "RATE_RATIO", "RATERATIO", "IRR")
+
+_HORIZON_PERIOD = re.compile(
+    r"[0-9]+(\.[0-9]+)?\s*(week|wk|month|mo|year|yr|day)s?", re.I)
+_HORIZON_OUTCOME_FIELDS = ("follow_up", "time_frame", "timeframe", "horizon",
+                           "follow_up_window")
+_HORIZON_TRIAL_FIELDS = ("registered_primary_timeframe", "follow_up",
+                         "median_follow_up", "duration")
+
+
+def _needs_horizon(measure):
+    return str(measure or "").strip().upper() in NEEDS_HORIZON
+
+
+def _horizon_text(v):
+    if isinstance(v, str) and v.strip() and _HORIZON_PERIOD.search(v):
+        return v.strip()
+    return None
+
+
+def _time_horizon(canon, oid):
+    """(text, field, caveat) for THIS outcome, or (None, None, None).
+
+    Outcome-specific fields first. A trial-level period is accepted only from
+    a trial that CONTRIBUTES this outcome -- lending another trial's follow-up
+    to this row is the same error the participants column just shed.
+
+    `caveat` is the object's own stored warning about the field, quoted, not
+    paraphrased. It exists on the registered-timeframe fields and says that a
+    registered primary timeframe is not necessarily overall follow-up.
+    """
+    trials = (canon.get("inputs") or {}).get("trials") or []
+    for t in trials:
+        if isinstance(t, dict) is False:
+            continue
+        e = (t.get("by_outcome") or {}).get(oid)
+        if isinstance(e, dict) is False:
+            continue
+        for f in _HORIZON_OUTCOME_FIELDS:
+            s = _horizon_text(e.get(f))
+            if s:
+                return s, "by_outcome.%s" % f, None
+    for t in trials:
+        if isinstance(t, dict) is False:
+            continue
+        if isinstance((t.get("by_outcome") or {}).get(oid), dict) is False:
+            continue
+        for f in _HORIZON_TRIAL_FIELDS:
+            s = _horizon_text(t.get(f))
+            if s:
+                basis = t.get(f + "_basis")
+                cav = basis.strip() if isinstance(basis, str) and basis.strip() \
+                    else None
+                return s, "trial.%s" % f, cav
+    return None, None, None
+
+
+def _horizon_assumption_html(measure, text, field, caveat):
+    """The assumption, stated. Fixed sentences plus quotations, no prose."""
+    m = str(measure or "").strip().upper()
+    if m in ("RATE_RATIO", "RATERATIO", "IRR"):
+        what = ("A rate ratio counts repeat events per unit of time. Applying "
+                "it to a baseline RISK, as the table below does, additionally "
+                "assumes events are rare enough over this period for a rate "
+                "and a risk to coincide.")
+    else:
+        what = ("A hazard ratio is not a risk ratio. Applying it to a baseline "
+                "risk, as the table below does, assumes the hazards are "
+                "proportional over the period below.")
+    out = ("  <div class='absent-state'><strong>What this conversion "
+           "assumes.</strong> %s The absolute numbers are risks OVER THAT "
+           "PERIOD, not lifetime risks. Period, quoted from <code>%s</code>: "
+           "<em>%s</em>." % (_e(what), _e(field), _e(text)))
+    if caveat:
+        out += (" The object stores this warning about that field, quoted: "
+                "<em>%s</em>" % _e(caveat))
+    return out + "</div>" + chr(10)
+
+
+def _horizon_declined_html(measure):
+    return ("  <div class='absent-state'><strong>"
+            "NOT_ESTIMABLE_NO_TIME_HORIZON.</strong> The summary measure is "
+            "%s, which describes events per unit of time. Converting it to an "
+            "absolute risk requires a stated period, and no trial contributing "
+            "this outcome records one. No absolute effect is shown rather than "
+            "one computed over an unstated period.</div>" % _e(measure)
+            + chr(10))
+
+
 def _declination(canon, oid):
     """What absolute_effect.py says about this block, in its own words."""
     try:
@@ -314,7 +404,15 @@ def sof_card(canon, p=None):
                   "some contributing trial holds no per-arm counts the cell "
                   "says so rather than showing a sum over the trials that "
                   "do, because a partial sum is not a total.</small></p>\n")
-        if _is_ratio(measure):
+        _hz_txt, _hz_field, _hz_cav = (None, None, None)
+        if _needs_horizon(measure):
+            _hz_txt, _hz_field, _hz_cav = _time_horizon(canon, oid)
+        if _is_ratio(measure) and _needs_horizon(measure) and _hz_txt is None:
+            inner += _horizon_declined_html(measure)
+        elif _is_ratio(measure):
+            if _hz_txt is not None:
+                inner += _horizon_assumption_html(
+                    measure, _hz_txt, _hz_field, _hz_cav)
             observed = _observed_baselines(canon, oid)
             rows = _absolute_rows(
                 measure, point, lo, hi,
