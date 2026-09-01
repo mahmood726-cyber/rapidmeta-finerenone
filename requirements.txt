@@ -22,3 +22,22 @@ playwright>=1.40  # optional: `pip install playwright && playwright install chro
 # had ever built a page already had Pillow from some other install. A dependency
 # that is only ever satisfied by accident is undeclared, not optional.
 Pillow>=10.0
+
+# ⛔ ALSO REQUIRED TO BUILD A PAGE, AND UNDECLARED FOR THE SAME REASON PILLOW WAS.
+# The import is INDIRECT, which is why grepping `ssot/` for it finds nothing and
+# concludes it is not in the build path -- that inference was made in this repo and
+# it was wrong. build_tabbed.py:2195 puts `scripts/lane_rob` on sys.path and line
+# 2246 does `import both_intervals`, whose `_t()` does `from scipy import stats`.
+#
+# It is NOT degradable. `_t` refuses rather than substituting a z quantile, and the
+# comment there states why: "that substitution is the whole defect" -- a t interval
+# replaced by a normal one is exactly the small-k error this project exists to
+# refuse, and at k=2 it is a factor of 6.5. So there is no fallback to write; the
+# only correct behaviours are "scipy present" or "build refused".
+#
+# And the refusal is HARD: build_tabbed wraps the import in `except Exception:
+# raise SystemExit("BUILD REFUSED: the interval component failed")`. On a cold
+# clone that is an ImportError wearing a domain error's message, which is a worse
+# failure than a missing module -- the reader is told the interval component is
+# broken when in fact nothing was installed.
+scipy>=1.11
