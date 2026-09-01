@@ -80,6 +80,48 @@ every unanchored-substring defect this project has recorded — `azilsartan`
 matching `ART`, `AFRICA` matching `AF`, `anaemia` matching `MI`, `revisions`
 matching `vision` — was the second kind.
 
+## TIER 1-2 predictions, registered before the run (added after TIER 0 reported)
+
+TIER 0 is scored. Predictions 3 (labelling, not reading) and the reviewer's
+split were right; **my prediction 1 was WRONG** and the reason matters here: I
+predicted availability would dominate, carrying a 61%-no-full-text figure that
+was true of **PMC** across to **CT.gov**, where the real figure was 15%. A number
+true of one population applied to another. So every prediction below names the
+population it is about.
+
+**P4 — availability, population = OUR 20-trial sample, source = AACT
+`study_references` + PMC OA.** I predict full text is reachable for FEWER than
+half of the 20. Basis: the earlier PMC measurement gave 13 of 33 (39%) on a
+different sample, and I expect a similar order here. If it comes back above 50%
+I was wrong, and the earlier 39% was sample-specific rather than a property of
+the corpus.
+
+**P5 — tier 1 (JATS tables), population = trials with a fetched PMC XML.** I
+predict `<table-wrap>` yields the four cells CLEANLY where a results table
+exists, and that the failure mode is the SAME labelling wall as tier 0: column
+headers will read `Etrolizumab` and `Placebo`, not `treatment` and `control`.
+
+**P6 — the first genuine MISMATCH appears at tier 1, not tier 0.** A typed JSON
+field cannot be row-misaligned; a table can. I predict >=1 MISMATCH at tier 1
+where tier 0 produced none, and that if it happens it is an alignment error
+(right number, wrong cell), not a misread digit.
+
+**P7 — tier 2 (prose regex) resolves almost nothing ALONE.** I predict it
+corroborates numbers already found by tiers 0-1 and independently resolves 0 or
+1 of the 20. Prose states percentages and effect sizes; denominators live in
+tables and CONSORT diagrams.
+
+**P8 — CONFLICT_BETWEEN_TIERS will be RARE but non-zero**, and where it occurs
+it will be a per-protocol versus intention-to-treat denominator difference
+rather than either tier being wrong. That is the case the fail-closed rule
+exists for, and resolving it by tier rank would publish one analysis set while
+citing another.
+
+**Exclusion, checked before the run:** all 20 sample ids are present in AACT
+`design_groups` 2026-08-30, so none is among the 45 malformed ids that resolve
+to nothing for a reader. Asserted from PRESENCE in the registry, not from
+absence from a list this lane does not hold.
+
 ## Scale and stopping rule
 
 Start at 20 trials spanning all four tiers. Hand-read five extractions. Then
