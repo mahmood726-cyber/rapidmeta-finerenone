@@ -29,14 +29,34 @@ _refuse() {
     echo ""
     echo "REFUSED."
     echo ""
-    echo "  WHAT TO FIX -- paths named by the check itself:"
+    echo "  WHAT TO FIX -- paths named by the check itself (scanned: $_scope):"
     # SEPARATOR CLASS, AND IT COST A TEST RUN TO FIND. This pattern first required a
     # forward slash. scripts/lint_control_chars.py prints os.sep -- on Windows
     # `scripts\plant_refusal_names_the_offender.py:7` -- so the extractor found
     # NOTHING and the refusal fell through to "this check named no path of its own":
     # a false accusation against a check that had named its offender perfectly, inside
     # the very helper written to stop refusals misdirecting the reader. Both separators.
-    _paths=$(grep -oE '(scripts|ssot|gates|evidence|outputs|figs|docs|tools)[\/\\][A-Za-z0-9_.@-]+([\/\\][A-Za-z0-9_.@-]+)*\.(py|json|html|md|txt|yml|yaml)(:[0-9]+)?' "$_log" 2>/dev/null | sort -u | head -25)
+    # ⛔ SCOPE THE EXTRACTION TO THE REFUSAL, NOT THE WHOLE LOG. The first version
+    # took the first 25 paths anywhere in the output. Gates like
+    # audit_exclusion_by_absence print their ENTIRE BASELINED POPULATION first --
+    # ~1,300 guards -- and the NEW offenders last, so the refusal named eleven
+    # innocent files and hid the one real one.
+    #
+    #     A REFUSAL THAT NAMES THE WRONG FILE IS WORSE THAN ONE THAT NAMES NONE.
+    #     It sends the reader somewhere specific and wrong, which is the exact
+    #     defect this helper was written to remove, reintroduced one layer in.
+    #
+    # Take the tail from the last REFUSED/FAILED line onward when there is one;
+    # fall back to the whole log when there is not, and say which was used.
+    _tail=$(awk '/REFUSED|FAILED|NEW .*guard|VERDICT: FAIL/{n=NR} END{print n+0}' "$_log" 2>/dev/null)
+    if [ "${_tail:-0}" -gt 0 ]; then
+        _scan=$(tail -n +"$_tail" "$_log" 2>/dev/null)
+        _scope="the refusal block"
+    else
+        _scan=$(cat "$_log" 2>/dev/null)
+        _scope="the whole log -- this check printed no refusal block"
+    fi
+    _paths=$(grep -oE '(scripts|ssot|gates|evidence|outputs|figs|docs|tools)[\/\\][A-Za-z0-9_.@-]+([\/\\][A-Za-z0-9_.@-]+)*\.(py|json|html|md|txt|yml|yaml)(:[0-9]+)?' <<< "$_scan" 2>/dev/null | sort -u | head -25)
     if [ -n "$_paths" ]; then
         printf '%s\n' "$_paths" | sed 's/^/      /'
     else

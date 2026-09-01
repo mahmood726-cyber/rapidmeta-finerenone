@@ -1,19 +1,35 @@
 # -*- coding: utf-8 -*-
 """PLANT: prove the published-correction guard fires, and that it is CALLED.
 
-⛔ WHY BOTH HALVES ARE NEEDED. A guard that works and is never invoked is the
-"available, not operative" defect this repo has shipped repeatedly -- most
-recently nine repo gates written, tested and called by nothing. Proving the
-function refuses is half the job; proving the builder runs it before the write
-is the other half, and the second half is the one that gets skipped.
+⛔ THE NAMED POSITIVE IS SYNTHETIC, AND THE FIRST VERSION OF THIS FILE GOT THAT
+WRONG. It picked a real page carrying a real correction --
+ABLATION_AF_HEART_FAILURE_REVIEW.html -- and asserted the guard fired on it.
 
-FOUR ASSERTIONS, EACH ON REAL BYTES
+    A CONTROL ANCHORED TO A LIVE DEFECT RETIRES ITSELF THE MOMENT THE DEFECT IS
+    FIXED, AND THEN PASSES FOREVER LOOKING HEALTHY.
 
-  1 the guard PASSES on a real correction page as it stands today
-  2 the guard REFUSES the same page with the correction removed
-  3 the guard REFUSES when the pinned list is absent -- an absent list is not an
-    empty list, and a silent skip would merge two opposite facts
-  4 the guard is WIRED: build_tabbed.py calls it immediately before the write
+Reword that page's correction, or repin its must_render, and the control either
+selects a different page silently or stops testing anything -- while still
+printing PASS. The same class was proven twice in this project already: a
+control keyed to a live artefact is correct locally, meaningless later, and
+silent about the difference.
+
+So the case that DECIDES the verdict is built in memory: a synthetic page, a
+synthetic corrections entry, and a sentence that exists nowhere else. It cannot
+be fixed out from under the test, and it cannot pass for the wrong reason.
+
+A live page is still exercised afterwards -- but as a SMOKE CHECK that is
+reported and cannot make the plant pass. If it stops finding a qualifying page,
+that is printed as a fact about the corpus, not swallowed.
+
+FIVE ASSERTIONS
+
+  1 SYNTHETIC: the guard passes a page whose pinned sentence is present
+  2 SYNTHETIC: the guard REFUSES the same page with that sentence removed,
+    naming the page and quoting the correction
+  3 SYNTHETIC: a page whose correction could not be pinned is refused outright
+  4 an absent list refuses -- an absent list is not an empty list
+  5 the guard is WIRED: build_tabbed.py calls it immediately before the write
 
 ⭐ NOTHING ON DISK IS TOUCHED. The planted defect is made in memory, so there is
 no restore to get wrong -- and a restore verified by anything short of a byte
@@ -24,8 +40,8 @@ comparison is how a test leaves damage behind.
 import io
 import json
 import os
-import re
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -34,123 +50,166 @@ sys.path.insert(0, os.path.join(ROOT, "ssot"))
 PROTECTED = {"BEMPEDOIC_ACID_REVIEW.html", "CANGRELOR_PCI_REVIEW.html",
              "INCRETIN_HFpEF_REVIEW.html", "ARNI_HF_REVIEW.html"}
 
+# A sentence that exists in no delivered page, so a false pass is impossible.
+SENTINEL = ("__CONTROL__ an earlier version of this synthetic page reported a "
+            "pooled estimate that was never real, and this sentence is the only "
+            "place it is recorded __CONTROL__")
 
-def pick():
-    """A real page with a pinned correction, avoiding every protected page."""
+SYNTH_PAGE = "__SYNTHETIC_CORRECTION_CONTROL__.html"
+SYNTH_HTML = ("<style>x</style><section class='panel' id='pn-protocol'>"
+              "<p>%s</p></section>" % SENTINEL)
+SYNTH_UNPINNABLE = "__SYNTHETIC_UNPINNABLE_CONTROL__.html"
+
+
+def _list_with(entries):
+    """Write a corrections list containing exactly the given entries."""
+    fd, path = tempfile.mkstemp(suffix=".json", prefix="plant_corrections_")
+    os.close(fd)
+    with io.open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(json.dumps({"pages": entries}, ensure_ascii=False, indent=1))
+    return path
+
+
+def live_smoke(dnr, out):
+    """Exercise a real page too -- reported, never decisive."""
     p = os.path.join(ROOT, "scripts", "baselines", "published_corrections.json")
+    if not os.path.exists(p):
+        out("  SMOKE  no corrections list on disk; no live page exercised")
+        return
     with io.open(p, encoding="utf-8") as fh:
         pages = json.load(fh).get("pages", {})
+    absent = 0
     for name, rec in sorted(pages.items()):
         if rec.get("class") != "PUBLISHED_CORRECTION" or not rec.get("must_render"):
             continue
         if name in PROTECTED or "HFREF" in name or "ARNI" in name:
             continue
-        if os.path.exists(os.path.join(ROOT, name)):
-            return name, rec["must_render"]
-    return None, None
+        fp = os.path.join(ROOT, name)
+        # POSITIVE FORM, AND THE ABSENT ONES ARE COUNTED. `if not os.path.exists:
+        # continue` inside a loop over the corpus drops a candidate before it is
+        # counted anywhere, so the smoke check could silently examine nothing and
+        # still print a line. audit_exclusion_by_absence refused this file for it
+        # and was right.
+        if os.path.exists(fp):
+            pass
+        else:
+            absent += 1
+            continue
+        with io.open(fp, encoding="utf-8", errors="replace") as fh:
+            html = fh.read()
+        try:
+            dnr.check_correction_survives(fp, html)
+            out("  SMOKE  live page %s accepted as it stands (%d bytes)"
+                % (name, len(html)))
+        except SystemExit as exc:
+            out("  SMOKE  live page %s REFUSED as it stands: %s"
+                % (name, str(exc)[:120]))
+            out("         (reported, not decisive -- the verdict is the synthetic case)")
+        return
+    out("  SMOKE  no live page qualifies: %d listed page(s) are absent from disk, "
+        "the rest are unpinned or protected. That is a fact about the corpus, "
+        "not a pass." % absent)
 
 
 def main():
     import do_not_rebuild as dnr
 
-    page, must = pick()
-    if page is None:
-        print("REFUSED: no page carries a PINNED published correction, so this plant "
-              "has nothing real to test. That is a finding, not a pass.")
-        return 2
-    path = os.path.join(ROOT, page)
-    with io.open(path, encoding="utf-8", errors="replace") as fh:
-        html = fh.read()
-    before = len(html)
-    print("PLANT: published-correction guard")
-    print("  page   %s  (%d bytes)" % (page, before))
-    print("  pinned %s" % must[:120])
-    print("")
-
+    say = print
+    say("PLANT: published-correction guard")
+    say("  named positive: SYNTHETIC, built in memory, anchored to nothing live")
+    say("")
     ok = True
+    real_list = dnr.CORRECTIONS
+    tmps = []
 
-    # 1 -- passes as it stands
     try:
-        dnr.check_correction_survives(path, html)
-        print("  1 PASS  the guard accepts the page as it stands today")
-    except SystemExit as exc:
-        print("  1 *** FAIL *** the guard refuses an UNMODIFIED page: %s" % str(exc)[:160])
-        ok = False
+        # ---- 1 and 2: pinned sentence present, then removed ------------------
+        lst = _list_with({SYNTH_PAGE: {"class": "PUBLISHED_CORRECTION",
+                                       "must_render": SENTINEL}})
+        tmps.append(lst)
+        dnr.CORRECTIONS = lst
+        path = os.path.join(ROOT, SYNTH_PAGE)
 
-    # 2 -- refuses with the correction removed
-    norm = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
-    frag = re.sub(r"\s+", " ", must).strip()
-    # Remove the sentence from the RENDERED text by removing the words that carry
-    # it; the crudest reliable planting is to delete the longest run of the pinned
-    # sentence wherever it appears in the source.
-    longest = max(re.split(r"<[^>]+>", must), key=len) if "<" in must else must
-    planted = html.replace(longest.strip(), "", 1) if longest.strip() in html else None
-    if planted is None:
-        words = [w for w in frag.split(" ") if len(w) > 6][:8]
-        planted = html
-        for w in words:
-            planted = planted.replace(w, "", 1)
-    try:
-        dnr.check_correction_survives(path, planted)
-        print("  2 *** FAIL *** the guard ACCEPTED a page with the correction removed. "
-              "It cannot report the thing it exists for.")
-        ok = False
-    except SystemExit as exc:
-        msg = str(exc)
-        named = page in msg and "DROPPED IT" in msg
-        print("  2 PASS  the guard refuses the page with the correction removed")
-        print("          and %s the page and quotes the correction"
-              % ("names" if named else "*** DOES NOT name ***"))
-        if not named:
+        try:
+            dnr.check_correction_survives(path, SYNTH_HTML)
+            say("  1 PASS  guard accepts a synthetic page carrying its pinned sentence")
+        except SystemExit as exc:
+            say("  1 *** FAIL *** guard refuses a page that DOES carry it: %s"
+                % str(exc)[:150])
             ok = False
 
-    # 3 -- an absent list refuses rather than passing
-    real = dnr.CORRECTIONS
-    try:
+        stripped = SYNTH_HTML.replace(SENTINEL, "")
+        try:
+            dnr.check_correction_survives(path, stripped)
+            say("  2 *** FAIL *** guard ACCEPTED a page with the correction removed. "
+                "It cannot report the thing it exists for.")
+            ok = False
+        except SystemExit as exc:
+            msg = str(exc)
+            named = SYNTH_PAGE in msg and "DROPPED IT" in msg
+            quoted = SENTINEL[:40] in msg
+            say("  2 PASS  guard refuses the same page with the sentence removed")
+            say("          names the page: %s   quotes the correction: %s"
+                % (named, quoted))
+            if not (named and quoted):
+                ok = False
+
+        # ---- 3: a correction that could not be pinned ------------------------
+        lst2 = _list_with({SYNTH_UNPINNABLE: {"class": "PUBLISHED_CORRECTION",
+                                              "must_render": None}})
+        tmps.append(lst2)
+        dnr.CORRECTIONS = lst2
+        try:
+            dnr.check_correction_survives(os.path.join(ROOT, SYNTH_UNPINNABLE),
+                                          "<style>x</style><p>anything</p>")
+            say("  3 *** FAIL *** an UNPINNABLE correction was rebuilt anyway")
+            ok = False
+        except SystemExit as exc:
+            say("  3 PASS  an unpinnable correction refuses the rebuild outright")
+
+        # ---- 4: absent list ---------------------------------------------------
         dnr.CORRECTIONS = os.path.join(ROOT, "scripts", "baselines",
                                        "__absent_for_the_plant.json")
         try:
-            dnr.check_correction_survives(path, html)
-            print("  3 *** FAIL *** an ABSENT list was treated as an empty one")
+            dnr.check_correction_survives(path, SYNTH_HTML)
+            say("  4 *** FAIL *** an ABSENT list was treated as an empty one")
             ok = False
         except SystemExit as exc:
-            print("  3 PASS  an absent list refuses: %s" % str(exc)[:90])
-    finally:
-        dnr.CORRECTIONS = real
+            say("  4 PASS  an absent list refuses rather than passing")
 
-    # 4 -- the guard is actually CALLED, immediately before the write
+    finally:
+        dnr.CORRECTIONS = real_list
+        for t in tmps:
+            try:
+                os.remove(t)
+            except Exception:
+                pass
+
+    # ---- 5: the guard is actually CALLED ------------------------------------
     with io.open(os.path.join(ROOT, "ssot", "build_tabbed.py"), encoding="utf-8") as fh:
         src = fh.read().split("\n")
     call = [i for i, l in enumerate(src) if "check_correction_survives(" in l]
     write = [i for i, l in enumerate(src)
              if l.strip().startswith('open(out, "w"') and ".write(_html)" in l]
     if call and write and 0 < (write[0] - call[0]) <= 3:
-        print("  4 PASS  build_tabbed.py calls it %d line(s) before the write"
-              % (write[0] - call[0]))
+        say("  5 PASS  build_tabbed.py calls it %d line(s) before the write"
+            % (write[0] - call[0]))
     else:
-        print("  4 *** FAIL *** the guard is not called immediately before the write "
-              "(call=%s write=%s). A guard nothing invokes is not operative."
-              % (call, write))
+        say("  5 *** FAIL *** not called immediately before the write (call=%s "
+            "write=%s). A guard nothing invokes is not operative." % (call, write))
         ok = False
 
-    # nothing was written; prove it
-    with io.open(path, encoding="utf-8", errors="replace") as fh:
-        after = len(fh.read())
-    print("")
-    print("  page unchanged on disk: %s (%d -> %d bytes)"
-          % ("yes" if before == after else "*** NO ***", before, after))
-    if before != after:
-        ok = False
-
-    print("")
-    print("  %s" % ("PLANT PROVEN: the guard refuses a dropped correction, refuses an "
-                    "absent list, and is invoked before the write."
-                    if ok else
-                    "PLANT NOT PROVEN -- read the failures above. Until this passes, no "
-                    "page may be rebuilt."))
+    say("")
+    live_smoke(dnr, say)
+    say("")
+    say("  %s" % ("PLANT PROVEN on a synthetic control: the guard refuses a dropped "
+                  "correction, refuses an unpinnable one, refuses an absent list, and "
+                  "is invoked before the write."
+                  if ok else
+                  "PLANT NOT PROVEN -- read the failures above. Until this passes, no "
+                  "page may be rebuilt."))
     return 0 if ok else 1
 
 
 if __name__ == "__main__":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     sys.exit(main())
