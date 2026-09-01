@@ -138,6 +138,10 @@
   "scripts/ictrp_search.py": {
    "state": "NOT-A-CORPUS-REMOVAL",
    "why": "`os.unlink(pf)` in a `finally`, where pf is the temp file holding the POST body for one ICTRP request. It is created and destroyed inside a single function call and never leaves it. Deleting it is the cleanup of a request, not the removal of an artefact."
+  },
+  "scripts/plant_correction_survives_rebuild.py": {
+   "state": "NOT-A-CORPUS-REMOVAL",
+   "why": "os.remove() in a `finally`, over paths this script created itself seconds earlier with tempfile.mkstemp -- the two throwaway corrections lists the plant writes so it can exercise the guard against a SYNTHETIC entry instead of a live page. They live in the system temp directory, are never read by anything else, and exist only inside one function call. Deleting them is the cleanup of a fixture, not the removal of an artefact. ⭐ AND THE PLANT TOUCHES NO DELIVERED PAGE AT ALL: its named positive is built in memory precisely so there is no restore to get wrong, which is why the only paths it removes are ones it invented."
   }
  }
 }
