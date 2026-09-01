@@ -16,6 +16,22 @@ if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 HERE = Path(__file__).resolve().parent.parent
+import importlib.util as _ilu
+
+
+def _load(mod, rel):
+    """Import a sibling script WITHOUT copying its logic. A second reader of the
+    same fact is how two surfaces begin disagreeing about one artefact."""
+    _sp = _ilu.spec_from_file_location(mod, str(HERE / "scripts" / rel))
+    _m = _ilu.module_from_spec(_sp)
+    _src = open(_sp.origin, encoding="utf-8").read().split(chr(10) + "if __name__")[0]
+    exec(compile(_src, _sp.origin, "exec"), _m.__dict__)
+    return _m
+
+
+STORE_REFUSAL = _load("store_refusal", "store_refusal.py")
+MEMBERSHIP = _load("sidecar_membership", "sidecar_membership.py")
+
 BIN_DIR = HERE / "outputs" / "r_validation"
 CONT_DIR = HERE / "outputs" / "r_validation" / "continuous"
 
@@ -75,6 +91,7 @@ def read_binary_sidecars():
             "tau2": d.get("tau2"),
             "hksj_floor": bool(d.get("hksj_floor_applied", False)),
             "page": _find_source_page(stem),
+            "_sidecar": d,
         })
     return rows
 
@@ -111,12 +128,121 @@ def read_continuous_sidecars():
             "tau2": d.get("tau2"),
             "hksj_floor": bool(d.get("hksj_floor_applied", False)),
             "page": page,
+            "_sidecar": d,
         })
     return rows
 
 
-def _row_html(r: dict, idx: int) -> str:
-    """Render one <tr> for the table."""
+# --- WITHHOLDING, DECIDED HERE AND RENDERED BELOW -------------------------------
+# RULED: withhold AT THE GENERATOR, never by post-editing a served page. Eleven rows
+# were hand-written into portfolio_pools.html on 2026-08-31 and this generator knew
+# nothing about them -- one run would have erased every disclosure silently.
+#
+# A WITHHELD CELL WHOSE REASON NAMES NO TRIALS IS THE SAME DEFECT ONE LEVEL DOWN, so
+# every reason below names the trials it is about.
+#
+# AND A WRONG REASON IS WORSE THAN NO REASON. The AGYW row previously read "the
+# endpoint this number measures is not recorded" -- which invites a reader to conclude
+# the NUMBER is right and only the LABEL is missing. It is the other way round: that
+# pool is built from HPTN 082 and FACTS-001, and the review is a dapivirine-ring review
+# of ASPIRE and the Ring Study. Understating a defect directs the reader's inference
+# wrongly.
+POLARITY_WITHHOLDING_ENABLED = False   # RULING B, held pending the tau-squared lane.
+# Enabling this is one line and a decision, not a rewrite. It would withhold 9 of 99
+# rows; the store-level figure is 97 of 163 PAGE_MAP pages and DOES NOT transfer,
+# because 74 pool stems map to no PAGE_MAP page at all.
+
+
+def _page_html(page):
+    fp = HERE / page
+    if not fp.exists():
+        return None
+    return fp.read_text(encoding="utf-8", errors="replace")
+
+
+def withholding_for(row, sidecar, page_map):
+    """[{kind, reason, trials, source}] for one pool row. Callers render; they do
+    not re-decide. Empty means nothing is withheld."""
+    out = []
+    page = row.get("page") or ""
+
+    for w in STORE_REFUSAL.for_page(page, page_map):
+        if w["kind"] == "polarity-unknown" and not POLARITY_WITHHOLDING_ENABLED:
+            continue
+        out.append({"kind": w["kind"], "reason": w["reason"],
+                    "trials": [], "source": w["source"]})
+
+    html_text = _page_html(page)
+    if sidecar is not None and html_text is not None:
+        state, ev = MEMBERSHIP.classify(sidecar, html_text)
+        if state in ("EXCLUDED_BY_REVIEW", "DISJOINT"):
+            excluded = ev.get("present_only_as_an_excluded_record") or []
+            absent = ev.get("absent_from_the_page") or []
+            bits = []
+            if excluded:
+                bits.append("%s appears on the review page ONLY inside its "
+                            "excluded-records list -- the review considered it and "
+                            "said no, and this pool took it anyway"
+                            % ", ".join(excluded))
+            if absent:
+                bits.append("%s does not appear on the review page at all"
+                            % ", ".join(absent))
+            out.append({
+                "kind": "SIDECAR_TRIAL_SET_DISJOINT_FROM_REVIEW",
+                "reason": ("This estimate is not this review's. It pools %s, and %s. "
+                           "A pool built from trials the review does not include "
+                           "answers a different question, so the number is withheld "
+                           "rather than shown beside the review's name."
+                           % (", ".join(ev.get("pooled") or []), "; ".join(bits))),
+                "trials": ev.get("pooled") or [],
+                "source": "outputs/r_validation/%s.json" % row.get("stem", "")})
+
+    if sidecar is not None and row.get("k") == 1:
+        out.append({
+            "kind": "SINGLE_TRIAL_NOT_A_POOL",
+            "reason": ("Nothing is pooled here: k=1. The value is one trial's own "
+                       "result and is not a synthesis."),
+            "trials": [t for t, _ in MEMBERSHIP.trial_labels(sidecar)],
+            "source": "outputs/r_validation/%s.json" % row.get("stem", "")})
+    return out
+
+
+def _withheld_cells(kinds):
+    return ('<td class="pool"><span class="withheld-pool" data-withheld="%s">withheld</span></td>'
+            '<td class="ci"><span class="withheld-pool">withheld</span></td>'
+            '<td class="pi"><span class="withheld-pool">withheld</span></td>'
+            % html.escape(",".join(kinds)))
+
+
+def _detail_row(row, whs):
+    blocks = []
+    for w in whs:
+        # LABELS ARE RENDERED VERBATIM. Several sidecars store a truncated label --
+        # AGYW_HIV_PREP holds "HPTN 082 (oral PrEP" with the bracket unclosed. Tidying
+        # it here would hide a defect in the stored record and make the surface look
+        # tidier than the data is; leaving it bare invites the reader to blame the
+        # page. So it is shown as stored and MARKED as stored.
+        trials = ""
+        if w.get("trials"):
+            ragged = any(t.count("(") != t.count(")") for t in w["trials"])
+            trials = ('<span class="withheld-trials">Trials in this pool: %s%s</span>'
+                      % (html.escape("; ".join(w["trials"])),
+                         (" [labels shown exactly as the sidecar stores them; one or "
+                          "more is truncated in the record itself]") if ragged else ""))
+        blocks.append('<div class="withheld-reason" data-fact="%s">%s %s'
+                      '<span class="withheld-src">-- %s</span></div>'
+                      % (html.escape(w["kind"]), html.escape(w["reason"]), trials,
+                         html.escape(w.get("source") or "")))
+    return ('<tr class="withheld-detail" data-stem="%s" data-withheld="%s">'
+            '<td colspan="10">%s</td></tr>'
+            % (html.escape(str(row.get("stem", "")).lower()),
+               html.escape(",".join(w["kind"] for w in whs)), "".join(blocks)))
+
+
+def _row_html(r: dict, idx: int, whs=None) -> str:
+    """Render one <tr>. When `whs` is non-empty the pooled cells are
+    replaced by a withheld marker and a detail row carrying the reason
+    and the trials by name."""
     sig_class = ""
     pool = r["pool"]
     lci, uci = r["lci"], r["uci"]
@@ -161,20 +287,32 @@ def _row_html(r: dict, idx: int) -> str:
     page_link = html.escape(r["page"])
     stem_disp = html.escape(r["stem"])
 
-    return (
-        f'<tr data-stem="{html.escape(r["stem"].lower())}" data-scale="{r["scale"]}" '
-        f'data-k="{r["k"]}" class="{sig_class}">'
-        f'<td><a href="{page_link}">{stem_disp}</a></td>'
-        f'<td class="scale">{r["scale"]}</td>'
-        f'<td class="k">{r["k"]}</td>'
+    whs = whs or []
+    if whs:
+        # A withheld row carries NO significance class: it has not been shown to
+        # have a direction, and colouring it would assert one.
+        sig_class = ""
+    body = (
         f'<td class="pool">{pool_fmt}</td>'
         f'<td class="ci">{ci_fmt}</td>'
         f'<td class="pi">{pi_fmt}</td>'
-        f'<td class="i2">{i2_fmt}{"%" if i2_fmt else ""}</td>'
-        f'<td class="qp">{qp_fmt}</td>'
-        f'<td class="tau2">{tau2_fmt}</td>'
-        f'<td class="floor">{floor_badge}</td>'
-        f'</tr>'
+    ) if not whs else _withheld_cells([w["kind"] for w in whs])
+
+    return (
+        f'<tr data-stem="{html.escape(r["stem"].lower())}" data-scale="{r["scale"]}" '
+        f'data-k="{r["k"]}"'
+        + (f' data-withheld="{html.escape(",".join(w["kind"] for w in whs))}"' if whs else "")
+        + f' class="{sig_class}">'
+        f'<td><a href="{page_link}">{stem_disp}</a></td>'
+        f'<td class="scale">{r["scale"]}</td>'
+        f'<td class="k">{r["k"]}</td>'
+        + body
+        + f'<td class="i2">{i2_fmt}{"%" if i2_fmt else ""}</td>'
+        + f'<td class="qp">{qp_fmt}</td>'
+        + f'<td class="tau2">{tau2_fmt}</td>'
+        + f'<td class="floor">{floor_badge}</td>'
+        + '</tr>'
+        + (_detail_row(r, whs) if whs else "")
     )
 
 
@@ -201,7 +339,29 @@ def main():
     sig_benefit = sum(1 for r in rows if r["kind"] == "binary" and r["uci"] is not None and r["uci"] < 1.0)
     sig_harm = sum(1 for r in rows if r["kind"] == "binary" and r["lci"] is not None and r["lci"] > 1.0)
 
-    body = "\n".join(_row_html(r, i) for i, r in enumerate(rows))
+    # DECIDE WITHHOLDING BEFORE RENDERING, and PRINT what was withheld so the run
+    # states it rather than leaving it to be found in the output.
+    try:
+        with open(str(HERE / "ssot" / "PAGE_MAP.json"), encoding="utf-8") as _fh:
+            page_map = json.load(_fh)
+    except Exception:
+        page_map = {}
+    withheld_by_row, wh_kinds = {}, Counter()
+    for _i, _r in enumerate(rows):
+        _whs = withholding_for(_r, _r.get("_sidecar"), page_map)
+        if _whs:
+            withheld_by_row[_i] = _whs
+            for _w in _whs:
+                wh_kinds[_w["kind"]] += 1
+    print("withheld rows: %d of %d" % (len(withheld_by_row), len(rows)))
+    for _k, _n in sorted(wh_kinds.items()):
+        print("   %-44s %d" % (_k, _n))
+    if not POLARITY_WITHHOLDING_ENABLED:
+        print("   polarity-unknown SUPPRESSED -- ruling B is held; enabling it is",
+              "one line and a decision, not a rewrite")
+
+    body = chr(10).join(_row_html(r, i, withheld_by_row.get(i))
+                        for i, r in enumerate(rows))
     summary_row = f"""
     <div class="summary-row">
       <div class="summary-card"><div class="num">{len(rows):,}</div><div class="lab">Total pools</div></div>
