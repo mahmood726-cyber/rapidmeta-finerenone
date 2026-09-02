@@ -69,6 +69,36 @@ def main(argv):
                      [os.path.join(HERE, "prose_claim_gate.py"), "--selftest"])
         fails += run("citation-year gate -- self-test",
                      [os.path.join(HERE, "citation_year_gate.py"), "--selftest"])
+        fails += run("denominator axis gate -- self-test",
+                     [os.path.join(HERE, "denominator_axis_gate.py"), "--selftest"])
+        fails += run("derived recompute gate -- self-test",
+                     [os.path.join(HERE, "derived_recompute_gate.py"), "--selftest"])
+        fails += run("contradicting surfaces gate -- self-test",
+                     [os.path.join(HERE, "contradicting_surfaces_gate.py"), "--selftest"])
+        fails += run("method label gate -- self-test",
+                     [os.path.join(HERE, "method_label_gate.py"), "--selftest"])
+        fails += run("registration chronology gate -- self-test",
+                     [os.path.join(HERE, "registration_chronology_gate.py"), "--selftest"])
+        fails += run("refusal reads outcome groups gate -- self-test",
+                     [os.path.join(HERE, "refusal_reads_outcome_groups_gate.py"), "--selftest"])
+        fails += run("unordered iteration lint -- self-test",
+                     [os.path.join(HERE, "lint_unordered_iteration.py"), "--selftest"])
+        # THE TWO NEGATIVE TESTS, run here because that is what they are: each plants a
+        # defect and requires the code under test to refuse it. Both fired against the
+        # parent commit before their fixes landed, which is the only thing that makes a
+        # passing plant mean anything.
+        fails += run("page properties can refuse -- planted defects",
+                     [os.path.join(HERE, "test_properties_can_refuse.py")])
+        fails += run("source hierarchy -- planted defects",
+                     [os.path.join(HERE, "test_source_hierarchy_refuses.py")])
+        # The three ratchet gates carry their positive and negative controls inline and
+        # refuse BEFORE printing any count, so running them here exercises those controls.
+        fails += run("property recompute gate -- controls + ratchet",
+                     [os.path.join(HERE, "property_recompute_gate.py")])
+        fails += run("source hierarchy gate -- controls + ratchet",
+                     [os.path.join(HERE, "source_hierarchy_gate.py")])
+        fails += run("refusal reason gate -- controls + ratchet",
+                     [os.path.join(HERE, "refusal_reason_gate.py")])
         print("\n%d self-test(s) FAILED" % fails)
         return fails
 
