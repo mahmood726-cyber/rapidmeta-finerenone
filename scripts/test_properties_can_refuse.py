@@ -14,8 +14,8 @@ THREE INSTRUMENTS, AND THEY PROVE DIFFERENT THINGS
    literals: P1, P2, P3 (in its held branch), P4 and P5. That is the negative test the
    fix had to clear, and it calls the real module rather than a copy of it.
 
-       git show origin/main:ssot/build_to_standard.py > /tmp/pre.py
-       python scripts/test_properties_can_refuse.py --source /tmp/pre.py
+       git show origin/main:ssot/build_to_standard.py > "$SCRATCH/build_to_standard.prefix.py"
+       python scripts/test_properties_can_refuse.py --source "$SCRATCH/build_to_standard.prefix.py"
        -> FAIL: 5 properties emitted as a literal HELD
 
 3. The production evidence, which is stronger than either and is not synthetic:

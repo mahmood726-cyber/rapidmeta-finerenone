@@ -2,10 +2,16 @@
 # CLASS 3 RULE MADE MECHANICAL: stage by path, never `git add -A`.
 # Prose did not hold it -- the rule was broken in the commit immediately after
 # it was written. This refuses a commit that stages files outside ssot/,
-# scripts/, .githooks/, or a top-level markdown/config file, unless
+# scripts/, gates/, .githooks/, or a top-level markdown/config file, unless
 # STAGING_WIDE=1 is set deliberately.
+#
+# `gates/` added 2026-09-02. It is a first-class source directory here -- gates/run_all.py
+# is invoked by the pre-push hook and by CI, and two dozen gate modules live in it -- but
+# it was missing from the list, so every commit touching a gate needed STAGING_WIDE=1. A
+# guard whose ORDINARY use requires its own escape hatch teaches the hatch, and the hatch
+# is the thing actually holding back `git add -A`.
 changed=$(git diff --cached --name-only)
-bad=$(printf '%s\n' "$changed" | grep -vE '^(ssot/|scripts/|\.githooks/|[A-Za-z0-9_.-]+\.(md|json|txt|yml|yaml)$|\.gitignore$)' | head -20)
+bad=$(printf '%s\n' "$changed" | grep -vE '^(ssot/|scripts/|gates/|\.githooks/|[A-Za-z0-9_.-]+\.(md|json|txt|yml|yaml)$|\.gitignore$)' | head -20)
 if [ -n "$bad" ] && [ "$STAGING_WIDE" != "1" ]; then
   echo "REFUSED: staged paths outside the declared set." >&2
   echo "$bad" >&2
