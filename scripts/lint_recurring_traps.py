@@ -459,6 +459,40 @@ def selftest():
     return 0
 
 
+
+def _control_eval():
+    """-> (planted_hits, clean_flagged). Runs _ARM_CASES through the REAL path --
+    _mark_module_scope then _Trap().visit -- because a control that searches different
+    bytes than the corpus pass is the very defect this file exists to catch."""
+    planted, clean_flagged = 0, 0
+    for _label, src, want in _ARM_CASES:
+        tree = ast.parse(src)
+        _mark_module_scope(tree)
+        t = _Trap()
+        t.visit(tree)
+        got = len([h for h in t.hits if h[0] == "stdout_double_wrap"])
+        if want and got:
+            planted += 1
+        if (not want) and got:
+            clean_flagged += 1
+    return planted, clean_flagged
+
+
+def controls():
+    """A detector that has only ever returned negatives is indistinguishable from a broken
+    one, and the siblings are the load-bearing half: a detector that refuses EVERYTHING
+    passes both plants, and a check that can only refuse is a wall, not a check."""
+    sys.path.insert(0, _HERE)
+    from instrument_controls import require_controls
+    planted, clean_flagged = _control_eval()
+    n_pos = sum(1 for c in _ARM_CASES if c[2])
+    require_controls(
+        "lint_recurring_traps",
+        ("a module-scope stdout/stderr rebind must trip the detector", planted, n_pos),
+        ("a rebind guarded by __main__, or inside a function, must NOT",
+         clean_flagged > 0, True))
+
+
 def main(argv):
     ap = argparse.ArgumentParser()
     # ⛔ GATING IS THE DEFAULT, AND THAT IS FORCED BY HOW THE RUNNER INVOKES CHECKS.
@@ -479,6 +513,7 @@ def main(argv):
     a = ap.parse_args(argv)
     if a.selftest:
         return selftest()
+    controls()
 
     # ⛔ SCOPED TO THE COMMIT, BECAUSE FOUR LANES SHARE THIS WORKTREE AND A TREE-WIDE
     # HOOK MAKES EVERY LANE'S VIOLATION BLOCK EVERY OTHER LANE'S COMMIT. That already

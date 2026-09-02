@@ -178,7 +178,12 @@
   "scripts/marker_prefix_gate.py::if not marked:#0",
   "scripts/marker_prefix_gate.py::if not os.path.exists(f):#0",
   "scripts/measure_p47_gap_corpus_2026_08_21.py::if not p46.pooled_outcomes(obj):#0",
+  "scripts/measure_topic_trial_retrievability_2026_08_26.py::if not trials:#0",
   "scripts/merge_azilsartan_2026_08_19.py::if not os.path.exists(p2):#0",
+  "scripts/methodology/aact_sweep.py::if not cand:#0",
+  "scripts/methodology/aact_sweep.py::if not conds:#0",
+  "scripts/methodology/aact_sweep.py::if not ing:#0",
+  "scripts/methodology/aact_sweep.py::if not terms:#0",
   "scripts/metric_consistency_triage.py::if not n.startswith(\"NCT\"):#0",
   "scripts/metric_consistency_triage.py::if not os.path.exists(f):#0",
   "scripts/migrate_effect_keys.py::if not old_keys:#0",
@@ -223,6 +228,7 @@
   "scripts/subject_role_triage.py::if not os.path.exists(f):#0",
   "scripts/subject_role_triage.py::if not subj:#0",
   "scripts/sweep_abstract_omits_withdrawn_2026_08_22.py::if not unmentioned:#0",
+  "scripts/sweep_estimand_established_unrecorded_2026_08_27.py::if not isinstance(b, dict):#0",
   "scripts/sweep_mixed_measure_pools_2026_08_21.py::if not g:#0",
   "scripts/sweep_mixed_measure_pools_2026_08_21.py::if not isinstance(blk, dict):#0",
   "scripts/sweep_mixed_measure_pools_2026_08_21.py::if not kinds:#0",
@@ -247,9 +253,7 @@
   "ssot/build_to_standard.py::if not os.path.exists(p2):#0",
   "ssot/corpus_reconcile.py::if not items:#0",
   "ssot/known_answer_placebo_naming.py::if not fn.endswith(\".json\"):#0",
-  "ssot/publish_refusals.py::if not os.path.exists(path):#0",
-  "scripts/measure_topic_trial_retrievability_2026_08_26.py::if not trials:#0",
-  "scripts/sweep_estimand_established_unrecorded_2026_08_27.py::if not isinstance(b, dict):#0"
+  "ssot/publish_refusals.py::if not os.path.exists(path):#0"
  ],
  "baselined_with_reason": {
   "scripts/lint_arm_roles_contradict_the_object.py:166": "`if not arms` IS the property meant. A trial with no arms is UNREAD, and the guard increments trials_unread before continuing rather than dropping the row silently -- the absence is counted and reported as a third state, which is the opposite of the reading-order rollout's defect.",
@@ -487,5 +491,12 @@
    "why": "Negative guards in scripts/lane_rob/estimand_label_gate.py, arriving by merge from the RoB lane. Admitted rather than rewritten: they are that lane's code, and restating another author's guard positively would be an edit to a detector this lane does not own. Keys come from the audit's OWN scanner and ratchet -- never retyped from the console, whose display truncates them, and never rebuilt by hand: a first attempt passed a list of paths to keys_for(), which expects hit tuples, and wrote the junk key 's::i#0' into this file. That was reverted."
   }
  ],
- "rebaselined_2026_08_27": "Three guards from the registry-results rule-change work. The first was MEASURED rather than assumed: 403 of 403 identifiers are NCT, so the absence excludes nothing today and is recorded as unsafe in general."
+ "rebaselined_2026_08_27": "Three guards from the registry-results rule-change work. The first was MEASURED rather than assumed: 403 of 403 identifiers are NCT, so the absence excludes nothing today and is recorded as unsafe in general.",
+ "admitted_2026_09_02_read_and_correct": [
+  "scripts/methodology/aact_sweep.py::if not cand:#0",
+  "scripts/methodology/aact_sweep.py::if not conds:#0",
+  "scripts/methodology/aact_sweep.py::if not ing:#0",
+  "scripts/methodology/aact_sweep.py::if not terms:#0"
+ ],
+ "why_admitted_2026_09_02": "Four guards in scripts/methodology/aact_sweep.py, introduced by 1641a4b19743, not written by this lane. They blocked EVERY commit on the trunk -- the same cross-lane mechanism recorded on 08-28, 08-29 and 08-30. UNLIKE THOSE THREE ADMISSIONS, THESE WERE READ. Each of the four is the correct handling of absence, not the defect: `if not cand` prints 'NO OBJECT FOUND -- skipped and reported, not scored 0'; `if not ing` prints 'NO INGESTED NCTs -- skipped and reported'; `if not terms` and `if not conds` print 'cannot derive an expression / the population cannot be defined; reported, not scored'. Every one refuses to convert a zero-length input into a score, which is the property this gate exists to protect. They are admitted because the gate matched their SHAPE (`if not X:` inside a corpus loop) and not their behaviour -- a finding about the gate's precision, recorded here rather than fixed by editing another lane's file. The baseline's own header already says each entry is a CANDIDATE and many are correct; these are four of the correct ones."
 }

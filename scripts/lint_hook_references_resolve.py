@@ -235,12 +235,84 @@ def selftest():
     return 0
 
 
+
+def _control_env():
+    """os.environ with every GIT_* variable stripped.
+
+    ⛔ THIS IS NOT OPTIONAL AND IT COST A CORRUPTED INDEX TO LEARN. `git commit` exports
+    GIT_INDEX_FILE and GIT_DIR to its hooks. A child `git` spawned from inside a hook
+    therefore operates on THE COMMIT'S OWN INDEX unless the environment is scrubbed --
+    so `git add` in this fixture's throwaway repo wrote a `.githooks/pre-commit` entry
+    into the real commit index, naming a blob that exists only in the temp repo's object
+    store. The commit then died with `invalid object ... Error building trees`.
+
+    A CONTROL MUST NOT DISTURB THE THING IT MEASURES. This one ran harmlessly for as long
+    as it lived behind --selftest and became destructive the moment it was moved onto the
+    path that runs inside a hook, which is the only path that matters.
+    """
+    return {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+
+
+def _fixture_repo(repo, env=None):
+    """Build the planted case: a hook naming a script that is ON DISK but NOT in the index.
+
+    This is the exact shape that makes os.path.exists useless here, which is why the
+    fixture writes the file to disk and deliberately never adds it.
+    """
+    os.makedirs(os.path.join(repo, HOOK_DIR), exist_ok=True)
+    os.makedirs(os.path.join(repo, "scripts"), exist_ok=True)
+    for a in (["init", "-q", "."], ["config", "user.email", "t@t"],
+              ["config", "user.name", "t"]):
+        _git(a, repo, env)
+    with io.open(os.path.join(repo, HOOK_DIR, "pre-commit"), "w",
+                 encoding="utf-8", newline="\n") as fh:
+        fh.write('#!/bin/sh\npython "$R/scripts/absent_from_commit.py" || exit 1\n')
+    with io.open(os.path.join(repo, "scripts", "absent_from_commit.py"), "w",
+                 encoding="utf-8") as fh:
+        fh.write("# on disk, deliberately never added to the index\n")
+    _git(["add", "--", HOOK_DIR + "/pre-commit"], repo, env)
+
+
+def _control_probe():
+    """-> (rc_planted, rc_clean), both produced by check() UNCHANGED on a real index.
+
+    The clean case is the load-bearing half. This file refused EVERYTHING once, because the
+    reference extractor kept the shell-variable remnant and every path read as missing; a
+    positive-only control passes happily while that is true.
+    """
+    tmp = tempfile.mkdtemp(prefix="__control_hookrefs_")
+    repo = os.path.join(tmp, "repo")
+    try:
+        env = _control_env()
+        _fixture_repo(repo, env)
+        rc_planted, _ = check(cwd=repo, env=env)
+        _git(["add", "--", "scripts/absent_from_commit.py"], repo, env)
+        rc_clean, _ = check(cwd=repo, env=env)
+        return rc_planted, rc_clean
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def controls():
+    """Run the known answers before any count. Raises ControlFailed if either moves."""
+    sys.path.insert(0, _HERE)
+    from instrument_controls import require_controls
+    rc_planted, rc_clean = _control_probe()
+    require_controls(
+        "lint_hook_references_resolve",
+        ("a hook naming a script on disk but ABSENT from the index must be refused",
+         rc_planted, 1),
+        ("the same hook once that script is staged must NOT be refused",
+         rc_clean == 1, True))
+
+
 def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args(argv)
     if a.selftest:
         return selftest()
+    controls()
     rc, lines = check()
     for l in lines:
         print(l)

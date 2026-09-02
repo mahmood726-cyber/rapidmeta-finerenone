@@ -23,7 +23,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+if __name__ == "__main__":                 # guarded: importing this must not
+    sys.stdout = io.TextIOWrapper(         # close the importer's stdout
+        sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 REF = "origin/main"
 INCL = re.compile(
@@ -44,7 +46,8 @@ def ingested(repo, page):
     the page has no 'Included studies' section -- which is NOT_FOUND (the
     extractor cannot speak about this page), never 'this page ingests nothing'."""
     r = subprocess.run(["git", "-C", repo, "rev-parse", "%s:%s" % (REF, page)],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     if r.returncode:
         return None, None
     sha = r.stdout.strip()
