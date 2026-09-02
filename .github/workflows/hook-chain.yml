@@ -1,0 +1,66 @@
+name: hook-chain
+
+# A GATE THAT IS OPT-IN IS NOT A GATE.
+#
+# `.githooks/` is TRACKED, but a fresh clone sets no `core.hooksPath`, so every hook in
+# this repository is INERT until someone runs one command. That is not a default, it is a
+# gate that has never run -- and it selects for the lanes that already care, then taxes
+# them with the defects of the lanes that do not. Two defects reached main that way on
+# 2026-09-02 (a bare `text=True` decode hazard and a module-scope stdout rebind, both in
+# one landed file), and neither was seen by any check, because `git merge` does not run
+# pre-commit either.
+#
+# CI is the backstop the repository's own documentation already claims. This makes that
+# true for the hook chain specifically:
+#
+#   gates/run_all.py         -- 9 executable-rule gates      ALREADY in CI (executable-rule-gates.yml)
+#   gates/run_repo_checks.py -- 24 wired repo checks         NOT in CI before this file
+#   .githooks/{pre-commit,pre-push} -- ~44 gates             NOT in CI before this file
+#
+# The chain runner exists because the hooks are `|| exit 1` chains: they refuse at the
+# FIRST failing check and never reach the rest, so a green from them is a statement about
+# check number one. Here every check runs and every failure is named.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  hook-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # the ratchets read history; a shallow clone measures a
+                                  # base nobody is on, and that retraction has been made once
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      # ⛔ THE HOOKS MUST BE ARMED IN CI TOO. Without this, a check that asks git which
+      # hooks are configured reads "none" here and passes for the wrong reason.
+      - name: arm the hooks
+        run: git config core.hooksPath .githooks
+
+      # PROVE THE RUNNER BEFORE TRUSTING ITS GREEN. A runner that cannot report a failure
+      # is indistinguishable from a clean tree, and that is this file's whole subject.
+      - name: the chain runner can report a failure
+        run: python gates/run_hook_chain.py --selftest
+
+      - name: every gate the hooks invoke, all failures collected
+        run: python gates/run_hook_chain.py --json hook-chain.json --timeout 600
+
+      - name: the 24 wired repo checks
+        if: always()
+        run: python gates/run_repo_checks.py
+
+      - name: upload the full result table
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hook-chain-results
+          path: hook-chain.json
+          if-no-files-found: warn

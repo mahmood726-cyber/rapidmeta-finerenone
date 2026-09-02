@@ -37,7 +37,15 @@ import _harness as H                                                        # no
 
 REGISTRY = "REMOVAL_PATHS.json"
 CALLER_SOURCES = (".githooks/pre-push", ".github/workflows/executable-rule-gates.yml",
+                  ".github/workflows/hook-chain.yml",
                   "gates/run_all.py", "gates/verify_gates_can_fail.py")
+# ⚠️ ARM A READS THIS LIST; ARM B READS EVERY FILE IN .github/workflows/. That is an
+# inconsistency inside one gate rather than a policy: a module run by any workflow other
+# than executable-rule-gates.yml is invisible to arm A, which then accuses it of having no
+# caller. The guard just below already names that as the worse direction -- "arm A would
+# under-report every gate as uncalled, which is the opposite error and just as bad" -- so a
+# workflow that really does run a gate belongs here. Adding a caller SURFACE does not
+# change what counts as a violation; it stops one being manufactured.
 
 OSMOD = {"os", "shutil"}
 DELETES = {"remove", "unlink", "rmtree"}
