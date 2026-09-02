@@ -52,6 +52,7 @@ is the point: it makes FIX β's justification structural rather than anecdotal.
 | B3 | **A GATE THAT IS OPT-IN IS NOT A GATE.** Hooks run only where `core.hooksPath` is set by hand, so a fresh clone is ungated and the lanes that arm their hooks inherit the defects of the lanes that did not | `.githooks/README.md`, `gates/WHAT-REMAINS-DISCIPLINE.md:104` | OPEN -- trunk-clearing lane | CLAIMED by that lane: three sequential blockers in one day, none of them theirs | 2026-09-03 |
 | B4 | **A CHAIN THAT SHORT-CIRCUITS AT THE FIRST REFUSAL** reports a property of its first check only | hook chain runner | OPEN -- same lane | caused two false "the sibling lane cleared it" reports | 2026-09-03 |
 | B5 | **A GATE THAT WOULD REFUSE A COMMIT, ON A COMMIT ALREADY LANDED** -- the password class in infrastructure form | trunk | OPEN | the gate names the introducing shas itself: `e1ccb9f9c`, `66c1ed934` | 2026-09-03 |
+| **B6** | **A GATE WHOSE VERDICT DEPENDS ON WHICH REFS THE CLONE HAPPENS TO HAVE** | `scripts/check_correction_pins.py:41`, `KNOWN_LANES = ("paper-studio/manuscript-review",)` -- a bare LOCAL branch name | OPEN, found here | **MEASURED in this lane's own fresh clone: gate20 returns BROKEN, and its own comment says the state "does not occur in the worktree where the lane is checked out".** It passed in the F:-backed worktree the same day, where that branch exists locally. Fetching all 60 remote refs did NOT fix it; only creating a LOCAL ref did. **To its credit the gate refuses rather than reporting a false clean** -- but a verdict that changes with the checkout is a property of the checkout. Same family as B3: this is opt-in-ness one level down, keyed to a ref instead of a config setting | 2026-09-03 |
 
 > **B1 and B3-B5 are one shape.** A property that can only report HELD, a gate that runs
 > only where someone opted in, and a chain that stops at its first refusal are all checks
@@ -237,6 +238,7 @@ Per standing orders, reds that are not this lane's are recorded, not worked arou
 |---|---|---|
 | `scripts/lint_recurring_traps.py` | `scripts/comparator_seed/phase3_measure.py:414`, `unanchored_substring`. **FALSE POSITIVE** -- `held_pmid` is a `set`, so `in` is membership, not a substring test. The value reaches that line through a tuple-unpacked subscript, so no sound static narrowing was available and this lane will not stamp an exemption on another lane's file | not named by the gate |
 | trunk gate chain | two guards on the trunk that their own gate refuses (class B5) | `e1ccb9f9c`, `66c1ed934` |
+| `gates/gate20_correction_pins.py` | BROKEN in any clone lacking a LOCAL `paper-studio/manuscript-review` ref (class B6). Worked around in this lane's clone with `git update-ref`, which is an environment fix and NOT a code change -- the hard-coded lane name is left for its owner | not named by the gate |
 
 ## Refusals that are right
 
