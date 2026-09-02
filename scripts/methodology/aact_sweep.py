@@ -19,7 +19,15 @@ if __name__ == "__main__":
 
 AACT = os.environ.get("AACT_DIR", r"F:\AACT-storage\AACT\2026-08-30")
 DATA_DATE = "2026-08-27"
-REPO = os.environ.get("SSOT_REPO", r"F:\claude-temp\wt\rob-lane")
+# THE REPO THIS SCRIPT LIVES IN, not an absolute path into another lane working copy.
+# The default was a scratch path under another lane worktree -- a DIFFERENT lane checkout, measured at
+# 103 commits behind main with 23 uncommitted files. It happened to be equivalent for
+# every field this sweep reads and would not have stayed so; a fresh clone could not
+# run this at all; and on this machine it read another lane tree in the shared scratch
+# root, which is what gate9 refuses. SSOT_REPO is kept, so anyone setting it is
+# unaffected.
+REPO = os.environ.get("SSOT_REPO", os.path.abspath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")))
 
 # Names that identify no drug. Matching on these would pull in the whole registry.
 NOT_A_DRUG = re.compile(
@@ -149,6 +157,27 @@ def drug_terms(ingested, by_nct):
     return keep, seen_raw
 
 
+
+def topic_object(repo, t):
+    """The topic object BY NAME, never whichever file glob yielded first.
+
+    Extracted so a plant can EXERCISE THIS CODE rather than reimplement it: an inline
+    expression cannot have a control, and a control that re-derives the defect tests
+    only its own copy. A THING WITH A NAME CAN HAVE A PLANT.
+
+    Four topic dirs hold several JSONs. For empagliflozin-hf-auto-full-review the first
+    was ADJUDICATION-RECORD.json, which has no inputs.trials, so a NON-EMPTY topic was
+    skipped as "no ingested NCTs" and its trials left the corpus silently. The other
+    three survived by ALPHABETICAL LUCK. sorted(cands)[0] would be deterministic and
+    would CEMENT the wrong file: A DETERMINISM FIX CAN MAKE A WRONG ANSWER REPRODUCIBLE.
+    """
+    cands = [c for c in glob.glob(os.path.join(repo, "ssot", t, "*.json"))
+             if not c.endswith(".striptest")]
+    if not cands:
+        return None
+    named = os.path.join(repo, "ssot", t, t + ".json")
+    return named if named in cands else sorted(cands)[0]
+
 def main():
     topics = sys.argv[1:] or ["agyw-hiv-prep-review", "sglt2-hf", "iv-iron-hf"]
     print("MEASURED  AACT %s  (DATA DATE %s)" % (AACT, DATA_DATE))
@@ -170,7 +199,8 @@ def main():
         if not cand:
             print("  %-26s NO OBJECT FOUND -- skipped and reported, not scored 0" % t)
             continue
-        d = json.load(io.open(cand[0], encoding="utf-8"))
+        _pick = topic_object(REPO, t)
+        d = json.load(io.open(_pick, encoding="utf-8"))
         ing = [x.get("nct") for x in ((d.get("inputs") or {}).get("trials") or []) if x.get("nct")]
         if not ing:
             print("  %-26s NO INGESTED NCTs -- skipped and reported" % t)

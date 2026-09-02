@@ -33,7 +33,15 @@ if __name__ == "__main__":
 
 AACT = os.environ.get("AACT_DIR", r"F:\AACT-storage\AACT\2026-08-30")
 DATA_DATE = "2026-08-27"
-REPO = os.environ.get("SSOT_REPO", r"F:\claude-temp\wt\rob-lane")
+# THE REPO THIS SCRIPT LIVES IN, not an absolute path into another lane working copy.
+# The default was a scratch path under another lane worktree -- a DIFFERENT lane checkout, measured at
+# 103 commits behind main with 23 uncommitted files. It happened to be equivalent for
+# every field this sweep reads and would not have stayed so; a fresh clone could not
+# run this at all; and on this machine it read another lane tree in the shared scratch
+# root, which is what gate9 refuses. SSOT_REPO is kept, so anyone setting it is
+# unaffected.
+REPO = os.environ.get("SSOT_REPO", os.path.abspath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")))
 DF_MAX = int(os.environ.get("DF_MAX", "1500"))   # token in more NCTs than this = generic
 CDF_MAX = int(os.environ.get("CDF_MAX", "20000"))  # MeSH term on more NCTs than this = an
                                                    # ancestor too broad to name a population
@@ -143,6 +151,27 @@ def load_all():
 ALLOWED = {"drug", "biological", "combination product", "dietary supplement", "device", "other"}
 
 
+
+def topic_object(repo, t):
+    """The topic object BY NAME, never whichever file glob yielded first.
+
+    Extracted so a plant can EXERCISE THIS CODE rather than reimplement it: an inline
+    expression cannot have a control, and a control that re-derives the defect tests
+    only its own copy. A THING WITH A NAME CAN HAVE A PLANT.
+
+    Four topic dirs hold several JSONs. For empagliflozin-hf-auto-full-review the first
+    was ADJUDICATION-RECORD.json, which has no inputs.trials, so a NON-EMPTY topic was
+    skipped as "no ingested NCTs" and its trials left the corpus silently. The other
+    three survived by ALPHABETICAL LUCK. sorted(cands)[0] would be deterministic and
+    would CEMENT the wrong file: A DETERMINISM FIX CAN MAKE A WRONG ANSWER REPRODUCIBLE.
+    """
+    cands = [c for c in glob.glob(os.path.join(repo, "ssot", t, "*.json"))
+             if not c.endswith(".striptest")]
+    if not cands:
+        return None
+    named = os.path.join(repo, "ssot", t, t + ".json")
+    return named if named in cands else sorted(cands)[0]
+
 def drug_tokens(ingested, by_nct, df):
     """Distinctive TOKENS from the topic's own registered intervention names.
     Distinctive == rare in the registry. Mechanical, no hand list of generic words."""
@@ -163,7 +192,13 @@ def drug_tokens(ingested, by_nct, df):
                      if t not in JUNK_TOKENS and df.get(t, 0) > 0]
             if not cands:
                 continue
-            best = min(cands, key=lambda t: df.get(t, 0))
+            # sorted() FIRST. min() returns the FIRST element attaining the minimum, and
+            # string set order is randomised per process by PYTHONHASHSEED, so a TIE
+            # on df was decided by the interpreter (seeds 0,1,3 -> alfa; 2,4 -> bravo).
+            # This buys REPRODUCIBILITY, not correctness: it takes the alphabetically
+            # first of the tied tokens, which is arbitrary. When the rarest is not
+            # unique there is no rarest, and no tie-break keeps this promise.
+            best = min(sorted(cands), key=lambda t: df.get(t, 0))
             if df.get(best, 0) <= DF_MAX:
                 toks[best] += 1
     return set(toks)
@@ -229,7 +264,8 @@ def main():
         if not cands:
             skipped.append((t, "no object")); continue
         try:
-            d = json.load(io.open(cands[0], encoding="utf-8"))
+            _pick = topic_object(REPO, t)
+            d = json.load(io.open(_pick, encoding="utf-8"))
         except Exception as e:
             skipped.append((t, "unreadable: %s" % type(e).__name__)); continue
         ing = [x.get("nct") for x in ((d.get("inputs") or {}).get("trials") or []) if x.get("nct")]
