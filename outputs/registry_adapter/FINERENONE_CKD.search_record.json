@@ -1,0 +1,87 @@
+{
+  "topic_stem": "FINERENONE_CKD",
+  "topic_name": "Finerenone in chronic kidney disease",
+  "source": "AACT (ClinicalTrials.gov bulk export), local snapshot",
+  "snapshot_folder": "2026-08-30",
+  "snapshot_data_date": "2026-08-27",
+  "snapshot_data_date_note": "Measured as max(last_update_submitted_qc_date) in studies.txt. The folder name overstates this by days; a trial that posted results inside that window reads as silent here.",
+  "executed_at_utc": "2026-09-02T15:11:43+00:00",
+  "query_as_run": {
+    "drug_patterns": [
+      "finerenone",
+      "bay 94-8862"
+    ],
+    "condition_patterns": [
+      "chronic kidney",
+      "diabetic nephropathy",
+      "diabetic kidney"
+    ],
+    "drug_synonyms_expanded": {},
+    "condition_synonyms_expanded": {},
+    "eligibility": {
+      "version": "1.0",
+      "clauses": [
+        {
+          "id": "F1_intervention",
+          "field": "interventions.name",
+          "rule": "synonym-expanded, punctuation-normalized substring match against any declared drug pattern"
+        },
+        {
+          "id": "F2_condition",
+          "field": "conditions.name",
+          "rule": "synonym-expanded substring OR token-subset match (MeSH inversion) against any declared condition pattern"
+        },
+        {
+          "id": "F3_interventional",
+          "field": "studies.study_type",
+          "rule": "EXCLUDE when study_type is present and does not start with 'interv'. Blank/unknown is KEPT, not dropped -- a missing field is not an observational study."
+        },
+        {
+          "id": "F4_randomised",
+          "field": "designs.allocation",
+          "rule": "EXCLUDE when allocation is present and starts with 'Non-Random'. Blank is KEPT."
+        }
+      ],
+      "ranking": "pivotal_score DESC (late-phase +2, registry results posted +1), then enrollment DESC, then nct_id ASC (total order; no ties)",
+      "truncation": "NONE. The full eligible set is written to the ledger. Any cap applied downstream must be recorded there, by name.",
+      "not_an_eligibility_criterion": [
+        "registry_results_posted -- a trial with no POSTED registry results may still have a full primary journal publication. Registry results and journal publication are different things. This field RANKS candidates; it never excludes one."
+      ]
+    },
+    "designs_table_present": true
+  },
+  "resolved_counts": {
+    "candidates_returned": 87,
+    "included": 32,
+    "excluded": 55,
+    "excluded_by_reason": {
+      "F2_condition": 42,
+      "F3_interventional": 13,
+      "eligible": 32
+    }
+  },
+  "determinism": {
+    "property_established": "STABILITY",
+    "how": "every iteration is sorted(); the ordering key ends in nct_id so the sort is a total order with no hash-order ties",
+    "property_NOT_established": "CORRECTNESS -- see positive_controls"
+  },
+  "positive_controls": {
+    "status": "PASS",
+    "passed": 2,
+    "of": 2,
+    "controls": [
+      {
+        "nct_id": "NCT02540993",
+        "in_ledger": true,
+        "decision": "INCLUDE",
+        "reason_code": "eligible"
+      },
+      {
+        "nct_id": "NCT02545049",
+        "in_ledger": true,
+        "decision": "INCLUDE",
+        "reason_code": "eligible"
+      }
+    ]
+  }
+}
