@@ -65,6 +65,34 @@ PRINTS_A_COUNT = re.compile(r"print\([^)]*%d|print\([^)]*len\(|print\([^)]*\{[^}
 HAS_CONTROL = re.compile(r"instrument_controls|require_controls")
 EXEMPT = re.compile(r"^\s*#\s*no-control:\s*\S", re.M)
 
+# THE SECOND WAY THIS REPOSITORY DECLARES A CONTROL, AND IT IS THE STRONGER ONE.
+#
+# This check asked "does the file mention require_controls?" and reported the answer as
+# "does this instrument declare a control?" -- membership in a container read as the
+# property the container was supposed to imply, which is the defect class this repository
+# exists to audit for. It refused three instruments that each ship an EXECUTABLE control:
+#
+#   audit_check_liveness.py           --selftest, positive + known negative
+#   lint_hook_references_resolve.py   --selftest, builds a real git index and measures both
+#   lint_recurring_traps.py           --selftest, one input per detector that MUST trip it
+#
+# A `--selftest` that builds a real fixture and refuses when the known answer does not come
+# back is a better control than a require_controls call, not a worse one. None of the three
+# was written by the lane this refusal blocked, and while it stood, origin/main could not
+# commit under its own pre-commit hook.
+#
+# IT MUST NOT MATCH THE WORD. Recognising the string "selftest" would be the same membership
+# error one level down: a comment reading "no selftest yet" would pass. The file has to
+# DEFINE the function and EXPOSE it, which is what makes the control runnable. That negative
+# is proved on every run by prove(), below.
+_SELFTEST_DEFINED = re.compile(r"^\s*def\s+selftest\s*\(", re.M)
+_SELFTEST_WIRED = re.compile(r"--selftest")
+
+
+def has_executable_selftest(src):
+    """True when the file DEFINES a selftest and EXPOSES it, not merely mentions one."""
+    return bool(_SELFTEST_DEFINED.search(src) and _SELFTEST_WIRED.search(src))
+
 
 def is_instrument(name):
     return (name.startswith("audit_") or name.startswith("lint_")
@@ -81,7 +109,7 @@ def scan(scripts_dir):
         src = io.open(path, encoding="utf-8", errors="replace").read()
         if not (CORPUS_WALK.search(src) and PRINTS_A_COUNT.search(src)):
             continue
-        if HAS_CONTROL.search(src):
+        if HAS_CONTROL.search(src) or has_executable_selftest(src):
             compliant.append(name)
         elif EXEMPT.search(src):
             exempted.append(name)
@@ -122,8 +150,35 @@ def prove():
         if "audit_proof_no_control.py" in offending or not exempted:
             sys.exit("PROOF FAILED: the `# no-control:` declaration does not lift the "
                      "finding, so the only way past this check is to delete it.")
-        print("PROOF PASSED: an uncontrolled corpus instrument is refused, and a declared")
-        print("exemption lifts it. Both directions demonstrated on a real file.")
+        # THE SELFTEST ROUTE, BOTH DIRECTIONS. Recognising an executable --selftest as a
+        # control is only safe if MENTIONING one is not enough; otherwise the widening
+        # reintroduces, one level down, the membership error it was written to remove.
+        io.open(bad, "w", encoding="utf-8", newline="\n").write(
+            '# TODO: no selftest yet, and --selftest is not wired up\n'
+            'import glob\n'
+            'rows = glob.glob("ssot/*/*.json")\n'
+            'print("found %d things" % len(rows))\n')
+        _c, _e, offending = scan(tmp)
+        if "audit_proof_no_control.py" not in offending:
+            sys.exit("PROOF FAILED: a file that merely MENTIONS a selftest was accepted as "
+                     "controlled. That is the membership error this check exists to catch, "
+                     "reintroduced inside the check itself.")
+        io.open(bad, "w", encoding="utf-8", newline="\n").write(
+            'import glob, sys\n'
+            'def selftest():\n'
+            '    assert 1 == 1\n'
+            'if "--selftest" in sys.argv:\n'
+            '    selftest()\n'
+            'rows = glob.glob("ssot/*/*.json")\n'
+            'print("found %d things" % len(rows))\n')
+        compliant, _e, offending = scan(tmp)
+        if "audit_proof_no_control.py" in offending or not compliant:
+            sys.exit("PROOF FAILED: an instrument that DEFINES a selftest and wires it to a "
+                     "flag was still refused, so the three instruments that ship an "
+                     "executable control remain unable to commit.")
+        print("PROOF PASSED: an uncontrolled corpus instrument is refused; a declared")
+        print("exemption lifts it; a MENTION of a selftest does not; a defined and wired")
+        print("selftest does. All four directions demonstrated on a real file.")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
