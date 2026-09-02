@@ -101,6 +101,8 @@ def main(argv):
                      [os.path.join(HERE, "source_hierarchy_gate.py")])
         fails += run("refusal reason gate -- controls + ratchet",
                      [os.path.join(HERE, "refusal_reason_gate.py")])
+        fails += run("protocol conformance gate -- controls + ratchet",
+                     [os.path.join(HERE, "protocol_conformance_gate.py")])
         print("\n%d self-test(s) FAILED" % fails)
         return fails
 
