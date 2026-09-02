@@ -140,23 +140,33 @@ def _run_controls(flips):
     while its own PubMed card renders `NOT EXECUTED FOR THIS TOPIC`. Both halves were read
     out of the served bytes by hand before this gate existed, so P1 must flip there.
 
-    NEGATIVE. ABLATION_AF_HEART_FAILURE_REVIEW.html must NOT flip. It is the page whose
-    DERIVED standard-error cell names its method as
+    NEGATIVE. ABLATION_AF_HEART_FAILURE_REVIEW.html must NOT flip **on P5**. It is the
+    page whose DERIVED standard-error cell names its method as
     `se = (ln(upper) - ln(lower)) / (2 x 1.959964)` rather than through a `derived_by` key,
     and an earlier version of p5_extraction_table refused it for that -- one of three
     over-strict predicates in this lane, all failing in the direction of accusing a correct
     page. This control is the one that would have caught all three.
+
+    SCOPED TO P5 ON 2026-09-03, AND THE REASON MATTERS. It used to assert that this page
+    did not flip AT ALL. When P1 gained its `search.strategy` arm the page began flipping
+    on P1 -- correctly, because it is one of the 17 serving P1 HELD beside its own "No
+    systematic search was run" banner -- and the control fired and stopped the run. The
+    control was over-broad, not the gate: it named a whole PAGE when what it protects is
+    one predicate's reading of one CELL. A control forbidding a page from ever being
+    flagged would block every true finding on that page, which is the opposite of what a
+    negative control is for. Narrowed rather than deleted -- deleting the control that has
+    just fired is how the next real regression gets through.
     """
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from instrument_controls import require_controls
     flipped = {(f["page"], f["property"]) for f in flips}
     pos = ("AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html", "P1_executed_search")
-    neg_page = "ABLATION_AF_HEART_FAILURE_REVIEW.html"
+    neg_page = ("ABLATION_AF_HEART_FAILURE_REVIEW.html", "P5_extraction_table")
     require_controls(
         "property_recompute_gate",
         positive=("%s serves P1 HELD over a placeholder query" % pos[0], pos in flipped, True),
-        negative=("%s names its derivation without a derived_by key" % neg_page,
-                  any(p == neg_page for p, _ in flipped), True))
+        negative=("%s names its derivation without a derived_by key, and P5 must not "
+                  "refuse it for that" % neg_page[0], neg_page in flipped, True))
 
 
 def main(argv):
@@ -188,9 +198,38 @@ def main(argv):
                "flips_by_property": {k: sorted(v) for k, v in sorted(by_prop.items())}}
 
     if write_baseline:
-        BASELINE.write_text(json.dumps({"summary": summary, "flips": flips}, indent=2),
-                            encoding="utf-8")
+        # A BASELINE MAY FALL FREELY AND MAY ONLY RISE WITH A RECORDED REASON.
+        #
+        # "Never bump a baseline to get through" is a rule people remember until the moment
+        # it is inconvenient, so it is a mechanism here instead. A rise is refused unless
+        # --reason is supplied, and the reason is written INTO the baseline beside the new
+        # number, where the next reader finds it without going through git.
+        #
+        # The distinction that makes this safe: a rise caused by a STRICTER predicate is
+        # the instrument improving and is legitimate; a rise caused by new defects, or by a
+        # predicate being loosened, is not. The reason has to say which, in words, and it is
+        # the one thing this file cannot check for you.
+        prior = None
+        if BASELINE.exists():
+            prior = json.loads(BASELINE.read_text(encoding="utf-8"))["summary"]
+        rising = prior is not None and len(flips) > prior["flip_total"]
+        reason = None
+        if "--reason" in argv:
+            reason = argv[argv.index("--reason") + 1]
+        if rising and not reason:
+            print("\nREFUSED: the baseline would RISE from %d to %d and no --reason was "
+                  "given.\nA baseline that rises silently is indistinguishable from a "
+                  "defect landing.\nSay why in one sentence, and it is stored beside the "
+                  "number." % (prior["flip_total"], len(flips)))
+            return 1
+        record = {"summary": summary, "flips": flips}
+        if reason:
+            record["baseline_moved_because"] = reason
+            record["moved_from"] = prior["flip_total"] if prior else None
+        BASELINE.write_text(json.dumps(record, indent=2), encoding="utf-8")
         print("\nbaseline written -> %s" % BASELINE)
+        if reason:
+            print("reason recorded: %s" % reason)
         return 0
 
     if not BASELINE.exists():

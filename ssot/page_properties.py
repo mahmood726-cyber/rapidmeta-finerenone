@@ -118,6 +118,32 @@ def p1_executed_search(obj):
             "a PRISMA identification count."
             % (len(executed), _quote(undated) or "none", _quote(uncounted) or "none"))
 
+    # THE PAGE ALREADY SAYS THIS, AND P1 WAS NOT LISTENING.
+    #
+    # `ssot/projectors.py:545` renders a NOT-READY banner whenever `search.strategy` is
+    # absent: "No systematic search was run (no attestation can discharge this) -- The
+    # included set is a named two-trial programme rather than the yield of a database
+    # search. Nothing on this page should be read as though a systematic search had been
+    # performed." That banner is HONEST and CORRECT.
+    #
+    # P1 read `search.databases` and the banner reads `search.strategy` -- two keys on one
+    # block, with nothing asserting they agree. Measured on the served surface: 17 of the
+    # 19 pages carrying the property table serve P1_executed_search HELD directly beside
+    # that sentence. A reader sees a green "executed search" property on a page that tells
+    # them no search was executed.
+    #
+    # THE MARKER IS THE DEFECT, NOT THE BANNER. Running a couple of registry lookups is
+    # not a systematic search, and P1 must not certify one. This refuses instead, and names
+    # the queries that WERE run so the refusal costs nothing that was actually done.
+    if not (obj.get("search") or {}).get("strategy"):
+        return REFUSING, (
+            "%d database quer%s executed (%s), but the object declares NO SEARCH STRATEGY. "
+            "Queries against a registry are not a systematic search, and this page's own "
+            "readiness banner already says so. What was run is recorded above; what is "
+            "refused is the claim that it constitutes an executed search."
+            % (len(executed), "y was" if len(executed) == 1 else "ies were",
+               _quote(executed, 4)))
+
     return HELD, (
         "%d database quer%s executed, each with its query string, its execution date and "
         "its result count: %s."
