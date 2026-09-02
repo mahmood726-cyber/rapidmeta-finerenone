@@ -76,8 +76,26 @@ def index_is_shared(env=None):
     return True, base
 
 
-def _git(args, cwd=None):
-    out = subprocess.run(["git"] + args, cwd=cwd or _ROOT, capture_output=True,
+def repo_here():
+    """The repository THIS COMMIT IS HAPPENING IN -- the cwd, never this file's location.
+
+    ⛔ THE FRESH-CLONE READ-BACK IS WHAT CAUGHT THIS, AND NOTHING ELSE WOULD HAVE.
+    Every git query below used to run against _ROOT, derived from __file__. A pre-commit
+    hook runs with cwd set to the top of the repo being committed to -- which is NOT
+    necessarily where this script lives, and in a worktree it never is. The selftest passed
+    locally for the WRONG REASON: it inspected the author's shared worktree, which happens
+    to have several worktrees and staged files, so the refusal fired no matter what the
+    temporary test repo contained. Cloned fresh, _ROOT became a one-worktree repo with
+    nothing staged, and the check quietly passed everything.
+
+    A CHECK THAT READS A DIFFERENT REPOSITORY THAN THE ONE BEING COMMITTED TO IS INERT, AND
+    IT IS INERT IN THE DIRECTION THAT LOOKS LIKE SUCCESS.
+    """
+    return os.getcwd()
+
+
+def _git(args, cwd=None, env=None):
+    out = subprocess.run(["git"] + args, cwd=cwd or repo_here(), capture_output=True,
                          encoding="utf-8", errors="replace")
     return out.returncode, out.stdout, out.stderr
 

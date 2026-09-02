@@ -1,131 +1,99 @@
 # The k deficit is an ENUMERATION failure, not a retrieval one
 
-**Date:** 2026-09-02 · **Revised the same night — see the correction below.**
-**Snapshot:** `F:\AACT-storage\AACT\2026-08-30` — **DATA DATE 2026-08-27**; cite the data
-date, never the folder date. **No phase filter.**
-**MEASURED** — `python aact_sweep.py agyw-hiv-prep-review sglt2-hf iv-iron-hf`
+**Date:** 2026-09-02 · **Topic tested:** `agyw-hiv-prep-review` (dapivirine ring)
+**Snapshot:** `F:\AACT-storage\AACT\2026-08-30` — **DATA DATE 2026-08-27**, cite the data
+date, never the folder date. **No phase filter applied.**
+**MEASURED** — `python aact_ingestion_loss.py dapivirine NCT01539226,NCT01617096`
 
 ---
 
-## ⛔ CORRECTION TO THE FIRST VERSION OF THIS FINDING
-
-The first version reported **34 trials never screened** for the dapivirine topic. **That was
-inflated and it was my error.** The drug expression was derived from the topic's *title*
-(bare `dapivirine`), which captures gel and film formulations across phase-1 work.
-
-Derived instead from the topic's **own registered intervention names** — `dapivirine vaginal
-ring` — plus its **own registered condition** (`hiv infections`), the pool is **5, not 39**,
-and the number never screened is **3, not 34**.
-
-**The finding did not soften. It got sharper**, and the corrected form is the one that should
-be quoted.
-
----
-
-## The dapivirine result: two pools of IDENTICAL SIZE that share only 40%
+## The result
 
 | | |
 |---|---|
-| the topic screened | **5** — included `NCT01539226`, `NCT01617096`; excluded `NCT00625404`, `NCT00705679`, `NCT01386294` |
-| AACT holds (ring + HIV + randomised) | **5** — the same 2, plus `NCT01363037`, `NCT02920827`, `NCT03593655` |
-| **overlap** | **only the 2 included** |
+| randomised dapivirine trials **in the local snapshot** | **39** |
+| candidate pool the topic actually screened | **5** (2 included + 3 stated exclusions) |
+| **never screened at all** | **34** |
+| ingestion recall (ingested / available) | **0.051** |
 
-⇒ **A SEEDED POOL IS NOT A SMALL SUBSET OF THE ENUMERABLE POPULATION — IT IS A DIFFERENT
-SET.** That is worse than "too small", because the bias cannot even be characterised.
+**Tight, defensible subset — completed phase-3 randomised trials never screened: 2.**
 
-⇒ **A COUNT COMPARISON WOULD HAVE SAID "NO PROBLEM."** 5 against 5. The defect is invisible
-to any check that compares sizes rather than membership.
+```
+NCT03965923  n=1,104  COMPLETED
+NCT04140266  n=  394  COMPLETED
+```
 
----
-
-## The three flagship topics, condition-restricted
-
-| topic | available | ingested | **never screened** | completed phase-3 unseen |
-|---|---|---|---|---|
-| **`sglt2-hf`** | 117 | 4 | **113** | **9** — largest `NCT04564742` **n=4,017** |
-| **`iv-iron-hf`** | 18 | 5 | **14** | **2** — `NCT00520780` n=456, `NCT01394562` n=174 |
-| `agyw-hiv-prep-review` | 5 | 2 | **3** | 0 |
-
-### ⛔ What this does to the claim we publish
-
-**On `sglt2-hf` the decision record covers 4 trials out of 117 available.**
-
-We say *"every screened record carries a named decision"* and set it against a Cochrane
-abstract that names four databases and zero trials. That claim is **true, and much weaker
-than it sounds**, when the pool is a seed list rather than an enumeration:
-**a perfect audit trail over a pool somebody typed.**
-
-**Verbatim, and it is what makes the claim unarguable:**
-
-> I am NOT claiming the 113 belong — many will be small mechanistic RCTs a review would
-> rightly exclude. Their eligibility is unknown because they were never screened, and that is
-> the finding rather than a hedge on it.
-
----
+The topic pools **k=2**. Two completed phase-3 trials of the same intervention sat on local
+disk and were never considered.
 
 ## Why this is decisive, and needs no ground truth
 
 **The snapshot is a local file. No search was involved.** A retrieval-recall explanation
 cannot account for a trial you already have on disk. Same logical shape as the OR<AND
-impossibility: settled by the structure of the situation, not by adjudicating a label.
+impossibility: it is settled by the structure of the situation, not by adjudicating a label.
 
-## The mechanism: the pool was SEEDED, not ENUMERATED
+## ⛔ The mechanism: the pool was SEEDED, not ENUMERATED
 
-The object's own text reads `"3 seeded trials excluded and stated"`; `inputs` has exactly one
-key — `trials`; `candidates` appears **zero** times.
+The object's own text reads `"3 seeded trials excluded and stated"`, and **`inputs` has
+exactly one key — `trials`.** `candidates` appears **zero** times in the object.
 
-**Ingestion precedes eligibility screening.** A pool of 5 means the rest were never
-*screened*, whatever their eligibility would have been — so **no PRISMA flow is reportable,
-because there is no screened denominator.**
+⇒ **There is no candidate-pool field.** The 5 were seeds; the 34 were never candidates.
 
-## ⛔ A phase filter is NOT the mechanism here
+**This is the load-bearing point: ingestion precedes eligibility screening.** A pool of 5
+means 34 trials were never *screened*, whatever their eligibility would have been. The topic
+cannot have excluded them on eligibility grounds, because it never enumerated them. A PRISMA
+flow is not reportable from a seeded pool — there is no screened denominator to report.
 
-**MEASURED:** of the broader dapivirine randomised set, **1 of 39 is `phase=NA` (3%)** — and
-that one, `NCT01539226`, **was** ingested. Keep the no-phase-filter rule; it does not explain
-this loss.
+**And the honest boundary on my own claim:** I am *not* asserting that 34 trials belong in
+the review. Many of the 39 are phase-1 PK studies a review of efficacy would rightly exclude.
+**Whether each is eligible is unknown precisely because it was never screened** — and that is
+the finding, not a hedge on it.
 
----
+## ⛔ A phase filter is NOT the main mechanism here
 
-## Not the same defect as the 10.4% screening recall
+**MEASURED** phase distribution of the 39 randomised: PHASE1 21 · PHASE1/PHASE2 7 ·
+PHASE3 6 · PHASE2 4 · **NA 1**.
+
+A phase filter would silently drop **1 of 39 (3%)** — and the single `NA` trial
+(`NCT01539226`, The Ring Study) **was** ingested. So the phase-filter hazard is real and worth
+keeping out of the code, but it does **not** explain this loss. The loss is the seeded pool.
+
+## Is this the same defect as the 10.4% screening recall? **NO — and that matters**
 
 | | 10.4% (PREREG-2) | this |
 |---|---|---|
-| what failed | a search **ran**, retrieved 11 of 106 | **no search ran**; pool was seeded |
+| what failed | a search **ran** and retrieved 11 of 106 knowns | **no search ran**; the pool was seeded |
 | stage | retrieval | **enumeration, upstream of screening** |
-| fix | better query or another source | **enumerate the local snapshot** |
+| fix | a better query, or a different source | **enumerate the local snapshot** |
 
-Two independent modes that both depress k. **No improvement in search quality can repair an
-enumeration failure.** What they share is the family — **a bounded pool standing in for a
-population** — now four instances: `retmax=200` for an 843-record query; a recency window for
-a result set; a 5-seed pool for a 117-trial population; a title-derived drug term for a
-registered one.
+They are **two independent failure modes that both depress k**, not one defect seen from two
+ends. Treating them as one would hide the more severe: **enumeration failure precedes
+screening, so no improvement in search quality can repair it.**
 
----
+**What they share is the family**, and it is the same family as `retmax` and as every
+reach-vs-coverage finding this week: **a bounded pool standing in for a population.**
+`retmax=200` for a 843-record query; a 5-seed pool for a 39-trial population; a recency window
+for a result set. Three instances, one shape.
 
-## Two defects in the sweep itself, both caught by IMPLAUSIBILITY
+## The experiment as posed, and its answer
 
-**1. `COMBINATION_PRODUCT` has an UNDERSCORE.** I compared against `"combination product"`
-with a space, so every dapivirine intervention was rejected and the topic scored as
-**unmeasurable**. A working measurement turned into a **false absence by a format mismatch** —
-same class as Crossref lowercasing its DOIs.
+> *"re-score recall for a topic using the AACT-complete trial set instead of our ingested one.
+> If recall jumps, the search was never the bottleneck."*
 
-**2. The drug is not the population when a drug has several indications.** Without a condition
-restriction, `sglt2-hf` counted **846** dapagliflozin/empagliflozin trials in diabetes and CKD
-as unscreened heart-failure trials. `iv-iron-hf` needed it twice over: `iron deficiency` alone
-gives **224**, but only **18** of those also register heart failure — hence **14**, not 220.
-
-**Both were caught because the number was implausible, which is the only detector that works
-on your own queries.** Neither would have been caught by a test.
-
----
+**The answer is stronger than a jump: for this topic there was no retrieval step to re-score.**
+Search was never the bottleneck because search was never run. The apparatus can still score any
+search strategy against known positives — but on this topic it would be measuring a stage the
+pipeline does not have.
 
 ## What to do, in order
 
-1. **Full-corpus sweep** ranked by absolute trials-never-screened, drug **and** condition both
-   derived from each topic's own registered fields and **printed per topic for audit**.
-   *Coordinated with the AACT lane — one sweep, not two.*
-2. **`inputs.candidates` as a named, rendered state.** A topic with no enumerated pool must
-   render `NO_CANDIDATE_POOL_ENUMERATED`. The reader deserves to know the denominator does not
-   exist.
-3. **Make it structural, not a convention** — the builder should refuse to emit a topic with no
-   candidate pool, the way `grade_inputs.py` refuses a certainty.
+1. **Add an enumerated candidate pool to the topic schema** — `inputs.candidates` with the
+   local-snapshot query that produced it and its count. Absent that field, `k` has no
+   denominator and no PRISMA flow is reportable.
+2. **Make it structural, not a convention** — the builder should **refuse** to emit a topic
+   whose `inputs.candidates` is missing, the way `grade_inputs.py` refuses a certainty. A
+   convention gets broken by the next person in a hurry and fails silently.
+3. **Then screen the 34** for this topic and report the flow. `NCT03965923` (n=1,104) and
+   `NCT04140266` (n=394) first.
+4. **Sweep the corpus** with `aact_ingestion_loss.py` — it takes a topic term and an ingested
+   NCT list and needs nothing else. Every topic with an intervention name can be scored today.

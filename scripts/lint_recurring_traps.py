@@ -33,6 +33,20 @@ CLEARED.
     python scripts/lint_recurring_traps.py --selftest prove every detector can fire
     python scripts/lint_recurring_traps.py --gate     refuse on NEW violations
     python scripts/lint_recurring_traps.py --write-baseline
+
+
+SCOPE: PYTHON, PARSED AS AN AST. A CLEAN RESULT HERE SAYS NOTHING ABOUT SHELL, POWERSHELL,
+SQL LIKE, OR AN UNANCHORED REGEX. The detectors visit Python syntax trees; no other language
+is in the population at all.
+
+THIS IS NOT A CAVEAT. IT IS THE THIRTEENTH SIGHTING OF THE DEFECT THIS FILE DETECTS.
+unanchored_substring finds 100 instances on main. One hour after wiring it into the commit
+path, its author killed four processes with a PowerShell filter -like '*refs/heads/main*' --
+a pattern selecting on a string several lanes share -- and reached across into other lanes'
+pushes. This lint reported clean on that code because that code was never in its corpus.
+
+Not "did the scan miss a file" but WAS THE LANGUAGE EVER IN THE POPULATION. A gate that does
+not declare its own population invites its zero to be read as coverage.
 """
 from __future__ import annotations
 

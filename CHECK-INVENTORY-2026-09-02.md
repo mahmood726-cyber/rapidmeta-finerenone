@@ -197,3 +197,50 @@ ALLOWS   SHARED_INDEX_OK override            -> rc=0
 Override, with the reason on the record: `SHARED_INDEX_OK="why" git commit ...`
 The refusal names every path it would have captured, so the fix is visible rather than
 looked up.
+
+---
+
+# Two columns every row needs, and neither was there
+
+| column | values | why it matters |
+|---|---|---|
+| `LANGUAGE_SCOPE` | `python-ast` · `bytes` · `any-text` | a clean result is clean **only for that population** |
+| `ENFORCEMENT` | `MECHANISABLE` · `CONSEQUENCE-CAUGHT` · `RULE ONLY` | separates a wired rule from one whose *outcome* is wired from one that is only written down |
+
+**Why `LANGUAGE_SCOPE`.** `lint_recurring_traps.py` detects `unanchored_substring` and finds
+100 instances on main. One hour after wiring it into the commit path, its author killed four
+processes with a PowerShell filter `-like '*refs/heads/main*'` — a pattern selecting on a
+string several lanes share — and reached into other lanes' pushes. The lint reported clean on
+that code **because that code was never in its corpus**. The detector is language-scoped; the
+defect class is not. That is the denominator problem one level up: not *did the scan miss a
+file*, but *was the language ever in the population*. Now declared on the lint itself.
+
+**Why `ENFORCEMENT`.** Tonight's pair:
+
+- *A hook and every script it invokes land in one commit* — **MECHANISABLE**
+  (`lint_hook_references_resolve.py`, hook-wired).
+- *A retry loop must freeze its CONTENT, not its filenames* — **CONSEQUENCE-CAUGHT**. No
+  pre-commit hook can see how a loop was written. Rule 1 catches its worst outcome, which is
+  why rule 1 is the one wired. Naming a rule as unenforced beats implying it is enforced.
+
+### Correction to that rule as first written
+
+I froze a list of **paths**. Insufficient: `git update-index --add` re-reads file **contents**
+each attempt, so a frozen path list still commits different bytes every retry.
+**A frozen path list is not a frozen commit — freeze the tree.** Mechanically: `git write-tree`
+once before the first attempt, then re-parent that same immutable tree object on each retry.
+
+### And the fresh-clone read-back caught a check that would have been inert
+
+`lint_pathspecless_commit.py` passed its selftest here and **failed it in a clean clone**. Its
+git queries ran against `_ROOT`, derived from `__file__` — not the repository the commit is
+happening in. This shared worktree happens to have several worktrees and staged files, so the
+refusal fired regardless of what the temporary test repo contained: **green for the wrong
+reason.** Cloned fresh, `_ROOT` was a one-worktree repo with nothing staged and the check
+passed everything.
+
+> A check that reads a different repository than the one being committed to is inert, and it
+> is inert in the direction that looks like success.
+
+Fixed to resolve the repo from `cwd` (where git runs a hook), and re-verified **in the clone
+that exposed it**. Nothing local could have found this; only the read-back did.
