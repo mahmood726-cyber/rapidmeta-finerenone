@@ -44,6 +44,130 @@ if [ ! -f "$SCRIPT" ]; then
     exit 1
 fi
 
+# ---------------------------------------------------------------------------
+# THE SEVEN HARNESS GATES, IN DIFF SCOPE.
+#
+# Each answers one defect class found on served pages. Each carries a planted
+# failing case it is proved against, prints its own coverage, its blind spots
+# and its cost beside its verdict, and has a third state for evidence that is
+# absent -- because "nothing matched" and "nothing could be consulted" are
+# opposite facts.
+#
+# SCOPE IS THE DIFF, NOT THE TREE. Every one of these takes --diff and looks
+# only at what this push changes. A tree-scoped gate makes every lane
+# answerable for every other lane's work, and in a repository with a hundred
+# live worktrees that is how a lane fails on somebody else's accepted commit.
+# Measured in diff scope on a push touching nothing they read: under a second
+# for all seven together.
+#
+# EACH RUNS UNDER A TIMEOUT AND A TIMED_OUT IS NOT A PASS. A gate with no
+# timeout took 47.8 CPU-seconds and 25 minutes of wall clock on this repository
+# -- 100% of a push -- and the word `timeout` appeared nowhere in its file.
+#
+# STATUS IS CAPTURED FROM THE SCRIPT, NEVER THROUGH A PIPE. `cmd | tail` makes
+# `$?` read `tail`, which is always 0. That single line is why every push this
+# repository made for months was ungated.
+# ---------------------------------------------------------------------------
+HARNESS_BASE="origin/main"
+HARNESS_TIMEOUT="${HARNESS_GATE_TIMEOUT:-120}"
+HARNESS_FAILED=0
+
+run_harness_gate() {
+    _name="$1"; shift
+    _log="$(mktemp)"
+    set +e
+    timeout "$HARNESS_TIMEOUT" python "$REPO_ROOT/scripts/$_name" "$@" \
+        --diff "$HARNESS_BASE" --timeout-seconds "$HARNESS_TIMEOUT" \
+        > "$_log" 2>&1
+    _rc=$?
+    set -e
+    if [ "$_rc" -eq 124 ]; then
+        echo "[pre-push] $_name TIMED_OUT after ${HARNESS_TIMEOUT}s. A gate that"
+        echo "[pre-push]   did not finish has NOT passed. Log: $_log"
+        HARNESS_FAILED=$((HARNESS_FAILED + 1))
+        return
+    fi
+    # Exit code is +1 for a FAIL and +2 for anything that could not be judged.
+    # Only the FAIL bit blocks; the could-not-judge bit is printed, because an
+    # object that records nothing is not an object that is wrong.
+    if [ $((_rc & 1)) -ne 0 ]; then
+        echo ""
+        echo "[pre-push] REFUSED by $_name:"
+        sed -n '1,60p' "$_log"
+        HARNESS_FAILED=$((HARNESS_FAILED + 1))
+    elif [ $((_rc & 2)) -ne 0 ]; then
+        echo "[pre-push] $_name: nothing failed, but something could not be"
+        echo "[pre-push]   judged. Not a block. Detail: $_log"
+    else
+        echo "[pre-push] $_name: clean over what this push changes."
+    fi
+}
+
+echo "[pre-push] Harness gates, diff scope against $HARNESS_BASE ..."
+run_harness_gate denominator_axis_gate.py
+run_harness_gate derived_recompute_gate.py
+run_harness_gate contradicting_surfaces_gate.py
+run_harness_gate method_label_gate.py
+run_harness_gate registration_chronology_gate.py
+run_harness_gate refusal_reads_outcome_groups_gate.py
+run_harness_gate lint_unordered_iteration.py
+
+# ---------------------------------------------------------------------------
+# RATCHET GATES AND NEGATIVE TESTS. A DIFFERENT CONTRACT, SO A DIFFERENT RUNNER.
+#
+# The seven above judge what a push CHANGES. The three below judge a state the
+# corpus is already in and compare it with a committed baseline, so they take no
+# --diff and they must not be given one: a diff-scoped ratchet reads clean on
+# every push that happens not to touch the affected file, which is most of them.
+#
+# THEY DO NOT FAIL ON THE EXISTING POPULATION. No page is regenerated in this
+# lane, so failing on 11 known flips would refuse every push until someone
+# bypassed the hook -- and a gate that is routinely bypassed is worse than none.
+# They fail when a count RISES, when a page not in the baseline acquires a
+# finding, or when COVERAGE FALLS, which is the one that catches a gate quietly
+# reading less than it did.
+#
+# The two negative tests are here for the same reason the gates are: a plant
+# that is never run is a plant that stops firing without anyone noticing.
+# test_properties_can_refuse.py is the one that keeps a P* property from being
+# reintroduced as a constant.
+# ---------------------------------------------------------------------------
+run_ratchet_gate() {
+    _name="$1"
+    _log="$(mktemp)"
+    set +e
+    timeout "$HARNESS_TIMEOUT" python "$REPO_ROOT/scripts/$_name" > "$_log" 2>&1
+    _rc=$?
+    set -e
+    if [ "$_rc" -eq 124 ]; then
+        echo "[pre-push] $_name TIMED_OUT after ${HARNESS_TIMEOUT}s. NOT a pass."
+        echo "[pre-push]   Log: $_log"
+        HARNESS_FAILED=$((HARNESS_FAILED + 1))
+    elif [ "$_rc" -ne 0 ]; then
+        echo ""
+        echo "[pre-push] REFUSED by $_name:"
+        sed -n '1,60p' "$_log"
+        HARNESS_FAILED=$((HARNESS_FAILED + 1))
+    else
+        echo "[pre-push] $_name: at or below baseline."
+    fi
+}
+
+echo "[pre-push] Ratchet gates and negative tests, corpus scope ..."
+run_ratchet_gate property_recompute_gate.py
+run_ratchet_gate source_hierarchy_gate.py
+run_ratchet_gate refusal_reason_gate.py
+run_ratchet_gate test_properties_can_refuse.py
+run_ratchet_gate test_source_hierarchy_refuses.py
+
+if [ "$HARNESS_FAILED" -ne 0 ]; then
+    echo ""
+    echo "[pre-push] $HARNESS_FAILED harness gate(s) refused this push."
+    echo "[pre-push] Each names the object or page and the two surfaces that"
+    echo "[pre-push] disagree. There is no override."
+    exit 1
+fi
+
 # Which app pages does this push actually change? git feeds the hook
 # "<local ref> <local sha> <remote ref> <remote sha>" on stdin, one line per ref.
 CHANGED=""
