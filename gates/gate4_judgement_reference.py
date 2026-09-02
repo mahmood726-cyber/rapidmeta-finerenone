@@ -179,6 +179,160 @@ def prove_undetectable(gate):
 JUDGE_WRITE_KEYS = set(JUDGE_KEYS)
 
 
+def _dump_call_lines(tree):
+    """Line numbers of every json.dump( / write_json( call in the module."""
+    out = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            fn = node.func
+            name = getattr(fn, "attr", None) or getattr(fn, "id", None)
+            if name in ("dump", "write_json"):
+                out.append(node.lineno)
+    return out
+
+
+def _corpus_rooted_join_lines(tree):
+    """Lines where a path is built by joining something with the literal segment 'ssot'.
+
+    This is the POSITIVE evidence of a corpus write, and it is what the gate actually
+    wants. Everything else -- a fixture under mkdtemp, a report file the caller names on
+    the command line -- is a write, but not a write a reader receives.
+    """
+    out = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and getattr(node.func, "attr", None) == "join":
+            for arg in node.args:
+                if isinstance(arg, ast.Constant) and arg.value == "ssot":
+                    out.append(node.lineno)
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+            if node.value.startswith("ssot/") or node.value.startswith("ssot\\"):
+                out.append(node.lineno)
+    return out
+
+
+def _writes_only_outside_the_corpus(tree):
+    """True when no dump site is reachable from a path built against the corpus root.
+
+    Approximated by function: a dump counts as a corpus write when it shares a function
+    with an `os.path.join(..., "ssot", ...)` that is NOT itself under a tempdir built in
+    the same function. Conservative in the direction that matters -- a module with one
+    real corpus write anywhere is still assessed as a corpus writer, so a genuine write
+    cannot hide behind a fixture elsewhere in the same file.
+    """
+    dumps = set(_dump_call_lines(tree))
+    if not dumps:
+        return False
+    joins = set(_corpus_rooted_join_lines(tree))
+
+    # POSITIVE EVIDENCE, NOT AN UNDETECTED JOIN.
+    #
+    # The first version excused a module when it could find no corpus-rooted join beside a
+    # dump -- an ABSENCE standing in for the property, which is the class this repository
+    # audits for, committed inside the fix for it. It excused 15 modules, and sampling them
+    # showed several DO write topic objects; they build the path in a shape the join
+    # detector does not read. A module is excused here only when every dump site is
+    # positively accounted for: inside a tempdir scope, or writing to a path the CALLER
+    # named. Anything the detector cannot account for keeps the module in the population,
+    # which is the safe direction.
+
+    # ENCLOSING SCOPES, NOT JUST THE INNERMOST FUNCTION. The fixture writers in these
+    # gates are nested helpers -- `def write(name, obj)` inside `def selftest()` -- and the
+    # mkdtemp() lives in the PARENT. Asking only the innermost function whether it built a
+    # tempdir answered "no" for every one of them, which is how the first version of this
+    # narrowing still flagged the file it was written for.
+    funcs = [n for n in ast.walk(tree)
+             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+             and getattr(n, "end_lineno", None)]
+
+    # A MODULE-LEVEL CORPUS PATH COVERS THE WHOLE MODULE, and missing that was a hole.
+    # `OBJ = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")` sits at line 42 of every
+    # ssot/apply_*.py and the write is in a function two hundred lines below, so NO single
+    # function contains both and the per-function test excused all of them. Found by
+    # sampling the 15 modules the first version reclassified rather than by trusting the
+    # count -- the reclassification looked plausible and was wrong.
+    in_a_func = set()
+    for f in funcs:
+        in_a_func.update(range(f.lineno, f.end_lineno + 1))
+    if any(j not in in_a_func for j in joins):
+        return False
+
+    def _tempdir_in_scope(line):
+        for f in funcs:
+            if f.lineno <= line <= f.end_lineno:
+                if any(getattr(c.func, "attr", None) in ("mkdtemp", "TemporaryDirectory",
+                                                         "NamedTemporaryFile")
+                       for c in ast.walk(f) if isinstance(c, ast.Call)):
+                    return True
+        return False
+
+    def _caller_named_target(line):
+        """The dump at `line` writes to a path an argparse namespace supplied (`a.json`)."""
+        for f in funcs:
+            if not (f.lineno <= line <= f.end_lineno):
+                continue
+            for c in ast.walk(f):
+                if (isinstance(c, ast.Call) and getattr(c.func, "id", None) == "open"
+                        and c.args and isinstance(c.args[0], ast.Attribute)
+                        and abs(c.lineno - line) <= 3):
+                    return True
+        return False
+
+    # EVERY dump must be positively accounted for. A dump the detector cannot explain
+    # keeps the module in the population, which is the safe direction: the cost of an
+    # unexplained dump is one extra module assessed, and the cost of excusing one is a
+    # judgement writer that bypasses the stamp and is never looked at again.
+    for d in sorted(dumps):
+        if not (_tempdir_in_scope(d) or _caller_named_target(d)):
+            return False
+
+    for f in funcs:
+        lo, hi = f.lineno, f.end_lineno
+        here_dumps = {d for d in dumps if lo <= d <= hi}
+        here_joins = {j for j in joins if lo <= j <= hi}
+        if here_dumps and here_joins and not _tempdir_in_scope(min(here_dumps)):
+            return False        # a corpus-rooted join beside a dump, with no fixture
+    return True
+
+
+def _prove_fixture_writes_are_not_corpus_writes():
+    """Both directions, on written source. An exemption unproved in the negative is a hole."""
+    fixture = ("import json, os, tempfile\n"
+               "def selftest():\n"
+               "    root = tempfile.mkdtemp()\n"
+               "    p = os.path.join(root, 'ssot', 't', 't.json')\n"
+               "    with open(p, 'w') as fh:\n"
+               "        json.dump({'verdict': 'FAIL'}, fh)\n")
+    real = ("import json, os\n"
+            "REPO = os.path.dirname(__file__)\n"
+            "def persist(obj):\n"
+            "    p = os.path.join(REPO, 'ssot', 't', 't.json')\n"
+            "    with open(p, 'w') as fh:\n"
+            "        json.dump(obj, fh)\n")
+    if not _writes_only_outside_the_corpus(ast.parse(fixture)):
+        raise SystemExit("PROOF FAILED: a dump into a tempfile.mkdtemp() fixture was still "
+                         "read as a write into the corpus.")
+    if _writes_only_outside_the_corpus(ast.parse(real)):
+        raise SystemExit("PROOF FAILED: a dump into a repo-rooted ssot path was excused as a "
+                         "fixture write. The narrowing became a hole.")
+    report = ("import json\n"
+              "def main(a):\n"
+              "    with open(a.json, 'w') as fh:\n"
+              "        json.dump({'records': []}, fh)\n")
+    if not _writes_only_outside_the_corpus(ast.parse(report)):
+        raise SystemExit("PROOF FAILED: a gate writing its own --json report to a path the "
+                         "CALLER names was read as persisting a judgement into the corpus.")
+    module_level = ("import json, os\n"
+                    "REPO = os.path.dirname(__file__)\n"
+                    "OBJ = os.path.join(REPO, 'ssot', 't', 't.json')\n"
+                    "def apply(obj):\n"
+                    "    with open(OBJ, 'w') as fh:\n"
+                    "        json.dump(obj, fh)\n")
+    if _writes_only_outside_the_corpus(ast.parse(module_level)):
+        raise SystemExit("PROOF FAILED: a module-level corpus path with the write in a "
+                         "function far below was excused. That is the shape of every "
+                         "ssot/apply_*.py, and excusing it is the hole this proof exists for.")
+
+
 def _writes_judgement(tree):
     for n in ast.walk(tree):
         if isinstance(n, ast.Assign):
@@ -223,6 +377,21 @@ def arm_c(gate, repo):
             if not (("json.dump(" in src or "write_json" in src) and "ssot" in src):
                 kinds["writes a judgement but does not persist it to ssot/"] += 1
                 continue
+            # ⛔ AND A TEMPORARY FIXTURE THAT CONTAINS THE SEGMENT `ssot` IS NOT THE CORPUS.
+            # Same class as the json.dumps note above, one level out: the test was a
+            # SUBSTRING over the whole file, so a gate whose --selftest builds
+            # tempfile.mkdtemp()/ssot/<topic>/<topic>.json to exercise itself read as a
+            # module persisting judgements into the corpus. It flagged
+            # scripts/contradicting_surfaces_gate.py, which is read-only over ssot/ and
+            # whose only writes are into a directory it removes in a finally:.
+            #
+            # A module every one of whose dump sites is lexically inside a function that
+            # also calls tempfile.mkdtemp() is writing to a fixture. That is checked on the
+            # tree rather than the text, and proved in both directions by
+            # _prove_fixture_writes_are_not_corpus_writes().
+            if _writes_only_outside_the_corpus(tree):
+                kinds["writes a judgement but does not persist it to ssot/"] += 1
+                continue
             rel = "%s/%s" % (d, fn)
             kinds["persists a judgement into ssot/"] += 1
             if "atomic_write" in src or "write_json" in src:
@@ -254,6 +423,10 @@ def ratchet(gate, repo, bare_sites):
 
 
 def main(argv):
+    # Runs on every invocation, not behind a flag: the fixture narrowing above is an
+    # exemption, and an exemption whose negative direction is never exercised is a hole
+    # waiting to be found by whoever it lets through.
+    _prove_fixture_writes_are_not_corpus_writes()
     repo = H.repo_root()
     gate = H.Gate("4  JUDGEMENT REFERENCE",
                   "a stored judgement must carry a reference to the version of what it judged")

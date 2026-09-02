@@ -141,7 +141,35 @@
   },
   "scripts/plant_correction_survives_rebuild.py": {
    "state": "NOT-A-CORPUS-REMOVAL",
-   "why": "os.remove() in a `finally`, over paths this script created itself seconds earlier with tempfile.mkstemp -- the two throwaway corrections lists the plant writes so it can exercise the guard against a SYNTHETIC entry instead of a live page. They live in the system temp directory, are never read by anything else, and exist only inside one function call. Deleting them is the cleanup of a fixture, not the removal of an artefact. ⭐ AND THE PLANT TOUCHES NO DELIVERED PAGE AT ALL: its named positive is built in memory precisely so there is no restore to get wrong, which is why the only paths it removes are ones it invented."
+   "why": "os.remove() in a `finally`, over paths this script created itself seconds earlier with tempfile.mkstemp -- the two throwaway corrections lists the plant writes so it can exercise the guard against a SYNTHETIC entry instead of a live page. They live in the system temp directory, are never read by anything else, and exist only inside one function call. Deleting them is the cleanup of a fixture, not the removal of an artefact. \u2b50 AND THE PLANT TOUCHES NO DELIVERED PAGE AT ALL: its named positive is built in memory precisely so there is no restore to get wrong, which is why the only paths it removes are ones it invented."
+  },
+  "scripts/contradicting_surfaces_gate.py": {
+   "state": "NOT-A-CORPUS-REMOVAL",
+   "why": "a harness gate landed 2026-09-02. Its only deletion is shutil.rmtree/os.unlink of the temporary fixture directory its own --selftest builds, inside a finally:. Read-only over the corpus: it opens pages and objects and writes nothing a reader receives. Verified by reading every deletion site in the file."
+  },
+  "scripts/denominator_axis_gate.py": {
+   "state": "NOT-A-CORPUS-REMOVAL",
+   "why": "a harness gate landed 2026-09-02. Its only deletion is shutil.rmtree/os.unlink of the temporary fixture directory its own --selftest builds, inside a finally:. Read-only over the corpus: it opens pages and objects and writes nothing a reader receives. Verified by reading every deletion site in the file."
+  },
+  "scripts/derived_recompute_gate.py": {
+   "state": "NOT-A-CORPUS-REMOVAL",
+   "why": "a harness gate landed 2026-09-02. Its only deletion is shutil.rmtree/os.unlink of the temporary fixture directory its own --selftest builds, inside a finally:. Read-only over the corpus: it opens pages and objects and writes nothing a reader receives. Verified by reading every deletion site in the file."
+  },
+  "scripts/lint_unordered_iteration.py": {
+   "state": "NOT-A-CORPUS-REMOVAL",
+   "why": "a harness gate landed 2026-09-02. Its only deletion is shutil.rmtree/os.unlink of the temporary fixture directory its own --selftest builds, inside a finally:. Read-only over the corpus: it opens pages and objects and writes nothing a reader receives. Verified by reading every deletion site in the file."
+  },
+  "scripts/method_label_gate.py": {
+   "state": "NOT-A-CORPUS-REMOVAL",
+   "why": "a harness gate landed 2026-09-02. Its only deletion is shutil.rmtree/os.unlink of the temporary fixture directory its own --selftest builds, inside a finally:. Read-only over the corpus: it opens pages and objects and writes nothing a reader receives. Verified by reading every deletion site in the file."
+  },
+  "scripts/refusal_reads_outcome_groups_gate.py": {
+   "state": "NOT-A-CORPUS-REMOVAL",
+   "why": "a harness gate landed 2026-09-02. Its only deletion is shutil.rmtree/os.unlink of the temporary fixture directory its own --selftest builds, inside a finally:. Read-only over the corpus: it opens pages and objects and writes nothing a reader receives. Verified by reading every deletion site in the file."
+  },
+  "scripts/registration_chronology_gate.py": {
+   "state": "NOT-A-CORPUS-REMOVAL",
+   "why": "a harness gate landed 2026-09-02. Its only deletion is shutil.rmtree/os.unlink of the temporary fixture directory its own --selftest builds, inside a finally:. Read-only over the corpus: it opens pages and objects and writes nothing a reader receives. Verified by reading every deletion site in the file."
   }
  }
 }
