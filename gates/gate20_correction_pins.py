@@ -81,11 +81,17 @@ def main(argv):
     broken = k.get("BROKEN", 0)
     absent = k.get("ABSENT", 0)
     nopin = k.get("NO_PIN", 0)
+    # NEITHER PASS NOR FAIL, and it MUST be in the sum. UNDETERMINABLE_NO_LANE_REFS means
+    # the detector could not read any known lane in this checkout, so nothing was consulted
+    # and nothing is judged. It does not occur in the worktree where the lane is checked
+    # out -- WHICH IS EXACTLY WHY OMITTING IT WOULD BE MISSED: the kinds would stop summing
+    # to the population the first time someone ran this in a clone without the lane refs.
+    undet = k.get("UNDETERMINABLE_NO_LANE_REFS", 0)
     total = len(recs)
-    if holds + ahead + broken + absent + nopin != total:
+    if holds + ahead + broken + absent + nopin + undet != total:
         gate.broken("the kinds sum to %d over %d records -- a count that disagrees "
                     "with its own population is not usable"
-                    % (holds + ahead + broken + absent + nopin, total))
+                    % (holds + ahead + broken + absent + nopin + undet, total))
         gate.kinds({"correction records": total})
         return gate.report(denominator="%d records, kinds inconsistent" % total)
 
@@ -96,6 +102,7 @@ def main(argv):
         "  BROKEN -- no known lane produces them": broken,
         "  ABSENT -- the artefact named is gone": absent,
         "  NO_PIN -- nothing to check, never clean": nopin,
+        "  UNDETERMINABLE -- no lane ref readable here; nothing consulted": undet,
     })
     gate.coverage(total - nopin, total,
                   "correction records carrying a file+sha256 pair")
@@ -104,6 +111,10 @@ def main(argv):
               "remedy is a merge and never an edit to a hash.")
     gate.note("a pin is NEVER amended. A changed artefact means the record is about "
               "the old bytes and must be re-derived.")
+    if undet:
+        gate.note("%d record(s) name lanes that cannot be read in this checkout, "
+                  "in either the bare or the origin/ form. Nothing was consulted, "
+                  "so nothing is judged." % undet)
     if ahead:
         gate.note("%d record(s) await a merge and are NOT counted as verified." % ahead)
 

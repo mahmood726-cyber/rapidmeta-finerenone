@@ -87,19 +87,57 @@ def classify(rel, pin):
                          "not the committed blob. A Linux checkout reports it broken.")
     if _sha(_norm(wt)) == pin:
         return "HOLDS", "matched on newline-normalised bytes"
+    # ⛔ BOTH REF FORMS, AND COUNT THE CONSULTS. A bare branch name resolves ONLY in a
+    # working copy that has that branch checked out; a clone holds it only as
+    # origin/<name>. Measured: bare -> 8518b5d6d in the source worktree and FATAL in a
+    # clone; origin/ -> 0026c6218 in a clone and FATAL in the worktree. They are not two
+    # spellings of one ref -- THEY NAME DIFFERENT TREES, 29 commits apart.
+    #
+    # The old loop did `continue` on a failed lookup and fell through to BROKEN, so
+    # "no lane MATCHED" and "no lane could be CONSULTED" returned the same verdict. They
+    # are opposite facts, and which one you got depended on whether you were standing in a
+    # clone or the worktree. gate20 therefore reported FAIL in every clone and PASS in
+    # exactly one working copy, with nothing in its output saying which you were in.
+    # ⛔ TWO DIFFERENT FACTS, AND MY FIRST FIX CONFLATED THEM -- THE SAME MISTAKE IT WAS
+    # FIXING, ONE LEVEL DOWN. A `git show <ref>:<path>` fails BOTH when the lane cannot be
+    # read AND when the path is simply not in that lane. Counting those together made the
+    # detector call a genuinely-broken pin UNDETERMINABLE, and its own known-negative
+    # control caught it: "a pin matching nothing -> UNDETERMINABLE, expected BROKEN".
+    #
+    # So REF RESOLVABILITY is tested separately from PATH PRESENCE.
+    #   no lane ref resolves at all      -> UNDETERMINABLE (nothing was consulted)
+    #   a ref resolves, bytes do not match -> BROKEN (something was consulted and refused)
+    #
+    # Both ref forms are tried because a bare branch name resolves ONLY in a working copy
+    # that has it checked out, and a clone holds it only as origin/<name>. Measured: bare
+    # -> 8518b5d6d in the worktree and FATAL in a clone; origin/ -> 0026c6218 in a clone and
+    # FATAL in the worktree. They are not two spellings of one ref: they name DIFFERENT
+    # TREES, 29 commits apart.
+    readable = 0
     for lane in KNOWN_LANES:
-        out = subprocess.run(["git", "show", "%s:%s" % (lane, rel)], cwd=REPO,
-                             capture_output=True)
-        if out.returncode != 0:
-            continue
-        blob = out.stdout
-        # the lane's WORKING copy is what a pin taken on Windows would hash
-        if (_sha(blob) == pin or _sha(_norm(blob)) == pin or _sha(blob.replace(LF, CRLF)) == pin):
-            cmt = subprocess.run(["git", "log", "-1", "--format=%h %s", lane, "--", rel],
-                                 cwd=REPO, capture_output=True, text=True,
-                                 encoding="utf-8", errors="replace").stdout.strip()
-            return "AHEAD_OF_BRANCH", "%s carries these bytes: %s" % (lane, cmt[:80])
-    return "BROKEN", "no known lane produces the pinned bytes on any newline basis"
+        for ref in (lane, "origin/" + lane):
+            if subprocess.run(["git", "rev-parse", "--verify", "--quiet", ref + "^{commit}"],
+                              cwd=REPO, capture_output=True).returncode != 0:
+                continue
+            readable += 1
+            out = subprocess.run(["git", "show", "%s:%s" % (ref, rel)], cwd=REPO,
+                                 capture_output=True)
+            if out.returncode != 0:
+                continue                      # the ref is fine; this PATH is not in it
+            blob = out.stdout
+            # the lane's WORKING copy is what a pin taken on Windows would hash
+            if (_sha(blob) == pin or _sha(_norm(blob)) == pin
+                    or _sha(blob.replace(LF, CRLF)) == pin):
+                cmt = subprocess.run(["git", "log", "-1", "--format=%h %s", ref, "--", rel],
+                                     cwd=REPO, capture_output=True, text=True,
+                                     encoding="utf-8", errors="replace").stdout.strip()
+                return "AHEAD_OF_BRANCH", "%s carries these bytes: %s" % (ref, cmt[:80])
+    if readable == 0:
+        return ("UNDETERMINABLE_NO_LANE_REFS",
+                "none of the %d known lane(s) resolves here, in either form"
+                % len(KNOWN_LANES))
+    return "BROKEN", ("%d lane ref(s) read, none produces the pinned bytes on any newline "
+                      "basis" % readable)
 
 
 def controls():
