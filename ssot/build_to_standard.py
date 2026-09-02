@@ -42,6 +42,7 @@ NCT_RE = re.compile(r"\bNCT\d{8}\b")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import preconditions as P
+import page_properties as PP
 from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE, PASS
 from attr_topic_data import ATTR_CASCADE, ATTR_EXTRACTION, ATTR_PRISMA, ATTR_SEARCH
 from ali_topic_data import ALI_CASCADE, ALI_EXTRACTION, ALI_PRISMA, ALI_SEARCH
@@ -780,12 +781,16 @@ def build(topic):
     for _k, _v in (_pf.get("excluded_with_reasons") or {}).items():
         _merged.setdefault("excluded_with_reasons", {}).setdefault(_k, _v)
     obj["prisma_flow"] = _merged
-    _dbs = len(spec["search"].get("databases") or [])
     _rem = spec["k_cascade"].get("k_unscreened_remainder")
-    props["P1_executed_search"] = prop(
-        HELD, f"{_dbs} database queries recorded verbatim with dates and counts; PRISMA "
-              f"arithmetic reconciles and the {_rem}-trial unscreened remainder is stated "
-              f"as a number rather than omitted.")
+    # COMPUTED FROM THE OBJECT, NEVER ASSERTED. This was
+    #   prop(HELD, f"{_dbs} database queries recorded verbatim with dates and counts; ...")
+    # -- a CONSTANT verdict beside a sentence describing what ought to be true. `_dbs` was
+    # the LENGTH OF A LIST; nothing read a query, a date or a count, so no object could
+    # have made it say anything else. On AZILSARTAN_HTN_AUTO_FULL_REVIEW the page announced
+    # "2 database queries recorded verbatim with dates and counts" while its own PubMed card
+    # rendered `NOT EXECUTED FOR THIS TOPIC`. A marker satisfiable by assertion is a
+    # password. See ssot/page_properties.p1_executed_search.
+    props["P1_executed_search"] = prop(*PP.p1_executed_search(obj))
 
     # --- P2 k cascade -------------------------------------------------------------------
     # MERGE, never replace: an object may carry correction notes on its cascade that the spec
@@ -804,21 +809,18 @@ def build(topic):
                 "actually decide.",
         "keyed_on": "registration id",
     }
-    props["P2_k_cascade"] = prop(
-        HELD, f"k at every stage: surfaced {spec['k_cascade']['k0_surfaced']}, located "
-              f"{spec['k_cascade']['k2_role_located']}, experimental "
-              f"{spec['k_cascade']['k3_experimental']}, comparator "
-              f"{spec['k_cascade']['k4_comparator']}, included "
-              f"{spec['k_cascade']['k_included_in_object']}, unscreened remainder {_rem}.")
+    # Printing the stages is not checking them. The previous form interpolated five counts
+    # into a sentence and held unconditionally, so a cascade that RISES between stages --
+    # a later stage holding more trials than the one that fed it -- rendered as an orderly
+    # list. p2_k_cascade reads the same five numbers and refuses on the rise.
+    props["P2_k_cascade"] = prop(*PP.p2_k_cascade(obj))
 
     # --- P3 inclusion criteria ----------------------------------------------------------
-    prov = (obj.get("screening") or {}).get("eligibility_provenance")
-    if prov and "predefined" in prov:
-        props["P3_inclusion_criteria"] = prop(
-            HELD, f"Criteria provenance block present with predefined={prov.get('predefined')!r} "
-                  f"on its face (state {prov.get('state')!r}).")
-    else:
-        props["P3_inclusion_criteria"] = prop(REFUSING, "No criteria provenance block.")
+    # `"predefined" in prov` was the whole test, so `predefined=None` HELD -- and rendered
+    # as "Criteria provenance block present with predefined=None on its face", a property
+    # announcing its own emptiness in the HELD column. Null is not false and it is not
+    # true; it is NOT-ASSESSABLE, which is a state this standard already has.
+    props["P3_inclusion_criteria"] = prop(*PP.p3_inclusion_criteria(obj))
 
     # --- P4 preconditions ---------------------------------------------------------------
     verdicts = {}
@@ -861,13 +863,22 @@ def build(topic):
             "here is reproducible."),
         "verdicts": verdicts,
     }
-    n_fail = sum(1 for v in verdicts.values() if v["verdict"] == FAIL)
-    _na = sum(1 for v in verdicts.values() if v["verdict"] == NOT_ASSESSABLE)
-    _cp = verdicts["criteria_predefined"]["verdict"]
-    props["P4_preconditions"] = prop(
-        HELD, f"All {len(P.PRECONDITIONS)} recorded with verdict and cited authority: "
-              f"{n_fail} FAIL, {_na} NOT-ASSESSABLE. criteria_predefined is {_cp} -- "
-              f"{'post hoc criteria, which R107 permits and C5/C7 does not satisfy' if _cp == FAIL else 'this object declares neither a provenance block nor a protocol statement, so pre-specification cannot be decided either way'}.")
+    # The word "All" was not checked against anything. This claims every precondition in
+    # the STANDARD is recorded with a verdict AND a cited authority; p4_preconditions is
+    # given the standard's own name list and refuses when one is missing, unauthorised or
+    # reasonless -- a verdict whose authority is unnamed cannot be disagreed with, which is
+    # the only reason to record one.
+    _cp = (verdicts.get("criteria_predefined") or {}).get("verdict")
+    _p4_state, _p4_reason = PP.p4_preconditions(obj, expected_names=P.PRECONDITIONS)
+    if _p4_state == PP.HELD and _cp is not None:
+        _p4_reason += (
+            " criteria_predefined is %s -- %s." % (
+                _cp,
+                "post hoc criteria, which R107 permits and C5/C7 does not satisfy"
+                if _cp == FAIL else
+                "this object declares neither a provenance block nor a protocol statement, "
+                "so pre-specification cannot be decided either way"))
+    props["P4_preconditions"] = prop(_p4_state, _p4_reason)
 
     # --- P5 extraction table ------------------------------------------------------------
     obj["extraction"] = spec["extraction"] or {
@@ -913,11 +924,13 @@ def build(topic):
                      "assignment is this project's classification of it."},
         ],
     }
-    _cells = obj["extraction"].get("cells") or []
-    _read = sum(1 for c in _cells if c.get("label") == "READ")
-    props["P5_extraction_table"] = prop(
-        HELD, f"{len(_cells)} cells: {_read} READ with source path and verbatim text, "
-              f"{len(_cells) - _read} DERIVED with the method named.")
+    # COUNTING LABELS IS NOT CHECKING SOURCES. The previous form counted cells whose label
+    # was the string "READ" and then asserted those cells carried "source path and verbatim
+    # text" -- neither field was ever read. The rendered extraction table on the same pages
+    # says, in its own words, "no source sentence recorded -- this value cannot be checked
+    # against a quoted line here", beside a property announcing that every READ cell carries
+    # one. p5_extraction_table resolves both fields and names the cells that lack them.
+    props["P5_extraction_table"] = prop(*PP.p5_extraction_table(obj))
 
     # --- P6 analysis output verbatim ----------------------------------------------------
     #
