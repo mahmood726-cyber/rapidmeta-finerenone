@@ -35,6 +35,8 @@ publication, it is a pointer that may or may not be to one, and it must never be
 promoted to `JOURNAL_FULL_TEXT` by a script that merely found a PMID.
 """
 
+import re
+
 # ---------------------------------------------------------------------------
 # THE TIERS, ordered strongest to weakest as EVIDENCE ABOUT THIS RESULT.
 # Order is documented rather than implied, because someone will sort on it.
@@ -132,6 +134,123 @@ TIERS = {
 # The state a value is in when nobody has said anything. Distinct from COULD_NOT_DETERMINE,
 # which is a recorded finding that the origin could not be established.
 UNSET = "NOT_YET_RECORDED"
+
+
+# ===========================================================================================
+# THE SOURCE HIERARCHY -- AND WHY `rank` ABOVE IS NOT IT
+# ===========================================================================================
+#
+# `TIERS[t]["rank"]` puts REGISTRY_POSTED_RESULT at 1 and JOURNAL_FULL_TEXT at 2, and the
+# reason it gives is real: a posted results table is deposited under a legal reporting duty
+# and is not selected by an author writing a narrative. That is a good argument, and it is an
+# argument about ONE QUESTION -- was this outcome declared, and reported at all. It is not an
+# argument about what the effect on that outcome IS.
+#
+# Ranking both questions with one number conflated them, and the conflation cost real work:
+#
+#   * A fully published RCT was dropped from a topic because its registry entry carried
+#     `hasResults=false`. Registry silence was read as "no results exist". It is not; it is
+#     evidence about the REGISTRY. See `registry_silence_problems()` below.
+#   * On the inclisiran topic the ORION-11 record holds THREE values for one endpoint --
+#     -53.5 observed-case, -47.8 after washout, -49.9 the published imputation -- and the
+#     registry's was taken because the registry outranked. Mixed with other trials'
+#     published-imputation values that manufactured I2 = 74%. Harmonised to one variant the
+#     same trials give tau2 = 0. The heterogeneity was a property of the EXTRACTION.
+#
+# So the hierarchy is split by the question being asked. For a VALUE the order is the one the
+# reviews follow: PRIMARY PUBLICATION -> SUPPLEMENT / SAP / PROTOCOL -> REGISTRY. The registry
+# keeps precedence on pre-specification, where its argument holds.
+#
+# `rank` above is deliberately left untouched. Nothing outside this module indexes it
+# (measured), it is the documented ordering of the tier TABLE, and silently redefining a
+# published number is the substitution class this project audits for. These functions are the
+# operative order; the table is prose.
+
+#: For "what is the effect on this outcome?" -- strongest first.
+EFFECT_VALUE_ORDER = (
+    "JOURNAL_FULL_TEXT",
+    "JOURNAL_SUPPLEMENT",
+    "STATISTICAL_ANALYSIS_PLAN",
+    "TRIAL_PROTOCOL",
+    "REGISTRY_POSTED_RESULT",
+    "JOURNAL_ABSTRACT",
+    "PRIOR_SYNTHESIS",
+)
+
+#: For "was this outcome pre-specified, and in what form?" -- strongest first. Here the
+#: deposited-under-duty argument is the correct one and the registry keeps precedence.
+PRESPECIFICATION_ORDER = (
+    "STATISTICAL_ANALYSIS_PLAN",
+    "TRIAL_PROTOCOL",
+    "REGISTRY_POSTED_RESULT",
+    "JOURNAL_FULL_TEXT",
+    "JOURNAL_SUPPLEMENT",
+    "JOURNAL_ABSTRACT",
+)
+
+QUESTIONS = {"effect_value": EFFECT_VALUE_ORDER,
+             "prespecification": PRESPECIFICATION_ORDER}
+
+
+def outranks(tier_a, tier_b, question="effect_value"):
+    """Does `tier_a` outrank `tier_b` for this question?
+
+    Raises on an unknown question rather than defaulting, because a silent default is how
+    the two questions came to share one number in the first place.
+    """
+    if question not in QUESTIONS:
+        raise ValueError("unknown question %r; the questions are %s -- a source hierarchy is "
+                         "only meaningful relative to one" % (question, sorted(QUESTIONS)))
+    order = QUESTIONS[question]
+    if tier_a not in order or tier_b not in order:
+        return False        # a tier outside the order (REGISTRY_REFERENCE_ROW) outranks nothing
+    return order.index(tier_a) < order.index(tier_b)
+
+
+def best_source(tiers, question="effect_value"):
+    """The strongest of `tiers` for this question, or None if none of them are ranked."""
+    order = QUESTIONS[question]
+    ranked = [t for t in tiers if t in order]
+    return min(ranked, key=order.index) if ranked else None
+
+
+# ===========================================================================================
+# REGISTRY SILENCE IS NOT ABSENCE
+# ===========================================================================================
+#
+# `hasResults=false` is a fact about ClinicalTrials.gov. Reading it as "this trial has no
+# results" is the membership error this module's header already names, and it is the one that
+# removes published trials from reviews. A disposition resting on it must say which
+# NON-REGISTRY source was checked and came back empty.
+
+#: Fields whose presence shows a non-registry source was actually consulted.
+NON_REGISTRY_EVIDENCE = ("pmid", "doi", "publication_checked", "full_text_checked",
+                         "supplement_checked", "search_for_publication")
+
+_REGISTRY_SILENCE = re.compile(r"hasResults\s*=\s*false|no resultsSection", re.I)
+_ABSENCE_WORDS = re.compile(
+    r"no results (exist|are available|were published)|has no results|"
+    r"there is nothing to extract|is not published", re.I)
+
+
+def registry_silence_problems(disposition):
+    """Problems with a disposition that reads registry silence as absence of results.
+
+    `disposition` carries at least a `reason` string, and optionally the fields recording
+    what else was checked. Returns [] when the disposition is sound -- including the common
+    and CORRECT case where it cites registry silence and does not convert it into absence.
+    """
+    blob = "%s %s" % (disposition.get("reason") or "", disposition.get("field_read") or "")
+    if not _REGISTRY_SILENCE.search(blob):
+        return []
+    if not _ABSENCE_WORDS.search(blob):
+        return []
+    if [f for f in NON_REGISTRY_EVIDENCE if disposition.get(f)]:
+        return []
+    return ["This disposition reads registry silence as an absence of RESULTS and records no "
+            "non-registry source that was checked. `hasResults=false` is evidence about the "
+            "registry. Record which of %s was consulted, or state what was actually observed: "
+            "the registry has posted nothing." % (", ".join(NON_REGISTRY_EVIDENCE),)]
 
 
 def validate(record):
