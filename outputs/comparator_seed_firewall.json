@@ -1,0 +1,2693 @@
+{
+ "_doc": "PHASE-0 FIREWALL. A topic seeded from a published comparator can never be scored against that comparator. Topics listed in scored_topics are EXCLUDED from comparator seeding. Comparator works listed in scored_comparator_dois are EXCLUDED from use as seeds. Both sets are declared before any reference list is fetched.",
+ "rule": {
+  "id": "COMPARATOR_SEED_FIREWALL_V1",
+  "seedable": "a topic is seedable iff norm(topic) not in scored_topics",
+  "usable_as_seed": "a published MA is usable as a seed iff its DOI not in scored_comparator_dois",
+  "provenance": "every trial entering the corpus via this route carries found_via='FOUND_VIA_COMPARATOR' and seed_source_pmcid/seed_source_doi, and is never counted as our own search yield"
+ },
+ "counts": {
+  "source_records": {
+   "outputs/published_meta_comparisons.json": 203,
+   "outputs/published_meta_comparison.json": 19,
+   "outputs/benchmark_set.json": 33
+  },
+  "scored_topics": 238,
+  "scored_comparator_dois": 194,
+  "all_corpus_topics": 936,
+  "seedable_topics": 778
+ },
+ "scored_topics": {
+  "ABLATION_AF": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "ABLATION_AF"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "ABLATION_AF"
+   }
+  ],
+  "ACALABRUTINIB_CLL": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Acalabrutinib Cll"
+   }
+  ],
+  "ACS_ANTIPLATELET": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Acs Antiplatelet"
+   }
+  ],
+  "ACUTE_HF_DIURESIS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Acute Hf Diuresis New"
+   }
+  ],
+  "ADC_HER2": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Adc Her2"
+   }
+  ],
+  "ADC_HER2_LOW": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Adc Her2 Low"
+   }
+  ],
+  "ADJUVANT_IO_PAN_TUMOR": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Adjuvant Io Pan Tumor"
+   }
+  ],
+  "AD_PEDIATRIC_BIOLOGIC_NMA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "AD_PEDIATRIC_BIOLOGIC_NMA_REVIEW.html"
+   }
+  ],
+  "AGYW_HIV_PREP": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Agyw Hiv Prep"
+   }
+  ],
+  "ALOPECIA_JAKI": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "ALOPECIA_JAKI_REVIEW.html"
+   }
+  ],
+  "ALS_NEW_AGENTS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Als New Agents"
+   }
+  ],
+  "AML_TARGETED": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "AML_TARGETED_NEW_REVIEW.html"
+   }
+  ],
+  "AML_VEN_FLT3": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Aml Ven Flt3"
+   }
+  ],
+  "ANTIPLATELET_NMA": [
+   {
+    "source": "benchmark_set.json",
+    "label": "ANTIPLATELET_NMA"
+   }
+  ],
+  "ANTIVEGF_NAMD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Antivegf Namd"
+   }
+  ],
+  "ANTI_PD1_GASTRIC": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Anti Pd1 Gastric"
+   }
+  ],
+  "ANTI_PDL1_BLADDER": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Anti Pdl1 Bladder"
+   }
+  ],
+  "ANTI_TIGIT_TUMORS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Anti Tigit Tumors"
+   }
+  ],
+  "ARDS_PRONE_POSITIONING": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Ards Prone Positioning"
+   }
+  ],
+  "ARNI_HF": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "ARNI_HF"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "ARNI_HF"
+   }
+  ],
+  "ARPI_MHSPC": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Arpi Mhspc"
+   }
+  ],
+  "ARPI_NMCRPC": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "ARPI_NMCRPC_REVIEW.html"
+   }
+  ],
+  "ATOPIC_DERM_NMA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "ATOPIC_DERM_NMA_REVIEW.html"
+   }
+  ],
+  "ATTR_CM": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "ATTR_CM"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "ATTR_CM"
+   }
+  ],
+  "AXSPA_BIOLOGICS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "AXSPA_BIOLOGICS_REVIEW.html"
+   }
+  ],
+  "AZITHROMYCIN_CHILD_MORTALITY": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "AZITHROMYCIN_CHILD_MORTALITY_REVIEW.html"
+   }
+  ],
+  "BARIATRIC_RYGB_VS_SG": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Bariatric Rygb Vs Sg"
+   }
+  ],
+  "BEMPEDOIC_ACID": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "BEMPEDOIC_ACID"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "BEMPEDOIC_ACID"
+   }
+  ],
+  "BIMEKIZUMAB_PSORIASIS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "BIMEKIZUMAB_PSORIASIS_REVIEW.html"
+   }
+  ],
+  "BLADDER_UROTHEL_FRONTLINE_IO_NMA_REVIEW_HTML_BLADDER_UROTHEL_FRONTLINE_IO": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "BLADDER_UROTHEL_FRONTLINE_IO_NMA_REVIEW.html (Bladder Urothel Frontline Io)"
+   }
+  ],
+  "BRONCHIECTASIS_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Bronchiectasis Broad"
+   }
+  ],
+  "BTKI_CLL": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Btki Cll"
+   }
+  ],
+  "CABG_VS_PCI_LEFT_MAIN_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "CABG_VS_PCI_LEFT_MAIN_NMA_REVIEW.html"
+   }
+  ],
+  "CAB_PREP_HIV": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cab Prep Hiv"
+   }
+  ],
+  "CANGRELOR_PCI": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "CANGRELOR_PCI_REVIEW.html"
+   }
+  ],
+  "CARBAPENEM_RESISTANT_ABX_REVIEW_HTML_CARBAPENEM_RESISTANT_ABX": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "CARBAPENEM_RESISTANT_ABX_REVIEW.html (Carbapenem Resistant Abx)"
+   }
+  ],
+  "CARDIAC_CONTRACTILITY_MOD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cardiac Contractility Mod"
+   }
+  ],
+  "CARDIORENAL_DKD_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "CARDIORENAL_DKD_NMA_REVIEW.html"
+   }
+  ],
+  "CART_B_CELL_LYMPHOMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "CART_B_CELL_LYMPHOMA_REVIEW.html"
+   }
+  ],
+  "CART_DLBCL": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cart Dlbcl"
+   }
+  ],
+  "CAR_T_LBCL_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Car T Lbcl Broad"
+   }
+  ],
+  "CBD_SEIZURE": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cbd Seizure"
+   }
+  ],
+  "CDK46_BREAST_CANCER": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cdk46 Breast Cancer"
+   }
+  ],
+  "CDK46_MBC": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cdk46 Mbc"
+   }
+  ],
+  "CD_BIOLOGICS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cd Biologics"
+   }
+  ],
+  "CERVICAL_CANCER_IO_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cervical Cancer Io Broad"
+   }
+  ],
+  "CFTR_MODULATORS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cftr Modulators"
+   }
+  ],
+  "CGRP_MIGRAINE_PREVENT": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cgrp Migraine Prevent"
+   }
+  ],
+  "CHECKPOINT_ESOPHAGEAL_SCC": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Checkpoint Esophageal Scc"
+   }
+  ],
+  "CHOLANGIO_TARGETED_NMA_REVIEW_HTML_CHOLANGIO_TARGETED": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "CHOLANGIO_TARGETED_NMA_REVIEW.html (Cholangio Targeted)"
+   }
+  ],
+  "CHRONIC_URTICARIA_BIOLOGICS": [
+   {
+    "source": "published_meta_comparisons.json:continuous_mismatch",
+    "label": "CHRONIC_URTICARIA_BIOLOGICS_REVIEW.html"
+   }
+  ],
+  "CMV_HCT_LETERMOVIR": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cmv Hct Letermovir"
+   }
+  ],
+  "COLCHICINE_CVD": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "COLCHICINE_CVD"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "COLCHICINE_CVD"
+   }
+  ],
+  "COMPLEMENT_C5_BROAD_NMA_REVIEW_HTML_COMPLEMENT_C5_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "COMPLEMENT_C5_BROAD_NMA_REVIEW.html (Complement C5 Broad)"
+   }
+  ],
+  "CONGENITAL_ADRENAL_HYPER_NMA": [
+   {
+    "source": "published_meta_comparisons.json:continuous_mismatch",
+    "label": "CONGENITAL_ADRENAL_HYPER_NMA_REVIEW.html"
+   }
+  ],
+  "COPD_BIOLOGICS_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Copd Biologics Broad"
+   }
+  ],
+  "COPD_TRIPLE_REVIEW_HTML_COPD_TRIPLE": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "COPD_TRIPLE_REVIEW.html (Copd Triple)"
+   }
+  ],
+  "COVID19_HOSPITALIZED_TX": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "COVID19_HOSPITALIZED_TX_REVIEW.html"
+   }
+  ],
+  "COVID19_VACCINES": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Covid19 Vaccines"
+   }
+  ],
+  "COVID_ORAL_ANTIVIRALS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Covid Oral Antivirals"
+   }
+  ],
+  "CRC_TARGETED_BROAD_REVIEW_HTML_CRC_TARGETED_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "CRC_TARGETED_BROAD_REVIEW.html (Crc Targeted Broad)"
+   }
+  ],
+  "CRYO_AF_ABLATION": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cryo Af Ablation"
+   }
+  ],
+  "CRYPTOCOCCAL_MENINGITIS_AFRICA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html"
+   }
+  ],
+  "CTEPH": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Cteph"
+   }
+  ],
+  "DAPT_DE_ESCALATION_PCI": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Dapt De Escalation Pci"
+   }
+  ],
+  "DENGUE_VACCINE": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Dengue Vaccine New"
+   }
+  ],
+  "DEPRESSION_NEW_RAPID_REVIEW_HTML_DEPRESSION_NEW_RAPID": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "DEPRESSION_NEW_RAPID_REVIEW.html (Depression New Rapid)"
+   }
+  ],
+  "DERMATOMYOSITIS_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "DERMATOMYOSITIS_NMA_REVIEW.html"
+   }
+  ],
+  "DIABETIC_RETINOPATHY": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "DIABETIC_RETINOPATHY_REVIEW.html"
+   }
+  ],
+  "DOAC_AF": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Doac Af"
+   },
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Doac Af"
+   }
+  ],
+  "DOAC_CANCER_VTE": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "DOAC_CANCER_VTE"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "DOAC_CANCER_VTE"
+   }
+  ],
+  "DOAC_VTE_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "DOAC_VTE_NMA_REVIEW.html"
+   }
+  ],
+  "DOLUTEGRAVIR_ART_SSA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Dolutegravir Art Ssa"
+   }
+  ],
+  "DUCHENNE_GENE_THERAPY": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "DUCHENNE_GENE_THERAPY_REVIEW.html"
+   }
+  ],
+  "DUPILUMAB_COPD": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "DUPILUMAB_COPD"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "DUPILUMAB_COPD"
+   }
+  ],
+  "ENDOMETRIAL_IO_PARP": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Endometrial Io Parp"
+   }
+  ],
+  "ENDOMETRIOSIS_NEW_GNRH": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Endometriosis New Gnrh"
+   }
+  ],
+  "ENFORTUMAB_UC": [
+   {
+    "source": "benchmark_set.json",
+    "label": "ENFORTUMAB_UC"
+   }
+  ],
+  "EOE_BIOLOGIC": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Eoe Biologic"
+   }
+  ],
+  "EOSINOPHILIC_DISEASES_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "EOSINOPHILIC_DISEASES_BROAD_REVIEW.html"
+   }
+  ],
+  "EPILEPSY_NEW_AEDS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Epilepsy New Aeds"
+   }
+  ],
+  "EVT_BASILAR": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Evt Basilar"
+   }
+  ],
+  "EVT_EXTENDED_WINDOW": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "EVT_EXTENDED_WINDOW_REVIEW.html"
+   }
+  ],
+  "EVT_LARGECORE_REVIEW_HTML_EVT_LARGECORE": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "EVT_LARGECORE_REVIEW.html (Evt Largecore)"
+   }
+  ],
+  "FCM_HF": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Fcm Hf"
+   }
+  ],
+  "FCRN_AGONIST_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:continuous_mismatch",
+    "label": "Fcrn Agonist Broad"
+   }
+  ],
+  "FENFLURAMINE_SEIZURE_REVIEW_HTML_FENFLURAMINE_SEIZURE": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "FENFLURAMINE_SEIZURE_REVIEW.html (Fenfluramine Seizure)"
+   }
+  ],
+  "FINERENONE": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "FINERENONE"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "FINERENONE"
+   }
+  ],
+  "GASTRIC_FRONTLINE_IO": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Gastric Frontline Io"
+   }
+  ],
+  "GERD_PCAB": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Gerd Pcab New"
+   }
+  ],
+  "GLP1_CVOT": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "GLP1_CVOT"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "GLP1_CVOT"
+   }
+  ],
+  "GLP1_CVOT_NMA_REVIEW_HTML_GLP1_CVOT": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "GLP1_CVOT_NMA_REVIEW.html (Glp1 Cvot)"
+   }
+  ],
+  "GVHD_NEW_AGENTS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Gvhd New Agents"
+   }
+  ],
+  "HAE_PROPHYLAXIS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Hae Prophylaxis"
+   }
+  ],
+  "HAP_VAP_NEW_ABX": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Hap Vap New Abx"
+   }
+  ],
+  "HBV_NEW_AGENTS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Hbv New Agents"
+   }
+  ],
+  "HCC_LOCAL_THERAPY": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Hcc Local Therapy"
+   }
+  ],
+  "HEAD_NECK_CRT": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Head Neck Crt New"
+   }
+  ],
+  "HEAD_NECK_IO_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Head Neck Io Broad"
+   }
+  ],
+  "HEMODIALYSIS_AV_ACCESS_DCB_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "HEMODIALYSIS_AV_ACCESS_DCB_NMA_REVIEW.html"
+   }
+  ],
+  "HEMOPHILIA_FACTOR_PROPHYLAXIS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "HEMOPHILIA_FACTOR_PROPHYLAXIS_REVIEW.html"
+   }
+  ],
+  "HEPATITIS_B_TAF_TDF": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Hepatitis B Taf Tdf"
+   }
+  ],
+  "HEPATITIS_HCV_DAA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Hepatitis Hcv Daa"
+   }
+  ],
+  "HEP_D_BULEVIRTIDE_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "HEP_D_BULEVIRTIDE_NMA_REVIEW.html"
+   }
+  ],
+  "HFNC_NIV_RESP_FAILURE": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Hfnc Niv Resp Failure"
+   }
+  ],
+  "HFPEF_DRUGS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Hfpef Drugs"
+   }
+  ],
+  "HFREF_NMA": [
+   {
+    "source": "benchmark_set.json",
+    "label": "HFREF_NMA"
+   }
+  ],
+  "HF_QUADRUPLE_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "HF_QUADRUPLE_NMA_REVIEW.html"
+   }
+  ],
+  "HIDRADENITIS_SUPPURATIVA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "HIDRADENITIS_SUPPURATIVA_REVIEW.html"
+   }
+  ],
+  "HIFPH_CKD_ANEMIA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "HIFPH_CKD_ANEMIA_REVIEW.html"
+   }
+  ],
+  "HIPEC_PERITONEAL_NMA_REVIEW_HTML_HIPEC_PERITONEAL": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "HIPEC_PERITONEAL_NMA_REVIEW.html (Hipec Peritoneal)"
+   }
+  ],
+  "HIV_ART_FIRSTLINE": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Hiv Art Firstline"
+   }
+  ],
+  "HIV_PREP_INJECTABLE": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Hiv Prep Injectable"
+   }
+  ],
+  "HIV_TB_COINFECTION_ART_TIMING": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Hiv Tb Coinfection Art Timing"
+   }
+  ],
+  "HPV_DOSE_REDUCTION": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Hpv Dose Reduction"
+   }
+  ],
+  "HPV_VACCINE_SCHEDULES": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "HPV_VACCINE_SCHEDULES_REVIEW.html"
+   }
+  ],
+  "HYDROCORTISONE_SEPTIC_SHOCK": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "HYDROCORTISONE_SEPTIC_SHOCK_REVIEW.html"
+   }
+  ],
+  "HYPERKALEMIA_K_BINDER": [
+   {
+    "source": "published_meta_comparisons.json:continuous_mismatch",
+    "label": "Hyperkalemia K Binder"
+   }
+  ],
+  "HYPOFRAC_BREAST_RT_NMA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "HYPOFRAC_BREAST_RT_NMA_REVIEW.html"
+   }
+  ],
+  "IBD_BIOLOGICS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Ibd Biologics"
+   }
+  ],
+  "ICH_MIS_HEMATOMA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Ich Mis Hematoma"
+   }
+  ],
+  "ICOSAPENT_ETHYL": [
+   {
+    "source": "benchmark_set.json",
+    "label": "ICOSAPENT_ETHYL"
+   }
+  ],
+  "ICU_SEDATION": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Icu Sedation"
+   }
+  ],
+  "IGAN_TARGETED_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Igan Targeted Broad"
+   }
+  ],
+  "IL23_PSA_REVIEW_HTML_IL23_PSA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "IL23_PSA_REVIEW.html (Il23 Psa)"
+   }
+  ],
+  "IL23_PSORIASIS_REVIEW_HTML_IL23_PSORIASIS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "IL23_PSORIASIS_REVIEW.html (Il23 Psoriasis)"
+   }
+  ],
+  "IL_PSORIASIS_NMA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "IL_PSORIASIS_NMA_REVIEW.html"
+   }
+  ],
+  "INCLISIRAN": [
+   {
+    "source": "benchmark_set.json",
+    "label": "INCLISIRAN"
+   }
+  ],
+  "INCRETIN_HFPEF": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "INCRETIN_HFpEF"
+   }
+  ],
+  "INTENSIVE_BP": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "INTENSIVE_BP"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "INTENSIVE_BP"
+   }
+  ],
+  "IO_CHEMO_NSCLC_1L": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Io Chemo Nsclc 1L"
+   }
+  ],
+  "IPF_ANTIFIBROTICS": [
+   {
+    "source": "published_meta_comparisons.json:continuous_mismatch",
+    "label": "Ipf Antifibrotics"
+   }
+  ],
+  "ITP_NEW_AGENTS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "ITP_NEW_AGENTS_REVIEW.html"
+   }
+  ],
+  "ITP_NEW_THERAPY": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Itp New Therapy"
+   }
+  ],
+  "IV_IRON_HF": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "IV_IRON_HF"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "IV_IRON_HF"
+   }
+  ],
+  "JAKI_AD": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "JAKI_AD_REVIEW.html"
+   }
+  ],
+  "JAKI_RA_NMA_REVIEW_HTML_JAKI_RA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "JAKI_RA_NMA_REVIEW.html (Jaki Ra)"
+   }
+  ],
+  "JAK_RA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "JAK_RA_REVIEW.html"
+   }
+  ],
+  "JAK_UC": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "JAK_UC_REVIEW.html"
+   }
+  ],
+  "KRAS_G12C_NSCLC": [
+   {
+    "source": "benchmark_set.json",
+    "label": "KRAS_G12C_NSCLC"
+   }
+  ],
+  "K_BINDERS": [
+   {
+    "source": "benchmark_set.json",
+    "label": "K_BINDERS"
+   }
+  ],
+  "LENACAPAVIR_PREP_LENACAPAVIR_PREP_REVIEW_HTML": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Lenacapavir Prep (LENACAPAVIR_PREP_REVIEW.html)"
+   }
+  ],
+  "LIPID_HUB": [
+   {
+    "source": "benchmark_set.json",
+    "label": "LIPID_HUB"
+   }
+  ],
+  "LUPUS_NEW_BIOLOGICS_REVIEW_HTML_LUPUS_NEW_BIOLOGICS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "LUPUS_NEW_BIOLOGICS_REVIEW.html (Lupus New Biologics)"
+   }
+  ],
+  "LYMPHOMA_BISPECIFIC_CD20": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Lymphoma Bispecific Cd20"
+   }
+  ],
+  "MALARIA_ACT": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "MALARIA_ACT_REVIEW.html"
+   }
+  ],
+  "MALARIA_VACCINE": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "MALARIA_VACCINE_REVIEW.html"
+   }
+  ],
+  "MALARIA_VACCINES": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "MALARIA_VACCINES_REVIEW.html"
+   }
+  ],
+  "MASTOCYTOSIS_NEW_NMA_REVIEW_HTML_MASTOCYTOSIS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "MASTOCYTOSIS_NEW_NMA_REVIEW.html (Mastocytosis New)"
+   }
+  ],
+  "MAVACAMTEN_HCM": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "MAVACAMTEN_HCM"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "MAVACAMTEN_HCM"
+   }
+  ],
+  "MDR_TB_SHORTENED": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Mdr Tb Shortened"
+   }
+  ],
+  "MEDITERRANEAN_DIET_CV": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "MEDITERRANEAN_DIET_CV_REVIEW.html"
+   }
+  ],
+  "MELANOMA_NEOADJUVANT": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Melanoma Neoadjuvant"
+   }
+  ],
+  "MIS_COLECTOMY_VS_OPEN": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Mis Colectomy Vs Open"
+   }
+  ],
+  "MIS_GASTRECTOMY": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Mis Gastrectomy"
+   }
+  ],
+  "MIS_PANCREATIC_WHIPPLE_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "MIS_PANCREATIC_WHIPPLE_NMA_REVIEW.html"
+   }
+  ],
+  "MITRACLIP_TEER": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Mitraclip Teer"
+   }
+  ],
+  "MITRAL_FUNCMR": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "MITRAL_FUNCMR_REVIEW.html"
+   }
+  ],
+  "MM_1L_DARA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Mm 1L Dara"
+   }
+  ],
+  "MM_NDMM_QUAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Mm Ndmm Quad"
+   }
+  ],
+  "MPOX_VACCINE_NMA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "MPOX_VACCINE_NMA_REVIEW.html"
+   }
+  ],
+  "MS_ANTI_CD20": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Ms Anti Cd20"
+   }
+  ],
+  "MS_BTKI": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Ms Btki"
+   }
+  ],
+  "MS_BTK_INHIB": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Ms Btk Inhib"
+   }
+  ],
+  "MS_S1P_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Ms S1P Broad"
+   }
+  ],
+  "MYASTHENIA_GRAVIS_BIOLOGICS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "MYASTHENIA_GRAVIS_BIOLOGICS_REVIEW.html"
+   }
+  ],
+  "MYELOFIBROSIS_NEW_JAKI": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "MYELOFIBROSIS_NEW_JAKI_REVIEW.html"
+   }
+  ],
+  "NEOADJUVANT_IO_BREAST": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Neoadjuvant Io Breast"
+   }
+  ],
+  "NEOADJUVANT_IO_NSCLC": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Neoadjuvant Io Nsclc"
+   }
+  ],
+  "NEONATAL_NEC_NMA_REVIEW_HTML_NEONATAL_NEC": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "NEONATAL_NEC_NMA_REVIEW.html (Neonatal Nec)"
+   }
+  ],
+  "NEUROENDOCRINE_PITUITARY_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "NEUROENDOCRINE_PITUITARY_NMA_REVIEW.html"
+   }
+  ],
+  "NICOTINE_CYTISINICLINE_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "NICOTINE_CYTISINICLINE_NMA_REVIEW.html"
+   }
+  ],
+  "NIRSEVIMAB_INFANT_RSV": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "NIRSEVIMAB_INFANT_RSV_REVIEW.html"
+   }
+  ],
+  "NMOSD_BIOLOGICS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Nmosd Biologics"
+   }
+  ],
+  "NORMOTHERMIC_TRANSPLANT": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Normothermic Transplant"
+   }
+  ],
+  "NPC_NASOPHARYNGEAL_IO": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Npc Nasopharyngeal Io"
+   }
+  ],
+  "NSCLC_PD1_1L": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Nsclc Pd1 1L"
+   }
+  ],
+  "NSCLC_PERIOP_IO": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Nsclc Periop Io"
+   }
+  ],
+  "NSCLC_TARGETED_RARE_DRIVER": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "NSCLC_TARGETED_RARE_DRIVER_REVIEW.html"
+   }
+  ],
+  "OBESITY_DRUGS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Obesity Drugs"
+   }
+  ],
+  "OBESITY_DUAL_TRIPLE_AGONIST": [
+   {
+    "source": "published_meta_comparisons.json:continuous_mismatch",
+    "label": "Obesity Dual Triple Agonist"
+   }
+  ],
+  "OBESITY_NMA": [
+   {
+    "source": "benchmark_set.json",
+    "label": "OBESITY_NMA"
+   }
+  ],
+  "OMEGA3_HIGHDOSE_CV": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "OMEGA3_HIGHDOSE_CV_REVIEW.html"
+   }
+  ],
+  "OSIMERTINIB_EGFR_NSCLC": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Osimertinib Egfr Nsclc"
+   }
+  ],
+  "OSIMERTINIB_NSCLC": [
+   {
+    "source": "benchmark_set.json",
+    "label": "OSIMERTINIB_NSCLC"
+   }
+  ],
+  "OSTEOPOROSIS_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Osteoporosis Broad"
+   }
+  ],
+  "OVARIAN_PARP": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Ovarian Parp"
+   }
+  ],
+  "PAH_SOTATERCEPT_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "PAH_SOTATERCEPT_BROAD_REVIEW.html"
+   }
+  ],
+  "PAH_THERAPY": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Pah Therapy"
+   }
+  ],
+  "PARP_ARPI_MCRPC": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Parp Arpi Mcrpc"
+   }
+  ],
+  "PARP_OVARIAN": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Parp Ovarian"
+   }
+  ],
+  "PBC_NEW_AGENTS": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Pbc New Agents"
+   }
+  ],
+  "PBC_PPAR_REVIEW_HTML_PBC_PPAR": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "PBC_PPAR_REVIEW.html (Pbc Ppar)"
+   }
+  ],
+  "PCSK9": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "PCSK9"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "PCSK9"
+   }
+  ],
+  "PEMBRO_ADJ_MEL": [
+   {
+    "source": "benchmark_set.json",
+    "label": "PEMBRO_ADJ_MEL"
+   }
+  ],
+  "RESMETIROM_MASH": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "RESMETIROM_MASH"
+   }
+  ],
+  "RIVAROXABAN_VASC": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "RIVAROXABAN_VASC"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "RIVAROXABAN_VASC"
+   }
+  ],
+  "SACITUZUMAB_TNBC": [
+   {
+    "source": "benchmark_set.json",
+    "label": "SACITUZUMAB_TNBC"
+   }
+  ],
+  "SEMAGLUTIDE_HFPEF": [
+   {
+    "source": "benchmark_set.json",
+    "label": "SEMAGLUTIDE_HFPEF"
+   }
+  ],
+  "SEVERE_ASTHMA_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "SEVERE_ASTHMA_NMA_REVIEW.html"
+   }
+  ],
+  "SEVERE_PEDIATRIC_FEBRILE_AFRICA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Severe Pediatric Febrile Africa"
+   }
+  ],
+  "SGLT2I_HF": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Sglt2I Hf"
+   }
+  ],
+  "SGLT2_BROAD_OUTCOMES": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Sglt2 Broad Outcomes"
+   }
+  ],
+  "SGLT2_CKD": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "SGLT2_CKD"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "SGLT2_CKD"
+   }
+  ],
+  "SGLT2_HF": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "SGLT2_HF"
+   },
+   {
+    "source": "benchmark_set.json",
+    "label": "SGLT2_HF"
+   }
+  ],
+  "SGLT2_MACE_CVOT": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Sglt2 Mace Cvot"
+   }
+  ],
+  "SMA_TREATMENTS_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Sma Treatments Broad"
+   }
+  ],
+  "SOTAGLIFLOZIN": [
+   {
+    "source": "benchmark_set.json",
+    "label": "SOTAGLIFLOZIN"
+   }
+  ],
+  "SOTAGLIFLOZIN_HF": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Sotagliflozin Hf"
+   }
+  ],
+  "STROKE_THROMBECTOMY_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "STROKE_THROMBECTOMY_BROAD_REVIEW.html"
+   }
+  ],
+  "STROKE_THROMBECTOMY_LATE_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "STROKE_THROMBECTOMY_LATE_NMA_REVIEW.html"
+   }
+  ],
+  "T1D_CLOSED_LOOP_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "T1D_CLOSED_LOOP_NMA_REVIEW.html"
+   }
+  ],
+  "TAVR_LOWRISK": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Tavr Lowrisk"
+   }
+  ],
+  "TAVR_LOW_RISK": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "TAVR_LOW_RISK_REVIEW.html"
+   }
+  ],
+  "TB_BPAL_NEW_NMA": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "TB_BPaL_NEW_NMA_REVIEW.html"
+   }
+  ],
+  "TEZEPELUMAB_ASTHMA": [
+   {
+    "source": "published_meta_comparison.json",
+    "label": "TEZEPELUMAB_ASTHMA"
+   }
+  ],
+  "TICAGRELOR_MONO": [
+   {
+    "source": "benchmark_set.json",
+    "label": "TICAGRELOR_MONO"
+   }
+  ],
+  "TNK_VS_TPA_STROKE_REVIEW_HTML_TNK_VS_TPA_STROKE": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "TNK_VS_TPA_STROKE_REVIEW.html (Tnk Vs Tpa Stroke)"
+   }
+  ],
+  "TOFACITINIB_UC": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "TOFACITINIB_UC_REVIEW.html"
+   }
+  ],
+  "TOTAL_NEOADJ_RECTAL": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "Total Neoadj Rectal"
+   }
+  ],
+  "TRIPLE_THERAPY_COPD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Triple Therapy Copd"
+   }
+  ],
+  "TROP2_ADC_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "TROP2_ADC_BROAD_REVIEW.html"
+   }
+  ],
+  "TT_FIELDS_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Tt Fields Broad"
+   }
+  ],
+  "TXA_NONCARDIAC_SURGERY": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "TXA_NONCARDIAC_SURGERY_REVIEW.html"
+   }
+  ],
+  "TYVAC_TYPHOID": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "TYVAC_TYPHOID_REVIEW.html"
+   }
+  ],
+  "UC_BIOLOGICS": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Uc Biologics"
+   }
+  ],
+  "UPADACITINIB_CD_REVIEW_HTML_UPADACITINIB_CD": [
+   {
+    "source": "published_meta_comparisons.json:wrong_outcome_agent_mismatch",
+    "label": "UPADACITINIB_CD_REVIEW.html (Upadacitinib Cd)"
+   }
+  ],
+  "VENETOCLAX_AML": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Venetoclax Aml"
+   }
+  ],
+  "VENETOCLAX_CLL_REVIEW_HTML_VENETOCLAX_CLL": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "VENETOCLAX_CLL_REVIEW.html (Venetoclax Cll)"
+   }
+  ],
+  "VERICIGUAT": [
+   {
+    "source": "benchmark_set.json",
+    "label": "VERICIGUAT"
+   }
+  ],
+  "VITAMIN_C_THIAMINE_SEPSIS": [
+   {
+    "source": "published_meta_comparisons.json:continuous_mismatch",
+    "label": "VITAMIN_C_THIAMINE_SEPSIS_REVIEW.html"
+   }
+  ],
+  "VITAMIN_D_FRACTURE_FALL": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "VITAMIN_D_FRACTURE_FALL_REVIEW.html"
+   }
+  ],
+  "VITILIGO": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "VITILIGO_REVIEW.html"
+   }
+  ],
+  "VT_ABLATION_NEW_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "VT_ABLATION_NEW_NMA_REVIEW.html"
+   }
+  ],
+  "WATCHMAN_AMULET": [
+   {
+    "source": "benchmark_set.json",
+    "label": "WATCHMAN_AMULET"
+   }
+  ],
+  "WATCHMAN_LAAO_NMA": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "WATCHMAN_LAAO_NMA_REVIEW.html"
+   }
+  ],
+  "WEEKLY_INSULIN_BROAD_REVIEW_HTML_WEEKLY_INSULIN_BROAD": [
+   {
+    "source": "published_meta_comparisons.json:continuous_mismatch",
+    "label": "WEEKLY_INSULIN_BROAD_REVIEW.html (Weekly Insulin Broad)"
+   }
+  ],
+  "ZOLBETUXIMAB_GASTRIC": [
+   {
+    "source": "published_meta_comparisons.json:genuine",
+    "label": "Zolbetuximab Gastric"
+   }
+  ]
+ },
+ "scored_comparator_dois": {
+  "10.1001/jama.2020.17023": {
+   "citation": "WHO Rapid Evidence Appraisal for COVID-19 Therapies (REACT) Working Group; Sterne JAC, et al. Association Between Administration of Systemic Corticosteroids and Mortality Among Critically Ill Patients With COVID-19: A Meta-analysis. JAMA. 2020;324(13):1330-1341.",
+   "topics": [
+    "COVID19_HOSPITALIZED_TX"
+   ]
+  },
+  "10.1001/jama.2020.9524": {
+   "citation": "Ferreyro BL, et al. JAMA. 2020;324(1):57-67.",
+   "topics": [
+    "HFNC_NIV_RESP_FAILURE"
+   ]
+  },
+  "10.1001/jamacardio.2020.4511": {
+   "citation": "McGuire DK, Shih WJ, Cosentino F, et al. Association of SGLT2 Inhibitors With Cardiovascular and Kidney Outcomes in Patients With Type 2 Diabetes: A Meta-analysis. JAMA Cardiol. 2021;6(2):148-158.",
+   "topics": [
+    "SGLT2_MACE_CVOT"
+   ]
+  },
+  "10.1001/jamadermatol.2023.5509": {
+   "citation": "Ireland PA, Jansson N, Spencer SKR, Braden J, Sebaratnam D. Short-Term Cardiovascular Complications in Dermatology Patients Receiving JAK-STAT Inhibitors: A Meta-Analysis of Randomized Clinical Trials. JAMA Dermatol. 2024 Mar 1;160(3):281-289.",
+   "topics": [
+    "ALOPECIA_JAKI"
+   ]
+  },
+  "10.1001/jamanetworkopen.2025.41648": {
+   "citation": "Petousis S, Kahramanoglu I, Appenzeller-Herzog C, et al. PARP Inhibitor Maintenance After First-Line Chemotherapy in Advanced-Stage Epithelial Ovarian Cancer: A Systematic Review and Meta-Analysis. JAMA Netw Open. 2025;8(11):e2541648.",
+   "topics": [
+    "OVARIAN_PARP"
+   ]
+  },
+  "10.1001/jamaoncol.2024.1549": {
+   "citation": "El-Taji O, Taktak S, Jones C, Brown M, Clarke N, Sachdeva A. Cardiovascular Events and Androgen Receptor Signaling Inhibitors in Advanced Prostate Cancer: A Systematic Review and Meta-Analysis. JAMA Oncol. 2024 Jul 1;10(7):874-884.",
+   "topics": [
+    "ARPI_MHSPC"
+   ]
+  },
+  "10.1002/14651858.cd005967.pub4": {
+   "citation": "Sinclair D, Donegan S, Isba R, Lalloo DG. Artesunate versus quinine for treating severe malaria. Cochrane Database Syst Rev. 2012;2012(6):CD005967.",
+   "topics": [
+    "SEVERE_PEDIATRIC_FEBRILE_AFRICA"
+   ]
+  },
+  "10.1002/14651858.cd009012.pub3": {
+   "citation": "Eshun-Wilson I, Okwen MP, Richardson M, Bicanic T. Early versus delayed antiretroviral treatment in HIV-positive people with cryptococcal meningitis. Cochrane Database Syst Rev. 2018;7(7):CD009012.",
+   "topics": [
+    "CRYPTOCOCCAL_MENINGITIS_AFRICA"
+   ]
+  },
+  "10.1002/14651858.cd010966.pub3": {
+   "citation": "Southern KW, Murphy J, Sinha IP, Nevitt SJ. Corrector therapies (with or without potentiators) for people with cystic fibrosis with class II CFTR gene variants (most commonly F508del). Cochrane Database Syst Rev. 2020;12(12):CD010966.",
+   "topics": [
+    "CFTR_MODULATORS"
+   ]
+  },
+  "10.1002/14651858.cd015364.pub2": {
+   "citation": "Bergman H, Henschke N, Arevalo-Rodriguez I, et al. Human papillomavirus (HPV) vaccination for the prevention of cervical cancer and other HPV-related diseases: a network meta-analysis. Cochrane Database Syst Rev. 2025 Nov 24;11(11):CD015364.",
+   "topics": [
+    "HPV_VACCINE_SCHEDULES"
+   ]
+  },
+  "10.1002/14651858.cd015387.pub2": {
+   "citation": "Wilting FN, Sondag L, Schreuder FHBM, Dammers R, Klijn CJM, Boogaarts HD. Surgery for spontaneous supratentorial intracerebral haemorrhage. Cochrane Database Syst Rev. 2025 Jul 17;7(7):CD015387.",
+   "topics": [
+    "ICH_MIS_HEMATOMA"
+   ]
+  },
+  "10.1002/14651858.cd015854": {
+   "citation": "Raaphorst J, Gullick NJ, Shokraneh F, et al. Targeted immunosuppressive and immunomodulatory therapies for idiopathic inflammatory myopathies. Cochrane Database Syst Rev. 2025 Aug 1;8(8):CD015854.",
+   "topics": [
+    "DERMATOMYOSITIS_NMA"
+   ]
+  },
+  "10.1002/14651858.cd016347": {
+   "citation": "Ebrahim S, Gloeck N, Adam Z, et al. Lenacapavir as pre-exposure prophylaxis for HIV prevention. Cochrane Database Syst Rev. 2026;4(4):CD016347.",
+   "topics": [
+    "LENACAPAVIR_PREP_LENACAPAVIR_PREP_REVIEW_HTML"
+   ]
+  },
+  "10.1002/acn3.70122": {
+   "citation": "Shahzad F, Rasheed T, Siddiqui MR, et al. The Comparative Effectiveness and Tolerability of Sphingosine-1-Phosphate Receptor Modulators in Patients With Multiple Sclerosis: A Network Meta-Analysis of Randomized Controlled Trials. Ann Clin Transl Neurol. 2025;12(10):2002-2011.",
+   "topics": [
+    "MS_S1P_BROAD"
+   ]
+  },
+  "10.1002/clt2.70052": {
+   "citation": "Zhao Z, Zheng Y, Song X, et al. Biological and target synthetic treatments for chronic spontaneous urticaria: A systematic review and network meta-analysis. Clin Transl Allergy. 2025;15(5):e70052.",
+   "topics": [
+    "CHRONIC_URTICARIA_BIOLOGICS"
+   ]
+  },
+  "10.1002/ehf2.12902": {
+   "citation": "Giallauria F, Cuomo G, Parlato A, Raval NY, Kuschyk J, Stewart Coats AJ. A comprehensive individual patient data meta-analysis of the effects of cardiac contractility modulation on functional capacity and heart failure-related quality of life. ESC Heart Fail. 2020;7(5):2922-2932.",
+   "topics": [
+    "CARDIAC_CONTRACTILITY_MOD"
+   ]
+  },
+  "10.1002/ehf2.14588": {
+   "citation": "Abuelazm M, Badr A, Turkmani M, et al. The efficacy and safety of new potassium binders on renin-angiotensin-aldosterone system inhibitor optimization in heart failure patients: a systematic review and meta-analysis. ESC Heart Fail. 2024;11(1):28-43.",
+   "topics": [
+    "HYPERKALEMIA_K_BINDER"
+   ]
+  },
+  "10.1002/ehf2.15036": {
+   "citation": "Bantounou MA, Sardellis P, Plascevic J, et al. Meta-analysis of sotagliflozin, a dual sodium-glucose-cotransporter 1/2 inhibitor, for heart failure in type 2 diabetes. ESC Heart Fail. 2024;12(2):968-979.",
+   "topics": [
+    "SOTAGLIFLOZIN_HF"
+   ]
+  },
+  "10.1002/jgh3.70196": {
+   "citation": "Zaidi MH, Haider Z, Sadia F, et al. Peroxisome Proliferator-Activated Receptor (PPAR) Agonists for Patients With Primary Biliary Cholangitis With Inadequate Response to Ursodeoxycholic Acid (UDCA): A Systematic Review and Meta-Analysis of Randomized Controlled Trials. JGH Open. 2025;9(6):e70196.",
+   "topics": [
+    "PBC_PPAR_REVIEW_HTML_PBC_PPAR"
+   ]
+  },
+  "10.1002/rmv.2460": {
+   "citation": "Chen X, Li J, Kou L, Xie X, Wei D, Li Y. Efficacy and safety of long-acting cabotegravir versus oral tenofovir disoproxil fumarate-emtricitabine as HIV pre-exposure prophylaxis: A systematic review and meta-analysis. Rev Med Virol. 2023;33(4):e2460.",
+   "topics": [
+    "HIV_PREP_INJECTABLE"
+   ]
+  },
+  "10.1007/s00228-025-03807-9": {
+   "citation": "Wang S, Sun H, Wang Z, Sun C, Zhang X, Liu C. Adjunctive treatment for pediatric focal epilepsy: a systematic review [network meta-analysis]. Eur J Clin Pharmacol. 2025;81(4):507-523.",
+   "topics": [
+    "EPILEPSY_NEW_AEDS"
+   ]
+  },
+  "10.1007/s00262-024-03726-1": {
+   "citation": "Li JB, Lai MY, Lin ZC, et al. The optimal threshold of PD-L1 combined positive score to predict the benefit of PD-1 antibody plus chemotherapy for patients with HER2-negative gastric adenocarcinoma: a meta-analysis. Cancer Immunol Immunother. 2024;73(7):132.",
+   "topics": [
+    "ANTI_PD1_GASTRIC"
+   ]
+  },
+  "10.1007/s00277-025-06280-7": {
+   "citation": "Jamil A, Aslam S, Riaz R, et al. Comparative efficacy of venetoclax-based regimens in the management of chronic lymphocytic leukemia: a systematic review and meta-analysis. Ann Hematol. 2025;104(3):1387-1397.",
+   "topics": [
+    "VENETOCLAX_CLL_REVIEW_HTML_VENETOCLAX_CLL"
+   ]
+  },
+  "10.1007/s00392-018-1232-4": {
+   "citation": "Murray MI, Arnold A, Younis M, Varghese S, Zeiher AM. Cryoballoon versus radiofrequency ablation for paroxysmal atrial fibrillation: a meta-analysis of randomized controlled trials. Clin Res Cardiol. 2018;107(8):658-669.",
+   "topics": [
+    "CRYO_AF_ABLATION"
+   ]
+  },
+  "10.1007/s00393-020-00750-1": {
+   "citation": "Lee YH, Song GG. Relative efficacy and safety of tofacitinib, baricitinib, upadacitinib, and filgotinib in comparison to adalimumab in patients with active rheumatoid arthritis. Z Rheumatol. 2020 Oct;79(8):785-796.",
+   "topics": [
+    "JAKI_RA_NMA_REVIEW_HTML_JAKI_RA"
+   ]
+  },
+  "10.1007/s00408-019-00310-8": {
+   "citation": "Ramonell RP, Iftikhar IH. Effect of Anti-IL5, Anti-IL5R, Anti-IL13 Therapy on Asthma Exacerbations: A Network Meta-analysis. Lung. 2020;198(1):95-103.",
+   "topics": [
+    "SEVERE_ASTHMA_NMA"
+   ]
+  },
+  "10.1007/s00415-026-13778-1": {
+   "citation": "Filippakopoulou E, Gavriilaki M, Arnaoutoglou M, Kimiskidis V, Di Giovanni S. Efficacy and safety of complement inhibitors and FcRn blockers in generalized AChR antibody-positive myasthenia gravis: a meta-analysis. J Neurol. 2026;273(4). PMID: 41925914.",
+   "topics": [
+    "MYASTHENIA_GRAVIS_BIOLOGICS"
+   ]
+  },
+  "10.1007/s00432-021-03591-w": {
+   "citation": "Sternschuss M, Yerushalmi R, Saleh RR, Amir E, Goldvaser H. Efficacy and safety of neoadjuvant immune checkpoint inhibitors in early-stage triple-negative breast cancer: a systematic review and meta-analysis. J Cancer Res Clin Oncol. 2021;147(11):3369-3379.",
+   "topics": [
+    "NEOADJUVANT_IO_BREAST"
+   ]
+  },
+  "10.1007/s00464-025-12163-9": {
+   "citation": "Zhang J, Chen F, Tang G, Chen R, Zhou R. Minimally invasive versus open pancreaticoduodenectomy for periampullary tumors: a systematic review and meta-analysis of randomized controlled trials. Surg Endosc. 2025;39(11):7666-7679.",
+   "topics": [
+    "MIS_PANCREATIC_WHIPPLE_NMA"
+   ]
+  },
+  "10.1007/s10067-020-05545-y": {
+   "citation": "Wang P, Zhang S, Hu B, Liu W, Lv X, Chen S, Shao Z. Efficacy and safety of interleukin-17A inhibitors in patients with ankylosing spondylitis: a systematic review and meta-analysis of randomized controlled trials. Clin Rheumatol. 2021;40(8):3053-3065.",
+   "topics": [
+    "AXSPA_BIOLOGICS"
+   ]
+  },
+  "10.1007/s11060-023-04348-w": {
+   "citation": "Ballo MT, Conlon P, Lavy-Shahaf G, Kinzel A, Vymazal J, Rulseh AM. Association of Tumor Treating Fields (TTFields) therapy with survival in newly diagnosed glioblastoma: a systematic review and meta-analysis. J Neurooncol. 2023;164(1):1-9.",
+   "topics": [
+    "TT_FIELDS_BROAD"
+   ]
+  },
+  "10.1007/s12016-025-09082-x": {
+   "citation": "Ding Z, Zhang H, Huang F, et al. Efficacy and Safety of Biologics for Systemic Lupus Erythematosus (SLE): A Systematic Review and Network Meta-Analysis. Clin Rev Allergy Immunol. 2025;68(1):70.",
+   "topics": [
+    "LUPUS_NEW_BIOLOGICS_REVIEW_HTML_LUPUS_NEW_BIOLOGICS"
+   ]
+  },
+  "10.1007/s12072-025-10823-5": {
+   "citation": "Chen J, Ji D, Jia J, et al. Functional cure with new antiviral therapy for hepatitis B virus: a systematic review and meta-analysis. Hepatology International. 2025;19(4):773-795.",
+   "topics": [
+    "HBV_NEW_AGENTS"
+   ]
+  },
+  "10.1007/s12325-022-02193-3": {
+   "citation": "Finger RP, Dennis N, Freitas R, et al. Comparative Efficacy of Brolucizumab in the Treatment of Neovascular Age-Related Macular Degeneration: A Systematic Literature Review and Network Meta-Analysis. Adv Ther. 2022;39(8):3425-3448.",
+   "topics": [
+    "ANTIVEGF_NAMD"
+   ]
+  },
+  "10.1007/s13340-025-00831-z": {
+   "citation": "Richardson M, Meher BR, Jena M, Padhy BM, Mohanty RR. Is once-weekly insulin a viable alternative for type 2 diabetes? A meta-analysis of randomized controlled trials. Diabetol Int. 2025;16(4):661-677.",
+   "topics": [
+    "WEEKLY_INSULIN_BROAD_REVIEW_HTML_WEEKLY_INSULIN_BROAD"
+   ]
+  },
+  "10.1007/s13555-025-01397-z": {
+   "citation": "Mohammed AA, Lengyel AS, Meznerics FA, et al. Efficacy and Safety of JAK Inhibitors in the Management of Vitiligo: A Systematic Review and Meta-analysis. Dermatol Ther (Heidelb). 2025;15(7):1657-1679.",
+   "topics": [
+    "VITILIGO"
+   ]
+  },
+  "10.1007/s13555-025-01472-5": {
+   "citation": "Shi A, Shu Y, Haddad JE, et al. Cardiovascular and Kidney Outcomes After Systemic Treatment for Plaque Psoriasis: A Systematic Review and Network Meta-analysis. Dermatol Ther (Heidelb). 2025;15(9):2455-2482.",
+   "topics": [
+    "IL_PSORIASIS_NMA"
+   ]
+  },
+  "10.1007/s13555-025-01529-5": {
+   "citation": "Mangkorntongsakul V, Joseph JS, Pham JP, Smith SD, Chow CK, Smith AD. Biologic Therapies and Major Cardiovascular Events in Psoriasis: Updated Systematic Review and Meta-analysis. Dermatol Ther (Heidelb). 2025;15(12):3547-3560.",
+   "topics": [
+    "IL23_PSA_REVIEW_HTML_IL23_PSA",
+    "BIMEKIZUMAB_PSORIASIS",
+    "IL23_PSORIASIS_REVIEW_HTML_IL23_PSORIASIS"
+   ]
+  },
+  "10.1007/s40120-023-00452-1": {
+   "citation": "Tabaee Damavandi P, Fabin N, Giossi R, Matricardi S, Del Giovane C, Striano P, Meletti S, Brigo F, Trinka E, Lattanzi S. Efficacy and Safety of Fenfluramine in Epilepsy: A Systematic Review and Meta-analysis. Neurol Ther. 2023;12(2):669-686.",
+   "topics": [
+    "FENFLURAMINE_SEIZURE_REVIEW_HTML_FENFLURAMINE_SEIZURE"
+   ]
+  },
+  "10.1007/s40265-018-0992-5": {
+   "citation": "Lattanzi S, Brigo F, Trinka E, Zaccara G, Cagnetti C, Del Giovane C, Silvestrini M. Efficacy and Safety of Cannabidiol in Epilepsy: A Systematic Review and Meta-Analysis. Drugs. 2018 Nov;78(17):1791-1804.",
+   "topics": [
+    "CBD_SEIZURE"
+   ]
+  },
+  "10.1007/s40268-025-00511-y": {
+   "citation": "Walsh S, Bartlett M, Salvo-Halloran EM, et al. Network Meta-Analysis of Pharmacological Therapies for Long-Term Prophylactic Treatment of Patients with Hereditary Angioedema. Drugs R D. 2025;25(2):161-178.",
+   "topics": [
+    "HAE_PROPHYLAXIS"
+   ]
+  },
+  "10.1007/s40292-024-00646-0": {
+   "citation": "Al-Sadawi M, Tao M, Dhaliwal S, et al. Safety and Efficacy of Anti-Hypertensive Medications in Patients with Heart Failure with Preserved Ejection Fraction: A Systematic Review and Meta-analysis. High Blood Press Cardiovasc Prev. 2024;31(3):239-249.",
+   "topics": [
+    "HFPEF_DRUGS"
+   ]
+  },
+  "10.1016/j.ahjo.2024.100466": {
+   "citation": "Ismail NR, Makhlouf HA, Hassan A, et al. An in-depth evaluation of the efficacy and safety of various treatment modalities for chronic thromboembolic pulmonary hypertension: A systematic review and network meta-analysis. Am Heart J Plus. 2024;46:100466.",
+   "topics": [
+    "CTEPH"
+   ]
+  },
+  "10.1016/j.amjoto.2021.103324": {
+   "citation": "Chen L, Mo DC, Hu M, Zhao SJ, Yang QW, Huang ZL. PD-1/PD-L1 inhibitor monotherapy in recurrent or metastatic squamous cell carcinoma of the head and neck: a meta-analysis. Am J Otolaryngol. 2022;43(2):103324.",
+   "topics": [
+    "HEAD_NECK_IO_BROAD"
+   ]
+  },
+  "10.1016/j.aopr.2022.100064": {
+   "citation": "Xu X, Xie L, Wei L, et al. Efficacy and safety of monoclonal antibodies in neuromyelitis optica spectrum disorders: a survival meta-analysis of randomized controlled trials. Adv Ophthalmol Pract Res. 2022;2(3):100064.",
+   "topics": [
+    "NMOSD_BIOLOGICS"
+   ]
+  },
+  "10.1016/j.asjsur.2024.09.153": {
+   "citation": "Huang QS, Huang LB, Zhao R, Yang L, Zhou ZG. Comparing the effects of laparoscopic Roux-en-Y gastric bypass versus laparoscopic sleeve gastrectomy on weight loss and comorbidity resolution: A systematic review and meta-analysis. Asian J Surg. 2024 Oct 10.",
+   "topics": [
+    "BARIATRIC_RYGB_VS_SG"
+   ]
+  },
+  "10.1016/j.bbmt.2018.05.017": {
+   "citation": "Gagelmann N, Ljungman P, Styczynski J, Kroger N. Comparative Efficacy and Safety of Different Antiviral Agents for Cytomegalovirus Prophylaxis in Allogeneic Hematopoietic Cell Transplantation: A Systematic Review and Meta-Analysis. Biol Blood Marrow Transplant. 2018;24(10):2101-2109.",
+   "topics": [
+    "CMV_HCT_LETERMOVIR"
+   ]
+  },
+  "10.1016/j.chest.2018.12.016": {
+   "citation": "Calzetta L, Cazzola M, Matera MG, Rogliani P. Adding a LAMA to ICS/LABA Therapy: A Meta-analysis of Triple Combination Therapy in COPD. Chest. 2019;155(4):758-770.",
+   "topics": [
+    "TRIPLE_THERAPY_COPD"
+   ]
+  },
+  "10.1016/j.clineuro.2025.108910": {
+   "citation": "Akhtar M, Akhtar M, Farooqi HA, et al. Efficacy and safety of FcRn inhibitors in patients with Myasthenia gravis: An updated systematic review and meta-analysis. Clin Neurol Neurosurg. 2025;254:108910.",
+   "topics": [
+    "FCRN_AGONIST_BROAD"
+   ]
+  },
+  "10.1016/j.clinthera.2021.11.015": {
+   "citation": "Willems D, Javaid MK, Pinedo-Villanueva R, Libanati C, Yehoshua A, Charokopou M. Importance of Time Point-Specific Indirect Treatment Comparisons of Osteoporosis Treatments: A Systematic Literature Review and Network Meta-Analyses. Clin Ther. 2022;44(1):81-97.",
+   "topics": [
+    "OSTEOPOROSIS_BROAD"
+   ]
+  },
+  "10.1016/j.clinthera.2023.11.014": {
+   "citation": "Proskuriakova E, Shrestha DB, Jasaraj R, et al. Cardiovascular Adverse Events Associated With Second-generation Bruton Tyrosine Kinase Inhibitor Therapy: A Systematic Review and Meta-analysis. Clin Ther. 2024;46(2):134-145. (PMID 38102000)",
+   "topics": [
+    "ACALABRUTINIB_CLL"
+   ]
+  },
+  "10.1016/j.cllc.2019.05.009": {
+   "citation": "Kim R, Keam B, Hahn S, Ock CY, Kim M, Kim TM, Kim DW, Heo DS. First-line Pembrolizumab Versus Pembrolizumab Plus Chemotherapy Versus Chemotherapy Alone in Non-small-cell Lung Cancer: A Systematic Review and Network Meta-analysis. Clin Lung Cancer. 2019;20(5):331-338.e4.",
+   "topics": [
+    "NSCLC_PD1_1L"
+   ]
+  },
+  "10.1016/j.clml.2020.10.012": {
+   "citation": "Molica S, Giannarelli D, Montserrat E. Comparison Between Venetoclax-based and Bruton Tyrosine Kinase Inhibitor-based Therapy as Upfront Treatment of Chronic Lymphocytic Leukemia (CLL): A Systematic Review and Network Meta-analysis. Clin Lymphoma Myeloma Leuk. 2021;21(4):216-223.",
+   "topics": [
+    "BTKI_CLL"
+   ]
+  },
+  "10.1016/j.clml.2024.07.004": {
+   "citation": "Qureshi Z, Altaf F, Jamil A, Siddique R. Safety, Efficacy, and Predictive Factors of Venetoclax-Based Regimens in Elderly Acute Myeloid Leukemia Patients: A Meta-Analysis. Clin Lymphoma Myeloma Leuk. 2024;24(11):e835-e851.",
+   "topics": [
+    "AML_TARGETED"
+   ]
+  },
+  "10.1016/j.clon.2022.03.009": {
+   "citation": "Swain M, Kannan S, Srinivasan S, Agarwal JP, Gupta T. Concurrent Cetuximab-based bioradiotherapy versus Cisplatin-based Chemoradiotherapy in the Definitive Management of Favourable Biology Human Papillomavirus-associated Oropharyngeal Squamous Cell Carcinoma: Systematic Review and Meta-analysis. Clin Oncol (R Coll Radiol). 2022;34(12):786-795.",
+   "topics": [
+    "HEAD_NECK_CRT"
+   ]
+  },
+  "10.1016/j.cpcardiol.2024.102509": {
+   "citation": "Sebastian SA, Padda I, Johal G. Long-term impact of mediterranean diet on cardiovascular disease prevention: A systematic review and meta-analysis of randomized controlled trials. Curr Probl Cardiol. 2024;49(5):102509.",
+   "topics": [
+    "MEDITERRANEAN_DIET_CV"
+   ]
+  },
+  "10.1016/j.ctrv.2024.102701": {
+   "citation": "Bartoletti M, Montico M, Lorusso D, et al. Incorporation of anti-PD1 or anti PD-L1 agents to platinum-based chemotherapy for the primary treatment of advanced or recurrent endometrial cancer. A meta-analysis. Cancer Treat Rev. 2024;125:102701.",
+   "topics": [
+    "ENDOMETRIAL_IO_PARP"
+   ]
+  },
+  "10.1016/j.drugalcdep.2023.110936": {
+   "citation": "Ofori S, Lu C, Olasupo OO, Dennis BB, Fairbairn N, Devereaux PJ, Mbuagbaw L. Cytisine for smoking cessation: A systematic review and meta-analysis. Drug Alcohol Depend. 2023;251:110936.",
+   "topics": [
+    "NICOTINE_CYTISINICLINE_NMA"
+   ]
+  },
+  "10.1016/j.eclinm.2021.100997": {
+   "citation": "Khan SU, Lone AN, Khan MS, Virani SS, Blumenthal RS, Nasir K, Miller M, Michos ED, Ballantyne CM, Boden WE, Bhatt DL. Effect of omega-3 fatty acids on cardiovascular outcomes: A systematic review and meta-analysis. EClinicalMedicine. 2021;38:100997.",
+   "topics": [
+    "OMEGA3_HIGHDOSE_CV"
+   ]
+  },
+  "10.1016/j.eclinm.2024.102569": {
+   "citation": "Ceric A, Holgersson J, May TL, et al. Effect of level of sedation on outcomes in critically ill adult patients: a systematic review of clinical trials with meta-analysis and trial sequential analysis. EClinicalMedicine. 2024;71:102569.",
+   "topics": [
+    "ICU_SEDATION"
+   ]
+  },
+  "10.1016/j.eclinm.2025.103504": {
+   "citation": "Yuan F, Jing M, Chen X, Zhang X. Effect of neoadjuvant therapy on survival outcomes in patients with melanoma: a systematic review and meta-analysis. EClinicalMedicine. 2025;88:103504.",
+   "topics": [
+    "MELANOMA_NEOADJUVANT"
+   ]
+  },
+  "10.1016/j.ejim.2022.12.011": {
+   "citation": "Lin C-H, Liebeskind DS, Ovbiagele B, Lee M, Saver JL. Efficacy of endovascular therapy for basilar and vertebral artery occlusion: a systematic review and meta-analysis of randomized controlled trials. Eur J Intern Med. 2023;110:22-28.",
+   "topics": [
+    "EVT_BASILAR"
+   ]
+  },
+  "10.1016/j.ejso.2021.11.012": {
+   "citation": "Lim WH, Tan DJH, Ng CH, et al. Laparoscopic versus open resection for rectal cancer: An individual patient data meta-analysis of randomized controlled trials. Eur J Surg Oncol. 2022;48(5):1133-1143.",
+   "topics": [
+    "MIS_COLECTOMY_VS_OPEN"
+   ]
+  },
+  "10.1016/j.esmoop.2025.105759": {
+   "citation": "Rossi G, Barcellini L, Tagliamento M, et al. Immunotherapy for resectable NSCLC: neoadjuvant/perioperative followed by surgery over surgery followed by adjuvant. Systematic review and meta-analysis with subgroup analyses. ESMO Open. 2025;10(9):105759.",
+   "topics": [
+    "NEOADJUVANT_IO_NSCLC"
+   ]
+  },
+  "10.1016/j.euros.2024.12.008": {
+   "citation": "Maiorano BA, Catalano M, Mercinelli C, et al. Incidence and Risk of Thromboembolic and Cardiovascular Adverse Events with PARP Inhibitor Treatment in Patients with Metastatic Castration-resistant Prostate Cancer: A Systematic Review and Safety Meta-analysis. Eur Urol Open Sci. 2025;72:1-9.",
+   "topics": [
+    "PARP_ARPI_MCRPC"
+   ]
+  },
+  "10.1016/j.fertnstert.2022.08.856": {
+   "citation": "Yan H, Shi J, Li X, et al. Oral gonadotropin-releasing hormone antagonists for treating endometriosis-associated pain: a systematic review and network meta-analysis. Fertil Steril. 2022;118(6):1102-1116.",
+   "topics": [
+    "ENDOMETRIOSIS_NEW_GNRH"
+   ]
+  },
+  "10.1016/j.ibneur.2021.08.003": {
+   "citation": "Asha MZI, Al-Asaad Y, Khalil SFH. The comparative efficacy and safety of anti-CD20 monoclonal antibodies for relapsing-remitting multiple sclerosis: A network meta-analysis. IBRO Neurosci Rep. 2021;11:103-111.",
+   "topics": [
+    "MS_ANTI_CD20"
+   ]
+  },
+  "10.1016/j.intimp.2022.109317": {
+   "citation": "Noori M, Mahjoubfar A, Azizi S, Fayyaz F, Rezaei N. Immune checkpoint inhibitors plus chemotherapy versus chemotherapy alone as first-line therapy for advanced gastric and esophageal cancers: A systematic review and meta-analysis. Int Immunopharmacol. 2022;113(Pt A):109317.",
+   "topics": [
+    "GASTRIC_FRONTLINE_IO"
+   ]
+  },
+  "10.1016/j.jacc.2024.12.031": {
+   "citation": "Reddy RK, Howard JP, Mack MJ, et al. Transcatheter vs Surgical Aortic Valve Replacement in Lower-Risk Patients: An Updated Meta-Analysis of Randomized Controlled Trials. J Am Coll Cardiol. 2025;85(9):926-940.",
+   "topics": [
+    "TAVR_LOW_RISK"
+   ]
+  },
+  "10.1016/j.jadohealth.2021.04.001": {
+   "citation": "Allison BA, Widman L, Stewart JL, Evans R, Perry M. Adherence to Pre-Exposure Prophylaxis in Adolescents and Young Adults: A Systematic Review and Meta-Analysis. J Adolesc Health. 2022;70(1):28-41 (e-pub 2021-05-29).",
+   "topics": [
+    "AGYW_HIV_PREP"
+   ]
+  },
+  "10.1016/j.jcte.2025 (pii s2666-3961(25)00033-0; exact doi not independently confirmed, not pubmed-indexed)": {
+   "citation": "CRF1 receptor antagonists in congenital adrenal hyperplasia: A systematic review and meta-analysis of phase 2 open-label and phase 3 clinical trials. Journal of Clinical & Translational Endocrinology (Elsevier/ScienceDirect), 2025; PII S2666-3961(25)00033-0. Pooled glucocorticoid dose reduction -20.37% (95% CI -26.73 to -14.00), p<0.01.",
+   "topics": [
+    "CONGENITAL_ADRENAL_HYPER_NMA"
+   ]
+  },
+  "10.1016/j.jocn.2026.111973": {
+   "citation": "St Brice K, Parker T, Mensah E, et al. The role of collateral circulation in extended-window mechanical thrombectomy: a systematic review and meta-analysis. J Clin Neurosci. 2026;148:111973.",
+   "topics": [
+    "EVT_EXTENDED_WINDOW"
+   ]
+  },
+  "10.1016/j.jstrokecerebrovasdis.2025.108300": {
+   "citation": "Sheraz M, Asif N, Khan A, et al. Tenecteplase versus alteplase in patients with acute ischemic stroke: an updated meta-analysis of randomized controlled trials. J Stroke Cerebrovasc Dis. 2025;34(6):108300.",
+   "topics": [
+    "TNK_VS_TPA_STROKE_REVIEW_HTML_TNK_VS_TPA_STROKE"
+   ]
+  },
+  "10.1016/j.jval.2023.09.001": {
+   "citation": "Li X, Suh HS, Lachaine J, et al. Comparative Efficacy of Venetoclax-Based Combination Therapies and Other Therapies in Treatment-Naive Patients With Acute Myeloid Leukemia Ineligible for Intensive Chemotherapy: A Network Meta-Analysis. Value Health. 2023;26(12):1689-1696.",
+   "topics": [
+    "VENETOCLAX_AML"
+   ]
+  },
+  "10.1016/j.jvir.2024.03.027": {
+   "citation": "Lee H, Choi H, Han E, Kim YJ. Comparison of Clinical Effectiveness and Safety of Drug-Coated Balloons versus Percutaneous Transluminal Angioplasty in Arteriovenous Fistulae: A Review of Systematic Reviews and Updated Meta-Analysis. J Vasc Interv Radiol. 2024;35(7):949-962.e13.",
+   "topics": [
+    "HEMODIALYSIS_AV_ACCESS_DCB_NMA"
+   ]
+  },
+  "10.1016/j.msard.2026.106974": {
+   "citation": "Sobral MVS, de Oliveira HM, Neto APM, Fagundes TP. Efficacy and safety of Bruton's tyrosine kinase inhibitors compared to Teriflunomide in relapsing multiple sclerosis: A systematic review and meta-analysis. Mult Scler Relat Disord. 2026;107:106974.",
+   "topics": [
+    "MS_BTKI",
+    "MS_BTK_INHIB"
+   ]
+  },
+  "10.1016/s0140-6736(13)61615-3": {
+   "citation": "Steg PG, Bhatt DL, Hamm CW, et al. Effect of cangrelor on periprocedural outcomes in percutaneous coronary interventions: a pooled analysis of patient-level data. Lancet. 2013;382(9909):1981-92.",
+   "topics": [
+    "CANGRELOR_PCI"
+   ]
+  },
+  "10.1016/s0140-6736(13)62343-0": {
+   "citation": "Ruff CT, Giugliano RP, Braunwald E, et al. Comparison of the efficacy and safety of new oral anticoagulants with warfarin in patients with atrial fibrillation: a meta-analysis of randomised trials. Lancet. 2014;383(9921):955-962.",
+   "topics": [
+    "DOAC_AF",
+    "DOAC_AF"
+   ]
+  },
+  "10.1016/s0140-6736(18)32590-x": {
+   "citation": "Zelniker TA, Wiviott SD, Raz I, et al. SGLT2 inhibitors for primary and secondary prevention of cardiovascular and renal outcomes in type 2 diabetes: a systematic review and meta-analysis of cardiovascular outcome trials. Lancet. 2019;393(10166):31-39.",
+   "topics": [
+    "SGLT2_BROAD_OUTCOMES"
+   ]
+  },
+  "10.1016/s0140-6736(22)01429-5": {
+   "citation": "Vaduganathan M, Docherty KF, Claggett BL, et al. SGLT-2 inhibitors in patients with heart failure: a comprehensive meta-analysis of five randomised controlled trials. Lancet. 2022;400(10354):757-767.",
+   "topics": [
+    "HF_QUADRUPLE_NMA",
+    "SGLT2I_HF"
+   ]
+  },
+  "10.1016/s0140-6736(24)01616-7": {
+   "citation": "Valgimigli M, Hong SJ, Gragnano F, et al. De-escalation to ticagrelor monotherapy versus 12 months of dual antiplatelet therapy in patients with and without acute coronary syndromes: a systematic review and individual patient-level meta-analysis of randomised trials. Lancet. 2024;404(10456):937-948.",
+   "topics": [
+    "DAPT_DE_ESCALATION_PCI"
+   ]
+  },
+  "10.1016/s2213-2600(19)30185-7": {
+   "citation": "Laska IF, Crichton ML, Shoemark A, Chalmers JD. The efficacy and safety of inhaled antibiotics for the treatment of bronchiectasis in adults: a systematic review and meta-analysis. Lancet Respir Med. 2019;7(10):855-869.",
+   "topics": [
+    "BRONCHIECTASIS_BROAD"
+   ]
+  },
+  "10.1016/s2213-8587(21)00203-5": {
+   "citation": "Sattar N, Lee MMY, Kristensen SL, et al. Cardiovascular, mortality, and kidney outcomes with GLP-1 receptor agonists in patients with type 2 diabetes: a systematic review and meta-analysis of randomised trials. Lancet Diabetes Endocrinol. 2021;9(10):653-662.",
+   "topics": [
+    "GLP1_CVOT_NMA_REVIEW_HTML_GLP1_CVOT"
+   ]
+  },
+  "10.1016/s2352-3018(16)30091-1": {
+   "citation": "Kanters S, Vitoria M, Doherty M, et al. Comparative efficacy and safety of first-line antiretroviral therapy for the treatment of HIV infection: a systematic review and network meta-analysis. Lancet HIV. 2016;3(11):e510-e520.",
+   "topics": [
+    "HIV_ART_FIRSTLINE"
+   ]
+  },
+  "10.1016/s2468-1253(21)00312-5": {
+   "citation": "Singh S, Murad MH, Fumery M, et al. Comparative efficacy and safety of biologic therapies for moderate-to-severe Crohn's disease: a systematic review and network meta-analysis. Lancet Gastroenterol Hepatol. 2021;6(12):1002-1014.",
+   "topics": [
+    "IBD_BIOLOGICS"
+   ]
+  },
+  "10.1017/ash.2021.217": {
+   "citation": "Wilson GM, Fitzpatrick MA, Walding K, Gonzalez B, Schweizer ML, Suda KJ, Evans CT. Evaluating the clinical effectiveness of new beta-lactam/beta-lactamase inhibitor combination antibiotics: A systematic literature review and meta-analysis. Antimicrob Steward Healthc Epidemiol. 2021;1(1):e53.",
+   "topics": [
+    "CARBAPENEM_RESISTANT_ABX_REVIEW_HTML_CARBAPENEM_RESISTANT_ABX"
+   ]
+  },
+  "10.1017/cjn.2016.30": {
+   "citation": "Lambrinos A, Schaink AK, Dhalla I, et al. Mechanical Thrombectomy in Acute Ischemic Stroke: A Systematic Review. Can J Neurol Sci. 2016;43(4):455-460.",
+   "topics": [
+    "STROKE_THROMBECTOMY_BROAD"
+   ]
+  },
+  "10.1017/cjn.2025.10429": {
+   "citation": "Prado M, Adiao KJ. Disease-Modifying Therapies in Amyotrophic Lateral Sclerosis: A Network Meta-Analysis of Randomized Clinical Trials. Can J Neurol Sci. 2025 Sep 19:1-14.",
+   "topics": [
+    "ALS_NEW_AGENTS"
+   ]
+  },
+  "10.1038/s41408-025-01413-7": {
+   "citation": "Souto Filho JTD, Cantadori LO, Crusoe EQ, Hungria V, Maiolino A. Survival impact of anti-CD38-based quadruplet regimens in transplant-ineligible newly diagnosed multiple myeloma: a network meta-analysis and reconstructed individual patient data meta-analysis. Blood Cancer J. 2025;15(1):212.",
+   "topics": [
+    "MM_NDMM_QUAD"
+   ]
+  },
+  "10.1038/s41433-022-02269-y": {
+   "citation": "Chaudhary V, Sarohia GS, Phillips MR, et al. Role of anti-vascular endothelial growth factor in the management of non-proliferative diabetic retinopathy without centre-involving diabetic macular oedema: a meta-analysis of trials. Eye (Lond). 2022;37(10):1966-1974.",
+   "topics": [
+    "DIABETIC_RETINOPATHY"
+   ]
+  },
+  "10.1038/s41598-020-72088-2": {
+   "citation": "Trone JC, Ollier E, Chapelle C, Mismetti P, Cucherat M, Magné N, Zuffrey PJ, Laporte S. Assessment of non-inferiority with meta-analysis: example of hypofractionated radiation therapy in breast and prostate cancer. Sci Rep. 2020;10(1):15415.",
+   "topics": [
+    "HYPOFRAC_BREAST_RT_NMA"
+   ]
+  },
+  "10.1080/07853890.2022.2034936": {
+   "citation": "Wen W, Chen C, Tang J, et al. Efficacy and safety of three new oral antiviral treatment (molnupiravir, fluvoxamine and Paxlovid) for COVID-19: a meta-analysis. Ann Med. 2022 Dec;54(1):516-523.",
+   "topics": [
+    "COVID_ORAL_ANTIVIRALS"
+   ]
+  },
+  "10.1080/07853890.2024.2445192": {
+   "citation": "Zeng B, Jia D, Li S, et al. Biologics for eosinophilic oesophagitis: a systematic review and meta-analysis. Ann Med. 2024;57(1):2445192.",
+   "topics": [
+    "EOE_BIOLOGIC",
+    "EOSINOPHILIC_DISEASES_BROAD"
+   ]
+  },
+  "10.1080/07853890.2025.2455536": {
+   "citation": "Yang H, An T, Zhao Y, Shi X, Wang B, Zhang Q. Cardiovascular safety of Janus kinase inhibitors in inflammatory bowel disease: a systematic review and network meta-analysis. Ann Med. 2025;57(1):2455536.",
+   "topics": [
+    "JAK_UC",
+    "UPADACITINIB_CD_REVIEW_HTML_UPADACITINIB_CD"
+   ]
+  },
+  "10.1080/08998280.2025.2488211": {
+   "citation": "Tanashat M, Abuelazm M, Manasrah A, et al. Efficacy and safety of nirsevimab for preventing respiratory syncytial virus infection in infants: an updated systematic review and meta-analysis encompassing 11,001 participants. Proc (Bayl Univ Med Cent). 2025;38(4):524-534.",
+   "topics": [
+    "NIRSEVIMAB_INFANT_RSV"
+   ]
+  },
+  "10.1080/10408398.2022.2056574": {
+   "citation": "Guo Z, Huang M, Fan D, Hong Y, Zhao M, Ding R, Cheng Y, Duan S. Association between vitamin D supplementation and cancer incidence and mortality: A trial sequential meta-analysis of randomized controlled trials. Crit Rev Food Sci Nutr. 2023;63(26):8428-8442. PMID 35352965.",
+   "topics": [
+    "VITAMIN_D_FRACTURE_FALL"
+   ]
+  },
+  "10.1080/17425255.2021.1970745": {
+   "citation": "Rizzo A, Merler S, Sorgentoni G, Oderda M, Mollica V, Gadaleta-Caldarola G, Santoni M, Massari F. Risk of cardiovascular toxicities and hypertension in nonmetastatic castration-resistant prostate cancer patients treated with novel hormonal agents: a systematic review and meta-analysis. Expert Opin Drug Metab Toxicol. 2021;17(10):1237-1243.",
+   "topics": [
+    "ARPI_NMCRPC"
+   ]
+  },
+  "10.1080/17474124.2023.2194631": {
+   "citation": "Shehab M, Alrashed F, Alkazemi A, Lakatos PL, Bessissow T. Impact of biologic therapies and small molecules on the risk of major adverse cardiovascular events in patients with inflammatory bowel diseases: systematic review and meta-analysis of randomized controlled trials. Expert Rev Gastroenterol Hepatol. 2023;17(5):469-477.",
+   "topics": [
+    "TOFACITINIB_UC"
+   ]
+  },
+  "10.1080/17476348.2025.2530201": {
+   "citation": "Ershed M, da Silva ABN, Felix de Farias Dos Santos AC, et al. Efficacy and safety of sotatercept in pulmonary arterial hypertension: a meta-analysis of randomized controlled trials. Expert Rev Respir Med. 2025;19(12):1273-1281.",
+   "topics": [
+    "PAH_SOTATERCEPT_BROAD"
+   ]
+  },
+  "10.1093/bjd/ljad229": {
+   "citation": "Ertus C, Scailteux LM, Lescoat A, et al. Major adverse cardiovascular events in patients with atopic dermatitis treated with oral Janus kinase inhibitors: a systematic review and meta-analysis. Br J Dermatol. 2023;189(4):368-380.",
+   "topics": [
+    "JAKI_AD"
+   ]
+  },
+  "10.1093/bjs/znad177": {
+   "citation": "Donnelly M, Ryan OK, Ryan EJ, et al. Total neoadjuvant therapy versus standard neoadjuvant treatment strategies for the management of locally advanced rectal cancer: network meta-analysis of randomized clinical trials. Br J Surg. 2023;110(10):1316-1330.",
+   "topics": [
+    "TOTAL_NEOADJ_RECTAL"
+   ]
+  },
+  "10.1093/burnst/tkab040": {
+   "citation": "Yao R, Zhu Y, Yu Y, et al. Combination therapy of thiamine, vitamin C and hydrocortisone in treating patients with sepsis and septic shock: a meta-analysis and trial sequential analysis. Burns Trauma. 2021;9:tkab040.",
+   "topics": [
+    "VITAMIN_C_THIAMINE_SEPSIS"
+   ]
+  },
+  "10.1093/ckj/sfad143": {
+   "citation": "Minutolo R, Liberti ME, Simeon V, Sasso FC, Borrelli S, De Nicola L, Garofalo C. Efficacy and safety of hypoxia-inducible factor prolyl hydroxylase inhibitors in patients with chronic kidney disease: meta-analysis of phase 3 randomized controlled trials. Clin Kidney J. 2023;17(1):sfad143.",
+   "topics": [
+    "HIFPH_CKD_ANEMIA"
+   ]
+  },
+  "10.1093/ckj/sfaf066": {
+   "citation": "Tian Z, Yang Y, Mei J, et al. Efficacy and safety of endothelin A receptor antagonists in IgA nephropathy: a systematic review and meta-analysis. Clin Kidney J. 2025;18(3):sfaf066.",
+   "topics": [
+    "IGAN_TARGETED_BROAD"
+   ]
+  },
+  "10.1093/ehjcvp/pvaf067": {
+   "citation": "Cannatà A, Anastasia G, De Marzo V, et al. Diuretic strategies in acute heart failure: a systematic review and network meta-analysis of randomized clinical trials. Eur Heart J Cardiovasc Pharmacother. 2026;12(1):6-14.",
+   "topics": [
+    "ACUTE_HF_DIURESIS"
+   ]
+  },
+  "10.1093/ejendo/lvaf221": {
+   "citation": "Kaparounaki C, Ilie MD, De Alcubierre D, et al. Medical treatment in acromegaly: a network meta-analysis. Eur J Endocrinol. 2025;193(5):S83-S94.",
+   "topics": [
+    "NEUROENDOCRINE_PITUITARY_NMA"
+   ]
+  },
+  "10.1093/eurheartj/ehab836": {
+   "citation": "Galli M, Benenati S, Franchi F, et al. Comparative effects of guided vs. potent P2Y12 inhibitor therapy in acute coronary syndrome: a network meta-analysis of 61,898 patients from 15 randomized trials. Eur Heart J. 2022;43(10):959-967.",
+   "topics": [
+    "ACS_ANTIPLATELET"
+   ]
+  },
+  "10.1093/eurheartj/ehp022": {
+   "citation": "Galiè N, Manes A, Negro L, Palazzini M, Bacchi-Reggiani ML, Branzi A. A meta-analysis of randomized controlled trials in pulmonary arterial hypertension. Eur Heart J. 2009;30(4):394-403.",
+   "topics": [
+    "PAH_THERAPY"
+   ]
+  },
+  "10.1093/europace/euaf302": {
+   "citation": "Santoro F, Mugnai G, Perrotta L, et al. Catheter ablation vs. anti-arrhythmic drug therapy for ventricular tachycardia in ischaemic heart disease: a meta-analysis of randomized controlled trials. Europace. 2025 Dec 1;27(12):euaf302.",
+   "topics": [
+    "VT_ABLATION_NEW_NMA"
+   ]
+  },
+  "10.1093/icvts/ivaa301": {
+   "citation": "Urso S, Sadaba R, Nogales E, et al. Major cardiovascular events at 5 years in surgical versus percutaneous revascularization for left main stem disease: an updated meta-analysis. Interact Cardiovasc Thorac Surg. 2021;32(4):530-536.",
+   "topics": [
+    "CABG_VS_PCI_LEFT_MAIN_NMA"
+   ]
+  },
+  "10.1093/jac/dkaf092": {
+   "citation": "Gurunthalingam MP, Singh MP, Gaikwad NR. Biannual azithromycin mass drug administration for reduction of childhood mortality: a systematic review and meta-analysis. J Antimicrob Chemother. 2025 May 2;80(5):1197-1206.",
+   "topics": [
+    "AZITHROMYCIN_CHILD_MORTALITY"
+   ]
+  },
+  "10.1097/coc.0000000000001259": {
+   "citation": "Huang Y, Ye D, Hassan F, Hart MJ, Xu Q. Efficacy and Safety of Antibody Drug Conjugates in Previously Treated Hormone Receptor Positive HER2 Negative (or Low) Metastatic Breast Cancer-A Systematic Review and Meta-Analysis. Am J Clin Oncol. 2025;49(4):188-195.",
+   "topics": [
+    "TROP2_ADC_BROAD"
+   ]
+  },
+  "10.1097/coc.0000000000001331": {
+   "citation": "Rehman A, Lin J, Arora S, et al. Efficacy of Fibroblast Growth Factor Receptor Inhibitors (FGFRi) in Locally Advanced or Metastatic Cholangiocarcinoma With FGFR Fusions or Rearrangements: A Meta-Analysis of Clinical Trials. Am J Clin Oncol. 2026; PMID 42008300.",
+   "topics": [
+    "CHOLANGIO_TARGETED_NMA_REVIEW_HTML_CHOLANGIO_TARGETED"
+   ]
+  },
+  "10.1097/coh.0000000000000445": {
+   "citation": "Hill AM, Mitchell N, Hughes S, Pozniak AL. Risks of cardiovascular or central nervous system adverse events and immune reconstitution inflammatory syndrome, for dolutegravir versus other antiretrovirals: meta-analysis of randomized trials. Curr Opin HIV AIDS. 2018 Mar;13(2):102-111.",
+   "topics": [
+    "DOLUTEGRAVIR_ART_SSA"
+   ]
+  },
+  "10.1097/crd.0000000000001209": {
+   "citation": "Chan ZH, Omar AS, Gill K, et al. Incretin-Based Dual and Triple Agonists in Overweight or Obese Individuals: A Systematic Review and Meta-Analysis. Cardiology in Review. 2026 Feb 19. PMID: 41711462.",
+   "topics": [
+    "OBESITY_DUAL_TRIPLE_AGONIST"
+   ]
+  },
+  "10.1097/hep.0000000000001465": {
+   "citation": "Martins A, Khakoo NS, Reddy A, et al. Comparative effectiveness of peroxisome proliferator-activated receptor agonists as second-line therapies for primary biliary cholangitis: A systematic review and network meta-analysis. Hepatology. 2025;83(4):721-734.",
+   "topics": [
+    "PBC_NEW_AGENTS"
+   ]
+  },
+  "10.1097/qad.0000000000003494": {
+   "citation": "Fonner VA, Ridgeway K, van der Straten A, et al. Safety and efficacy of long-acting injectable cabotegravir as preexposure prophylaxis to prevent HIV acquisition. AIDS. 2023;37(6):957-966.",
+   "topics": [
+    "CAB_PREP_HIV"
+   ]
+  },
+  "10.1111/1471-0528.16411": {
+   "citation": "Lin Q, Liu W, Xu S, et al. PARP inhibitors as maintenance therapy in newly diagnosed advanced ovarian cancer: a meta-analysis. BJOG. 2021;128(3):485-493.",
+   "topics": [
+    "PARP_OVARIAN"
+   ]
+  },
+  "10.1111/anae.16058": {
+   "citation": "Tsan SEH, Viknaswaran NL, Cheong CC, et al. Prophylactic intravenous tranexamic acid and thromboembolism in non-cardiac surgery: a systematic review, meta-analysis and trial sequential analysis. Anaesthesia. 2023;78(9):1153-1161.",
+   "topics": [
+    "TXA_NONCARDIAC_SURGERY"
+   ]
+  },
+  "10.1111/aor.14960": {
+   "citation": "Viana P, Castillo-Flores S, Mora MMR, et al. Normothermic Machine Perfusion vs. Static Cold Storage in Liver Transplantation: A Systematic Review and Meta-Analysis. Artif Organs. 2025;49(6):945-954.",
+   "topics": [
+    "NORMOTHERMIC_TRANSPLANT"
+   ]
+  },
+  "10.1111/apt.12644": {
+   "citation": "Stidham RW, Lee TCH, Higgins PDR, et al. Systematic review with network meta-analysis: the efficacy of anti-tumour necrosis factor-alpha agents for the treatment of ulcerative colitis. Aliment Pharmacol Ther. 2014;39(7):660-671.",
+   "topics": [
+    "UC_BIOLOGICS"
+   ]
+  },
+  "10.1111/jebm.70057": {
+   "citation": "Liu Y, Li J, Chen Y, et al. Intravenous Iron in Heart Failure Patients With Iron Deficiency: A Meta-Analysis of Randomized Controlled Trials. J Evid Based Med. 2025;18(3):e70057.",
+   "topics": [
+    "FCM_HF"
+   ]
+  },
+  "10.1111/liv.70232": {
+   "citation": "Ouranos K, Mylona EK, Dellis C, et al. Comparative Efficacy of Treatment Regimens for Chronic Hepatitis D Virus Infection: A Systematic Review and Network Meta-Analysis. Liver Int. 2025 Aug;45(8):e70232.",
+   "topics": [
+    "HEP_D_BULEVIRTIDE_NMA"
+   ]
+  },
+  "10.1136/bmj-2024-082834": {
+   "citation": "Ma Z, Cao F, Liao M, et al. Cardiovascular adverse events associated with epidermal growth factor receptor tyrosine kinase inhibitors in mutated non-small cell lung cancer: systematic review and network meta-analysis. BMJ. 2025;390:e082834.",
+   "topics": [
+    "OSIMERTINIB_EGFR_NSCLC"
+   ]
+  },
+  "10.1136/bmj-2025-086026": {
+   "citation": "Qin BD, Jiao XD, Wang Z, et al. Targeted therapy in advanced-mutated colorectal cancer: systematic review and network meta-analysis. BMJ. 2025;391:e086026.",
+   "topics": [
+    "CRC_TARGETED_BROAD_REVIEW_HTML_CRC_TARGETED_BROAD"
+   ]
+  },
+  "10.1136/bmjopen-2017-019368": {
+   "citation": "Rosa BR, Cunha AJLA da, Medronho RA. Efficacy, immunogenicity and safety of a recombinant tetravalent dengue vaccine (CYD-TDV) in children aged 2-17 years: systematic review and meta-analysis. BMJ Open. 2019;9(3):e019368.",
+   "topics": [
+    "DENGUE_VACCINE"
+   ]
+  },
+  "10.1155/2018/6317057": {
+   "citation": "Pagnini C, Siakavellas SI, Bamias G. Systematic Review with Network Meta-Analysis: Efficacy of Induction Therapy with a Second Biological Agent in Anti-TNF-Experienced Crohn's Disease Patients. Gastroenterol Res Pract. 2018;2018:6317057.",
+   "topics": [
+    "CD_BIOLOGICS"
+   ]
+  },
+  "10.1159/000528642": {
+   "citation": "Liu Y, Zhang HX, Su J, Geng QC, Lin X, Feng CX. Efficacy and Incidence of Treatment-Related Adverse Events of Thrombopoietin Receptor Agonists in Adults with Immune Thrombocytopenia: A Systematic Review and Network Meta-Analysis of Randomized Controlled Study. Acta Haematol. 2023;146(3):173-184.",
+   "topics": [
+    "ITP_NEW_THERAPY"
+   ]
+  },
+  "10.1161/jaha.124.034815": {
+   "citation": "Oliva A, Ioppolo AM, Chiarito M, et al. Left Atrial Appendage Closure Compared With Oral Anticoagulants for Patients With Atrial Fibrillation: A Systematic Review and Network Meta-Analysis. J Am Heart Assoc. 2024;13(16):e034815.",
+   "topics": [
+    "WATCHMAN_LAAO_NMA"
+   ]
+  },
+  "10.1164/rccm.202310-1785oc": {
+   "citation": "Teja B, Berube M, Pereira TV, et al. Effectiveness of Fludrocortisone Plus Hydrocortisone versus Hydrocortisone Alone in Septic Shock: A Systematic Review and Network Meta-Analysis of Randomized Controlled Trials. Am J Respir Crit Care Med. 2024;209(10):1219-1228.",
+   "topics": [
+    "HYDROCORTISONE_SEPTIC_SHOCK"
+   ]
+  },
+  "10.1177/03331024211018137": {
+   "citation": "Frank F, Ulmer H, Sidoroff V, Broessner G. CGRP-antibodies, topiramate and botulinum toxin type A in episodic and chronic migraine: A systematic review and meta-analysis. Cephalalgia. 2021;41(11-12):1222-1239.",
+   "topics": [
+    "CGRP_MIGRAINE_PREVENT"
+   ]
+  },
+  "10.1177/10105395251362546": {
+   "citation": "Gyawali R, Poudyal N, Docherty A, et al. Efficacy and Safety of Tetanus-Toxoid Conjugate Typhoid Vaccine (Vi-TT) in Children and Adolescents: A Systematic Review and Meta-Analysis. Asia Pac J Public Health. 2025;37(8):628-637.",
+   "topics": [
+    "TYVAC_TYPHOID"
+   ]
+  },
+  "10.1177/10600280231188171": {
+   "citation": "Sun H, Bu F, Li L, et al. Efficacy and Safety of Immune Checkpoint Inhibitors Combined With Chemotherapy as First-line Treatment for Recurrent or Metastatic Nasopharyngeal Carcinoma: A Network Meta-analysis of Randomized Controlled Trials. Ann Pharmacother. 2024;58(4):349-359.",
+   "topics": [
+    "NPC_NASOPHARYNGEAL_IO"
+   ]
+  },
+  "10.1177/10760296261425039": {
+   "citation": "Ishaque R, Talpur AS, Memon H, et al. Comparative Efficacy and Safety of Non-Clotting Factor Prophylaxis Versus On-Demand Therapy in Hemophilia: A Meta-Analysis of Randomized Controlled Trials. Clin Appl Thromb Hemost. 2026;32:10760296261425039.",
+   "topics": [
+    "HEMOPHILIA_FACTOR_PROPHYLAXIS"
+   ]
+  },
+  "10.1177/17562848251396424": {
+   "citation": "Wang L, Luo B, Zhao M, Shen J. Transarterial chemoembolization combined with immunotherapy and targeted therapy as first-line treatment for unresectable and non-metastatic hepatocellular carcinoma: a meta-analysis of phase III trials. Ther Adv Gastroenterol. 2025;18:17562848251396424.",
+   "topics": [
+    "HCC_LOCAL_THERAPY"
+   ]
+  },
+  "10.1177/17562864241281903": {
+   "citation": "Stefanou MI, Palaiodimou L, Theodorou A, et al. Risk of major adverse cardiovascular events and all-cause mortality under treatment with GLP-1 RAs or the dual GIP/GLP-1 receptor agonist tirzepatide in overweight or obese adults without diabetes: a systematic review and meta-analysis. Ther Adv Neurol Disord. 2024;17:17562864241281903.",
+   "topics": [
+    "OBESITY_DRUGS"
+   ]
+  },
+  "10.1177/17588359241284929": {
+   "citation": "Meng Y, Zhang Q, Wu R, et al. Efficacy and safety of perioperative, neoadjuvant, or adjuvant immunotherapy alone or in combination with chemotherapy in early-stage non-small cell lung cancer: a systematic review and meta-analysis of randomized clinical trials. Ther Adv Med Oncol. 2024;16:17588359241284929.",
+   "topics": [
+    "NSCLC_PERIOP_IO"
+   ]
+  },
+  "10.1177/17588359241297079": {
+   "citation": "Michelon I, Dacoregio MI, Vilbert M, et al. Antibody-drug conjugates in patients with advanced/metastatic HER2-low-expressing breast cancer: a systematic review and meta-analysis. Ther Adv Med Oncol. 2024;16:17588359241297079.",
+   "topics": [
+    "ADC_HER2_LOW"
+   ]
+  },
+  "10.1177/17588359251357527": {
+   "citation": "Xie Y, Liu H, Tang Y, et al. First-line systemic therapy in patients with metastatic or locally advanced urothelial carcinoma: a systematic review and network meta-analysis of randomized controlled trials. Ther Adv Med Oncol. 2025;17:17588359251357527. (Bayesian NMA, 11 RCTs / 7586 patients; EV+pembro OS HR 0.47, 95% CrI 0.38-0.58 vs platinum-based chemotherapy, overall population, consistent across cisplatin-eligible/ineligible and PD-L1 subgroups.) PMID 40718544.",
+   "topics": [
+    "BLADDER_UROTHEL_FRONTLINE_IO_NMA_REVIEW_HTML_BLADDER_UROTHEL_FRONTLINE_IO"
+   ]
+  },
+  "10.1177/20406207231216080": {
+   "citation": "Lee J, Lee H, Kim S, Suh HS. Efficacy of complement inhibitors for patients with paroxysmal nocturnal hemoglobinuria: a systematic review and meta-analysis. Ther Adv Hematol. 2023 Dec 14;14:20406207231216080.",
+   "topics": [
+    "COMPLEMENT_C5_BROAD_NMA_REVIEW_HTML_COMPLEMENT_C5_BROAD"
+   ]
+  },
+  "10.1182/blood-2014-04-571232": {
+   "citation": "van Es N, Coppens M, Schulman S, Middeldorp S, Buller HR. Direct oral anticoagulants compared with vitamin K antagonists for acute venous thromboembolism: evidence from phase 3 trials. Blood. 2014;124(12):1968-75.",
+   "topics": [
+    "DOAC_VTE_NMA"
+   ]
+  },
+  "10.1186/s12885-021-08958-3": {
+   "citation": "Zhu X, Shanzhou Q, Li D, Pang X, Ma D. PD-1 inhibitors versus chemotherapy as second-line treatment for advanced esophageal squamous cell carcinoma: a meta-analysis. BMC Cancer. 2021;21(1):1195.",
+   "topics": [
+    "CHECKPOINT_ESOPHAGEAL_SCC"
+   ]
+  },
+  "10.1186/s12885-024-11980-w": {
+   "citation": "de Moraes FCA, Pasqualotto E, Chavez MP, Ferreira ROM, De Castria TB, Burbano RMR. Efficacy and safety of Zolbetuximab plus chemotherapy for advanced CLDN18.2-positive gastric or gastro-oesophageal adenocarcinoma: a meta-analysis of randomized clinical trials. BMC Cancer. 2024;24(1):240.",
+   "topics": [
+    "ZOLBETUXIMAB_GASTRIC"
+   ]
+  },
+  "10.1186/s12885-024-12782-w": {
+   "citation": "Luo C, Yu K, Luo X, et al. CDK4/6 inhibitors plus endocrine therapy vs. placebo plus endocrine therapy for HR+/HER2- advanced breast cancer: a phase III RCTs based meta-analysis. BMC Cancer. 2024;24(1):1031.",
+   "topics": [
+    "CDK46_BREAST_CANCER"
+   ]
+  },
+  "10.1186/s12885-025-13843-4": {
+   "citation": "Luo D, Yu Y, Wang Q, Peng T, Li C, Zhang W, Huang J. The benefit and risk of addition of PD-1/PD-L1 inhibitors to chemotherapy for advanced cervical cancer: a phase 3 randomized controlled trials based meta-analysis. BMC Cancer. 2025;25(1):450.",
+   "topics": [
+    "CERVICAL_CANCER_IO_BROAD"
+   ]
+  },
+  "10.1186/s12887-025-05469-z": {
+   "citation": "Dai Y, Yu Q, Zhang F, et al. Effect of probiotics on necrotizing enterocolitis in preterm infants: a network meta-analysis of randomized controlled trials. BMC Pediatr. 2025;25(1):237.",
+   "topics": [
+    "NEONATAL_NEC_NMA_REVIEW_HTML_NEONATAL_NEC"
+   ]
+  },
+  "10.1186/s12890-021-01783-1": {
+   "citation": "Finnerty JP, Ponnuswamy A, Dutta P, Abdelaziz A, Kamil H. Efficacy of antifibrotic drugs, nintedanib and pirfenidone, in treatment of progressive pulmonary fibrosis in both idiopathic pulmonary fibrosis (IPF) and non-IPF: a systematic review and meta-analysis. BMC Pulm Med. 2021;21(1):411.",
+   "topics": [
+    "IPF_ANTIFIBROTICS"
+   ]
+  },
+  "10.1186/s12936-021-03873-1": {
+   "citation": "Assefa DG, Yismaw G, Makonnen E. Efficacy of dihydroartemisinin-piperaquine versus artemether-lumefantrine for the treatment of uncomplicated Plasmodium falciparum malaria among children in Africa: a systematic review and meta-analysis of randomized control trials. Malaria Journal. 2021;20(1):340.",
+   "topics": [
+    "MALARIA_ACT"
+   ]
+  },
+  "10.1186/s12936-026-05954-5": {
+   "citation": "Nurani KM, Kadernani N, Korir E, et al. Efficacy and safety of RTS,S and R21 malaria vaccines in children under five in Africa: a systematic review and meta-analysis of randomized controlled trials. Malar J. 2026;25. PMID 42204567.",
+   "topics": [
+    "MALARIA_VACCINES",
+    "MALARIA_VACCINE"
+   ]
+  },
+  "10.1186/s12957-022-02818-5": {
+   "citation": "Lei X, Wang Y, Shan F, et al. Short- and long-term outcomes of laparoscopic versus open gastrectomy in patients with gastric cancer: a systematic review and meta-analysis of randomized controlled trials. World J Surg Oncol. 2022;20(1):405.",
+   "topics": [
+    "MIS_GASTRECTOMY"
+   ]
+  },
+  "10.1186/s12957-025-03908-w": {
+   "citation": "Yuan X, Liang H, Fu X, Yang S, Xiang C, Chen Z. Cytoreductive surgery with multimodal therapies in advanced or metastatic ovarian, colorectal, and gastric cancers: a systematic review and meta-analysis of randomized trials. World J Surg Oncol. 2025;23(1):286.",
+   "topics": [
+    "HIPEC_PERITONEAL_NMA_REVIEW_HTML_HIPEC_PERITONEAL"
+   ]
+  },
+  "10.1186/s13023-018-0834-2": {
+   "citation": "Shimizu-Motohashi Y, Murakami T, Kimura E, Komaki H, Watanabe N. Exon skipping for Duchenne muscular dystrophy: a systematic review and meta-analysis. Orphanet J Rare Dis. 2018;13(1):93.",
+   "topics": [
+    "DUCHENNE_GENE_THERAPY"
+   ]
+  },
+  "10.1186/s13613-024-01291-5": {
+   "citation": "Luque Paz D, Chean D, Tattevin P, et al. Efficacy and safety of antibiotics targeting Gram-negative bacteria in nosocomial pneumonia: a systematic review and Bayesian network meta-analysis. Ann Intensive Care. 2024;14(1):66.",
+   "topics": [
+    "HAP_VAP_NEW_ABX"
+   ]
+  },
+  "10.1186/s13643-020-01540-1": {
+   "citation": "Majothi S, Adams D, Loke J, Stevens SP, Wheatley K, Wilson JS. FLT3 inhibitors in acute myeloid leukaemia: assessment of clinical effectiveness, adverse events and future research-a systematic review and meta-analysis. Syst Rev. 2020;9(1):285.",
+   "topics": [
+    "AML_VEN_FLT3"
+   ]
+  },
+  "10.1186/s13643-024-02670-6": {
+   "citation": "Makkawi S, Bukhari JI, Salamatullah HK, et al. Endovascular thrombectomy after anterior circulation large vessel ischemic stroke: an updated meta-analysis. Syst Rev. 2024;13(1):255.",
+   "topics": [
+    "STROKE_THROMBECTOMY_LATE_NMA"
+   ]
+  },
+  "10.1371/journal.pone.0127645": {
+   "citation": "Yan S, Chen L, Wu W, et al. Early versus Delayed Antiretroviral Therapy for HIV and Tuberculosis Co-Infected Patients: A Systematic Review and Meta-Analysis of Randomized Controlled Trials. PLoS One. 2015;10(5):e0127645.",
+   "topics": [
+    "HIV_TB_COINFECTION_ART_TIMING"
+   ]
+  },
+  "10.1371/journal.pone.0221922": {
+   "citation": "Fang F, Tang J, Zhao Y, He J, Xu P, Faramand A. Transcatheter aortic valve implantation versus surgical aortic valve replacement in patients at low and intermediate risk: A risk specific meta-analysis of randomized controlled trials. PLoS One. 2019;14(9):e0221922.",
+   "topics": [
+    "TAVR_LOWRISK"
+   ]
+  },
+  "10.1371/journal.pone.0319400": {
+   "citation": "Liao Q, Pan H, Guo Y, Lan Y, Huang Z, Wu P. Comparative efficacy and safety of dupilumab versus newly approved biologics and JAKi in pediatric atopic dermatitis: A systematic review and network meta-analysis. PLoS One. 2025 Feb 24;20(2):e0319400.",
+   "topics": [
+    "AD_PEDIATRIC_BIOLOGIC_NMA"
+   ]
+  },
+  "10.14218/jcth.2020.00164": {
+   "citation": "Ma X, Liu S, Wang M, Wang Y, Du S, Xin Y, Xuan S. Tenofovir Alafenamide Fumarate, Tenofovir Disoproxil Fumarate and Entecavir: Which is the Most Effective Drug for Chronic Hepatitis B? A Systematic Review and Meta-analysis. J Clin Transl Hepatol. 2021;9(3):335-344.",
+   "topics": [
+    "HEPATITIS_B_TAF_TDF"
+   ]
+  },
+  "10.1513/annalsats.201704-343ot": {
+   "citation": "Munshi L, Del Sorbo L, Adhikari NKJ, et al. Prone Position for Acute Respiratory Distress Syndrome. A Systematic Review and Meta-Analysis. Ann Am Thorac Soc. 2017 Oct;14(Supplement_4):S280-S288.",
+   "topics": [
+    "ARDS_PRONE_POSITIONING"
+   ]
+  },
+  "10.1513/annalsats.202406-597oc": {
+   "citation": "Mohamed MMG, Kamel G, Charbek E. Role of Monoclonal Antibodies in the Management of Eosinophilic Chronic Obstructive Pulmonary Disease: A Meta-analysis of Randomized Controlled Trials. Ann Am Thorac Soc. 2025 May;22(5):768-775.",
+   "topics": [
+    "COPD_BIOLOGICS_BROAD"
+   ]
+  },
+  "10.17843/rpmesp.2024.411.13351": {
+   "citation": "Ciapponi A, Bardach A, Colaci C, et al. Trastuzumab-emtansine versus other anti-HER2 regimens in early or unresectable or metastatic HER-2 positive breast cancer: systematic review and network meta-analysis. Rev Peru Med Exp Salud Publica. 2024;41(1):7-18.",
+   "topics": [
+    "ADC_HER2"
+   ]
+  },
+  "10.2144/fsoa-2019-0081": {
+   "citation": "Tun AM, Thein KZ, Thein WL, Guevara E. Checkpoint inhibitors plus chemotherapy for first-line treatment of advanced non-small cell lung cancer: a systematic review and meta-analysis of randomized controlled trials. Future Sci OA. 2019;5(9):FSO421.",
+   "topics": [
+    "IO_CHEMO_NSCLC_1L"
+   ]
+  },
+  "10.2217/fon-2021-1509": {
+   "citation": "Pilkington H, Smith S, Roskell N, Iannazzo S. Indirect treatment comparisons of avapritinib versus midostaurin for patients with advanced systemic mastocytosis. Future Oncol. 2022;18(13):1583-1594.",
+   "topics": [
+    "MASTOCYTOSIS_NEW_NMA_REVIEW_HTML_MASTOCYTOSIS"
+   ]
+  },
+  "10.31083/j.rcm2411309": {
+   "citation": "Liu YS, Dong K, Park C. Risk of Cardiovascular Events with Cyclin-Dependent Kinases 4 and 6 (CDK 4/6) Inhibitors among Patients with Advanced Breast Cancer: A Systematic Review and Network Meta-Analysis. Rev Cardiovasc Med. 2023;24(11):309.",
+   "topics": [
+    "CDK46_MBC"
+   ]
+  },
+  "10.3389/fcvm.2025.1680080": {
+   "citation": "Calderón-Montero A, de Miguel Díez J, Barrios V, et al. Effect of triple inhaled therapy on MACE and cardiovascular events in COPD: a systematic review and meta-analysis. Front Cardiovasc Med. 2025;12:1680080.",
+   "topics": [
+    "COPD_TRIPLE_REVIEW_HTML_COPD_TRIPLE"
+   ]
+  },
+  "10.3389/fimmu.2023.1211171": {
+   "citation": "Luo C, Huang X, Wei L, et al. Second-line therapy for patients with steroid-refractory aGVHD: systematic review and meta-analysis of randomized controlled trials. Front Immunol. 2023;14:1211171.",
+   "topics": [
+    "GVHD_NEW_AGENTS"
+   ]
+  },
+  "10.3389/fimmu.2025.1747082": {
+   "citation": "Wang Z, Zhang H, Zhu Y, et al. Comprehensive evaluation of prophylactic HPV vaccines: a systematic review and meta-analysis of efficacy, safety, and immunogenicity in males and females. Front Immunol. 2026;16:1747082.",
+   "topics": [
+    "HPV_DOSE_REDUCTION"
+   ]
+  },
+  "10.3389/fmed.2022.1015184": {
+   "citation": "Li X, Yang X, Ning Z. Efficacy and safety of COVID-19 inactivated vaccine: A meta-analysis. Front Med (Lausanne). 2022;9:1015184.",
+   "topics": [
+    "COVID19_VACCINES"
+   ]
+  },
+  "10.3389/fonc.2023.1146905": {
+   "citation": "Alifu M, Tao M, Chen X, Chen J, Tang K, Tang Y. Checkpoint inhibitors as dual immunotherapy in advanced non-small cell lung cancer: a meta-analysis. Front Oncol. 2023;13:1146905.",
+   "topics": [
+    "ANTI_TIGIT_TUMORS"
+   ]
+  },
+  "10.3389/fonc.2024.1403967": {
+   "citation": "Chen K, Zhang Y, Zou J, et al. Comparative efficacy and hematologic safety of different dosages of JAK inhibitors in the treatment of myelofibrosis: a network meta-analysis. Front Oncol. 2024;14:1403967.",
+   "topics": [
+    "MYELOFIBROSIS_NEW_JAKI"
+   ]
+  },
+  "10.3389/fonc.2024.1407001": {
+   "citation": "Asghar K, Zafar M, Holland E, et al. A systematic review and meta-analysis on utilizing anti-CD19 chimeric antigen receptor T-cell therapy as a second-line treatment for relapsed and refractory diffuse large B-cell lymphoma. Front Oncol. 2024;14:1407001.",
+   "topics": [
+    "CART_DLBCL"
+   ]
+  },
+  "10.3389/fonc.2025.1619115": {
+   "citation": "Hu B, Wang J, Fang D, Jiang L, Li T, Cao J. Addition of daratumumab to standard triplet regimens achieved better survival in newly diagnosed multiple myeloma: a systematic review and meta-analysis of randomized controlled trials. Front Oncol. 2025;15:1619115.",
+   "topics": [
+    "MM_1L_DARA"
+   ]
+  },
+  "10.3389/fonc.2025.1641769": {
+   "citation": "Shen J, Zhang J, Zhu Z, et al. CD20xCD3 bispecific antibody achieved significant efficacy in patients with large B-cell lymphoma relapsing after or refractory to CAR-T therapy: a systematic review and meta-analysis. Front Oncol. 2025;15:1641769.",
+   "topics": [
+    "LYMPHOMA_BISPECIFIC_CD20"
+   ]
+  },
+  "10.3389/fonc.2026.1775677": {
+   "citation": "Liang S, Li Y, Wan K, Zhang W, Xiong L. KRAS inhibitors versus chemotherapy alone for KRAS-mutated non-small cell lung cancer: a pooled analysis of CodeBreaK 200 and KRYSTAL-12 trials. Front Oncol. 2026;16:1775677.",
+   "topics": [
+    "NSCLC_TARGETED_RARE_DRIVER"
+   ]
+  },
+  "10.3389/fphar.2022.834113": {
+   "citation": "Ying Z, Song Y, Zhu J. Effectiveness and Safety of Anti-CD19 Chimeric Antigen Receptor-T Cell Immunotherapy in Patients With Relapsed/Refractory Large B-Cell Lymphoma: A Systematic Review and Meta-Analysis. Front Pharmacol. 2022;13:834113.",
+   "topics": [
+    "CAR_T_LBCL_BROAD"
+   ]
+  },
+  "10.3389/fpsyg.2021.648691": {
+   "citation": "An D, Wei C, Wang J, Wu A. Intranasal Ketamine for Depression in Adults: A Systematic Review and Meta-Analysis of Randomized, Double-Blind, Placebo-Controlled Trials. Front Psychol. 2021;12:648691.",
+   "topics": [
+    "DEPRESSION_NEW_RAPID_REVIEW_HTML_DEPRESSION_NEW_RAPID"
+   ]
+  },
+  "10.3389/fpubh.2023.1179531": {
+   "citation": "Chen R, Xiong Y, Zeng Y, et al. The efficacy and safety of direct-acting antiviral regimens for end-stage renal disease patients with HCV infection: a systematic review and network meta-analysis. Front Public Health. 2023;11:1179531.",
+   "topics": [
+    "HEPATITIS_HCV_DAA"
+   ]
+  },
+  "10.3390/biom15010039": {
+   "citation": "Bellos I, Marinaki S, Lagiou P, Benetou V. Comparative Efficacy and Safety of Cardio-Renoprotective Pharmacological Interventions in Chronic Kidney Disease: An Umbrella Review of Network Meta-Analyses and a Multicriteria Decision Analysis. Biomolecules. 2024;15(1):39.",
+   "topics": [
+    "CARDIORENAL_DKD_NMA"
+   ]
+  },
+  "10.3390/biomedicines10061303": {
+   "citation": "Huang CH, Huang IH, Tai CC, Chi CC. Biologics and Small Molecule Inhibitors for Treating Hidradenitis Suppurativa: A Systematic Review and Meta-Analysis. Biomedicines. 2022;10(6):1303.",
+   "topics": [
+    "HIDRADENITIS_SUPPURATIVA"
+   ]
+  },
+  "10.3390/curroncol30110722": {
+   "citation": "Liao PF, Wang PY, Peng TR. Efficacy and Safety of Programmed Death-1/Programmed Death-Ligand 1 Inhibitor for Metastatic Urothelial Carcinoma: A Systematic Review and Meta-Analysis. Curr Oncol. 2023;30(11):9940-9952.",
+   "topics": [
+    "ANTI_PDL1_BLADDER"
+   ]
+  },
+  "10.3390/jcm13154280": {
+   "citation": "Romoli M, Princiotta Cariddi L, Longoni M, et al. (2024). Mechanical Thrombectomy in Ischemic Stroke with a Large Infarct Core: A Meta-Analysis of Randomized Controlled Trials. J Clin Med. 13(15):4280. (6 RCTs, n=1656; random-effects OR for mRS 0-2 at 90 days = 2.47 [1.52-4.03])",
+   "topics": [
+    "EVT_LARGECORE_REVIEW_HTML_EVT_LARGECORE"
+   ]
+  },
+  "10.3390/life11090927": {
+   "citation": "Pereyra-Rodriguez JJ, et al. Short-Term Effectiveness and Safety of Biologics and Small Molecule Drugs for Moderate to Severe Atopic Dermatitis: A Systematic Review and Network Meta-Analysis. Life (Basel). 2021;11(9):927.",
+   "topics": [
+    "ATOPIC_DERM_NMA"
+   ]
+  },
+  "10.3390/medicina58020213": {
+   "citation": "Abbas KS, Eltaras MM, El-Shahat NA, Abdelazeem B, Shaqfeh M, Brasic JR. The Safety and Efficacy of Nusinersen in the Treatment of Spinal Muscular Atrophy: A Systematic Review and Meta-Analysis of Randomized Controlled Trials. Medicina (Kaunas). 2022;58(2):213.",
+   "topics": [
+    "SMA_TREATMENTS_BROAD"
+   ]
+  },
+  "10.3390/vaccines11091410": {
+   "citation": "Nave L, Margalit I, Tau N, Cohen I, Yelin D, Lienert F, Yahav D. Immunogenicity and Safety of Modified Vaccinia Ankara (MVA) Vaccine—A Systematic Review and Meta-Analysis of Randomized Controlled Trials. Vaccines (Basel). 2023;11(9):1410.",
+   "topics": [
+    "MPOX_VACCINE_NMA"
+   ]
+  },
+  "10.36416/1806-3756/e20240391": {
+   "citation": "Cheraghi M, Amiri M, Andarzgoo S, et al. Bedaquiline and linezolid regimens for multidrug-resistant tuberculosis: a systematic review and meta-analysis. J Bras Pneumol. 2025;51(1):e20240391.",
+   "topics": [
+    "MDR_TB_SHORTENED"
+   ]
+  },
+  "10.3892/etm.2022.11685": {
+   "citation": "Mo DC, Liang ZY, Chen L, Huang JF, Luo PH, Wang HL. Efficacy and safety of adjuvant therapy with PD-1/PD-L1 inhibitors in cancer. Exp Ther Med. 2022;24(6):749.",
+   "topics": [
+    "ADJUVANT_IO_PAN_TUMOR"
+   ]
+  },
+  "10.3892/mco.2020.2103": {
+   "citation": "Al-Mansour M, Al-Foheidi M, Ibrahim E. Efficacy and safety of second-generation CAR T-cell therapy in diffuse large B-cell lymphoma: A meta-analysis. Mol Clin Oncol. 2020;13(4):33.",
+   "topics": [
+    "CART_B_CELL_LYMPHOMA"
+   ]
+  },
+  "10.4093/dmj.2024.0130": {
+   "citation": "Fan W, Deng C, Xu R, Liu Z, Leslie RD, Zhou Z, Li X. Efficacy and Safety of Automated Insulin Delivery Systems in Patients with Type 1 Diabetes Mellitus: A Systematic Review and Meta-Analysis. Diabetes Metab J. 2025;49(2):235-251.",
+   "topics": [
+    "T1D_CLOSED_LOOP_NMA"
+   ]
+  },
+  "10.4244/eij-d-25-00737": {
+   "citation": "Ammirabile N, Giacoppo D, Mazzone PM, et al. Transcatheter edge-to-edge repair plus guideline-directed medical therapy versus guideline-directed medical therapy alone for symptomatic functional mitral regurgitation: a comprehensive, up-to-date meta-analysis of randomised trials. EuroIntervention. 2026;22(2):e101-e112.",
+   "topics": [
+    "MITRACLIP_TEER",
+    "MITRAL_FUNCMR"
+   ]
+  },
+  "10.46989/001c.154588": {
+   "citation": "Vatvani AD, Hariyanto TI, Ramirez AC, Shabarek N. Spleen and Bruton's tyrosine kinase inhibitors for the management of adult immune thrombocytopenia: A systematic review and meta-analysis of randomized controlled trials. Clin Hematol Int. 2025;7(4):76-91.",
+   "topics": [
+    "ITP_NEW_AGENTS"
+   ]
+  },
+  "10.5056/jnm25161": {
+   "citation": "Chang JW, Jung DH, Son NH, Gwon S, Jeong DM, Huh CW. Potassium-competitive Acid Blockers Versus Proton Pump Inhibitors for Erosive Esophagitis: A Systematic Review and Network Meta-analysis. J Neurogastroenterol Motil. 2026;32(2):172-184.",
+   "topics": [
+    "GERD_PCAB"
+   ]
+  },
+  "10.52225/narra.v3i3.402": {
+   "citation": "Simanjuntak AM, Daenansya R, Aflandhanti PM, Yovi I, Suyanto S, Anggraini D, Rosdiana D. Efficacy of pretomanid-containing regiments for drug-resistant tuberculosis: A systematic review and meta-analysis of clinical trials. Narra J. 2023 Nov 13;3(3):e402.",
+   "topics": [
+    "TB_BPAL_NEW_NMA"
+   ]
+  },
+  "10.7759/cureus.76466": {
+   "citation": "Meziridis G, Sidiropoulou P, Pourzitaki C, Haidich AB, Tsaousi G. Safety and Efficacy of Baricitinib, Upadacitinib, and Sarilumab Implementation in Moderately-to-Severely Active Rheumatoid Arthritis: A Systematic Review and Meta-Analysis of Current Evidence. Cureus. 2024;16(12):e76466.",
+   "topics": [
+    "JAK_RA"
+   ]
+  }
+ }
+}
