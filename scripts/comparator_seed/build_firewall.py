@@ -13,7 +13,9 @@ import os
 import re
 import sys
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Guarded: a module-level stdout reassignment closes the caller's wrapper on import.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 ROOT = os.environ.get("REPO_ROOT", os.getcwd())
 OUT_ROOT = os.environ.get("OUT_ROOT", ROOT)
