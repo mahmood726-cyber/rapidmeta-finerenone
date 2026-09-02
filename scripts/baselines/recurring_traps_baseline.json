@@ -1,0 +1,1806 @@
+{
+ "_delta_note": "Measured at 13238c15c; main moved to 279bcc410 mid-commit (another lane is actively editing the SoF/ETD projectors). Exactly two .py files differed and BOTH were re-scanned at the new main rather than the whole corpus re-run. A baseline carried across a moved ref without checking the delta would report that lane's untouched lines as new.",
+ "_do_not_clear_in_bulk": "309 rows across 280 files is the ideal vehicle for a change that clears every failure at once, and a change that clears every failure is a loosened test. Each row is an individual decision.",
+ "_measured_at": "origin/main 70a4e25a5 -- from the OBJECT STORE",
+ "_what": "violations present when the lint was introduced; a file may not gain a NEW one. These are OWED, NOT CLEARED.",
+ "_why_a_revision_and_not_this_checkout": "This worktree sits on paper-studio/manuscript-review, 304 commits BEHIND origin/main and 29 ahead. A baseline built from these files would omit the 94 .py files main has and this branch does not, and the first person to run the gate on main would meet a wall of violations reported as NEW that have been there for weeks -- the refuse-everything failure that already cost this repo a blocked push. Measured: 1388 files, all SCANNED, 309 violations across 280.",
+ "_widening_2026_09_02": "The stdout detector was widened to cover sys.stderr and module-level try: bodies, which makes violations carried since August visible for the first time. They are OWED, NOT CLEARED. A first-sighting is not a regression, and the ratchet must not be read as approval.",
+ "files": {
+  "apply_pending_updates.py": [
+   [
+    "stdout_double_wrap",
+    26
+   ]
+  ],
+  "cross_validate.py": [
+   [
+    "stdout_double_wrap",
+    9
+   ]
+  ],
+  "cross_validate_dashboard.py": [
+   [
+    "stdout_double_wrap",
+    23
+   ]
+  ],
+  "evidence/2026-08-12/build-artifacts/make_docx.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/ab_all.py": [
+   [
+    "stdout_double_wrap",
+    4
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/classify_gained.py": [
+   [
+    "stdout_double_wrap",
+    6
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/degrade_test.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/guard2.py": [
+   [
+    "stdout_double_wrap",
+    14
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/ingest_evidence.py": [
+   [
+    "stdout_double_wrap",
+    11
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/object_to_cells.py": [
+   [
+    "stdout_double_wrap",
+    9
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/pertab.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/prose_guard.py": [
+   [
+    "stdout_double_wrap",
+    10
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/readiness_scan.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/rob2_packet.py": [
+   [
+    "stdout_double_wrap",
+    10
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/selfaudit.py": [
+   [
+    "stdout_double_wrap",
+    23
+   ]
+  ],
+  "evidence/2026-08-12/detector-library/tier_detector.py": [
+   [
+    "stdout_double_wrap",
+    15
+   ]
+  ],
+  "extract_ctgov_results.py": [
+   [
+    "stdout_double_wrap",
+    25
+   ]
+  ],
+  "fix_lightmode_contrast.py": [
+   [
+    "stdout_double_wrap",
+    14
+   ]
+  ],
+  "fix_review_issues.py": [
+   [
+    "stdout_double_wrap",
+    41
+   ]
+  ],
+  "gates/gate16_reader_can_check.py": [
+   [
+    "unanchored_substring",
+    316
+   ]
+  ],
+  "generate_configs.py": [
+   [
+    "stdout_double_wrap",
+    8
+   ]
+  ],
+  "generate_portfolio.py": [
+   [
+    "stdout_double_wrap",
+    12
+   ]
+  ],
+  "improve_methodological.py": [
+   [
+    "stdout_double_wrap",
+    23
+   ]
+  ],
+  "improve_round2.py": [
+   [
+    "stdout_double_wrap",
+    12
+   ]
+  ],
+  "living_update_scanner.py": [
+   [
+    "stdout_double_wrap",
+    26
+   ]
+  ],
+  "outcome_switching/compute_diffs.py": [
+   [
+    "stdout_double_wrap",
+    24
+   ]
+  ],
+  "outcome_switching/compute_oncology_diff.py": [
+   [
+    "stdout_double_wrap",
+    19
+   ]
+  ],
+  "outcome_switching/compute_pub_diff.py": [
+   [
+    "stdout_double_wrap",
+    18
+   ]
+  ],
+  "outcome_switching/compute_v1_vs_current.py": [
+   [
+    "stdout_double_wrap",
+    21
+   ],
+   [
+    "unanchored_substring",
+    103
+   ]
+  ],
+  "outcome_switching/compute_v1_vs_current_269.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "outcome_switching/detect_content_changes.py": [
+   [
+    "stdout_double_wrap",
+    19
+   ]
+  ],
+  "outcome_switching/extract_269_currents.py": [
+   [
+    "stdout_double_wrap",
+    14
+   ]
+  ],
+  "outcome_switching/extract_hf_outcomes.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ],
+   [
+    "unanchored_substring",
+    148
+   ]
+  ],
+  "outcome_switching/fetch_amendment_dates.py": [
+   [
+    "stdout_double_wrap",
+    20
+   ]
+  ],
+  "outcome_switching/fetch_publications.py": [
+   [
+    "stdout_double_wrap",
+    20
+   ]
+  ],
+  "outcome_switching/fetch_publications_v2.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ]
+  ],
+  "outcome_switching/scrape_area.py": [
+   [
+    "stdout_double_wrap",
+    18
+   ]
+  ],
+  "outcome_switching/scrape_oncology.py": [
+   [
+    "stdout_double_wrap",
+    18
+   ]
+  ],
+  "outcome_switching/scrape_v1_history.py": [
+   [
+    "stdout_double_wrap",
+    24
+   ]
+  ],
+  "outcome_switching/scrape_v1_history_198.py": [
+   [
+    "stdout_double_wrap",
+    23
+   ]
+  ],
+  "review_extractions.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ]
+  ],
+  "scripts/aact_baselines.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "scripts/aact_outcome_concordance_check.py": [
+   [
+    "stdout_double_wrap",
+    35
+   ],
+   [
+    "unanchored_substring",
+    79
+   ]
+  ],
+  "scripts/add_comparison.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/add_f1000_gate.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/add_offline_download.py": [
+   [
+    "stdout_double_wrap",
+    12
+   ]
+  ],
+  "scripts/add_r_output.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/add_repool_widget.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ]
+  ],
+  "scripts/add_results_prose.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/add_rob_prisma.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/add_topic_audit_first.py": [
+   [
+    "unanchored_substring",
+    279
+   ]
+  ],
+  "scripts/add_topic_autodiscover.py": [
+   [
+    "unanchored_substring",
+    5631
+   ]
+  ],
+  "scripts/add_visual_abstract.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/alignment_gate.py": [
+   [
+    "stdout_double_wrap",
+    30
+   ]
+  ],
+  "scripts/append_trial_to_config.py": [
+   [
+    "stdout_double_wrap",
+    27
+   ]
+  ],
+  "scripts/append_trial_to_nma_config.py": [
+   [
+    "stdout_double_wrap",
+    26
+   ]
+  ],
+  "scripts/apply_registered_timeframe_2026_08_24.py": [
+   [
+    "unanchored_substring",
+    76
+   ]
+  ],
+  "scripts/archived/fix_living_ma.py": [
+   [
+    "stdout_double_wrap",
+    15
+   ]
+  ],
+  "scripts/archived/fix_living_ma_v2.py": [
+   [
+    "stdout_double_wrap",
+    10
+   ]
+  ],
+  "scripts/archived/fix_living_ma_v3.py": [
+   [
+    "stdout_double_wrap",
+    21
+   ]
+  ],
+  "scripts/arm_role_triage.py": [
+   [
+    "unanchored_substring",
+    54
+   ]
+  ],
+  "scripts/arni_four_checks.py": [
+   [
+    "stdout_double_wrap",
+    40
+   ]
+  ],
+  "scripts/audit_12methods.py": [
+   [
+    "unanchored_substring",
+    163
+   ],
+   [
+    "unanchored_substring",
+    218
+   ]
+  ],
+  "scripts/audit_data_integrity.py": [
+   [
+    "stdout_double_wrap",
+    26
+   ],
+   [
+    "unanchored_substring",
+    148
+   ]
+  ],
+  "scripts/audit_default_outcome.py": [
+   [
+    "stdout_double_wrap",
+    5
+   ]
+  ],
+  "scripts/audit_exclusion_by_absence.py": [
+   [
+    "stdout_double_wrap",
+    58
+   ]
+  ],
+  "scripts/audit_first_poolability_triage.py": [
+   [
+    "unanchored_substring",
+    83
+   ]
+  ],
+  "scripts/audit_first_round2.py": [
+   [
+    "unanchored_substring",
+    88
+   ]
+  ],
+  "scripts/audit_included_trial_design.py": [
+   [
+    "unanchored_substring",
+    79
+   ]
+  ],
+  "scripts/audit_mismatch_reached_a_pool_2026_08_25.py": [
+   [
+    "unanchored_substring",
+    154
+   ]
+  ],
+  "scripts/audit_multiarm.py": [
+   [
+    "stdout_double_wrap",
+    14
+   ]
+  ],
+  "scripts/audit_never_taken_branches.py": [
+   [
+    "stdout_double_wrap",
+    33
+   ]
+  ],
+  "scripts/audit_nma_config.py": [
+   [
+    "stdout_double_wrap",
+    20
+   ]
+  ],
+  "scripts/audit_p46_closure_quality.py": [
+   [
+    "stdout_double_wrap",
+    29
+   ]
+  ],
+  "scripts/audit_pmid_groups.py": [
+   [
+    "stdout_double_wrap",
+    4
+   ]
+  ],
+  "scripts/audit_pmids.py": [
+   [
+    "stdout_double_wrap",
+    36
+   ]
+  ],
+  "scripts/audit_rob2_completeness.py": [
+   [
+    "stdout_double_wrap",
+    20
+   ]
+  ],
+  "scripts/audit_skipped_but_current.py": [
+   [
+    "stdout_double_wrap",
+    28
+   ]
+  ],
+  "scripts/audit_structural.py": [
+   [
+    "stdout_double_wrap",
+    13
+   ]
+  ],
+  "scripts/audit_unvalidated.py": [
+   [
+    "stdout_double_wrap",
+    7
+   ]
+  ],
+  "scripts/auto_populate_evidence_from_aact.py": [
+   [
+    "stdout_double_wrap",
+    25
+   ]
+  ],
+  "scripts/autofix_published_ma_defects.py": [
+   [
+    "stdout_double_wrap",
+    20
+   ]
+  ],
+  "scripts/backfill_pmids.py": [
+   [
+    "stdout_double_wrap",
+    11
+   ]
+  ],
+  "scripts/backfill_registry_facts_2026_08_21.py": [
+   [
+    "unanchored_substring",
+    42
+   ]
+  ],
+  "scripts/blind_registry_recall_2026_08_24.py": [
+   [
+    "unanchored_substring",
+    172
+   ]
+  ],
+  "scripts/build_aact_continuous.py": [
+   [
+    "unanchored_substring",
+    84
+   ],
+   [
+    "unanchored_substring",
+    103
+   ],
+   [
+    "unanchored_substring",
+    320
+   ]
+  ],
+  "scripts/build_multi_agent_sample.py": [
+   [
+    "unanchored_substring",
+    89
+   ]
+  ],
+  "scripts/build_paper_bookkeeping_2026_08_21.py": [
+   [
+    "unanchored_substring",
+    177
+   ]
+  ],
+  "scripts/build_portfolio_index.py": [
+   [
+    "stdout_double_wrap",
+    24
+   ]
+  ],
+  "scripts/capture_all_ranks.py": [
+   [
+    "unanchored_substring",
+    45
+   ]
+  ],
+  "scripts/check_page_format.py": [
+   [
+    "stdout_double_wrap",
+    28
+   ]
+  ],
+  "scripts/citation_year_gate.py": [
+   [
+    "stdout_double_wrap",
+    39
+   ]
+  ],
+  "scripts/class4_external_comparator_screen.py": [
+   [
+    "unanchored_substring",
+    59
+   ]
+  ],
+  "scripts/classify_nma_drops.py": [
+   [
+    "stdout_double_wrap",
+    24
+   ]
+  ],
+  "scripts/cleanup_orphan_r_badge.py": [
+   [
+    "stdout_double_wrap",
+    10
+   ]
+  ],
+  "scripts/clone_nma_review.py": [
+   [
+    "stdout_double_wrap",
+    34
+   ]
+  ],
+  "scripts/compare_adjudication_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    44
+   ]
+  ],
+  "scripts/compare_to_published_mas.py": [
+   [
+    "stdout_double_wrap",
+    20
+   ]
+  ],
+  "scripts/compute_trial_integrity.py": [
+   [
+    "stdout_double_wrap",
+    27
+   ]
+  ],
+  "scripts/compute_verdict_badges.py": [
+   [
+    "stdout_double_wrap",
+    25
+   ]
+  ],
+  "scripts/consolidate_ablation_medical_screen_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    54
+   ]
+  ],
+  "scripts/control_findable_on_known_registered_2026_08_25.py": [
+   [
+    "unanchored_substring",
+    86
+   ]
+  ],
+  "scripts/cross_app_nct_name_check.py": [
+   [
+    "unanchored_substring",
+    97
+   ]
+  ],
+  "scripts/cross_check_external.py": [
+   [
+    "stdout_double_wrap",
+    42
+   ]
+  ],
+  "scripts/ctgov_cross_check.py": [
+   [
+    "unanchored_substring",
+    83
+   ]
+  ],
+  "scripts/decontaminate_sglt2_clones.py": [
+   [
+    "stdout_double_wrap",
+    26
+   ]
+  ],
+  "scripts/demote_nma_to_pairwise.py": [
+   [
+    "stdout_double_wrap",
+    29
+   ]
+  ],
+  "scripts/estimand_bosentan_readings_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    130
+   ]
+  ],
+  "scripts/every_rank_from_objects.py": [
+   [
+    "unanchored_substring",
+    45
+   ]
+  ],
+  "scripts/every_rank_read.py": [
+   [
+    "unanchored_substring",
+    75
+   ]
+  ],
+  "scripts/evidence_completeness_audit.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ]
+  ],
+  "scripts/extend_alignment_gate.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/extract_apixaban_treatment_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    115
+   ]
+  ],
+  "scripts/extract_baselines.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ]
+  ],
+  "scripts/extract_to_ssot.py": [
+   [
+    "stdout_double_wrap",
+    38
+   ]
+  ],
+  "scripts/figure_audit.py": [
+   [
+    "stdout_double_wrap",
+    38
+   ]
+  ],
+  "scripts/figure_detectors.py": [
+   [
+    "stdout_double_wrap",
+    29
+   ]
+  ],
+  "scripts/find_correct_pmids.py": [
+   [
+    "stdout_double_wrap",
+    15
+   ]
+  ],
+  "scripts/fix_apixaban_acs.py": [
+   [
+    "stdout_double_wrap",
+    21
+   ]
+  ],
+  "scripts/fix_apixaban_acs_contamination.py": [
+   [
+    "stdout_double_wrap",
+    26
+   ]
+  ],
+  "scripts/fix_apixaban_acs_gate_round2.py": [
+   [
+    "stdout_double_wrap",
+    53
+   ]
+  ],
+  "scripts/fix_apixaban_acs_gate_round3.py": [
+   [
+    "stdout_double_wrap",
+    42
+   ]
+  ],
+  "scripts/fix_apixaban_acs_render.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "scripts/fix_estimandtype_for_negative_values.py": [
+   [
+    "stdout_double_wrap",
+    15
+   ]
+  ],
+  "scripts/fix_estimandtype_v2.py": [
+   [
+    "stdout_double_wrap",
+    8
+   ]
+  ],
+  "scripts/fix_evdata_null_map.py": [
+   [
+    "stdout_double_wrap",
+    16
+   ]
+  ],
+  "scripts/fix_export_h1_leakage.py": [
+   [
+    "stdout_double_wrap",
+    21
+   ]
+  ],
+  "scripts/fix_extraction_defects.py": [
+   [
+    "unanchored_substring",
+    79
+   ],
+   [
+    "unanchored_substring",
+    195
+   ],
+   [
+    "unanchored_substring",
+    199
+   ]
+  ],
+  "scripts/fix_false_green_zero_data.py": [
+   [
+    "stdout_double_wrap",
+    30
+   ]
+  ],
+  "scripts/fix_known_wrong_pmids.py": [
+   [
+    "stdout_double_wrap",
+    20
+   ]
+  ],
+  "scripts/fix_method_drift_v2.py": [
+   [
+    "stdout_double_wrap",
+    15
+   ]
+  ],
+  "scripts/fix_mislabelled_apps.py": [
+   [
+    "stdout_double_wrap",
+    79
+   ]
+  ],
+  "scripts/fix_nct_name_drift.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "scripts/fix_or_mislabelled_as_hr.py": [
+   [
+    "stdout_double_wrap",
+    12
+   ]
+  ],
+  "scripts/fix_p0_residuals.py": [
+   [
+    "unanchored_substring",
+    132
+   ],
+   [
+    "unanchored_substring",
+    174
+   ]
+  ],
+  "scripts/fix_prisma_identification.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/fix_python_none_in_js.py": [
+   [
+    "stdout_double_wrap",
+    11
+   ]
+  ],
+  "scripts/fix_review_findings.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/fix_review_title_template.py": [
+   [
+    "stdout_double_wrap",
+    24
+   ]
+  ],
+  "scripts/fix_script_tag_position.py": [
+   [
+    "stdout_double_wrap",
+    18
+   ]
+  ],
+  "scripts/fix_wave1_overcorrections.py": [
+   [
+    "stdout_double_wrap",
+    26
+   ]
+  ],
+  "scripts/fixtures/instrument/progress_writer.py": [
+   [
+    "stdout_double_wrap",
+    2
+   ]
+  ],
+  "scripts/fragility_index_check.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ]
+  ],
+  "scripts/g1_runtime_census.py": [
+   [
+    "stdout_double_wrap",
+    24
+   ]
+  ],
+  "scripts/generate_missing_protocols.py": [
+   [
+    "unanchored_substring",
+    235
+   ]
+  ],
+  "scripts/grim_benford_check.py": [
+   [
+    "stdout_double_wrap",
+    28
+   ]
+  ],
+  "scripts/id_candidates_read.py": [
+   [
+    "unanchored_substring",
+    48
+   ]
+  ],
+  "scripts/id_triage.py": [
+   [
+    "unanchored_substring",
+    75
+   ]
+  ],
+  "scripts/id_unregistered_read.py": [
+   [
+    "unanchored_substring",
+    67
+   ]
+  ],
+  "scripts/identity_by_registration_gate.py": [
+   [
+    "unanchored_substring",
+    56
+   ]
+  ],
+  "scripts/identity_gate.py": [
+   [
+    "stdout_double_wrap",
+    29
+   ],
+   [
+    "unanchored_substring",
+    90
+   ],
+   [
+    "unanchored_substring",
+    109
+   ]
+  ],
+  "scripts/inject_aact_baselines.py": [
+   [
+    "stdout_double_wrap",
+    13
+   ]
+  ],
+  "scripts/inject_advanced_panels.py": [
+   [
+    "stdout_double_wrap",
+    16
+   ]
+  ],
+  "scripts/inject_attestation_badges.py": [
+   [
+    "stdout_double_wrap",
+    10
+   ]
+  ],
+  "scripts/inject_bias_certainty.py": [
+   [
+    "stdout_double_wrap",
+    19
+   ]
+  ],
+  "scripts/inject_credit_block.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "scripts/inject_e156_claim_buttons.py": [
+   [
+    "stdout_double_wrap",
+    14
+   ]
+  ],
+  "scripts/inject_living_review.py": [
+   [
+    "stdout_double_wrap",
+    14
+   ]
+  ],
+  "scripts/inject_network_graph.py": [
+   [
+    "stdout_double_wrap",
+    7
+   ]
+  ],
+  "scripts/inject_nma_consistency.py": [
+   [
+    "stdout_double_wrap",
+    19
+   ]
+  ],
+  "scripts/inject_outcome_switching.py": [
+   [
+    "stdout_double_wrap",
+    5
+   ]
+  ],
+  "scripts/inject_prisma_flow.py": [
+   [
+    "stdout_double_wrap",
+    7
+   ]
+  ],
+  "scripts/inject_protocol_registry_row.py": [
+   [
+    "stdout_double_wrap",
+    13
+   ]
+  ],
+  "scripts/inject_r_validation.py": [
+   [
+    "stdout_double_wrap",
+    7
+   ]
+  ],
+  "scripts/inject_rob2_autofill.py": [
+   [
+    "stdout_double_wrap",
+    6
+   ]
+  ],
+  "scripts/inject_rob2_widget.py": [
+   [
+    "stdout_double_wrap",
+    5
+   ]
+  ],
+  "scripts/inject_robnma_transitivity.py": [
+   [
+    "stdout_double_wrap",
+    5
+   ]
+  ],
+  "scripts/inject_tier3_nma.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "scripts/inject_trials.py": [
+   [
+    "unanchored_substring",
+    159
+   ]
+  ],
+  "scripts/inject_verdict_badge.py": [
+   [
+    "stdout_double_wrap",
+    23
+   ]
+  ],
+  "scripts/internal_consistency_check.py": [
+   [
+    "stdout_double_wrap",
+    28
+   ]
+  ],
+  "scripts/join_populations_2026_09_01.py": [
+   [
+    "unanchored_substring",
+    234
+   ],
+   [
+    "unanchored_substring",
+    289
+   ]
+  ],
+  "scripts/k_consistency_gate.py": [
+   [
+    "stdout_double_wrap",
+    30
+   ]
+  ],
+  "scripts/lane_rob/apply_agyw_comparator_read_2026_08_30.py": [
+   [
+    "stdout_double_wrap",
+    64
+   ],
+   [
+    "unanchored_substring",
+    272
+   ]
+  ],
+  "scripts/lane_rob/apply_agyw_decision_context_2026_08_30.py": [
+   [
+    "stdout_double_wrap",
+    36
+   ]
+  ],
+  "scripts/lane_rob/apply_agyw_primary_read_2026_08_30.py": [
+   [
+    "stdout_double_wrap",
+    54
+   ],
+   [
+    "unanchored_substring",
+    268
+   ]
+  ],
+  "scripts/lane_rob/currency_query.py": [
+   [
+    "unanchored_substring",
+    168
+   ]
+  ],
+  "scripts/lane_rob/document_kind.py": [
+   [
+    "unanchored_substring",
+    81
+   ]
+  ],
+  "scripts/lane_rob/estimand_statement.py": [
+   [
+    "unanchored_substring",
+    68
+   ]
+  ],
+  "scripts/lane_rob/ni_provenance.py": [
+   [
+    "unanchored_substring",
+    149
+   ]
+  ],
+  "scripts/lint_expected_value_is_a_literal.py": [
+   [
+    "stdout_double_wrap",
+    28
+   ]
+  ],
+  "scripts/lint_identifier_pairing.py": [
+   [
+    "unanchored_substring",
+    166
+   ]
+  ],
+  "scripts/make_prisma_checklist.py": [
+   [
+    "stdout_double_wrap",
+    25
+   ]
+  ],
+  "scripts/map_miscitation_apps.py": [
+   [
+    "unanchored_substring",
+    75
+   ]
+  ],
+  "scripts/measure_join_stage_a_2026_08_25.py": [
+   [
+    "unanchored_substring",
+    116
+   ]
+  ],
+  "scripts/measure_join_stage_b_2026_08_25.py": [
+   [
+    "unanchored_substring",
+    131
+   ],
+   [
+    "unanchored_substring",
+    132
+   ],
+   [
+    "unanchored_substring",
+    135
+   ]
+  ],
+  "scripts/measure_recovery_against_p70_key_2026_08_25.py": [
+   [
+    "unanchored_substring",
+    204
+   ]
+  ],
+  "scripts/methodology/probe_rob_groundtruth.py": [
+   [
+    "stdout_double_wrap",
+    19
+   ]
+  ],
+  "scripts/methodology/screening_recall.py": [
+   [
+    "unanchored_substring",
+    115
+   ]
+  ],
+  "scripts/metric_consistency_triage.py": [
+   [
+    "unanchored_substring",
+    71
+   ]
+  ],
+  "scripts/migrate_effect_keys.py": [
+   [
+    "stdout_double_wrap",
+    24
+   ]
+  ],
+  "scripts/nct_databank_pmid_finder.py": [
+   [
+    "stdout_double_wrap",
+    27
+   ]
+  ],
+  "scripts/nma_r_validate_template.py": [
+   [
+    "stdout_double_wrap",
+    15
+   ]
+  ],
+  "scripts/null_count_refine.py": [
+   [
+    "stdout_double_wrap",
+    9
+   ]
+  ],
+  "scripts/partition_corpus.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "scripts/patch_docx_presentation.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/patch_mono_tables.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/patch_quota_autoprune.py": [
+   [
+    "stdout_double_wrap",
+    38
+   ]
+  ],
+  "scripts/patch_signals_adv.py": [
+   [
+    "stdout_double_wrap",
+    14
+   ]
+  ],
+  "scripts/pi_gap_check.py": [
+   [
+    "stdout_double_wrap",
+    21
+   ]
+  ],
+  "scripts/plant_claims.py": [
+   [
+    "stdout_double_wrap",
+    13
+   ]
+  ],
+  "scripts/populate_pmids.py": [
+   [
+    "unanchored_substring",
+    287
+   ]
+  ],
+  "scripts/prose_claim_gate.py": [
+   [
+    "stdout_double_wrap",
+    37
+   ]
+  ],
+  "scripts/prove_guard_fixes.py": [
+   [
+    "stdout_double_wrap",
+    15
+   ]
+  ],
+  "scripts/prove_vanish_invariant.py": [
+   [
+    "stdout_double_wrap",
+    27
+   ]
+  ],
+  "scripts/pubmed_nct_linkage_check.py": [
+   [
+    "unanchored_substring",
+    146
+   ]
+  ],
+  "scripts/quarantine_apps.py": [
+   [
+    "stdout_double_wrap",
+    13
+   ]
+  ],
+  "scripts/r25_retraction_watch.py": [
+   [
+    "unanchored_substring",
+    61
+   ]
+  ],
+  "scripts/r31_33_polish.py": [
+   [
+    "unanchored_substring",
+    123
+   ]
+  ],
+  "scripts/r6b_more_internal_checks.py": [
+   [
+    "unanchored_substring",
+    127
+   ]
+  ],
+  "scripts/r_validate.py": [
+   [
+    "stdout_double_wrap",
+    23
+   ]
+  ],
+  "scripts/reclassify_pmid_audit.py": [
+   [
+    "stdout_double_wrap",
+    19
+   ]
+  ],
+  "scripts/reclassify_pmid_v3.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "scripts/recompute_alirocumab_k8.py": [
+   [
+    "unanchored_substring",
+    217
+   ]
+  ],
+  "scripts/recount_rhythm_dual_read_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    76
+   ]
+  ],
+  "scripts/regression_check.py": [
+   [
+    "stdout_double_wrap",
+    26
+   ]
+  ],
+  "scripts/remove_predimedplus_fabricated.py": [
+   [
+    "stdout_double_wrap",
+    15
+   ]
+  ],
+  "scripts/repair_paper_reads_terribly_2026_08_24.py": [
+   [
+    "stdout_double_wrap",
+    70
+   ]
+  ],
+  "scripts/repair_published_comparison_rows_2026_08_21.py": [
+   [
+    "unanchored_substring",
+    108
+   ]
+  ],
+  "scripts/resolve_unresolved_pmids.py": [
+   [
+    "stdout_double_wrap",
+    21
+   ]
+  ],
+  "scripts/revert_wrong_pmid_fixes.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "scripts/run_all_checks.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ]
+  ],
+  "scripts/scan_k_statements.py": [
+   [
+    "stdout_double_wrap",
+    14
+   ]
+  ],
+  "scripts/screen_azilsartan_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    201
+   ]
+  ],
+  "scripts/screen_bococizumab_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    242
+   ]
+  ],
+  "scripts/screen_bosentan_split_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    261
+   ]
+  ],
+  "scripts/screen_colchicine_split_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    468
+   ],
+   [
+    "unanchored_substring",
+    474
+   ]
+  ],
+  "scripts/screen_harness.py": [
+   [
+    "unanchored_substring",
+    81
+   ]
+  ],
+  "scripts/search_recall_gate.py": [
+   [
+    "unanchored_substring",
+    47
+   ]
+  ],
+  "scripts/seed_ledger.py": [
+   [
+    "stdout_double_wrap",
+    20
+   ]
+  ],
+  "scripts/smart_pmid_corrector.py": [
+   [
+    "stdout_double_wrap",
+    29
+   ]
+  ],
+  "scripts/split_dabigatran_vte_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    183
+   ]
+  ],
+  "scripts/split_reject_verdicts_2026_08_24.py": [
+   [
+    "stdout_double_wrap",
+    9
+   ]
+  ],
+  "scripts/split_unassessable.py": [
+   [
+    "stdout_double_wrap",
+    21
+   ],
+   [
+    "unanchored_substring",
+    63
+   ]
+  ],
+  "scripts/subject_role_triage.py": [
+   [
+    "unanchored_substring",
+    57
+   ]
+  ],
+  "scripts/sweep_duplicate_statistics_2026_08_29.py": [
+   [
+    "except_swallows_import",
+    67
+   ]
+  ],
+  "scripts/sweep_grade_authority_shapes_2026_08_23.py": [
+   [
+    "stdout_double_wrap",
+    14
+   ]
+  ],
+  "scripts/sweep_subject_experimental.py": [
+   [
+    "stdout_double_wrap",
+    16
+   ],
+   [
+    "unanchored_substring",
+    53
+   ]
+  ],
+  "scripts/sweep_synthetic_fixtures.py": [
+   [
+    "stdout_double_wrap",
+    30
+   ]
+  ],
+  "scripts/sweep_unanchored_authority_2026_08_30.py": [
+   [
+    "except_swallows_import",
+    104
+   ]
+  ],
+  "scripts/synthesize_meta_comparison.py": [
+   [
+    "stdout_double_wrap",
+    8
+   ]
+  ],
+  "scripts/tier2_prose_regex_2026_09_01.py": [
+   [
+    "unanchored_substring",
+    467
+   ],
+   [
+    "unanchored_substring",
+    507
+   ]
+  ],
+  "scripts/triage_legacy_registrations_2026_08_23.py": [
+   [
+    "unanchored_substring",
+    86
+   ]
+  ],
+  "scripts/triage_multi_registration_candidates_2026_08_19.py": [
+   [
+    "unanchored_substring",
+    47
+   ]
+  ],
+  "scripts/trial_drug_match_triage.py": [
+   [
+    "unanchored_substring",
+    117
+   ]
+  ],
+  "scripts/uat_run.py": [
+   [
+    "stdout_double_wrap",
+    21
+   ]
+  ],
+  "scripts/update_ledger_round2.py": [
+   [
+    "stdout_double_wrap",
+    11
+   ]
+  ],
+  "scripts/update_ledger_round3.py": [
+   [
+    "stdout_double_wrap",
+    12
+   ]
+  ],
+  "scripts/verify_cochrane_export.py": [
+   [
+    "stdout_double_wrap",
+    4
+   ]
+  ],
+  "scripts/verify_decontamination.py": [
+   [
+    "stdout_double_wrap",
+    16
+   ]
+  ],
+  "scripts/verify_engine_metafor_parity.py": [
+   [
+    "stdout_double_wrap",
+    19
+   ]
+  ],
+  "scripts/verify_nma_panels.py": [
+   [
+    "stdout_double_wrap",
+    4
+   ]
+  ],
+  "scripts/verify_pmid_corrections.py": [
+   [
+    "stdout_double_wrap",
+    18
+   ]
+  ],
+  "scripts/verify_stats_tab.py": [
+   [
+    "stdout_double_wrap",
+    4
+   ]
+  ],
+  "scripts/verify_suite.py": [
+   [
+    "stdout_double_wrap",
+    4
+   ]
+  ],
+  "scripts/verify_then_write_provenance.py": [
+   [
+    "unanchored_substring",
+    54
+   ]
+  ],
+  "scripts/verify_tier_a.py": [
+   [
+    "stdout_double_wrap",
+    4
+   ]
+  ],
+  "scripts/verify_tier_b.py": [
+   [
+    "stdout_double_wrap",
+    4
+   ]
+  ],
+  "scripts/verify_two_new_panels.py": [
+   [
+    "stdout_double_wrap",
+    4
+   ]
+  ],
+  "scripts/wire_new_figs.py": [
+   [
+    "stdout_double_wrap",
+    3
+   ]
+  ],
+  "scripts/withdraw_attrpn_borrowed_control_pool_2026_08_23.py": [
+   [
+    "unanchored_substring",
+    155
+   ],
+   [
+    "unanchored_substring",
+    160
+   ]
+  ],
+  "ssot/add_availability_blocks.py": [
+   [
+    "stdout_double_wrap",
+    17
+   ]
+  ],
+  "ssot/add_f1000_fields.py": [
+   [
+    "stdout_double_wrap",
+    18
+   ]
+  ],
+  "ssot/apply_k4.py": [
+   [
+    "stdout_double_wrap",
+    16
+   ]
+  ],
+  "ssot/apply_question_pico_2026_08_30.py": [
+   [
+    "stdout_double_wrap",
+    37
+   ]
+  ],
+  "ssot/backfill_question_provenance_2026_08_31.py": [
+   [
+    "stdout_double_wrap",
+    33
+   ]
+  ],
+  "ssot/batch1_assess.py": [
+   [
+    "unanchored_substring",
+    139
+   ],
+   [
+    "unanchored_substring",
+    141
+   ],
+   [
+    "unanchored_substring",
+    143
+   ]
+  ],
+  "ssot/corpus_reconcile.py": [
+   [
+    "unanchored_substring",
+    111
+   ],
+   [
+    "unanchored_substring",
+    113
+   ],
+   [
+    "unanchored_substring",
+    115
+   ]
+  ],
+  "ssot/make_docx.py": [
+   [
+    "stdout_double_wrap",
+    22
+   ]
+  ],
+  "ssot/patch_f1000.py": [
+   [
+    "stdout_double_wrap",
+    19
+   ]
+  ],
+  "ssot/patch_v10.py": [
+   [
+    "stdout_double_wrap",
+    18
+   ]
+  ],
+  "ssot/patch_v10b.py": [
+   [
+    "stdout_double_wrap",
+    18
+   ]
+  ],
+  "ssot/patch_v15.py": [
+   [
+    "stdout_double_wrap",
+    10
+   ]
+  ],
+  "ssot/repair_effect_on_versus_2026_08_30.py": [
+   [
+    "stdout_double_wrap",
+    30
+   ]
+  ],
+  "ssot/sweep_addon_arms.py": [
+   [
+    "unanchored_substring",
+    374
+   ],
+   [
+    "unanchored_substring",
+    536
+   ]
+  ],
+  "ssot/validate_v2.py": [
+   [
+    "stdout_double_wrap",
+    23
+   ],
+   [
+    "unanchored_substring",
+    1962
+   ],
+   [
+    "unanchored_substring",
+    2239
+   ]
+  ],
+  "test_user_methodologist.py": [
+   [
+    "stdout_double_wrap",
+    16
+   ]
+  ],
+  "test_wcag_and_fixes.py": [
+   [
+    "stdout_double_wrap",
+    18
+   ]
+  ],
+  "tools/detect_double_count.py": [
+   [
+    "stdout_double_wrap",
+    26
+   ]
+  ],
+  "validate_all_apps.py": [
+   [
+    "stdout_double_wrap",
+    6
+   ]
+  ]
+ }
+}

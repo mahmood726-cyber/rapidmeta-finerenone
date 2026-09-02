@@ -82,6 +82,28 @@ python "$(git rev-parse --show-toplevel)/scripts/ssot_net_deletion_check.py" || 
 # class-3 staging guard
 sh "$(git rev-parse --show-toplevel)/.githooks/pre-commit-staging" || exit 1
 
+# FIRST, AND CHEAP, BECAUSE IT IS ABOUT THE FORM OF THE COMMIT RATHER THAN ITS CONTENT.
+# Four lanes stage into ONE index; at 02:00 tonight it held 52 staged paths from several
+# lanes at once. A pathspec-less `git commit` takes ALL of them. The same mechanism runs
+# backwards after a private-GIT_INDEX_FILE commit: the shared index goes one commit stale
+# and stages the INVERSE -- a deletion of the file just added -- which the next
+# pathspec-less commit from any lane would silently apply.
+#
+# It reads GIT_INDEX_FILE, which git sets differently per invocation (measured, not assumed:
+# `.git/index` pathspec-less, `next-index-*` with a pathspec, `.git/index.lock` for -a).
+# Fires only when >1 worktree shares the index AND something is staged.
+#   SHARED_INDEX_OK="reason" git commit ...   to proceed with the reason on the record.
+_L="$(mktemp)"; python "$(git rev-parse --show-toplevel)/scripts/lint_pathspecless_commit.py" > "$_L" 2>&1 || _refuse "$_L" "a pathspec-less commit would capture every staged path, including another lane's" "scripts/lint_pathspecless_commit.py"
+
+# SECOND, AND FOR THE WORST FAILURE SHAPE AVAILABLE: A HOOK THAT NAMES A SCRIPT THE
+# COMMIT DID NOT BRING. It exits non-zero, so EVERY commit fails, for EVERY lane, and the
+# offending file is the one that was never added -- there is no bad code anywhere to find.
+# Nearly shipped at 02:00 tonight by a push retry loop that re-read its inputs between
+# attempts: the hook gained a line naming a new lint, and the frozen file list predated it.
+# Resolved against the INDEX, never the filesystem -- during that near-miss the file WAS on
+# disk and simply not in the commit, and whoever clones does not have this disk.
+_L="$(mktemp)"; python "$(git rev-parse --show-toplevel)/scripts/lint_hook_references_resolve.py" > "$_L" 2>&1 || _refuse "$_L" "a hook invokes a script this commit does not carry" "scripts/lint_hook_references_resolve.py"
+
 _L="$(mktemp)"; python "$(git rev-parse --show-toplevel)/scripts/lint_subprocess_decode.py" > "$_L" 2>&1 || _refuse "$_L" "subprocess decode-hazard sites present" "scripts/lint_subprocess_decode.py"
 
 # HEREDOC MANGLING, both halves. The class recurred EIGHT times in one night against an author
@@ -283,3 +305,11 @@ _L="$(mktemp)"; python "$R/scripts/audit_procedural_constants_all_surfaces_2026_
 _L="$(mktemp)"; python "$R/scripts/gate_no_new_schema_synonym_2026_08_23.py" > "$_L" 2>&1 || _refuse "$_L" "a new spelling of a concept that already has one" "scripts/gate_no_new_schema_synonym_2026_08_23.py"
 
 _L="$(mktemp)"; python "$R/scripts/lint_collinear_protocol.py" > "$_L" 2>&1 || _refuse "$_L" "undeclared collinearity risk" "scripts/lint_collinear_protocol.py"
+
+# FOUR TRAPS THAT RECURRED WITH THE RULE ALREADY WRITTEN DOWN -- stdout double-wrap, unanchored
+# substring, control bytes from heredocs, and an ImportError swallowed by `except Exception:
+# continue`. A RULE RECALLED BY SITUATION FAILS WHEN THE SITUATION IS DISGUISED, so the defence
+# sits here and not in a document. Ratcheted: a file may not gain a NEW trap kind; the 322
+# already present are OWED, NOT CLEARED. --staged, because a tree-wide gate in a four-lane
+# worktree makes every lane's violation block every other lane's commit -- which happened.
+_L="$(mktemp)"; python "$R/scripts/lint_recurring_traps.py" --staged > "$_L" 2>&1 || _refuse "$_L" "a file gained a NEW recurring-trap violation above its baseline" "scripts/lint_recurring_traps.py"
