@@ -203,3 +203,46 @@ python scripts/comparator_seed/render_phase3.py
 Adding a field is adding rows to `TOPICS` in `harvest.py`. Nothing else changes — that is
 the test the adapter was built to pass. All scratch, caches and XML live on `C:`;
 `F:` had 255 MB free.
+
+---
+
+## Addendum — adjudicating the topic-side flags, and the hole the screen had
+
+**MEASURED.** The exact-token screen was replaced with a stemmed one (drop digits,
+singularise) after adjudication showed it had a hole, not just noise:
+
+| | exact-token screen | stemmed screen |
+|---|---|---|
+| comparators flagged of 40 | 18 | **22** |
+| true collisions caught (of 5) | **3** | **5** |
+
+The two it missed are the load-bearing ones. `COVID19_VACCINES` was missed for a review
+of *"heterologous and homologous covid-19 vaccine regimens"* — the scored key spells it
+`COVID19` (digit) and `VACCINES` (plural), the title yields `COVID` and `VACCINE` — while
+the **same generic token `VACCINE` flagged that review against five unrelated vaccine
+topics**. And `SGLT2I_HF` was missed entirely for PMC8510986, the highest-yield comparator
+in the whole set. **A screen that over-flags on a generic token while under-flagging the
+exact collision is not failing closed; it has a hole, and the over-flagging is what makes
+it look conservative.**
+
+`outputs/comparator_seed_topic_adjudication.json` records one decision per flagged pair,
+written as data:
+
+| verdict | n | effect |
+|---|---|---|
+| `COLLISION` | 5 | may not seed that topic |
+| `REVIEW` | 3 | intervention family overlaps, question differs — blocked, fail closed |
+| `NO_COLLISION` | 14 | flag is an artefact of a generic shared token (`AFRICA`, `TARGETED`, `FAILURE`, `DRUG`) |
+
+**MEASURED consequence: 57 of the 178 named missing trials (32%) sit on blocked
+comparators and cannot seed anything. 121 remain seedable** once the per-trial PICO
+mapping runs.
+
+### Explicitly not done
+
+**The per-trial PICO mapping (Phase 2's one model decision, 1,258 trials) has not been
+run.** It is the gate to ingest, and Phase 3 forbids ingest, so nothing downstream is
+blocked by its absence — but it is scope from the brief that is not delivered, and the
+`REVIEW` verdicts above are exactly what it would resolve. Codex was probed for the bulk
+work and returned nothing within 90 s on a single `codex exec` with stdin closed; one
+timeout is not proof a tool is dead, so it is recorded as unprobed rather than unavailable.

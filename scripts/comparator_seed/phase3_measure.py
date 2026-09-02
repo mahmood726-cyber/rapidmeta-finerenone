@@ -356,13 +356,22 @@ def main():
     generic = {"REVIEW", "TRIAL", "TRIALS", "STUDY", "STUDIES", "THERAPY", "PATIENTS",
                "DISEASE", "ACUTE", "CHRONIC", "RISK", "OUTCOME", "OUTCOMES", "CARDIAC",
                "HEART", "BLOOD", "CANCER", "ADULT", "ADULTS", "AUTO", "FULL", "NEW"}
+    # Exact token equality flagged DENGUE_VACCINE for a COVID review (generic token
+    # "VACCINE") and MISSED COVID19_VACCINES for the same review, because the scored key
+    # spells it COVID19 (digit) and VACCINES (plural) while the title yields COVID and
+    # VACCINE. A screen that over-flags on a generic token while under-flagging the exact
+    # collision is not failing closed, it has a hole. Normalise: drop digits, singularise.
+    def stem(tok):
+        return re.sub(r"\d+", "", tok).rstrip("S")
+
     topic_tokens = {}
     for key in fw_topics:
-        toks = {t for t in key.split("_") if len(t) >= 5 and t not in generic}
+        toks = {stem(t) for t in key.split("_") if len(stem(t)) >= 4 and t not in generic}
         if toks:
             topic_tokens[key] = toks
     for a in selected:
-        title_toks = set(re.findall(r"[A-Za-z]{5,}", (a["title"] or "").upper())) - generic
+        raw = set(re.findall(r"[A-Za-z0-9]{4,}", (a["title"] or "").upper())) - generic
+        title_toks = {stem(t) for t in raw if len(stem(t)) >= 4}
         hits = sorted(k for k, toks in topic_tokens.items() if toks & title_toks)
         a["topic_firewall"] = {
             "collides_with_scored_topics": hits,
