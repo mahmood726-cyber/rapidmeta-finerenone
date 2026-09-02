@@ -1,0 +1,68 @@
+{
+ "_doc": "PICO-level adjudication of the topic-side firewall flags. The token screen is a cheap over-inclusive filter; this file is the judgement it hands off to. One decision per comparator-vs-scored-topic collision, written as DATA. No number is touched by it: the only effect is whether a comparator may seed a topic.",
+ "_adjudicator": "claude-opus-5, in-session, reading comparator title + flagged scored-topic keys",
+ "_scale": {
+  "COLLISION": "the comparator's PICO overlaps a scored topic's PICO. It may NOT seed that topic. Firewall holds.",
+  "REVIEW": "intervention family or population overlaps but the question differs. Treated as BLOCKED (fail closed) until adjudicated per trial.",
+  "NO_COLLISION": "the flag is an artefact of a generic shared token; the subject matter does not overlap."
+ },
+ "_screen_performance": {
+  "flagged_by_stemmed_screen": 22,
+  "adjudicated_COLLISION": 5,
+  "adjudicated_REVIEW": 3,
+  "adjudicated_NO_COLLISION": 14,
+  "true_collisions_missed_by_the_PREVIOUS_exact_token_screen": [
+   "8510986 (SGLT2I_HF) - was CLEAR before stemming; the single highest-yield comparator in the set",
+   "9724446 (COVID19_VACCINES) - was flagged against five unrelated vaccine topics but not this one"
+  ],
+  "note": "Precision 8/22. Recall of the pre-fix screen was 3/5. A screen that over-flags on a generic token while under-flagging the exact collision is not failing closed; it has a hole."
+ },
+ "adjudications": [
+  {"pmcid": "8510986", "verdict": "COLLISION", "topic": "SGLT2I_HF",
+   "why": "SGLT2 inhibitors for cardiovascular outcomes in type 2 diabetes is the same drug class and overlapping outcome as the scored SGLT2i topic. Its 34 named missing trials may not seed that topic."},
+  {"pmcid": "10660972", "verdict": "COLLISION", "topic": "LIPID_HUB",
+   "why": "Lipid-lowering therapy on mortality and MACE is the scored lipid topic's question."},
+  {"pmcid": "12847066", "verdict": "COLLISION", "topic": "WATCHMAN_AMULET, WATCHMAN_LAAO_NMA",
+   "why": "Left atrial appendage occlusion technologies is exactly the scored WATCHMAN/Amulet comparison."},
+  {"pmcid": "9724446", "verdict": "COLLISION", "topic": "COVID19_VACCINES",
+   "why": "Heterologous and homologous covid-19 vaccine regimens overlaps the scored COVID-19 vaccine topic."},
+  {"pmcid": "8863502", "verdict": "COLLISION", "topic": "COVID19_VACCINES",
+   "why": "Duration of effectiveness of SARS-CoV-2 vaccines overlaps the scored COVID-19 vaccine topic."},
+
+  {"pmcid": "8725830", "verdict": "REVIEW", "topic": "ACS_ANTIPLATELET, ANTIPLATELET_NMA",
+   "why": "The intervention is an SSRI and the question is bleeding risk, not antiplatelet efficacy; but the included population is on antithrombotics and the trial sets may overlap. Blocked pending per-trial adjudication."},
+  {"pmcid": "6047341", "verdict": "REVIEW", "topic": "ACS_ANTIPLATELET, ANTIPLATELET_NMA, TICAGRELOR_MONO",
+   "why": "Dual versus mono antiplatelet therapy is the same intervention family as the scored antiplatelet topics; the population is stroke/TIA rather than ACS. Blocked pending per-trial adjudication."},
+  {"pmcid": "9598625", "verdict": "REVIEW", "topic": "CARBAPENEM_RESISTANT_ABX",
+   "why": "Therapeutic drug monitoring of antimicrobials could share trials with the scored carbapenem-resistant antibiotic topic. Blocked pending per-trial adjudication."},
+
+  {"pmcid": "10439079", "verdict": "NO_COLLISION", "topic": "HFPEF_DRUGS, OBESITY_DRUGS, SMA_TREATMENTS_BROAD",
+   "why": "Dilated cardiomyopathy is not HFpEF, obesity or SMA. Flagged on the generic tokens DRUG/TREATMENT."},
+  {"pmcid": "9580135", "verdict": "NO_COLLISION", "topic": "HFPEF_DRUGS, OBESITY_DRUGS, HEAD_NECK_*",
+   "why": "Sulfonylureas versus low-hypoglycaemic-risk agents in type 2 diabetes. Flagged on DRUG and on HEAD in 'head-to-head'."},
+  {"pmcid": "12457060", "verdict": "NO_COLLISION", "topic": "BEMPEDOIC_ACID, HFPEF_DRUGS, OBESITY_DRUGS",
+   "why": "Magnesium bioresorbable coronary scaffolds. No shared PICO; flagged on DRUG and ACID."},
+  {"pmcid": "5057466", "verdict": "NO_COLLISION", "topic": "HFNC_NIV_RESP_FAILURE",
+   "why": "Systems of care for heart failure. Flagged on the token FAILURE."},
+  {"pmcid": "8984054", "verdict": "NO_COLLISION", "topic": "CRYPTOCOCCAL_MENINGITIS_AFRICA, SEVERE_PEDIATRIC_FEBRILE_AFRICA, CGRP_MIGRAINE_PREVENT",
+   "why": "Technology for hypertension in sub-Saharan Africa. Flagged on AFRICA and PREVENT."},
+  {"pmcid": "7222906", "verdict": "NO_COLLISION", "topic": "VITAMIN_C_THIAMINE_SEPSIS",
+   "why": "Rehospitalisation rate in sepsis survivors is prognostic, not an intervention comparison. Same condition, no shared intervention."},
+  {"pmcid": "5787787", "verdict": "NO_COLLISION", "topic": "TXA_NONCARDIAC_SURGERY",
+   "why": "Mechanical bowel preparation in colorectal surgery. Flagged on SURGERY."},
+  {"pmcid": "9137992", "verdict": "NO_COLLISION", "topic": "HFNC_NIV_RESP_FAILURE, SMA_TREATMENTS_BROAD",
+   "why": "Antibiotic treatment-failure outcome definitions. Flagged on FAILURE and TREATMENT."},
+  {"pmcid": "11637296", "verdict": "NO_COLLISION", "topic": "COVID19_VACCINES, DENGUE_VACCINE, MALARIA_VACCINE, HPV_VACCINE_SCHEDULES, MPOX_VACCINE_NMA",
+   "why": "Enhanced influenza vaccines in older adults. Influenza is not among the scored vaccine topics; flagged on the generic token VACCINE."},
+  {"pmcid": "9918759", "verdict": "NO_COLLISION", "topic": "COVID_ORAL_ANTIVIRALS, SMA_TREATMENTS_BROAD",
+   "why": "Topical Chinese herbal compound for oral candidiasis. Flagged on ORAL and TREATMENT."},
+  {"pmcid": "5828349", "verdict": "NO_COLLISION", "topic": "CRYPTOCOCCAL_MENINGITIS_AFRICA, SEVERE_PEDIATRIC_FEBRILE_AFRICA",
+   "why": "Prevalence of STIs and bacterial vaginosis in sub-Saharan Africa. Flagged on AFRICA."},
+  {"pmcid": "13374465", "verdict": "NO_COLLISION", "topic": "AML_TARGETED, CRC_TARGETED_BROAD, IGAN_TARGETED_BROAD, NSCLC_TARGETED_RARE_DRIVER, CHOLANGIO_TARGETED",
+   "why": "HIV testing interventions among long-distance truck drivers. Flagged on the token TARGETED, which in the scored keys means molecularly targeted oncology therapy."},
+  {"pmcid": "6373524", "verdict": "NO_COLLISION", "topic": "CRYPTOCOCCAL_MENINGITIS_AFRICA, SEVERE_PEDIATRIC_FEBRILE_AFRICA",
+   "why": "Antiretroviral therapy adherence by age in Africa. Flagged on AFRICA."},
+  {"pmcid": "12213325", "verdict": "NO_COLLISION", "topic": "EOSINOPHILIC_DISEASES_BROAD, SMA_TREATMENTS_BROAD",
+   "why": "Health education for treatment adherence in chronic communicable disease. Flagged on DISEASE and TREATMENT."}
+ ]
+}
