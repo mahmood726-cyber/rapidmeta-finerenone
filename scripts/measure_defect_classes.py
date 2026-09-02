@@ -151,3 +151,79 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+# ===========================================================================================
+# ADDED 2026-09-03, from reviews 9-15. Two measurements with precisely located emitters.
+# ===========================================================================================
+
+_ROW = re.compile(r"<td>(P\d+_[a-z0-9_]+)</td><td><strong>([A-Z\- ]+)</strong></td>", re.S)
+_NO_SEARCH = re.compile(r"No systematic search was run|No bibliographic search", re.I)
+_TWO_TRIAL = "named two-trial programme"
+
+
+def measure_p1_against_the_banner(root: Path = ROOT):
+    """P1_executed_search HELD on a page whose OWN prose says no search was run.
+
+    THE PAGE IS HONEST AND THE MARKER IS NOT. The banner at ssot/projectors.py:545 is a
+    deliberate NOT-READY disclosure -- "Nothing on this page should be read as though a
+    systematic search had been performed" -- and it is CORRECT. It fires when
+    `search.strategy` is absent. p1_executed_search reads `search.databases`. Two keys on
+    one block, and nothing asserted they agree.
+
+    The direction matters: the banner is protected, the marker is the defect.
+    """
+    hits, with_table, without_table = [], 0, 0
+    for page in served_pages(root):
+        raw = page.read_text(encoding="utf-8", errors="replace")
+        rows = {m[0]: m[1].strip() for m in _ROW.findall(raw)}
+        # POSITIVE PROPERTY, and both states counted. `if not rows: continue` drops a page
+        # out of the denominator without anyone deciding that it should, which is how a
+        # reach figure comes to wear a coverage figure's clothes.
+        carries_the_table = bool(rows)
+        if carries_the_table:
+            with_table += 1
+            if rows.get("P1_executed_search") == "HELD" and _NO_SEARCH.search(rendered(raw)):
+                hits.append(page.name)
+        else:
+            without_table += 1
+    return {"pages_with_property_table": with_table,
+            "pages_without_property_table": without_table,
+            "contradicted": sorted(hits)}
+
+
+def measure_two_trial_sentence(root: Path = ROOT):
+    """A hardcoded topic-specific sentence emitted corpus-wide, checked against real k.
+
+    `ssot/projectors.py:545` writes "The included set is a named two-trial programme" for
+    EVERY topic whose search declares no strategy. It is a module constant; the count two
+    is not read from anything.
+    """
+    page_map = json.loads((root / "ssot" / "PAGE_MAP.json").read_text(encoding="utf-8"))
+    rendering, contradicting, unresolved, no_k = [], [], [], []
+    for page in served_pages(root):
+        if _TWO_TRIAL not in rendered(page.read_text(encoding="utf-8", errors="replace")):
+            continue
+        rendering.append(page.name)
+        rel = page_map.get(page.name)
+        resolves = bool(rel) and (root / rel).exists()
+        if resolves:
+            obj = json.loads((root / rel).read_text(encoding="utf-8"))
+            k = (obj.get("k_cascade") or {}).get("k_included_in_object")
+            if isinstance(k, int):
+                if k != 2:
+                    contradicting.append({"page": page.name, "k_included_in_object": k})
+            else:
+                # THREE STATES, NOT TWO. An object that resolves but records no
+                # k_included_in_object cannot confirm OR contradict the sentence. The first
+                # version of this function folded it into "object_resolves" and would have
+                # reported 146 checked against 13 contradicting -- reading 133 unreadable
+                # objects as agreement.
+                no_k.append(page.name)
+        else:
+            unresolved.append(page.name)
+    return {"rendering_the_sentence": len(rendering),
+            "checkable": len(rendering) - len(unresolved) - len(no_k),
+            "contradicting_their_own_k": contradicting,
+            "records_no_k_so_not_checkable": len(no_k),
+            "no_object_so_not_checkable": len(unresolved)}

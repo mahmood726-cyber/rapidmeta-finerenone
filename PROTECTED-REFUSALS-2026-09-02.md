@@ -20,6 +20,7 @@ pages (root-level `*.html`); page lists are in `scripts/baselines/defect_class_b
 | R7 | LDL-C flagged as a SURROGATE | The endpoint is not the outcome patients experience, and the page says so | 3 |
 | R8 | `Submission readiness: NOT READY`, computed from the object's own state | Every `NOT READY` flag was found correct by reviewers. It is computed, not a fixed disclaimer | 150 |
 | R9 | No conversion between effect measures anywhere | Converting OR to SMD, or pooling across measures, is the substitution class this project audits for | 1 |
+| R10 | **"No systematic search was run (no attestation can discharge this) — The included set is a named two-trial programme rather than the yield of a database search. Nothing on this page should be read as though a systematic search had been performed."** | Added 2026-09-03, and it is the sharpest case in this file. The banner is HONEST, it is CORRECT, and it tells the reader exactly what to discount. **Our own `P1_executed_search` marker contradicts it on 17 of the 19 pages that carry both** — and the marker is the defect, not the banner. A cleanup pass that "resolved" this contradiction by removing the sentence would delete the only true statement of the pair. Its second clause is separately wrong (see register C7: the "two-trial" count is a module constant), which is a reason to fix the count, not to drop the disclosure | 147 |
 
 ## The rule this lane operates under
 
