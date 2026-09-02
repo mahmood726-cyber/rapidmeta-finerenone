@@ -48,7 +48,7 @@ is the point: it makes FIX β's justification structural rather than anecdotal.
 | id | class | emitter | status | blast radius | date |
 |---|---|---|---|---|---|
 | B1 | A `P*` property ASSERTED `HELD`, computed from nothing that could contradict it | `ssot/build_to_standard.py` -> `ssot/page_properties.py` | **FIXED** | **MEASURED: 11 flips on 10 of the 18 served pages whose object resolves** | 2026-09-02 |
-| B2 | `P1_executed_search` **HELD** on a page whose own prose says **"No systematic search was run"** | the banner at `ssot/projectors.py:545` reads `search.strategy`; P1 reads `search.databases` -- two keys on one block, nothing asserting they agree | OPEN | **MEASURED: 17 of the 19 marker pages (89%).** Reviewers named azilsartan and bempedoic; the corpus-wide figure is new here | 2026-09-03 |
+| B2 | `P1_executed_search` **HELD** on a page whose own prose says **"No systematic search was run"** | the banner at `ssot/projectors.py:545` reads `search.strategy`; P1 reads `search.databases` -- two keys on one block, nothing asserting they agree | **FIXED** -- P1 now reads `search.strategy`; gate `property_recompute_gate.py`, plant in `test_properties_can_refuse.py` | **MEASURED: 17 of the 19 marker pages (89%).** Reviewers named azilsartan and bempedoic; the corpus-wide figure is new here | 2026-09-03 |
 | B3 | **A GATE THAT IS OPT-IN IS NOT A GATE.** Hooks run only where `core.hooksPath` is set by hand, so a fresh clone is ungated and the lanes that arm their hooks inherit the defects of the lanes that did not | `.githooks/README.md`, `gates/WHAT-REMAINS-DISCIPLINE.md:104` | OPEN -- trunk-clearing lane | CLAIMED by that lane: three sequential blockers in one day, none of them theirs | 2026-09-03 |
 | B4 | **A CHAIN THAT SHORT-CIRCUITS AT THE FIRST REFUSAL** reports a property of its first check only | hook chain runner | OPEN -- same lane | caused two false "the sibling lane cleared it" reports | 2026-09-03 |
 | B5 | **A GATE THAT WOULD REFUSE A COMMIT, ON A COMMIT ALREADY LANDED** -- the password class in infrastructure form | trunk | OPEN | the gate names the introducing shas itself: `e1ccb9f9c`, `66c1ed934` | 2026-09-03 |
@@ -94,7 +94,7 @@ reviews 9-15 supplied the evidence for all three:
 
 | id | class | status | blast radius | date |
 |---|---|---|---|---|
-| **W1** | **CONFLATING "OUR DERIVATION IS INVALID" WITH "THE EFFECT IS UNSUPPORTED"** | OPEN -- **template rule to be written before the next withdrawal** | cangrelor: we published "the correction reverses the conclusion" and "the trials' own primary outcomes do not establish a benefit". The stored 2x2 was corrupt -- mortality numerators over composite denominators -- and **the withdrawal was RIGHT**. But `OR 0.81 (0.71-0.91)` is independently correct and reproduces the prespecified patient-level Lancet analysis at n=24,910. **A false warning discredits the true ones** | 2026-09-03 |
+| **W1** | **CONFLATING "OUR DERIVATION IS INVALID" WITH "THE EFFECT IS UNSUPPORTED"** | **PARTIAL** -- object side GATED by `withdrawal_states_both_halves_gate.py`; **MEASURED: 151 withdrawal reasons read, 111 on 98 topics say nothing about what survives, and 2 of those also assert the effect is gone** (anidulafungin-candida, olmesartan-htn). **The projector half is still OPEN** -- see the correction below | cangrelor: we published "the correction reverses the conclusion" and "the trials' own primary outcomes do not establish a benefit". The stored 2x2 was corrupt -- mortality numerators over composite denominators -- and **the withdrawal was RIGHT**. But `OR 0.81 (0.71-0.91)` is independently correct and reproduces the prespecified patient-level Lancet analysis at n=24,910. **A false warning discredits the true ones** | 2026-09-03 |
 | **W2** | **A CORRECTION THAT INTRODUCES A NEW ERROR** | OPEN | the same cangrelor fix replaced a corrupt k=3 with a k=2 pool that wrongly discards CHAMPION-PHOENIX, justified by A7 | 2026-09-03 |
 | **W3** | **A CLEAN RESULT FROM AN UNVALIDATED HARNESS** | OPEN | the gate lane retracted a real diagnosis after a "clean" reproduction whose harness set an extra variable that MASKED the behaviour -- **the withdrawal was the error** -- and its diagnostic then flipped a clone to `core.bare`. **Rule: probes belong on a throwaway copy** | 2026-09-03 |
 | **W4** | **A LESSON LEARNED AT THE INSTANCE AND NOT AT THE CLASS** | OPEN | bempedoic excluded CLEAR Harmony for "no MACE outcome", found the registry DOES list adjudicated MACE, corrected the reason to population -- **then repeated the identical error on Serenity by staying inside the registry** | 2026-09-03 |
@@ -105,7 +105,7 @@ reviews 9-15 supplied the evidence for all three:
 
 | id | class | status | blast radius | date |
 |---|---|---|---|---|
-| **P1x** | **THE EXECUTED ANALYSIS DOES NOT FOLLOW OUR OWN STORED PROTOCOL** | OPEN -- **highest-value remaining gate; fully oracle-free, both sides in our repo** | CAB-LA: the protocol says log-HR scale, DerSimonian-Laird, HKSJ t(k-1) primary; the page serves crude risk ratios, REML, ordinary Wald primary with HKSJ demoted to sensitivity. **No amendment recorded for any of the four.** The estimand also drifted across our own git history: the benchmark records `HR 0.22, DL log-HR, two primary publications`; the page serves `RR 0.208, REML, registry-only` | 2026-09-03 |
+| **P1x** | **THE EXECUTED ANALYSIS DOES NOT FOLLOW OUR OWN STORED PROTOCOL** | **GATED** -- `protocol_conformance_gate.py`, fully oracle-free. **MEASURED: 127 topics comparable, 9 DIFFER from their own protocol with 0 dated amendments** (arni-hfref, cab-prep-hiv-review, doac-af-review, finerenone-cv, incretin-hfpef-review, iv-iron-hf, nirsevimab-infant-rsv-review, sglt2-hf, sglt2-mace-cvot-review); 119 have an axis NOT ESTABLISHED, counted not passed; 25 not comparable and named | CAB-LA: the protocol says log-HR scale, DerSimonian-Laird, HKSJ t(k-1) primary; the page serves crude risk ratios, REML, ordinary Wald primary with HKSJ demoted to sensitivity. **No amendment recorded for any of the four.** The estimand also drifted across our own git history: the benchmark records `HR 0.22, DL log-HR, two primary publications`; the page serves `RR 0.208, REML, registry-only` | 2026-09-03 |
 | **P2x** | **THE LINKED PROTOCOL IS FOR A DIFFERENT QUESTION** | OPEN | ceftaroline's protocol covers "Adults registered for MRSA", allows placebo or any active comparator, any primary outcome, and includes an observational study. **Worse than P1x: there the protocol was ignored; here it is not this review's at all** | 2026-09-03 |
 | **P3x** | **WE REPLACED THE TRIALS' PRESPECIFIED FRAMEWORK WITHOUT JUSTIFYING IT** | OPEN | all three ceftaroline trials are non-inferiority with a `-10 pp` risk-difference margin; we substituted a superiority-oriented risk-ratio headline. Corrected RDs: MITT `+8.48 pp (-1.82 to +18.77)`, CE `+7.85 pp (-1.21 to +16.91)` -- both lower limits above `-10 pp`. **The defensible statement is "non-inferiority is supported; superiority is not robust under our own conservative rule", and we said neither** | 2026-09-03 |
 | **P4x** | **A DECLARED METHOD CONTRADICTED BY ITS OWN USE** | OPEN | ceftaroline: the house variance-floor rule gives `RR 1.1048 (0.9868-1.2371)`, **crossing 1**, while GRADE's "no imprecision downgrade" is justified on the UNFLOORED HKSJ `1.0356-1.1787`. A policy is a claim; reaching a verdict on a different variant is the same class as a refusal with a false reason | 2026-09-03 |
@@ -149,7 +149,7 @@ One shape: two surfaces from different sources with nothing asserting they agree
 | id | class | status | blast radius | date |
 |---|---|---|---|---|
 | C-shape | Two surfaces rendered from different sources, unreconciled | PARTIAL, gated | **MEASURED: 1 FAIL of 155 objects** | 2026-09-02 |
-| **C7** | **A HARDCODED TOPIC-SPECIFIC SENTENCE EMITTED CORPUS-WIDE** | OPEN | **MEASURED: `ssot/projectors.py:545` writes "the included set is a named two-trial programme" onto 146 of 1464 served pages. 18 are checkable; 13 of those 18 contradict their own k** (k = 1, 3, 4, 5, 6, 7, 8). 128 record no `k_included_in_object` and are NOT CHECKABLE -- not passes. This is the "stated trial count contradicts actual k" class (**5 sightings**) with its emitter located | 2026-09-03 |
+| **C7** | **A HARDCODED TOPIC-SPECIFIC SENTENCE EMITTED CORPUS-WIDE** | **FIXED** -- the count is read from `k_cascade.k_included_in_object`, and a topic recording no k renders no number; negative test `test_no_invented_trial_count.py` fires against the parent commit | **MEASURED: `ssot/projectors.py:545` writes "the included set is a named two-trial programme" onto 146 of 1464 served pages. 18 are checkable; 13 of those 18 contradict their own k** (k = 1, 3, 4, 5, 6, 7, 8). 128 record no `k_included_in_object` and are NOT CHECKABLE -- not passes. This is the "stated trial count contradicts actual k" class (**5 sightings**) with its emitter located | 2026-09-03 |
 | **C8** | **INTERNAL LANE COMMENTARY ON A READER SURFACE** | OPEN | **4 sightings, running both ways.** CAB-LA carries model commentary about assessor behaviour across 22-23 other topics and about the gepotidacin review; ceftaroline carries "Class 94", AGYW/CAB text and 239/243 model-audit output. First sighting where INTERNAL DIAGNOSTIC OUTPUT reached a reader. **A different emitter from the ungated `else`** | 2026-09-03 |
 | **C9** | **MUTUALLY EXCLUSIVE STATEMENTS OF THE SAME FACT ON ONE PAGE** | OPEN | AGYW carries three search statements at once: "No systematic search was run", a documented 30 Aug 2026 PubMed/Europe PMC/registry search of >1,400 records, and "No bibliographic search" -- plus source counts that disagree (Europe PMC 1000/1443 vs 1443; PubMed 374 vs 372). cangrelor carries four analysis states at once: a withdrawn k=3, an undeclared k=2, a forest-plot area, and text saying nothing is pooled | 2026-09-03 |
 | **C10** | **A VISUAL FALSEHOOD** | OPEN | the ceftaroline forest plot draws all three study squares the SAME SIZE although the inverse-variance weights differ materially. **A figure that misrepresents weighting is a false statement a reader cannot check by reading the numbers** | 2026-09-03 |
@@ -199,6 +199,23 @@ One shape: two surfaces from different sources with nothing asserting they agree
 | **T3** | **A VALIDATION THAT DOES NOT VALIDATE THE DENOMINATORS** | OPEN | CAB-LA calls Wang 2023 an independent validation on matching RR and I², **while the page itself notices a ~1,250/arm denominator discrepancy** (`5161/5129` against our ~3,900/arm) and still calls it validation | 2026-09-03 |
 
 ---
+
+### A correction to the brief, on W1
+
+**The cangrelor OBJECT does not have this defect.** It already carries a `withdrawn_note`
+headed "WHAT IS CONFIRMED, STATED AS PROMINENTLY AS WHAT IS WRONG", and a findings block
+recording that the withdrawn `OR 0.81 (0.71-0.91)` reproduces Steg et al. 2013, a
+prespecified pooled analysis of patient-level data from all three CHAMPION trials
+(n=24,910). The served page carries that reproduction too.
+
+What the page does NOT carry is the "WHAT IS CONFIRMED" framing, and what it does carry --
+early and unqualified -- is "the correction reverses the conclusion". **So the defect is a
+missing QUALIFICATION on the strongest sentence, not a missing fact, and it lives in the
+projector's selection rather than in the object.** cangrelor-pci-review is consequently the
+gate's NEGATIVE control. The projector half remains OPEN.
+
+The same page also carries "that is not recoverable from aggregates" verbatim on the served
+surface, which confirms A7 by rendering rather than by report.
 
 ## What is NOT fixed
 
