@@ -1,4 +1,15 @@
 # -*- coding: utf-8 -*-
+# KNOWN_NEGATIVE CONTROL -- EXECUTABLE, IN THIS FILE: --selftest.
+#   4 positives       one input per detector, each built to trip it; the selftest REFUSES if
+#                     any detector reports clean, because a detector that has only ever
+#                     returned negatives is indistinguishable from a broken one
+#   5 known negatives the folded arms -- a rebind guarded by __main__, a rebind inside a
+#                     function, a guarded rebind in a module-level try -- MUST NOT fire
+#   2 coverage        an UNREADABLE and an UNPARSABLE file MUST be named, not silently
+#                     dropped, because a file that was not read was not checked
+#   python scripts/lint_recurring_traps.py --selftest
+# A count without a measured precision is not a finding.
+
 """Four traps that recurred WITH THE RULE ALREADY WRITTEN DOWN. Now checks in the path.
 
     stdout double-wrap        5 occurrences, each time "it looked like a different situation"

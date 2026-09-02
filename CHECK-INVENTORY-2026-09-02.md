@@ -244,3 +244,112 @@ passed everything.
 
 Fixed to resolve the repo from `cwd` (where git runs a hook), and re-verified **in the clone
 that exposed it**. Nothing local could have found this; only the read-back did.
+
+---
+
+# The frozen-tree rule was wrong, and it nearly deleted another lane's work
+
+The rule as first written — *a retry loop must freeze its CONTENT, not its filenames* — was
+corrected once to **freeze the tree**. That correction is right about idempotency and
+**dangerous about everything else**, and the implementation proved it within minutes.
+
+**A tree is a full snapshot of the whole repository.** `git commit-tree <frozen-tree> -p
+<new-parent>` does not merge: it declares that the repository looks exactly like the frozen
+snapshot. Every file the new parent added since the snapshot is **deleted**, silently, with
+no conflict and no warning — the commit looks like a normal three-file change in its message
+and is a mass deletion in its diff.
+
+Measured, not hypothesised. Attempt 1 lost the race; attempt 2 re-parented the same frozen
+tree onto the new main and produced commit `2b3a9d0f0`:
+
+```
+frozen tree  1a7b641c6   scripts/methodology files: 18
+current main 9c309906d   scripts/methodology files: 20
+
+git diff --stat 9c309906d 2b3a9d0f0
+  scripts/methodology/aact_sweep.py            221 ------
+  scripts/methodology/aact_sweep_result.json   744 ------
+  .../FINDING-ingestion-not-retrieval.md       160 ++---
+  6 files changed, 145 insertions(+), 1063 deletions(-)
+```
+
+**1,063 deletions of another lane's work, in a commit whose message describes three files.**
+It did not land only because it lost the race too. That is luck, not a control.
+
+### The correct form: freeze the BLOBS, not the tree
+
+| freeze | idempotent? | safe against a moving parent? |
+|---|---|---|
+| file **paths** | no — `update-index` re-reads contents each attempt | yes |
+| whole **tree** | yes | **no — deletes everything the new parent added** |
+| **blobs** of your own files | yes | yes |
+
+Capture each file's blob once with `git hash-object -w`, then on every attempt: `read-tree`
+the **current** main, `update-index --cacheinfo` each frozen blob onto its path, `write-tree`,
+`commit-tree`. The base is always current; only your own paths are pinned.
+
+> **A retry must pin what it is CHANGING, never what it is CHANGING IT AGAINST.** Freezing
+> the base is how a retry turns into a revert.
+
+`ENFORCEMENT: RULE ONLY` — no pre-commit hook can see how a retry loop was written. What a
+hook *can* see is the consequence, and a mass deletion is exactly what
+`ssot_net_deletion_check.py` already refuses. That is why the consequence-caught column
+matters: the rule is unenforceable and its worst outcome is already gated.
+
+---
+
+# `SCOPE: DIFF` vs `SCOPE: TREE` — the column that decides where a check belongs
+
+Measured on the hook/shell-wired checks:
+
+| scope | count |
+|---|---|
+| **TREE** | 23 |
+| **BOTH** | 4 |
+| **DIFF** | **1** |
+| UNKNOWN (classifier cannot tell) | 26 |
+
+**Exactly one hook-wired check is diff-scoped. At least 27 scan the tree** — a floor, not a
+total, because 26 are unclassified.
+
+That single ratio explains two separate problems that were being diagnosed apart:
+
+1. **The chain runs 30–77 minutes** (one gate 178s, another 486s). A pre-push chain that
+   takes an hour is not a gate, it is a **queue** — and a queue makes every *wall*
+   indistinguishable from a *race*. Five lanes spent hours believing they were losing races
+   to a moving main while one gate was refusing outright. The slowness is not incidental to
+   the misdiagnosis; **it destroys the evidence that would separate the two explanations.**
+
+2. **A tree-scanning gate frozen against a baseline penalises the most up-to-date lane and
+   exempts the most stale one.** A lane 304 commits behind sails through, because the
+   offending file is not in its tree. A fully merged lane is stopped for work it did not do,
+   and nothing in its own diff explains why — the hardest failure of all to attribute.
+
+> This lane pushed successfully **because it had integrated least.** That is the argument
+> for this column in one sentence.
+
+### The remedy is one change
+
+**Tree-scanning gates belong in CI on `main`**, where the tree is the thing being judged and
+one machine pays the cost once. **Diff-scoped checks stay in the hook**, fast, judging only
+what the lane actually did. The column tells you which is which; today the hook holds 27 of
+the wrong kind and 1 of the right kind.
+
+---
+
+# When did it last fail: `51 ANSWERABLE / 613 NO EVIDENCE EITHER WAY / 664 total`
+
+`scripts/check_ledger.py` records a refusal at the one place that already knows both the gate
+and the verdict — `_refuse` in the pre-commit hook. That makes the column answerable for the
+**51 hook-wired** checks, from the moment it was wired.
+
+For the other **613 there is no evidence either way.**
+
+> They are **not** "613 dead". *No recorded failure* is not the same fact as *cannot fail*,
+> and collapsing those two is the folding error corrected six times in this file already.
+> The indistinguishability **is** the finding: it is exactly how `rebuild_guard.py`, four
+> unfailable `*_gate.py` files, and a CI step gated on a path that never matched all went
+> unnoticed while everything around them stayed green.
+
+An empty ledger means **nothing has been observed in this working copy** — never that nothing
+has failed. It starts empty in every fresh clone.

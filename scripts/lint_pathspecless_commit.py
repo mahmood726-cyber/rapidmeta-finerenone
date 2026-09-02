@@ -1,4 +1,16 @@
 # -*- coding: utf-8 -*-
+# KNOWN_NEGATIVE CONTROL -- EXECUTABLE, AND IT LIVES IN THIS FILE: --selftest.
+#   [1] positive       pathspec-less `git commit -m ...`  MUST be refused
+#   [2] known negative `git commit -- b.txt`              MUST NOT be refused
+#   [3] known negative SHARED_INDEX_OK override           MUST NOT be refused
+#   [4] known negative a SINGLE-worktree repo, nothing staged: MUST stay silent
+# Measured on REAL commits in a REAL two-worktree repo the selftest builds, so the rate is
+# re-measured on every run rather than quoted from memory. The negatives are the load-bearing
+# half: this check refusing everything would be as useless as it refusing nothing, and case
+# [4] is the one a fresh clone caught -- see the cwd note below.
+#   python scripts/lint_pathspecless_commit.py --selftest
+# A count without a measured precision is not a finding.
+
 """Refuse a pathspec-less `git commit` in a shared worktree, and NAME what it would capture.
 
 TWO NEAR-MISSES IN ONE NIGHT, FROM ONE MECHANISM, AND THE DEFENCE WAS A PARAGRAPH BEING
@@ -42,6 +54,20 @@ Override, with the reason on the record:
 
 Read-only. Exit 1 refuses. `--selftest` builds a real two-worktree repo and proves that this
 refuses one form, passes the other, and honours the override.
+
+
+LOAD-BEARING, NOT A BACKSTOP. Two routes exist for committing in a shared worktree and each
+trades one staleness mode for another:
+
+    shared index          goes one commit stale after a private-GIT_INDEX_FILE commit, so it
+                          stages the INVERSE of what was just committed
+    --no-checkout worktree  an EMPTY TREE against a FULL HEAD, so the index describes
+                          thousands of files that are not there
+
+NEITHER ROUTE IS SAFE WITHOUT AN EXPLICIT PATHSPEC. The pathspec is the only unconditional
+rule, and it covers BOTH modes -- which makes this check the single defence standing between
+a stale index of either kind and a repository-deleting commit. A worktree carrying 13,832
+staged deletions was found on this machine tonight, one pathspec-less commit from wiping it.
 """
 from __future__ import annotations
 
@@ -215,6 +241,28 @@ def selftest():
         if not ok2:
             bad.append("a pathspec commit was refused: %s" % (out2 + err2)[:200])
 
+        # [4] KNOWN NEGATIVE -- A SINGLE-WORKTREE REPO HAS NO HAZARD AND MUST STAY SILENT.
+        # This is the case a fresh clone caught and the selftest did not: the check used to
+        # read _ROOT (this file's location) instead of the repo being committed to, so in a
+        # normal clone it inspected the wrong repository, found one worktree, and passed
+        # everything. It was green for the wrong reason on the only case that mattered.
+        # Verified by hand at the time; run here now, because a case I checked by hand is a
+        # claim and a case in the suite is a control.
+        solo = os.path.join(tmp, "solo")
+        os.makedirs(solo)
+        for a in (["init", "-q", "."], ["config", "user.email", "t@t"],
+                  ["config", "user.name", "t"]):
+            _git(a, solo)
+        with io.open(os.path.join(solo, "x.txt"), "w", encoding="utf-8") as fh:
+            fh.write("one" + chr(10))
+        _git(["add", "-A"], solo)
+        rc4, _l4 = check(cwd=solo, env={"GIT_INDEX_FILE": os.path.join(solo, ".git", "index")})
+        ok4 = rc4 == 0
+        print("  %s  single-worktree repo, staged file, no pathspec -> rc=%d"
+              % ("SILENT" if ok4 else "REFUSED -- FIRES WHERE THERE IS NO HAZARD", rc4))
+        if not ok4:
+            bad.append("refused in a single-worktree repo, where the hazard cannot exist")
+
         env = dict(os.environ, SHARED_INDEX_OK="a stated reason")
         p = subprocess.run(["git", "commit", "-m", "override"], cwd=repo, env=env,
                            capture_output=True, encoding="utf-8", errors="replace")
@@ -236,7 +284,7 @@ def selftest():
         for b in bad:
             print("   %s" % b)
         return 1
-    print("\nRefuses the hazard, allows the safe form, honours the override. All three "
+    print("\nRefuses the hazard, allows the safe form, honours the override. All four "
           "measured on real commits.")
     return 0
 

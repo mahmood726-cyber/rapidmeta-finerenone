@@ -1,4 +1,15 @@
 # -*- coding: utf-8 -*-
+# KNOWN_NEGATIVE CONTROL -- EXECUTABLE, IN THIS FILE: --selftest.
+#   3 cases with answers known IN ADVANCE, drawn from work three lanes rebuilt in one night.
+#   Cases 1-2 were used WHILE building the scorer and are development data: fitting a scorer
+#   to the examples you tuned on measures nothing. CASE 3 WAS ADDED AFTER THE SCORER WAS
+#   FINISHED and has never been tuned against -- it is the only one whose result is evidence.
+#   The controls caught four real defects in this file: blob misalignment attributing one
+#   file's contents to another path, a truncation that cut the one word being searched for,
+#   equal term weighting, and inherited prose swamping own prose.
+#   python scripts/capability_index.py --rev origin/main --selftest
+# A count without a measured precision is not a finding.
+
 """What already EXISTS on a revision, indexed by WHAT IT DOES rather than what it is called.
 
 THE NIGHT THIS WAS BUILT, THREE LANES INDEPENDENTLY REBUILT SOMETHING main ALREADY SHIPPED:

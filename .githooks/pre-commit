@@ -73,6 +73,13 @@ _refuse() {
     echo "  RULE: $_rule"
     echo "  found by: $_gate"
     echo "  full output: $_log"
+    # WHEN DID THIS CHECK LAST FAIL. Until now, unanswerable for all 664 checks in this
+    # repo, because nothing recorded that a check had ever run -- which is precisely how
+    # three pieces of dead machinery went unnoticed. This is the only point in the system
+    # that already knows BOTH the gate and the verdict, so one line here makes every
+    # hook-wired refusal permanent without editing fifty invocation lines. The ledger is
+    # per-clone and untracked; it never blocks a commit if it cannot write.
+    python "$(git rev-parse --show-toplevel)/scripts/check_ledger.py" record "$_gate" REFUSED 2>/dev/null || true
     exit 1
 }
 
@@ -313,3 +320,7 @@ _L="$(mktemp)"; python "$R/scripts/lint_collinear_protocol.py" > "$_L" 2>&1 || _
 # already present are OWED, NOT CLEARED. --staged, because a tree-wide gate in a four-lane
 # worktree makes every lane's violation block every other lane's commit -- which happened.
 _L="$(mktemp)"; python "$R/scripts/lint_recurring_traps.py" --staged > "$_L" 2>&1 || _refuse "$_L" "a file gained a NEW recurring-trap violation above its baseline" "scripts/lint_recurring_traps.py"
+
+# The chain survived. Recorded so "last run" is answerable too -- an empty ledger then
+# means NOTHING HAS BEEN OBSERVED HERE, which is not the same as nothing having failed.
+python "$(git rev-parse --show-toplevel)/scripts/check_ledger.py" record CHAIN PASSED 2>/dev/null || true

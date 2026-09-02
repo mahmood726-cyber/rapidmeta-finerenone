@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+# KNOWN_NEGATIVE CONTROL -- EXECUTABLE, AND IT LIVES IN THIS FILE: --selftest.
+#   [1] positive       a hook naming a script that is ON DISK but NOT in the index
+#                      MUST be refused  (os.path.exists would pass this exact case)
+#   [2] known negative the SAME hook once that script is staged too MUST NOT be refused
+# Both measured against a real git index in a repo the selftest builds. The negative is what
+# caught this file refusing everything once already: the extractor kept the shell-variable
+# remnant, so `$R/scripts/x.py` read as `R/scripts/x.py` and every reference looked missing.
+#   python scripts/lint_hook_references_resolve.py --selftest
+# A count without a measured precision is not a finding.
+
 """A hook may not reference a script the same commit does not bring with it.
 
 THE NEAR-MISS THIS WAS WRITTEN FROM, STOPPED BY HAND AT 02:00 AND ONLY BY LUCK.
