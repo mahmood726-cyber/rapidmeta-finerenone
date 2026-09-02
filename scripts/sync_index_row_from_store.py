@@ -44,7 +44,19 @@ ROW_RE = re.compile(r"<tr\b(?:(?!</tr>).)*?</tr>", re.S)
 HREF_RE = re.compile(r'href=["\']([A-Za-z0-9_.-]+\.html)["\']')
 ANCHOR_RE = re.compile(r'(<a\b[^>]*href=["\'][A-Za-z0-9_.-]+\.html["\'][^>]*>)(.*?)(</a>)', re.S)
 CELL_RE = re.compile(r"<td\b[^>]*>(.*?)</td>", re.S)
-MAP_RE_T = '"%s":\\s*\\{[^}]*?"title":\\s*"((?:[^"\\\\]|\\\\.)*)"'
+# ⛔ RAW LITERAL. This was written non-raw with every backslash doubled, and it is
+# ONE OF THE THREE LITERALS THAT MAKE gate13 FAIL ON PRISTINE main -- so this one
+# line has been blocking every lane's push, not only mine.
+#
+# The gate's point is not that the pattern is wrong today. It is correct today,
+# and it goes SILENT if it is ever moved through a shell or copied somewhere that
+# eats one level of escaping. A regex that stops matching does not error: it
+# reports a clean corpus. That is the same failure shape as tonight's value
+# matcher, whose control returned zero on pages that DO render sidecars.
+#
+# The raw form was proven identical to the string it replaces BEFORE this edit
+# rather than assumed:  old == new  ->  True
+MAP_RE_T = r'"%s":\s*\{[^}]*?"title":\s*"((?:[^"\\]|\\.)*)"'
 
 
 def flat(s):

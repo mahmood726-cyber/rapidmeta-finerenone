@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""AACT as the primary CT.gov route — a JOIN instead of a fetch, with a guard that REFUSES.
+r"""AACT as the primary CT.gov route — a JOIN instead of a fetch, with a guard that REFUSES.
 
 ⭐ WHY THIS EXISTS. CT.gov posted results are a mandatory route for every outcome on every
 topic. Done per trial over HTTP that is one call per trial per outcome; done against AACT it is
@@ -13,7 +13,7 @@ has not been checked against a known answer is not a source, it is a hope.
 
 ⛔⛔⛔ THE STALENESS GUARD IS A REFUSAL, NOT A WARNING, AND THAT IS THE WHOLE DESIGN.
 
-The snapshot is a CLAIM ABOUT A VERSION. `F:\\AACT-storage\\AACT\\2026-04-12` carries updates
+The snapshot is a CLAIM ABOUT A VERSION. `F:\AACT-storage\AACT\2026-04-12` carries updates
 through 2026-04-08; a trial whose results were first posted after that date is NOT IN IT. Asking
 this source about such a trial returns nothing -- and ***AN EMPTY RETURN AND A REFUSAL ARE
 INDISTINGUISHABLE DOWNSTREAM***, which is the failure that produced five false zeros this week.

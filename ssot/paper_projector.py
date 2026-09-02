@@ -2107,7 +2107,7 @@ def _own_sentence(value, limit=600):
 
 
 def _model_words(model):
-    """`random` and `fixed` are half a name. The page read "pooled under random".
+    r"""`random` and `fixed` are half a name. The page read "pooled under random".
 
     AND THE FIX FOR THAT LEFT A SECOND HALF-NAME BEHIND, on more pages than the first.
     The branch below for an ALREADY-HYPHENATED value added the article and not the noun, so
@@ -2116,7 +2116,7 @@ def _model_words(model):
     modify. It reached 80 built pages and 0 objects, because it is composed here.
 
     IT SURVIVED THE GATE WRITTEN FOR EXACTLY THIS DEFECT. `gate_paper_reads_as_prose`'s
-    LOST_TAIL is `\\bpooled under (random|fixed)\\b(?!-|\\s*effects?)`, which cannot match
+    LOST_TAIL is `\bpooled under (random|fixed)\b(?!-|\s*effects?)`, which cannot match
     once an article sits between "under" and "random". The gate exits 0 on every one of the
     80. A vocabulary-bound check does not see the same defect in different words, and the
     first repair here is what put it into different words.
