@@ -1618,11 +1618,14 @@ _DF_READ = frozenset([
 ])
 
 # The value carries no effect at all; `effect.point` is None on every one of these
-# rows and the value column already says so. The provenance cell is left exactly as
-# it renders today -- these are classified, not silently defaulted, and the wording
-# ("DERIVED by us from nothing -- this page holds no value for this trial") is
-# incoherent and worth changing, but that is a separate decision about 33 rows and
-# is not smuggled in here.
+# 33 rows and the value column already says so. The read-vs-derived question does
+# not arise here, and it used to be answered anyway: "DERIVED by us from nothing --
+# this page holds no value for this trial" claimed a derivation of a number that is
+# not there. The absence is now rendered as an absence, with the recorded reason
+# printed verbatim beside it.
+#
+# THIS REMAINS A NAMED STATE, not a default. `provenance_kind` returns "no-value"
+# for exactly these four values and raises for anything it has not been taught.
 _DF_NO_VALUE = frozenset([
     "not carried forward -- the estimate is withdrawn",
     "not carried forward -- see numerator_defect",
@@ -1730,11 +1733,21 @@ def extraction_provenance_table(canon):
 
             df = eff.get("derived_from")
             tag = prov.get("tag")
-            if df and provenance_kind(df) == "read":
+            _kind = provenance_kind(df) if df else None
+            if _kind == "read":
                 rd = "<strong>READ</strong> from the source as printed"
-            elif df:
-                # "derived" and "no-value" both keep the DERIVED wording, so this
-                # change moves exactly the rows whose label contradicted their note.
+            elif _kind == "no-value":
+                # AN ABSENCE RENDERED AS AN ABSENCE. These 33 rows carry no effect at
+                # all -- `effect.point` is None on every one of them -- so the
+                # read-vs-derived question does not arise, and answering it anyway
+                # produced "DERIVED by us from nothing -- this page holds no value for
+                # this trial": a claim to have computed a number that is not there.
+                #
+                # The recorded reason is still printed verbatim beside it. An absence
+                # that says WHY is a refusal; an absence that says nothing is a blank,
+                # and this tab exists so that a reader can tell those apart.
+                rd = "<em>no value is carried here &mdash; %s</em>" % e(str(df))
+            elif _kind == "derived":
                 rd = "<strong>DERIVED</strong> by us from %s" % e(str(df))
             elif tag:
                 rd = e(str(tag))

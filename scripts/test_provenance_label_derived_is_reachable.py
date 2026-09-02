@@ -273,6 +273,96 @@ def test_no_row_label_contradicts_its_own_note():
            "\n".join("    %-44s %s" % (t, w) for t, w in sorted(wrong))))
 
 
+# ---------------------------------------------------------------------------
+# ROWS THAT CARRY NO VALUE AT ALL. `derived_from` here records that nothing was
+# carried forward, not where a number came from -- so "DERIVED by us from nothing
+# -- this page holds no value for this trial" claimed a derivation of a value that
+# does not exist. An absence is rendered as an absence.
+#
+# `no-value` stays a NAMED state in provenance_kind; it is not a default and not a
+# silent third path. The tests below assert both halves: that the class is still
+# named, and that an unclassified value still raises.
+# ---------------------------------------------------------------------------
+
+NO_VALUE_MARKERS = (
+    "not carried forward -- the estimate is withdrawn",
+    "not carried forward -- see numerator_defect",
+    "nothing -- this page holds no value for this trial",
+    "nothing -- this page publishes no estimate",
+)
+ABSENCE_WORDING = "no value is carried here"
+
+
+def _no_value_rows():
+    """Every rendered row whose derived_from records that no value is carried."""
+    out = []
+    for topic in _all_topics():
+        try:
+            rows = rows_for(topic)
+        except AssertionError:
+            continue
+        for row in rows:
+            if any(m in row for m in NO_VALUE_MARKERS):
+                out.append((topic, row))
+    return out
+
+
+def test_every_no_value_row_really_holds_no_value():
+    """The invariant the whole class rests on. Green before AND after the change:
+    if one of these rows ever held a number, rendering it as an absence would be
+    the falsehood, and this is what would catch that."""
+    offenders = []
+    for topic in _all_topics():
+        obj = _store(topic)
+        for trial in ((obj.get("inputs") or {}).get("trials") or []):
+            for oid, bo in (trial.get("by_outcome") or {}).items():
+                if not isinstance(bo, dict):
+                    continue
+                eff = bo.get("effect") or {}
+                if str(eff.get("derived_from") or "") in NO_VALUE_MARKERS:
+                    if eff.get("point") is not None:
+                        offenders.append((topic, oid, eff.get("point")))
+    assert not offenders, (
+        "%d row(s) classified as carrying no value hold a point estimate: %s"
+        % (len(offenders), offenders[:5]))
+
+
+def test_no_value_rows_are_not_labelled_derived():
+    rows = _no_value_rows()
+    assert len(rows) == 33, "expected 33 no-value rows, found %d" % len(rows)
+    mislabelled = [t for t, r in rows if DERIVED in r]
+    assert not mislabelled, (
+        "%d of %d rows that carry no value claim a value was DERIVED by us -- e.g. "
+        "'DERIVED by us from nothing -- this page holds no value for this trial'"
+        % (len(mislabelled), len(rows)))
+
+
+def test_no_value_rows_state_the_absence_and_keep_the_recorded_reason():
+    rows = _no_value_rows()
+    assert len(rows) == 33, "expected 33 no-value rows, found %d" % len(rows)
+    silent = [t for t, r in rows if ABSENCE_WORDING not in r]
+    assert not silent, (
+        "%d of %d no-value rows do not say that no value is carried" % (len(silent), len(rows)))
+    # the stored reason is still printed verbatim -- the absence is explained, not
+    # merely asserted, which is the difference between a refusal and a blank.
+    unexplained = [t for t, r in rows if not any(m in r for m in NO_VALUE_MARKERS)]
+    assert not unexplained, "%d no-value rows dropped their recorded reason" % len(unexplained)
+
+
+def test_no_value_remains_a_named_state_and_unknowns_still_raise():
+    kind = getattr(pj, "provenance_kind", None)
+    assert kind is not None, "ssot/projectors.py exposes no provenance_kind()"
+    for marker in NO_VALUE_MARKERS:
+        assert kind(marker) == "no-value", (
+            "%r is no longer classified as no-value -- the class must stay named, "
+            "not collapse into a default" % marker)
+    try:
+        kind("a provenance nobody has ever written down")
+    except ValueError:
+        return
+    raise AssertionError("an unknown derived_from value was accepted; it must raise")
+
+
 def test_the_largest_already_derived_group_is_left_alone():
     """`extractor recovery from the published page` -- 49 rows, note says
     "DERIVED, not read". It renders DERIVED today and must keep doing so."""
