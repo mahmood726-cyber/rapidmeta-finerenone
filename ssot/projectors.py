@@ -541,11 +541,27 @@ def readiness(canon):
                        "This clears when the risk-of-bias assessment is adjudicated, not "
                        "before.")})
     if not (canon.get("search") or {}).get("strategy"):
+        # THE COUNT IS READ FROM THE OBJECT, AND WHERE THERE IS NO COUNT THERE IS NO NUMBER.
+        #
+        # This detail said "a named TWO-TRIAL programme" as a module constant, and the
+        # sentence went onto every topic whose search declares no strategy. MEASURED on the
+        # served surface: 146 of 1464 pages carry it; 18 of those record a k that can be
+        # checked; 13 of the 18 contradict it, with k of 1, 3, 4, 5, 6, 7 and 8. The other
+        # 128 record no k_included_in_object at all and are NOT CHECKABLE -- which is not
+        # the same as agreeing, and an earlier cut of that measurement counted them as
+        # though it were.
+        #
+        # The DISCLOSURE is correct and stays exactly as it was; only the invented count
+        # goes. Where the object states k, it is used; where it does not, the sentence says
+        # what is true without a number rather than guessing one.
+        _k = (canon.get("k_cascade") or {}).get("k_included_in_object")
+        _named = ("a named %d-trial programme" % _k) if isinstance(_k, int) else \
+                 "a named programme of trials"
         limits.append({
             "label": "No systematic search was run",
-            "detail": ("The included set is a named two-trial programme rather than the "
-                       "yield of a database search. Nothing on this page should be read "
-                       "as though a systematic search had been performed.")})
+            "detail": ("The included set is %s rather than the yield of a database search. "
+                       "Nothing on this page should be read as though a systematic search "
+                       "had been performed." % _named)})
 
     sc = canon.get("screening") or {}
     und = [x for x in (sc.get("records") or [])
