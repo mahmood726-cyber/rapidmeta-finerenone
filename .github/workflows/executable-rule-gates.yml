@@ -35,3 +35,23 @@ jobs:
 
       - name: The gates can still fail
         run: python gates/verify_gates_can_fail.py
+
+      # TREE-SCOPED, SO IT RUNS HERE AND NOT IN A PER-LANE HOOK. It walks every tracked
+      # .py to answer "is this check invoked, by what, can it fail" -- and it judges THE
+      # TREE, which is main property, not any one lane diff. Measured on the hook-wired
+      # set: 23 TREE, 4 BOTH, exactly 1 DIFF. A tree-scanning check in a pre-push hook
+      # makes the most up-to-date lane answerable for every other lane tree and exempts
+      # the most stale one; six separate blocks in one night traced to that placement.
+      # A measured comparison: one unbounded tree walk cost 47.8 CPU-s and 100% of a
+      # push wall-clock, and slowed every concurrent lane 12x while it ran.
+      #
+      # gate8 flagged this file as "a gate written and left inert". The finding is TRUE --
+      # a non-zero exit is structurally reachable and nothing called it -- but the label is
+      # wrong: main() and report() always return 0, and the only non-zero paths are
+      # --selftest and a fail-closed guard. It is a REPORT, not a gate. Answering the
+      # finding rather than the label means giving it a real caller in the right place,
+      # not wiring a 4-minute tree walk into every lane push to silence a gate.
+      - name: Check liveness -- is it invoked, by what, can it fail
+        run: |
+          python scripts/audit_check_liveness.py --selftest
+          python scripts/audit_check_liveness.py
