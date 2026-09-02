@@ -46,14 +46,15 @@ between a scored topic key and the comparator title flags the pair.
 - **MEASURED: the DOI check dropped 1 of the 41 otherwise-eligible candidates**
   (`10.1186/s12936-026-05954-5`, an RTS,S / R21 malaria-vaccine review — `MALARIA_VACCINE`
   is a scored topic).
-- **MEASURED: the topic screen flags 18 of the 40 selected** as
+- **MEASURED: the topic screen flags 22 of the 40 selected** as
   `BLOCKED_PENDING_PICO_ADJUDICATION`.
 
-The token screen is deliberately over-inclusive and produces false flags (a cardiology
-review flagged against `CRYPTOCOCCAL_MENINGITIS_AFRICA` on a shared generic token). That
-is the correct failure direction for a firewall: it hands 18 pairs to the per-trial PICO
-adjudication rather than letting any through. **None of the 40 is cleared for ingest by
-this run**, and that is the intended state at the end of Phase 3.
+The token screen is over-inclusive and produces false flags (a cardiology review flagged
+against `CRYPTOCOCCAL_MENINGITIS_AFRICA` on a shared generic token). Over-inclusive is the
+right failure direction for a firewall — but see the addendum: **being over-inclusive did
+not make it safe**, and its first version silently missed two real collisions while
+flagging fourteen false ones. **None of the 40 is cleared for ingest by this run**, and
+that is the intended state at the end of Phase 3.
 
 ---
 
@@ -120,9 +121,12 @@ so `null` can never be read as "does not apply".
 ### Where a model belongs, and where it does not
 
 The PICO-mapping decision — does this trial belong to one of our topics — is the one
-place a model is warranted, and it has **not been run**. Nothing in this lane needed it:
-extraction is tree position, identifier resolution is a PubMed databank record. Codex was
-not used, because there was no bulk parsing left that a parser could not do exactly.
+place a model is warranted. **The per-trial version has not been run** (see "Explicitly
+not done"); the comparator-level version has, and is in
+`outputs/comparator_seed_topic_adjudication.json`. Nothing else in this lane needed a
+model: extraction is tree position, identifier resolution is a PubMed databank record.
+Codex was intended for the bulk parsing and was not used, because after the structural
+route there was no bulk parsing left that a parser could not do exactly.
 
 ---
 
