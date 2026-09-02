@@ -67,6 +67,48 @@ NEG_GUARD = re.compile(
     r"if\s+(?:not\s+[\w\.\[\]\(\)'\"]+(?:\([^)]*\))?|[\w\.\[\]\(\)'\"]+\s+is\s+None|"
     r"[\w\.\[\]\(\)'\"]+\s*==\s*(?:None|\[\]|\{\}|0|''|\"\")|"
     r"len\([^)]+\)\s*==\s*0)\s*:")
+
+# A TYPE GUARD IS NOT AN EXCLUSION BY ABSENCE, AND COUNTING IT AS ONE IS THIS CHECK
+# COMMITTING THE DEFECT IT EXISTS TO FIND.
+#
+# The finding this file catches is an absence STANDING IN FOR a property nobody stated --
+# `zero paper sections` meaning `built by an older generator`, `phase not in the enumerated
+# list` meaning `not a phase 3 trial`. The defining feature is that the property actually
+# meant is UNSTATED.
+#
+# `if not isinstance(bo, dict): continue` is the opposite. The property is stated, in the
+# condition, in the clearest form the language has: this record is a dict. Nothing stands in
+# for anything. Counting it flagged such guards across two lanes and, together with four
+# emptiness guards, left origin/main unable to commit under its own pre-commit hook.
+#
+# Narrowed to `isinstance` ONLY. `if not cand:` and `if not terms:` are emptiness tests on a
+# collection and stay in scope, because emptiness is exactly the shape that stands in for
+# something else. prove() demonstrates both directions: an isinstance guard is not counted,
+# and an emptiness guard of the same line shape still is.
+TYPE_GUARD = re.compile(r"if\s+not\s+isinstance\s*\(")
+
+# A DECLARED ABSENCE IS NOT AN EXCLUSION BY ABSENCE EITHER.
+#
+# The harm in this class is that an item leaves the denominator WITHOUT ANYONE SEEING IT
+# GO. A guard whose body names the item and states a reason does the opposite: the item is
+# reported, and the count that follows can be reconciled against it. That is the same
+# "Not recorded -- <reason>" idiom the corpus already protects on the page.
+#
+# scripts/methodology/aact_sweep.py is the case that forced this. All four of its flagged
+# guards read like:
+#
+#     if not terms:
+#         print("  %-26s NO DRUG-TYPE INTERVENTION NAMES ... reported, not scored" % t)
+#         continue
+#
+# which is exactly the discipline this file argues for, refused by this file for the shape
+# of its first line. Together with the type guards it left origin/main unable to commit.
+#
+# STRICT, because a permissive version is a bypass: the body must both EXIT and carry a
+# reporting call in the same few lines. A bare `continue` is still counted, and prove()
+# demonstrates that direction on a written file rather than by reading this regex.
+DECLARES_THE_SKIP = re.compile(
+    r"^\s*(?:print\(|log\w*\(|\w+\.append\(|\w+\.warn\w*\(|sys\.stderr\.write\()", re.M)
 # CLAIM 5, cold lane, CONFIRMED. Bare `skip` matched INSIDE identifiers, so
 # `skip_reason = "kept"` -- a line that skips nothing -- counted as an excluding
 # action. Latent on the ratcheted population and worth 18 false positives on the
@@ -199,6 +241,25 @@ def indent_of(line):
     return len(line) - len(line.lstrip())
 
 
+def _guard_body(lines, guard_index):
+    """The lines belonging to the guard at `guard_index`, by indentation.
+
+    Stops at the first line indented at or below the guard itself, so the body of the NEXT
+    statement is never read as this one's. That confusion is what turned the declared-skip
+    exemption into a hole worth 119 guards.
+    """
+    base = indent_of(lines[guard_index])
+    body = []
+    for ln in lines[guard_index + 1:]:
+        if not ln.strip() or ln.strip().startswith("#"):
+            body.append(ln)
+            continue
+        if indent_of(ln) <= base:
+            break
+        body.append(ln)
+    return "\n".join(body)
+
+
 def corpus_wide_subset():
     """Negative guards lexically inside a loop that iterates the corpus."""
     out = []
@@ -230,7 +291,16 @@ def corpus_wide_subset():
                         continue
                     if not NEG_GUARD.search(ln):
                         continue
+                    if TYPE_GUARD.search(ln):
+                        continue        # states its property; see TYPE_GUARD above
                     nxt = "\n".join(lines[i + 1:i + 6])
+                    # THE GUARD'S OWN BODY, not a fixed window. A five-line window reached
+                    # past the end of this guard into the NEXT one and read its report as
+                    # this one's -- which exempted 119 baselined guards in a single run and
+                    # was caught only because prove() writes two adjacent guards, one bare
+                    # and one reporting, and requires the bare one to still be counted.
+                    if DECLARES_THE_SKIP.search(_guard_body(lines, i)):
+                        continue        # names the item and its reason; see DECLARES_THE_SKIP
                     if EXIT.search(nxt):
                         out.append((rel, i + 1, stack[-1][1], ln.strip()[:76]))
     return out
@@ -440,8 +510,58 @@ def main():
     return 0
 
 
+def prove_type_guard_narrowing():
+    """The isinstance exemption must not become a hole. Both directions, on real files.
+
+    An exemption that is not proved in the NEGATIVE direction is how a narrowing turns into
+    a bypass: the emptiness guards this check exists to find share a line shape with the
+    type guards it now skips, so the two are separated on a written file rather than by
+    reading the regex.
+    """
+    import shutil
+    import tempfile
+    tmp = tempfile.mkdtemp(prefix="typeguard_proof_")
+    try:
+        d = os.path.join(tmp, "scripts")
+        os.makedirs(d)
+        io.open(os.path.join(d, "audit_proof_guards.py"), "w",
+                encoding="utf-8", newline="\n").write(
+            'import glob\n'
+            'for fp in glob.glob("ssot/*/*.json"):\n'
+            '    bo = load(fp)\n'
+            '    if not isinstance(bo, dict):\n'
+            '        continue\n'
+            '    if not bo.get("terms"):\n'
+            '        continue\n'
+            '    if not bo.get("conds"):\n'
+            '        print("  %s NO CONDITION -- reported, not scored" % fp)\n'
+            '        continue\n'
+            '    print("kept %d" % 1)\n')
+        global REPO
+        keep, REPO = REPO, tmp
+        try:
+            found = [ln for _r, _i, _l, ln in corpus_wide_subset()]
+        finally:
+            REPO = keep
+        if any("isinstance" in ln for ln in found):
+            sys.exit("PROOF FAILED: an `if not isinstance(...)` type guard was still counted "
+                     "as an exclusion by absence. The narrowing did not take.")
+        if not any("terms" in ln for ln in found):
+            sys.exit("PROOF FAILED: an emptiness guard of the SAME line shape was skipped "
+                     "along with the type guard. The narrowing became a hole, which is the "
+                     "failure an exemption has to be proved against.")
+        if any("conds" in ln for ln in found):
+            sys.exit("PROOF FAILED: a guard that NAMES the item and states a reason before "
+                     "skipping was still counted as an exclusion by absence.")
+        print("PROOF PASSED: an isinstance type guard is not counted; a guard that reports")
+        print("the skip is not counted; a BARE emptiness guard on the same shape still is.")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def prove_ratchet():
     """A guard not in the baseline must come back NEW. Otherwise the ratchet is decorative."""
+    prove_type_guard_narrowing()
     subset = corpus_wide_subset()
     fake = ("scripts/PROOF_not_a_real_file.py", 1, 1, "if not x:")
     _k, new, _h = ratchet(subset + [fake], write_if_missing=False)
