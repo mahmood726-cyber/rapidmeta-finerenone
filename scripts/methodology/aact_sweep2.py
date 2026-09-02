@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""CORPUS SWEEP v2 -- trials sitting in the LOCAL snapshot, never screened, per topic.
+r"""CORPUS SWEEP v2 -- trials sitting in the LOCAL snapshot, never screened, per topic.
 
 Supersedes aact_sweep.py. Incorporates the AACT lane's postmortem in full.
 
@@ -22,7 +22,7 @@ WHAT CHANGED AND WHY
      extension into a pool of randomised effects -- the fix is a FILTERED adapter, not a
      faster pipe, and both halves must be reported together.
 
-SNAPSHOT F:\\AACT-storage\\AACT\\2026-08-30 -- DATA DATE 2026-08-27. Never blended with
+SNAPSHOT F:\AACT-storage\AACT\2026-08-30 -- DATA DATE 2026-08-27. Never blended with
 2026-04-12 (data date 2026-04-08). NO PHASE FILTER.
 """
 import io, json, os, re, sys, glob, collections

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""CORPUS SWEEP: how many randomised trials sit in the LOCAL snapshot, unscreened, per topic.
+r"""CORPUS SWEEP: how many randomised trials sit in the LOCAL snapshot, unscreened, per topic.
 
 ⛔ THE DRUG EXPRESSION IS DERIVED FROM THE TOPIC'S OWN REGISTERED INTERVENTION NAMES,
    NEVER FROM ITS TITLE. For each ingested NCT we read what that trial actually registered in
@@ -8,7 +8,7 @@
    The matched names are PRINTED PER TOPIC so the expression can be audited by eye --
    a plausible large number is this project's commonest failure mode.
 
-Snapshot default F:\\AACT-storage\\AACT\\2026-08-30 -- DATA DATE 2026-08-27. Cite the data
+Snapshot default F:\AACT-storage\AACT\2026-08-30 -- DATA DATE 2026-08-27. Cite the data
 date, never the folder date. NO PHASE FILTER (NCT01539226 is registered phase=NA).
 """
 import io, json, os, re, sys, glob, collections
