@@ -2259,6 +2259,35 @@ def _i2_words(i2):
         return "loosely"
     return "poorly"
 
+
+def _i2_adjective(i2):
+    """The ADJECTIVE band for I-squared, for the slot "heterogeneity was <x>".
+
+    `_i2_words` above returns an ADVERB -- it completes "the trials agreed closely" --
+    and the abstract call site already records what happens when it is dropped into a
+    "was {word}" slot: "heterogeneity was closely", which is not a sentence. This is the
+    same Handbook 10.10.2 banding at the same boundaries in the form that slot needs, so
+    the two sentences on a page cannot describe one number in two incompatible ways.
+
+    RETURNS None BELOW 30, AND FOR ANYTHING THAT IS NOT A NUMBER. That is the whole
+    gate: None means the caller keeps "no statistical heterogeneity was detected", which
+    is true in that band and is what 15 pages of this corpus correctly say. A
+    non-numeric i2 keeps the pre-existing wording rather than acquiring a band it has
+    not earned.
+    """
+    try:
+        v = float(i2)
+    except (TypeError, ValueError):
+        return None
+    if v < 30:
+        return None
+    if v < 60:
+        return "moderate"
+    if v < 75:
+        return "substantial"
+    return "considerable"
+
+
 def disp(x, sig=3):
     """A number at DISPLAY precision, for prose only.
 
@@ -4028,13 +4057,40 @@ def project(obj, journal="generic", length="standard"):
         for _b in (get(obj, "results.by_outcome") or {}).values():
             if isinstance(_b, dict) and isinstance(_b.get("k"), int):
                 _k_here = max(_k_here or 0, _b["k"])
-        if (_k_here or 0) <= 2:
-            _rparts.append("no statistical heterogeneity was detected (I-squared %s%%), "
-                           "though heterogeneity cannot be reliably assessed with two "
-                           "trials" % _num(_i2))
+        #
+        # AND THE SENTENCE WAS CONDITIONAL ON THREE THINGS, NONE OF WHICH WAS THE VALUE.
+        # That an i2 exists, that a pool exists, and how many trials there were -- so
+        # "no statistical heterogeneity was detected" was asserted at I-squared 90% on
+        # ALIROCUMAB and 71.5% on APIXABAN_VTE_PROPHYLAXIS, with the falsifying number
+        # printed in the same parenthesis. On APIXABAN the abstract denied the
+        # heterogeneity that the body of the SAME page, reading the SAME field through
+        # `_i2_words`, described as trials that agreed only "loosely" beside tau-squared
+        # 0.204 and Q 9.31 on 3 degrees of freedom.
+        #
+        # TEN STORES, of which ELEVEN DELIVERED PAGES carry the sentence today (rotavirus
+        # and bococizumab render two pages each; ARNI's store is the tenth and its
+        # delivered page does not carry this sentence at all). ARNI is the one a
+        # first-match scan hides: its abstract already holds a hand-authored
+        # "Heterogeneity was moderate and estimator-dependent, with I-squared 32.9
+        # percent" AND, beside it, this projected sentence denying that same 32.9%.
+        #
+        # The gate is the value now, and it is the boundary this module already uses.
+        # Below 30 nothing changes: the absence sentence is TRUE there and is what 15
+        # pages correctly say, so it is kept verbatim rather than silenced everywhere,
+        # which is the fix that would have cleared every failing test and been wrong.
+        _band = _i2_adjective(_i2)
+        if _band is None:
+            _clause = ("no statistical heterogeneity was detected (I-squared %s%%)"
+                       % _num(_i2))
         else:
-            _rparts.append("no statistical heterogeneity was detected (I-squared %s%%)"
-                           % _num(_i2))
+            _clause = "heterogeneity was %s (I-squared %s%%)" % (_band, _num(_i2))
+        # THE TWO-TRIAL CAVEAT SURVIVES BOTH BRANCHES, and it is not decoration on the
+        # new one: four of the ten are k=2, where a high I-squared is least stable and
+        # the reader most needs telling that the statistic cannot carry the weight.
+        if (_k_here or 0) <= 2:
+            _clause += (", though heterogeneity cannot be reliably assessed with two "
+                        "trials")
+        _rparts.append(_clause)
         _rfields.append("results.by_outcome")
     _cert = _live_certainty(obj)
     if _cert is not None:
