@@ -59,6 +59,23 @@ def _esc(s):
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _topic_is_infection_prevention(measured, absent_rows):
+    """Is claim C11 even IN SCOPE for this review?
+
+    THE SHAPE IS THE DEFECT, NOT THE STRING. An `if` gated on topic-relevant
+    data whose `else` is gated on NOTHING will emit its claim on every topic
+    the claim was not written for -- and it is invisible on the one topic it
+    was tested against, because there the `if` fires. Any branch naming a
+    disease, a drug class or an outcome family needs the SAME gate on both
+    sides.
+    """
+    names = [str((r or {}).get("outcome") or "")
+             for r in list(measured or []) + list(absent_rows or [])]
+    return any(re.search(r"hiv|sti\b|sexual|chlamyd|gonorrh|trichomon|syphilis|"
+                         r"papillomavirus|herpes|infection|seroconver",
+                         n, re.I) for n in names)
+
+
 def clauses(canon):
     """-> (list of (kind, sentence), list of (kind, why it could not be emitted))."""
     said, missing = [], []
@@ -209,9 +226,16 @@ def clauses(canon):
                      "held only as a qualitative statement. ⚠️ This does not establish that "
                      "there is none; it establishes that none has been shown."
                      % _esc("; ".join(str(r.get("outcome")) for r in other_sti[:6]))))
-    else:
+    elif _topic_is_infection_prevention(measured, absent_rows):
         missing.append(("protects against nothing else",
                         "no other sexually transmitted infection outcome is recorded"))
+    # ELSE: OUT OF SCOPE, AND SILENCE IS THE RIGHT OUTPUT. This `else` used to
+    # be gated on nothing, so on every topic that is NOT an infection-prevention
+    # review the regex above matched nothing and the branch asserted a fact
+    # about sexually transmitted infections anyway. It reached 2 of the 2
+    # non-STI pages this generator touched (SGLT2_HF, IV_IRON_HF). A claim that
+    # does not apply to the topic is OMITTED -- reporting it as "missing" says
+    # the page owes an answer it does not owe.
 
     if absent_rows:
         said.append(("what it is not",

@@ -60,6 +60,31 @@ def rows_for(topic):
     return rows
 
 
+def _outcome_rows(obj, topic="?"):
+    """Every (trial_id, oid, block) in an object, with the POSITIVE property
+    asserted: every by_outcome value IS a mapping.
+
+    A TEST THAT SILENTLY SKIPS WHAT IT CANNOT PARSE REPORTS "ALL CLEAN" ON A
+    CORPUS IT DID NOT EXAMINE. An empty result is NOT_RUN, never PASS. The
+    three call sites here previously skipped any row that was not a mapping,
+    so a malformed row silently left the denominator. They now
+    count non-conforming rows and name them, and the count is asserted at
+    ZERO -- which is the positive property the loop actually depends on.
+    """
+    rows, malformed = [], []
+    for trial in ((obj.get("inputs") or {}).get("trials") or []):
+        tid = str(trial.get("id") or "")
+        for oid, bo in (trial.get("by_outcome") or {}).items():
+            if isinstance(bo, dict):
+                rows.append((tid, oid, bo))
+            else:
+                malformed.append((topic, tid, oid, type(bo).__name__))
+    assert not malformed, (
+        "%d by_outcome row(s) are not mappings and would have been skipped "
+        "silently, leaving this test green on rows it never read: %s"
+        % (len(malformed), malformed[:5]))
+    return rows
+
 def rows_where_object_says_derived(topic):
     """Rows whose OWN note asserts the value was derived, matched back to the render.
 
@@ -68,15 +93,12 @@ def rows_where_object_says_derived(topic):
     """
     obj = _store(topic)
     wanted = []
-    for trial in ((obj.get("inputs") or {}).get("trials") or []):
-        for oid, bo in (trial.get("by_outcome") or {}).items():
-            if not isinstance(bo, dict):
-                continue
-            eff = bo.get("effect") or {}
-            prov = bo.get("provenance") or {}
-            note = str(eff.get("derivation_note") or prov.get("quote_note") or "")
-            if eff.get("derived_from") and "DERIVED" in note:
-                wanted.append((str(trial.get("id") or ""), oid, note))
+    for tid, oid, bo in _outcome_rows(obj, topic):
+        eff = bo.get("effect") or {}
+        prov = bo.get("provenance") or {}
+        note = str(eff.get("derivation_note") or prov.get("quote_note") or "")
+        if eff.get("derived_from") and "DERIVED" in note:
+            wanted.append((tid, oid, note))
     return wanted
 
 
@@ -182,13 +204,10 @@ def _distinct_derived_from():
     counts = {}
     for topic in _all_topics():
         obj = _store(topic)
-        for trial in ((obj.get("inputs") or {}).get("trials") or []):
-            for oid, bo in (trial.get("by_outcome") or {}).items():
-                if not isinstance(bo, dict):
-                    continue
-                df = (bo.get("effect") or {}).get("derived_from")
-                if df is not None:
-                    counts[str(df)] = counts.get(str(df), 0) + 1
+        for _tid, _oid, bo in _outcome_rows(obj, topic):
+            df = (bo.get("effect") or {}).get("derived_from")
+            if df is not None:
+                counts[str(df)] = counts.get(str(df), 0) + 1
     return counts
 
 
@@ -314,14 +333,11 @@ def test_every_no_value_row_really_holds_no_value():
     offenders = []
     for topic in _all_topics():
         obj = _store(topic)
-        for trial in ((obj.get("inputs") or {}).get("trials") or []):
-            for oid, bo in (trial.get("by_outcome") or {}).items():
-                if not isinstance(bo, dict):
-                    continue
-                eff = bo.get("effect") or {}
-                if str(eff.get("derived_from") or "") in NO_VALUE_MARKERS:
-                    if eff.get("point") is not None:
-                        offenders.append((topic, oid, eff.get("point")))
+        for _tid, oid, bo in _outcome_rows(obj, topic):
+            eff = bo.get("effect") or {}
+            if str(eff.get("derived_from") or "") in NO_VALUE_MARKERS:
+                if eff.get("point") is not None:
+                    offenders.append((topic, oid, eff.get("point")))
     assert not offenders, (
         "%d row(s) classified as carrying no value hold a point estimate: %s"
         % (len(offenders), offenders[:5]))

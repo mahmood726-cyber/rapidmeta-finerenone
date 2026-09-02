@@ -66,6 +66,33 @@ AUTHORITY = {
 }
 
 
+OIS_FLOOR = 2000
+
+
+def contributing_n(obj, oid):
+    """Participants CONTRIBUTING TO THIS OUTCOME, or None if unknowable.
+
+    Cochrane ch.14 asks for the number contributing to the OUTCOME, not the
+    total included population, and GRADE judges imprecision against an optimal
+    information size -- never against the number of studies.
+
+    Returns None rather than a fallback when the object holds no per-trial row
+    for this outcome. That is deliberate: on SGLT2_HF the two live pools have
+    results but NO `inputs.trials[*].by_outcome` rows, and a fallback to the
+    topic total is exactly how both Summary-of-Findings rows came to print
+    20,725 for pools of 14,462 and 11,007. An absent denominator must read as
+    absent.
+    """
+    tot, seen = 0, 0
+    for t in ((obj.get("inputs") or {}).get("trials") or []):
+        b = ((t or {}).get("by_outcome") or {}).get(oid)
+        a = (b or {}).get("analysed") or {}
+        arms = [a.get("treatment"), a.get("control")]
+        if all(isinstance(x, (int, float)) for x in arms):
+            tot += int(arms[0]) + int(arms[1]); seen += 1
+    return tot if seen else None
+
+
 def down(cur, n, domain, reason, steps):
     i = max(0, LEVELS.index(cur) - n)
     steps.append({"domain": domain, "levels": -n, "from": cur, "to": LEVELS[i],
@@ -187,17 +214,33 @@ def main():
                            "so the evidence is compatible with benefit and with harm. Rated "
                            "down, not argued away."
                            % (pooled.get("ci_level", 95), lo, hi), steps)
-            elif k <= 3:
+            elif contributing_n(obj, oid) is None:
+                steps.append({"domain": "imprecision", "levels": 0, "from": cur, "to": cur,
+                              "reason": ("NOT ASSESSABLE. The interval (%.4g to %.4g) excludes "
+                                         "the null, but this object holds no per-trial row for "
+                                         "this outcome, so the number of participants "
+                                         "CONTRIBUTING TO IT cannot be computed and there is "
+                                         "nothing to compare against an optimal information "
+                                         "size. Recorded as not assessable rather than rated "
+                                         "down, and rather than assessed against a total that "
+                                         "belongs to a different denominator."
+                                         % (lo, hi))})
+            elif contributing_n(obj, oid) < OIS_FLOOR:
+                _n = contributing_n(obj, oid)
                 cur = down(cur, 1, "imprecision",
-                           ("k = %d. The interval (%.4g to %.4g) does not cross the null, but "
-                            "at k = %d tau-squared is estimated from almost no information and "
-                            "a random-effects interval is optimistic even when it looks tight. "
-                            "Rated down for a small contributing set rather than reporting the "
-                            "number as if it were robust." % (k, lo, hi, k)), steps)
+                           ("%d participants contribute to this outcome, below the %d-"
+                            "participant optimal information size this project uses for a "
+                            "dichotomous outcome. The interval (%.4g to %.4g) does not cross "
+                            "the null, but it rests on less information than a conventional "
+                            "OIS asks for. RATED DOWN ON INFORMATION SIZE, NOT ON THE NUMBER "
+                            "OF STUDIES -- Cochrane ch.14 is explicit that k is not a reason "
+                            "for imprecision, and an earlier version of this file rated down "
+                            "on k <= 3 alone."
+                            % (_n, OIS_FLOOR, lo, hi)), steps)
             else:
                 steps.append({"domain": "imprecision", "levels": 0, "from": cur, "to": cur,
-                              "reason": "k = %d and the interval (%.4g to %.4g) excludes the "
-                                        "null%s." % (k, lo, hi,
+                              "reason": "%d participants contribute and the interval (%.4g to "
+                                        "%.4g) excludes the null%s." % (contributing_n(obj, oid), lo, hi,
                                                      (" with a %.2g-fold width" % ratio) if ratio else "")})
 
             # --- PUBLICATION BIAS -----------------------------------------------------

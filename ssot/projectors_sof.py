@@ -178,8 +178,47 @@ def _is_ratio(measure):
         "RR", "OR", "HR", "RATE_RATIO", "RATERATIO", "IRR")
 
 
+def _absolute_from_ratio(measure, p0, v):
+    """One baseline risk and one ratio -> the absolute risk it implies.
+
+    ⛔ THE MEASURE DECIDES THE ARITHMETIC, NOT JUST THE CAVEAT. This function
+    exists because `_absolute_rows` previously took `measure` and never read
+    it: every ratio was multiplied by the baseline, so a hazard ratio was
+    converted as though it were a risk ratio. A parameter that is accepted and
+    ignored is worse than one that is absent, because the call site looks
+    correct. At p0 = 200/1000 and HR 0.7636 the multiplication gives 152.7
+    where the survival form gives 156.7.
+
+    ⚠️ AND THE COINCIDENCE THAT LET IT SURVIVE REVIEW: on the SGLT2_HF page,
+    200 x 0.7835 = 156.70 (the WRONG value for the three-component pool) and
+    the CORRECT value for the harmonised pool's HR 0.7636 is 156.67. A reviewer
+    spot-checking one table against the other pool's ratio would have confirmed
+    the page was fine. This is why the regression test carries a fixture
+    instead of an eyeball.
+    """
+    m = str(measure or "").strip().upper()
+    if m == "RR":
+        # A risk ratio acts on the risk directly. Multiplication is exact.
+        return p0 * v
+    if m == "OR":
+        # An odds ratio acts on the ODDS: o1 = o0 * OR, then back to a risk.
+        odds = (p0 / (1.0 - p0)) * v
+        return odds / (1.0 + odds)
+    if m in ("HR", "RATE_RATIO", "RATERATIO", "IRR"):
+        # A hazard ratio and a rate ratio both act multiplicatively on the
+        # instantaneous hazard, so S1 = S0**ratio and p1 = 1 - (1 - p0)**ratio.
+        # This is EXACT under proportional hazards -- it is not an extra
+        # assumption on top of the multiplication, it is what proportional
+        # hazards actually implies. The multiplication is the RARE-EVENT
+        # approximation to it, and the two diverge as p0 grows.
+        return 1.0 - (1.0 - p0) ** v
+    # An unrecognised measure gets no arithmetic rather than a guess.
+    return None
+
+
 def _absolute_rows(measure, point, lo, hi, grid=None):
-    """RR x baseline, at each baseline. Arithmetic, not a transfer claim.
+    """Baseline risk + ratio -> absolute risk, by the arithmetic the MEASURE
+    licenses. Arithmetic, not a transfer claim.
 
     `grid` is a sequence of baselines per 1000. When the caller supplies
     OBSERVED control-arm risks they are used; otherwise BASELINE_GRID, the
@@ -189,7 +228,11 @@ def _absolute_rows(measure, point, lo, hi, grid=None):
     for b in (grid if grid else BASELINE_GRID):
         cell = []
         for v in (point, lo, hi):
-            cell.append(None if not isinstance(v, (int, float)) else round(b * v, 1))
+            if not isinstance(v, (int, float)):
+                cell.append(None)
+                continue
+            r = _absolute_from_ratio(measure, b / 1000.0, v)
+            cell.append(None if r is None else round(r * 1000.0, 1))
         if cell[0] is None:
             continue
         rows.append((b, cell[0], cell[1], cell[2], round(cell[0] - b, 1)))
@@ -306,14 +349,16 @@ def _horizon_assumption_html(measure, text, field, caveat):
     """The assumption, stated. Fixed sentences plus quotations, no prose."""
     m = str(measure or "").strip().upper()
     if m in ("RATE_RATIO", "RATERATIO", "IRR"):
-        what = ("A rate ratio counts repeat events per unit of time. Applying "
-                "it to a baseline RISK, as the table below does, additionally "
-                "assumes events are rare enough over this period for a rate "
-                "and a risk to coincide.")
+        what = ("A rate ratio counts repeat events per unit of time. The table "
+                "below converts it with 1 - (1 - p)**ratio, which assumes the "
+                "rate is constant over the period rather than assuming events "
+                "are rare enough for a rate and a risk to coincide.")
     else:
-        what = ("A hazard ratio is not a risk ratio. Applying it to a baseline "
-                "risk, as the table below does, assumes the hazards are "
-                "proportional over the period below.")
+        what = ("A hazard ratio is not a risk ratio, so the table below does "
+                "NOT multiply it by the baseline. It uses 1 - (1 - p)**HR, "
+                "which is what proportional hazards implies -- proportional "
+                "hazards is the justification for this formula, not an extra "
+                "assumption needed to excuse multiplying.")
     out = ("  <div class='absent-state'><strong>What this conversion "
            "assumes.</strong> %s The absolute numbers are risks OVER THAT "
            "PERIOD, not lifetime risks. Period, quoted from <code>%s</code>: "
