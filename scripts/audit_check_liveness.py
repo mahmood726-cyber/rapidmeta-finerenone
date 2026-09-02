@@ -158,9 +158,16 @@ def _last_touched(paths):
                          cwd=_ROOT, capture_output=True, encoding="utf-8", errors="replace")
     if out.returncode != 0:
         return {}
+    # chr(1) -- NOT an escape, and NOT the raw byte this line used to carry. The separator
+    # is the 0x01 that --format=%x01 emits two lines above, so the intent is fixed by the
+    # adjacent line and needed no guessing. Written as an escape it was eaten by a heredoc
+    # and reached the tree as a LITERAL 0x01: invisible in a diff, to grep, and on a page.
+    # Caught by scripts/lint_control_chars.py, which this lane landed in the SAME COMMIT as
+    # this defect. chr(1) leaves no escape for any shell to eat.
+    SEP = chr(1)
     seen, when = {}, None
     for line in out.stdout.splitlines():
-        if line.startswith(""):
+        if line.startswith(SEP):
             when = line[1:].strip()[:10]
             continue
         f = line.strip().replace("\\", "/")
