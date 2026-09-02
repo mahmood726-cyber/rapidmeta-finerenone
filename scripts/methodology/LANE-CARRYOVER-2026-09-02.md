@@ -50,6 +50,42 @@ git push origin "$COMMIT:main"                     # NON-FORCE, on purpose
 branch, with 8 unrelated files dirty in the same worktree, in one push, with zero conflict
 and zero contact with the shared index.
 
+### ⛔ THE STALE-SHARED-INDEX HAZARD — WHICH VARIANT IS DANGEROUS, AND WHICH IS NOT
+
+A real failure was reproduced twice tonight: *a private-index commit can leave the shared
+index one commit stale, and a stale index stages the **inverse** of what you committed — a
+**deletion** of the file you just added. A pathspec-less `git commit` from any lane then
+undoes the work.*
+
+**The hazard requires moving the branch that the worktree has checked out.** If you finish
+with `git update-ref refs/heads/<checked-out-branch> <new-commit>`, HEAD's tree now contains
+your added file while the shared index still holds the old tree — so git computes
+"file present in HEAD, absent from index" = **staged deletion**.
+
+| ending | shared index | safe? |
+|---|---|---|
+| `update-ref` on the **checked-out** branch | left stale → **stages a deletion** | ⛔ **must `git reset` after** |
+| `push <commit>:main`, local branch untouched | HEAD unchanged, index consistent | ✅ **immune** |
+
+**MEASURED** — after two commits landed by the push variant:
+`git diff --cached --name-status` in the shared worktree returns **empty**; the new files
+show as `??` untracked, the edited one as ` M`. **No staged deletion.** HEAD stayed on
+`lane/rob-retrieval-2026-08-26` throughout.
+
+⇒ **The block above is safe as written *because it ends in a push, not an `update-ref`*.**
+If you adapt it to move a local branch instead, you must add:
+
+```bash
+git reset            # resync the shared index to the new HEAD. NOT optional.
+```
+
+`git update-ref <new> <old>` protects your own commit and does **nothing** for another lane's
+index view — the index is a separate file and no ref operation touches it.
+
+**And verify rather than reason:** run `git diff --cached --name-status` in the shared tree
+after landing. Empty is the pass condition. This class is invisible until someone else's
+`git commit` silently reverts your file.
+
 ---
 
 ## 2. `retmax` is not truncation — it is a BIASED SAMPLE, and it propagates silently
