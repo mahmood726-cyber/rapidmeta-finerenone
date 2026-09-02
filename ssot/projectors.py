@@ -1545,6 +1545,114 @@ def kv_card(title, pairs, note=""):
             + "</div>" + NL)
 
 
+# ---------------------------------------------------------------------------
+# WHAT `effect.derived_from` NAMES, ONE ENTRY PER VALUE IN THE CORPUS.
+#
+# The read-vs-derived label used to be decided as
+#
+#     if df == "published_hazard_ratio" or (tag == "MEASURED" and df):  -> READ
+#     elif df:                                                          -> DERIVED
+#
+# and `tag == "MEASURED"` cannot carry that weight. The validator defines MEASURED
+# in `check_against_sources` as A CELL VERIFIABLE AGAINST A STAGED SOURCE PAYLOAD --
+# source-backed, NOT printed-in-that-form. SCHEMA_v2 item 28 is the proof that the
+# two come apart: the source prints a vaccine efficacy percentage, the object stores
+# a ratio, and the derivation must reproduce including the interval inversion. That
+# row is source-backed AND derived, both at once.
+#
+# `derived_from` is itself overloaded. On some rows it names the INPUTS WE
+# TRANSFORMED; on others the SOURCE FIELD A VALUE WAS READ FROM AS PRINTED; on
+# others it records that NO VALUE IS CARRIED AT ALL. No property of a single field
+# separates those, so each value is classified here, from the row's own note.
+#
+# THE LABEL WAS WRONG IN BOTH DIRECTIONS. 18 rows printed READ over a note saying
+# the value was computed, and 18 printed DERIVED over a note saying, in terms,
+# "READ, not derived". Fixing one direction only would have left the corpus half
+# wrong and looked complete.
+#
+# AN UNCLASSIFIED VALUE RAISES. It does not fall through to either label: a value
+# nobody has read the note for is missing evidence, and a default would silently
+# turn that into a verdict.
+
+# The value names inputs we transformed. The object says so in its own note.
+_DF_DERIVED = frozenset([
+    # SCHEMA_v2 item 28: source prints a percentage, object stores a ratio.
+    "published_vaccine_efficacy_percent",
+    # "Events are the posted event RATE multiplied by the analysed denominator and
+    #  rounded -- DERIVED, and labelled DERIVED"
+    "arm-level event counts",
+    # "The risk ratio and its interval are DERIVED from the arm-level counts, which
+    #  are READ. Neither the ratio nor the interval is claimed to appear in any source."
+    "arm-level event counts posted by the trial",
+    # "The point estimate and interval shown here are DERIVED, not read: the extractor
+    #  recovered an estimate and a variance on the analysis scale..."
+    "extractor recovery from the published page",
+])
+
+# The value names the source field the effect was read from, as printed.
+_DF_READ = frozenset([
+    # The case the previous condition special-cased, preserved.
+    "published_hazard_ratio",
+    # "The point estimate and interval are stored as the source prints them, at the
+    #  interval level the source prints them at."
+    "published_ratio_and_its_interval",
+    "published_ratio",
+    # "It is read as printed. It is NOT computed from the two arm means shown beside it"
+    "registry_posted_least_squares_mean_difference",
+    # "Point estimate and interval are READ from the ClinicalTrials.gov results section"
+    "registry results section",
+    # "READ, not derived. The standard error used in the pool is derived from this
+    #  printed interval and is labelled so"
+    "the trial's own posted least-squares mean difference",
+    # "The point estimate and the dispersion term are stored as the source prints them."
+    "published_mean_difference_and_se",
+    # "READ, not derived: this is the registry's own between-arm difference for the
+    #  registered primary outcome."   <- printed DERIVED until this change
+    "the trial's own ClinicalTrials.gov results record",
+    # "READ from the page's embedded publishedHR/hrLCI/hrUCI for this trial, not
+    #  recomputed."                   <- printed DERIVED until this change
+    "the review page's own embedded trial record",
+    # "READ from the source as printed, never recomputed and never taken from the
+    #  previous object"               <- printed DERIVED until this change
+    "the trial's own abstract, as PubMed prints it",
+])
+
+# The value carries no effect at all; `effect.point` is None on every one of these
+# rows and the value column already says so. The provenance cell is left exactly as
+# it renders today -- these are classified, not silently defaulted, and the wording
+# ("DERIVED by us from nothing -- this page holds no value for this trial") is
+# incoherent and worth changing, but that is a separate decision about 33 rows and
+# is not smuggled in here.
+_DF_NO_VALUE = frozenset([
+    "not carried forward -- the estimate is withdrawn",
+    "not carried forward -- see numerator_defect",
+    "nothing -- this page holds no value for this trial",
+    "nothing -- this page publishes no estimate",
+])
+
+
+def provenance_kind(df):
+    """"read", "derived" or "no-value" for one `effect.derived_from` value.
+
+    Raises on anything unclassified. That is the point: the caller cannot label a
+    value whose note nobody has read, and a default here would convert missing
+    evidence into a printed claim about where a number came from.
+    """
+    key = str(df)
+    if key in _DF_READ:
+        return "read"
+    if key in _DF_DERIVED:
+        return "derived"
+    if key in _DF_NO_VALUE:
+        return "no-value"
+    raise ValueError(
+        "unclassified effect.derived_from value: %r. This field names transformed "
+        "INPUTS on some rows and the SOURCE FIELD a value was read from on others, so "
+        "it cannot be labelled by a default. Read the row's derivation_note and add "
+        "the value to _DF_READ, _DF_DERIVED or _DF_NO_VALUE in ssot/projectors.py."
+        % key)
+
+
 def extraction_provenance_table(canon):
     """The Extraction tab's audit surface: one row per extracted value.
 
@@ -1622,9 +1730,11 @@ def extraction_provenance_table(canon):
 
             df = eff.get("derived_from")
             tag = prov.get("tag")
-            if df == "published_hazard_ratio" or (tag == "MEASURED" and df):
+            if df and provenance_kind(df) == "read":
                 rd = "<strong>READ</strong> from the source as printed"
             elif df:
+                # "derived" and "no-value" both keep the DERIVED wording, so this
+                # change moves exactly the rows whose label contradicted their note.
                 rd = "<strong>DERIVED</strong> by us from %s" % e(str(df))
             elif tag:
                 rd = e(str(tag))
