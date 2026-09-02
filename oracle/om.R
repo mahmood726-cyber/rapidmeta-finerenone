@@ -1,0 +1,7 @@
+suppressMessages(library(metafor))
+yi <- c(0.089735, -1.800493)
+vi <- c(0.002063, 2.59222)
+f <- rma(yi = yi, vi = vi, method = "REML", test = "z")
+cat("R:", R.version.string, "| metafor", as.character(packageVersion("metafor")), "\n\n")
+print(f)
+cat("\ntau2 =", sprintf("%.7f", f$tau2), "\n")
