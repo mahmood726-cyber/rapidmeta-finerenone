@@ -21,6 +21,9 @@ pages (root-level `*.html`); page lists are in `scripts/baselines/defect_class_b
 | R8 | `Submission readiness: NOT READY`, computed from the object's own state | Every `NOT READY` flag was found correct by reviewers. It is computed, not a fixed disclaimer | 150 |
 | R9 | No conversion between effect measures anywhere | Converting OR to SMD, or pooling across measures, is the substitution class this project audits for | 1 |
 
+| R10 | **"No systematic search was run (no attestation can discharge this) -- The included set is a named programme rather than the yield of a database search. Nothing on this page should be read as though a systematic search had been performed."** | Added 2026-09-03, and the sharpest case here. The banner is HONEST, it is CORRECT, and it tells the reader what to discount. **Our own `P1_executed_search` contradicted it on 17 of the 19 pages carrying both** -- and the MARKER was the defect. A cleanup that "resolved" the contradiction by deleting the sentence would delete the only true statement of the pair. Its count clause was separately wrong (register C7) and that was a reason to fix the count, not to drop the disclosure | 147 |
+| R11 | **A page WITHDRAWING its own earlier false claim** | empagliflozin retracted "no published synthesis pooled these two trials" and named EMPEROR-Pooled. Given W5 and W6, it is worth recording that this project does sometimes correct itself correctly -- and a cleanup pass must not remove the retraction as clutter | 1 |
+
 ## The rule this lane operates under
 
 **A gate written in this lane may not turn any of the above into a failure.** If a new

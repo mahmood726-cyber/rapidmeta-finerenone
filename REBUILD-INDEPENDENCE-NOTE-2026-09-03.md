@@ -54,9 +54,43 @@ transcribed**: every rebuilt gate is run and whatever it prints is what gets rec
 | measurement | figure from the lost commits | rebuilt |
 |---|---|---|
 | served marker pages with the P1-vs-banner contradiction | **17 of 19** | **17 of 19 — agrees** |
-| checkable pages contradicting the "two-trial" constant (146 render it) | **13 of 18** | pending |
-| comparable protocols DRIFTING, with 0 recorded amendments | **9 of 127** | pending |
-| withdrawal reasons UNQUALIFIED, of which 2 HARMFUL | **111 of 151** | pending |
+| checkable pages contradicting the "two-trial" constant (146 render it) | **13 of 18** | **13 of 18, 146 render — agrees** |
+| comparable protocols DRIFTING, with 0 recorded amendments | **9 of 127** | **9 of 127 — agrees, same nine topics** |
+| withdrawal reasons UNQUALIFIED, of which 2 HARMFUL | **111 of 151** | **111 of 151, 2 harmful — agrees, same two topics** |
+
+**All four agree.** Three of them agree on more than the headline: the two-trial breakdown
+reconciles to its population (5 agreeing + 13 contradicting = 18 checkable; 18 + 128
+not-checkable = 146), the protocol gate names the same nine topics, and the withdrawal gate
+names the same two harmful topics — `anidulafungin-candida-auto-full-review` and
+`olmesartan-htn`.
+
+## A divergence that was NOT a divergence, and how it was caught
+
+Anchoring the two-trial phrase search meant writing a word-boundary escape -- a backslash
+followed by the letter b -- into a regex. Written through a shell heredoc, **each escape
+became a literal `0x08` BACKSPACE byte.** The pattern matched nothing, so **the
+measurement returned 0 pages against a pinned figure of 146**.
+literal `0x08` BACKSPACE byte. The pattern became `"<0x08>named two-trial programme<0x08>"`
+and matched nothing, so **the measurement returned 0 pages against a pinned figure of 146**.
+
+Under the rule above that is a divergence, and it would have been reported and chased. It
+was not a divergence: the corpus was unchanged and **the instrument had corrupted itself in
+transit**. `scripts/lint_recurring_traps.py` caught it as `control_bytes`.
+
+> **A DIVERGENCE HAS TO BE DIAGNOSED BEFORE IT IS BELIEVED, IN BOTH DIRECTIONS.** A number
+> that agrees can agree by coincidence; a number that disagrees can disagree because the
+> tooling broke. Neither reading is free.
+
+The anchors are now lookarounds, which carry no backslash and cannot fail that way.
+
+**AND IT HAPPENED A SECOND TIME, IN THIS FILE.** The paragraph above was first
+written through the same shell path and the escape was eaten again, leaving one
+`0x08` byte in the document describing the hazard. Two instances in one hour from
+one mechanism, the second inside the write-up of the first. The rule that follows
+is narrower and more useful than "be careful": **do not put a backslash escape
+through a shell heredoc at all** -- write it with a tool that does not re-interpret
+the string, or express the pattern without one.
+
 
 **If one disagrees, that is the most valuable outcome available.** It gets reported, the
 wrong implementation gets identified, and the cause of the divergence gets recorded. It
