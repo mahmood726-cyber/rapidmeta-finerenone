@@ -1,0 +1,121 @@
+{
+ "_what": "Every topic whose stored PICO surface contains a harm term, adjudicated BY HAND, with the quote the verdict was read from. The detector in scripts/harms_pico_surface.py produces CANDIDATES; this file produces VERDICTS. An instrument that reaches a candidate with no row here REFUSES rather than guessing.",
+ "_adjudicated_utc": "2026-09-03",
+ "_adjudicated_by": "the author of the detector, which is a WEAKNESS and is recorded as one: the labeller should not be the classifier's author. Every row carries the quote it was decided from, so a second reader can overturn it without re-running anything.",
+ "_dispositions": {
+  "NAMED_AND_ABSENT": "The PICO names a harm outcome the review undertook to report, and the object publishes NO synthesis of it and NO reasoned refusal. THE DEFECT THIS FILE EXISTS TO COUNT.",
+  "NAMED_AND_SYNTHESISED": "The PICO names a harm outcome and a synthesis of it exists in results.by_outcome.",
+  "NAMED_AND_REFUSED_WITH_REASON": "The PICO names a harm outcome, no synthesis exists, and an explicit reasoned refusal is published. A valid output -- PROVIDED THE REASON IS CORRECT, which each row states.",
+  "COMPONENT_OF_SYNTHESISED_COMPOSITE": "The harm term names a COMPONENT of the registered composite that IS the pooled outcome. The harm is inside the synthesis, not missing from it.",
+  "MENTION_IS_NOT_AN_OUTCOME": "The term appears as the POPULATION, as a quoted registry field label, or in prose describing what a SOURCE TRIAL registered. The review undertook nothing by mentioning it. Counting these would inflate the defect count, which is the error this disposition exists to prevent."
+ },
+ "rows": [
+  {
+   "app_id": "ablation-af-review",
+   "disposition": "COMPONENT_OF_SYNTHESISED_COMPOSITE",
+   "quote": "Number of Participants With Composite of Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest",
+   "reason": "Serious Bleeding is the third component of the registered composite that IS results.by_outcome.primary. The harm is pooled, inside the composite, not omitted."
+  },
+  {
+   "app_id": "apixaban-acs-review",
+   "disposition": "NAMED_AND_SYNTHESISED",
+   "quote": "Major and clinically relevant non-major BLEEDING -- the registered primary of both trials",
+   "reason": "Bleeding IS the review's named outcome and IS results.by_outcome.primary."
+  },
+  {
+   "app_id": "apixaban-af-review",
+   "disposition": "NAMED_AND_SYNTHESISED",
+   "quote": "Stroke or systemic embolism in two trials, and major or clinically relevant non-major BLEEDING in the other two",
+   "reason": "Bleeding is named as the outcome of two of the four trials and is inside results.by_outcome.primary. That this pool MIXES an efficacy endpoint with a bleeding endpoint is a real defect of a DIFFERENT class, already stated on the object, and is not a harms omission."
+  },
+  {
+   "app_id": "apixaban-vte-prophylaxis",
+   "disposition": "NAMED_AND_ABSENT",
+   "quote": "...on symptomatic venous thromboembolism and on bleeding? || ESTIMAND, which governs POOLABILITY and not eligibility: symptomatic venous thromboembolism, or major bleeding, at ANY registered rank.",
+   "reason": "The question and the eligibility ESTIMAND both name major bleeding. results.by_outcome holds major_vte alone. No refusal is published. THE REVIEW'S OWN STATED SCOPE IS NOT DELIVERED."
+  },
+  {
+   "app_id": "apixaban-vte-treatment",
+   "disposition": "NAMED_AND_ABSENT",
+   "quote": "...on recurrent venous thromboembolism and on bleeding? || ESTIMAND ...: recurrent venous thromboembolism, or major bleeding, at ANY registered rank.",
+   "reason": "Identical shape to its sibling. results.by_outcome holds recurrent_vte alone, no refusal published. FOUND BY THIS MEASUREMENT AND NOT BY THE EXTERNAL REVIEWS, which named the prophylaxis page and not this one."
+  },
+  {
+   "app_id": "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+   "disposition": "MENTION_IS_NOT_AN_OUTCOME",
+   "quote": "NCT01309828 declares conditions: ['Safety'] -- it is NOT_ASSESSABLE for this limb",
+   "reason": "A quoted ClinicalTrials.gov conditions field label inside a screening audit sentence. The review's outcome is sbp_change_wk8. Nothing was undertaken."
+  },
+  {
+   "app_id": "casirivimab-covid",
+   "disposition": "NAMED_AND_REFUSED_WITH_REASON",
+   "quote": "...affect number of participants with treatment-emergent serious adverse events (saes)... || withdrawn_reason: k=1. This page seeds exactly one registration... AUTHORITY: Cochrane Handbook 6.5 (2024) section 10.10.3",
+   "reason": "The named outcome IS a harm -- the trial's registered primary is an SAE count. No pool is published and the reason given is k=1, which is CORRECT: one registration cannot be pooled. This is the disposition the gate must not confuse with an omission."
+  },
+  {
+   "app_id": "colchicine-intracerebral-haemorrhage",
+   "disposition": "MENTION_IS_NOT_AN_OUTCOME",
+   "quote": "In adults after intracerebral haemorrhage, does colchicine alter the outcome each trial registered",
+   "reason": "Intracerebral haemorrhage is the POPULATION. Reached only after h[ae]morrhag was corrected to ha?emorrhag; it is a true negative, and the correction that reached it still mattered."
+  },
+  {
+   "app_id": "doac-af-review",
+   "disposition": "COMPONENT_OF_SYNTHESISED_COMPOSITE",
+   "quote": "First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism (SE)",
+   "reason": "Hemorrhagic Stroke is a stroke SUBTYPE inside the registered efficacy composite that is pooled, not a bleeding harm outcome."
+  },
+  {
+   "app_id": "doac-cancer-vte-review",
+   "disposition": "COMPONENT_OF_SYNTHESISED_COMPOSITE",
+   "quote": "Adjudicated Recurrent Venous Thromboembolism (VTE) or Major Bleeding Event",
+   "reason": "Major bleeding is the second component of the registered composite that IS results.by_outcome.primary."
+  },
+  {
+   "app_id": "evolocumab-dyslipidemia-review",
+   "disposition": "NAMED_AND_SYNTHESISED",
+   "quote": "A cardiovascular composite in one trial and ADVERSE EVENTS in the other",
+   "reason": "Adverse events are one of the two quantities inside results.by_outcome.primary. That pooling those two together is illegitimate is a stated defect of a different class."
+  },
+  {
+   "app_id": "fondaparinux-vte",
+   "disposition": "NAMED_AND_SYNTHESISED",
+   "quote": "Venous thromboembolism and major bleeding events",
+   "reason": "Major bleeding is half the named outcome and results.by_outcome.vte_events is that outcome."
+  },
+  {
+   "app_id": "mitral-funcmr-review",
+   "disposition": "MENTION_IS_NOT_AN_OUTCOME",
+   "quote": "COAPT registers a device-safety primary AND an effectiveness primary; MITRA-FR registers all-cause mortality...",
+   "reason": "Prose describing what the SOURCE TRIALS registered, given to explain why the three primaries differ. The review's own outcome is 'Three different registered composites'. COAPT's device-safety primary IS unsynthesised harm data that exists -- that is the SECOND class this measurement counts separately, not a broken promise by this PICO."
+  },
+  {
+   "app_id": "posaconazole-fungal",
+   "disposition": "MENTION_IS_NOT_AN_OUTCOME",
+   "quote": "high-risk allogenic stem cell transplant recipients and neutropenic patients",
+   "reason": "neutropenic describes the POPULATION. Left reachable by the detector rather than tuned away, because tuning a detector against the sample that measured it destroys the measurement."
+  },
+  {
+   "app_id": "prevnar15-pneumo",
+   "disposition": "NAMED_AND_SYNTHESISED",
+   "quote": "how does the risk of each solicited injection-site symptom compare? || results.by_outcome: injection_site_pain, injection_site_swelling, injection_site_erythema, injection_site_induration",
+   "reason": "THE CORPUS'S WORKED EXAMPLE. The PICO names harms and the object delivers four of them with per-arm denominators. This row is the gate's NAMED POSITIVE for the not-a-defect side: a gate that flags this page is wrong, and a gate that never reaches it has not been shown to distinguish delivered harms from absent ones."
+  },
+  {
+   "app_id": "rivaroxaban-acs-review",
+   "disposition": "MENTION_IS_NOT_AN_OUTCOME",
+   "quote": "One registers a bleeding primary AND an efficacy primary and the page does not say which it used",
+   "reason": "Prose about what ATLAS ACS TIMI 46 registered, stated as an UNDECLARED-ESTIMAND defect the page already owns. The review's outcome is 'Undeclared'; it undertook to report neither endpoint, so it did not omit a harm it promised."
+  }
+ ],
+ "_recall_sample": {
+  "why": "Precision is measured by CENSUS -- every candidate above is adjudicated, so the defect count carries no sampling error. RECALL is the open risk: a topic whose PICO names a harm in words the detector does not carry is never a candidate and is never counted.",
+  "preregistered_before_drawing": true,
+  "seed": 20260903,
+  "n": 25,
+  "frame": "the 128 live SSOT objects NOT flagged by the detector, sorted by app_id, sampled uniformly without replacement with random.Random(20260903).sample",
+  "labelled_utc": "2026-09-03",
+  "false_negatives_found": 0,
+  "what_the_zero_means": "0/25 gives a 95% upper bound of about 11.3% on the false-negative rate in the unflagged frame (rule of three: 3/25). It does NOT mean the detector has no recall hole -- it means none was exposed at n=25. The one real recall bug found in this lane was found by READING the sample, not by the count: 'h[ae]morrhag' cannot match British 'haemorrhage', because [ae] matches exactly one of a/e and haemorrhage carries both.",
+  "burned": "This sample is now BURNED for tuning. The detector was corrected once against it (the ae fix) and any further change must be revalidated at a fresh seed recorded before it is drawn."
+ }
+}
