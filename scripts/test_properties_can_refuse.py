@@ -59,11 +59,14 @@ import page_properties as PP  # noqa: E402
 def _ok_object():
     """An object that legitimately holds every property. The control."""
     return {
-        "search": {"databases": [
+        # A DECLARED STRATEGY, because P1 now requires one. Without it this CONTROL
+        # refuses, and a control that cannot hold proves nothing about the plants below.
+        "search": {"strategy": "registry + bibliographic, protocol section 3.2",
+                   "databases": [
             {"database": "ClinicalTrials.gov API v2",
              "query_as_executed": 'intervention="x"; study_type=INTERVENTIONAL',
              "date_executed": "2026-08-18", "records_returned": 21},
-        ]},
+                   ]},
         "k_cascade": {"k0_surfaced": 22, "k2_role_located": 21, "k3_experimental": 18,
                       "k4_comparator": 0, "k_included_in_object": 6,
                       "k_unscreened_remainder": 0},
@@ -83,6 +86,12 @@ def _plant_p1(o):
     o["search"]["databases"].append(
         {"database": "PubMed (NCBI E-utilities esearch)",
          "query_as_executed": "NOT EXECUTED FOR THIS TOPIC"})
+    return o
+
+
+def _plant_p1_no_strategy(o):
+    """The served shape: real queries, no declared strategy, banner already saying so."""
+    o["search"].pop("strategy")
     return o
 
 
@@ -114,6 +123,10 @@ PLANTS = {
     "P5_extraction_table": _plant_p5,
 }
 
+#: A second shape for a property already in PLANTS. PLANTS is keyed by property, so an
+#: additional plant for the same one lives here and runs alongside it.
+EXTRA_PLANTS = [("P1_executed_search", "no declared search strategy", _plant_p1_no_strategy)]
+
 _EXPECTED_PRECONDITIONS = ("population_stated",)
 
 
@@ -141,6 +154,12 @@ def test_each_property_refuses_a_planted_defect():
         if state == PP.HELD:
             bad.append("%s still HELD with its defect planted -- it is a password, not a "
                        "check. Reason it gave: %s" % (name, reason))
+    for name, label, plant in EXTRA_PLANTS:
+        state, reason = _call(name, plant(_ok_object()))
+        if state == PP.HELD:
+            bad.append("%s still HELD with %s planted -- the shape served wherever a page "
+                       "carries the no-systematic-search banner. Reason: %s"
+                       % (name, label, reason))
     return bad
 
 
