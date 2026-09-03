@@ -21,7 +21,17 @@ library(jsonlite)
 args  <- commandArgs(trailingOnly = TRUE)
 topic <- args[1]
 outcome <- args[2]
-repo  <- "F:/rapidmeta-ssot-shell"
+# THE REPO IS DERIVED, NOT HARDCODED. This read "F:/rapidmeta-ssot-shell" -- an
+# absolute path into ANOTHER lane's worktree, so the script silently fitted a
+# different clone's object or failed outright depending on who ran it. Same class as
+# the three scripts already recorded for defaulting into a foreign worktree.
+# RMF_REPO overrides; otherwise the repo is the parent of this script's directory.
+repo <- Sys.getenv("RMF_REPO")
+if (!nzchar(repo)) {
+  a <- commandArgs(trailingOnly = FALSE)
+  f <- sub("^--file=", "", a[grep("^--file=", a)])
+  repo <- if (length(f)) dirname(dirname(normalizePath(f[1]))) else getwd()
+}
 
 path <- file.path(repo, "ssot", topic, paste0(topic, ".json"))
 obj  <- fromJSON(path, simplifyVector = FALSE)
