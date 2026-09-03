@@ -5309,6 +5309,62 @@ with open(AACT / "studies.txt", "r", encoding="utf-8", errors="replace") as f:
             (row.get("results_first_posted_date") or "").strip())
 print(f"  NCTs with study metadata: {len(study_type_by_nct):,}")
 
+# -- THE INDEX THE IDENTITY GATE READS, WHICH WAS NEVER BUILT --------------
+# `_experimental_interventions` below reads `exp_intv_by_nct`. Until this commit that name
+# was referenced ONCE in this repository and assigned NOWHERE, so `find_ncts` raised
+#     NameError: name 'exp_intv_by_nct' is not defined
+# on the FIRST candidate it examined. The gate arrived in 8b41493b (2026-08-25); the index
+# it depends on did not arrive with it, and for nine days the autodiscovery path could not
+# return a single candidate for any topic.
+#
+#     NOTHING SAID SO, BECAUSE NOTHING RAN IT. An available mechanism is not an operative
+#     one, and a matcher that raises before it counts never produces a number to doubt.
+#
+# WHAT ABSENCE FROM THIS MAP MEANS, and it is deliberately the cautious reading. A trial is
+# absent when AACT gives it no EXPERIMENTAL arm -- either because it carries no arm roles at
+# all, or because it carries roles and none is experimental. `_experimental_interventions`
+# returns None for both, and `_studies_subject` then falls back to matching over ALL arms
+# with role_known False. Those two cases are already indistinguishable downstream (`exp` is
+# falsy either way and `len(exp) > 0` is False either way), so they are not separated here.
+# Reading absence as "the drug is not experimental" would silently drop real trials, which
+# is the larger and quieter failure.
+print("Indexing design_groups / design_group_interventions for EXPERIMENTAL arms...")
+_exp_group_ids = set()
+with open(AACT / "design_groups.txt", "r", encoding="utf-8", errors="replace") as f:
+    for row in csv.DictReader(f, delimiter="|"):
+        if (row.get("group_type") or "").strip().upper() == "EXPERIMENTAL":
+            gid = (row.get("id") or "").strip()
+            if gid:
+                _exp_group_ids.add(gid)
+print(f"  EXPERIMENTAL design groups: {len(_exp_group_ids):,}")
+
+_exp_intv_owner = {}
+with open(AACT / "design_group_interventions.txt", "r", encoding="utf-8",
+          errors="replace") as f:
+    for row in csv.DictReader(f, delimiter="|"):
+        if (row.get("design_group_id") or "").strip() in _exp_group_ids:
+            iid = (row.get("intervention_id") or "").strip()
+            nct = (row.get("nct_id") or "").strip().upper()
+            if iid and nct:
+                _exp_intv_owner[iid] = nct
+_exp_group_ids.clear()
+print(f"  interventions linked to an EXPERIMENTAL arm: {len(_exp_intv_owner):,}")
+
+_exp_accum = defaultdict(list)
+with open(AACT / "interventions.txt", "r", encoding="utf-8", errors="replace") as f:
+    for row in csv.DictReader(f, delimiter="|"):
+        _owner = _exp_intv_owner.get((row.get("id") or "").strip())
+        if _owner:
+            _nm = (row.get("name") or "").strip().lower()
+            if _nm:
+                _exp_accum[_owner].append(_nm)
+_exp_intv_owner.clear()
+# A plain dict, not a defaultdict: `_experimental_interventions` distinguishes a MISSING key
+# (role undetermined) from a present one, and a defaultdict would silently manufacture an
+# empty list for every NCT ever looked up, converting "unknown" into "known and empty".
+exp_intv_by_nct = dict(_exp_accum)
+print(f"  NCTs with >=1 EXPERIMENTAL intervention: {len(exp_intv_by_nct):,}")
+
 # ── Fix B: synonym tables + normalization-aware matching ──────────────────
 # PRODUCTION should source drug synonyms from RxNorm/ChEMBL cross-refs and
 # condition synonyms from MeSH entry terms — do NOT hand-maintain. This seed

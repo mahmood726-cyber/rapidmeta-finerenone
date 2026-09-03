@@ -45,29 +45,41 @@ The real AACT reading is reported alongside, with the snapshot identified by dir
 by the size and mtime of every table read, because a count taken against an unnamed snapshot
 is not reproducible and this file exists to be reproduced.
 
-WHAT THE FIRST RUN OF THIS FILE FOUND, AND IT IS NOT THE CAP.
+WHAT THE FIRST RUN OF THIS FILE FOUND, AND IT WAS NOT THE CAP.
 
-    `find_ncts` DOES NOT RUN AT THIS COMMIT. It raises NameError on the first candidate it
-    examines, because `_experimental_interventions` reads a global `exp_intv_by_nct` that
-    is referenced once in this repository and constructed nowhere.
+    `find_ncts` DID NOT RUN AT 852b0478. It raised NameError on the first candidate it
+    examined, because `_experimental_interventions` reads a global `exp_intv_by_nct` that
+    was referenced once in this repository and constructed nowhere.
 
-That is measured by execution, not by reading: `probe_matcher_operable` below calls the
-extracted `find_ncts` against a one-row index built so that a working matcher MUST return
-that row. The identity gate arrived in 8b41493b (2026-08-25) together with the sweep that
-motivated it; the global it depends on did not arrive with it.
+Measured by execution, not by reading. The identity gate arrived in 8b41493b (2026-08-25)
+with the sweep that motivated it; the index it depends on did not arrive with it, and for
+nine days the autodiscovery path could not return a candidate for any topic. Nothing said
+so, because nothing ran it.
 
-    A CAP CANNOT BE THE REASON A TOPIC INGESTS FOUR TRIALS IF THE FUNCTION HOLDING THE CAP
-    CANNOT REACH THE CAP. The discard measured below is real and is what the cap costs, but
-    it is what the cap costs ONCE THE MATCHER RUNS AGAIN, and those are different claims.
+    A CAP CANNOT BE THE REASON A TOPIC INGESTS FIVE TRIALS IF THE FUNCTION HOLDING THE CAP
+    CANNOT REACH THE CAP. The discard measured below is what the cap costs ONCE THE MATCHER
+    RUNS, and that is a different claim from what it cost while the matcher was dead.
 
-So this file reports two things that must not be merged: whether the matcher is operable,
-and how large the pool is that its cap would cut. The funnel is therefore measured through
-the drug-pattern gate that predates 8b41493b and still executes; the identity gate's own
-effect on the denominator is UNMEASURED at this commit and is labelled so, because a gate
-that cannot run has no measurable effect and reporting one would be an invention.
+The index is now built, so `find_ncts` runs. The two questions stay separate, because they
+fail separately and one of them hides the other:
+
+    BEHAVIOURAL  `probe_matcher_operable` hands the matcher a one-row index in which every
+                 gate is satisfied by construction and requires that row back. It CANNOT
+                 see an index the SOURCE forgot to build, because the probe supplies it.
+    STATIC       `unconstructed_globals` compares the names the matcher READS against the
+                 names the source file ASSIGNS. This is the check that catches the class.
+                 Against 852b0478 it returns ['exp_intv_by_nct']; against this tree, none.
+                 A check that could only ever return none would not be a check.
+
+The funnel below is still measured through the drug-pattern gate that PREDATES 8b41493b, so
+its counts remain comparable to the pre-repair reading and are an UPPER BOUND on what the
+trial-identity gate now passes. That gate narrows the pool further, by an amount this file
+does not yet report; until it does the number is labelled UNMEASURED rather than guessed.
 """
 from __future__ import annotations
 
+import ast
+import builtins
 import csv
 import hashlib
 import io
@@ -89,6 +101,9 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "scripts" / "add_topic_autodiscover.py"
 SLICE_START = "DRUG_SYNS = {"
 SLICE_END = "    return matches[:max_per_topic]"
+
+# Filled by load_matcher so the static check reads the SAME bytes that were exec'd.
+EXTRACT_CACHE = {}
 
 # The tables `find_ncts` closes over. Named here so a missing one is reported as a missing
 # table rather than surfacing later as an empty index and a confident zero.
@@ -112,6 +127,8 @@ def load_matcher(source):
     i = src.index(SLICE_START)
     j = src.index(SLICE_END) + len(SLICE_END)
     block = src[i:j]
+    EXTRACT_CACHE["block"] = block
+    EXTRACT_CACHE["source"] = src
     # `re` is a module-level import in the source file and therefore outside the extracted
     # slice. Supplying it here keeps the slice itself unmodified; rewriting the block to add
     # its own import would mean measuring an edited matcher and calling it the matcher.
@@ -152,6 +169,12 @@ def probe_matcher_operable(ns):
         "enroll_by_nct": {probe: 4744},
         "phase_by_nct": {probe: "phase3"},
         "results_posted_by_nct": {probe: True},
+        # The EXPERIMENTAL-arm index. Supplied here because this probe asks a BEHAVIOURAL
+        # question -- given a complete index, does the matcher return the row? -- and a
+        # missing index would answer a different question. Whether the SOURCE builds this
+        # index is asked separately, by unconstructed_globals, which is the check that
+        # catches the class rather than this one instance of it.
+        "exp_intv_by_nct": {probe: ["dapagliflozin 10 mg"]},
     }
     ns.update(inject)
     try:
@@ -164,6 +187,74 @@ def probe_matcher_operable(ns):
         return True, "returns the single constructed candidate"
     return False, "returns %r where a working matcher must return [%r]" % (got, probe)
 
+
+def unconstructed_globals(source, ns):
+    """Names the extracted matcher READS as globals that the source file never ASSIGNS.
+
+    THIS IS THE CHECK THAT OUTLIVES THE BUG. `probe_matcher_operable` catches a broken
+    matcher only while the probe happens not to supply the missing name; the moment the
+    probe is handed a complete index -- which is exactly what makes it a good behavioural
+    test -- it stops being able to see an index the source forgot to build. So the two
+    questions are asked by two checks:
+
+        BEHAVIOURAL  given every index, does the matcher return the constructed candidate?
+        STATIC       does the source file actually build every index the matcher reads?
+
+    `exp_intv_by_nct` was invisible for nine days to every reader and to grep, because
+    reading a name and assigning a name look identical unless something counts them apart.
+    Returns a sorted list; empty means every global the matcher reads is built by the file.
+    """
+    tree = ast.parse(source)
+    assigned = set()
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    assigned.add(t.id)
+        elif isinstance(node, (ast.AnnAssign, ast.AugAssign)):
+            if isinstance(node.target, ast.Name):
+                assigned.add(node.target.id)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            assigned.add(node.name)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            for a in node.names:
+                assigned.add((a.asname or a.name).split(".")[0])
+        elif isinstance(node, (ast.For, ast.With, ast.Try, ast.If, ast.While)):
+            for sub in ast.walk(node):
+                if isinstance(sub, ast.Name) and isinstance(sub.ctx, ast.Store):
+                    assigned.add(sub.id)
+
+    reads = set()
+    for fn in [n for n in ast.walk(ast.parse(EXTRACT_CACHE["block"]))
+               if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))]:
+        local = {a.arg for a in fn.args.args} | {a.arg for a in fn.args.kwonlyargs}
+        if fn.args.vararg:
+            local.add(fn.args.vararg.arg)
+        if fn.args.kwarg:
+            local.add(fn.args.kwarg.arg)
+        for sub in ast.walk(fn):
+            if isinstance(sub, ast.Name) and isinstance(sub.ctx, ast.Store):
+                local.add(sub.id)
+            # LAMBDA PARAMETERS ARE LOCALS TOO. Omitting them made this check report `n`
+            # -- the sort key `lambda n: (-_pivotal_score(n), ...)` -- as a global the
+            # source never assigns. That is a check naming an innocent name, which is worse
+            # than a check naming none: it is specific, it looks correct, and it points
+            # away from the real one.
+            elif isinstance(sub, ast.Lambda):
+                local.update(a.arg for a in sub.args.args)
+                local.update(a.arg for a in sub.args.kwonlyargs)
+                if sub.args.vararg:
+                    local.add(sub.args.vararg.arg)
+                if sub.args.kwarg:
+                    local.add(sub.args.kwarg.arg)
+        for sub in ast.walk(fn):
+            if isinstance(sub, ast.Name) and isinstance(sub.ctx, ast.Load):
+                if sub.id not in local:
+                    reads.add(sub.id)
+
+    builtin = set(dir(builtins))
+    return sorted(n for n in reads
+                  if n not in assigned and n not in ns and n not in builtin)
 
 def funnel(intv_by_nct, cond_by_nct, study_type_by_nct, match_blob,
            drug_syns, cond_syns, drugs, conds):
@@ -337,6 +428,12 @@ def main(argv):
 
     operable, detail = probe_matcher_operable(load_matcher(SOURCE)[0])
     print("MATCHER  find_ncts operable: %s -- %s" % ("YES" if operable else "NO", detail))
+    unbuilt = unconstructed_globals(EXTRACT_CACHE["source"], ns)
+    print("MATCHER  globals read by the matcher and never assigned by the source: %s"
+          % (", ".join(unbuilt) if unbuilt else "none"))
+    if unbuilt:
+        operable = False
+        detail = "source never assigns %s" % ", ".join(unbuilt)
     if not operable:
         print("MATCHER  the identity gate cannot run, so its contribution to the drop is")
         print("MATCHER  UNMEASURED at this commit. The funnel below runs the drug-pattern")
@@ -402,6 +499,7 @@ def main(argv):
         "matcher": {"source": "scripts/" + SOURCE.name, "sha256": digest,
                     "lines": [line_first, line_last],
                     "find_ncts_operable": operable, "operability_detail": detail,
+                    "unconstructed_globals": unbuilt,
                     "identity_gate_effect_on_denominator": (
                         "MEASURED" if operable else "UNMEASURED -- gate inoperable")},
         "snapshot": ident,
