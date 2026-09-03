@@ -332,7 +332,11 @@ def control_readings(match_blob, drug_syns, cond_syns):
 
 def snapshot_identity(aact):
     """Name the snapshot by table size and mtime, so a reading can be re-taken exactly."""
-    ident = {"dir": str(aact), "tables": {}}
+    # THE NAME AND THE FINGERPRINTS, NOT THE MOUNT POINT. A committed record saying
+    # "F:/AACT-storage/AACT/2026-08-30" identifies a directory on one machine and nothing
+    # to anyone else. Two readers holding the same table sizes and mtimes are reading the
+    # same bytes wherever either has mounted them, which is what re-taking a reading needs.
+    ident = {"snapshot": Path(aact).name, "tables": {}}
     for t in TABLES:
         p = aact / t
         if p.exists():

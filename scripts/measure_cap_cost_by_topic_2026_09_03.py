@@ -52,6 +52,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from instrument_controls import require_controls  # noqa: E402
+import enumeration_search_record  # noqa: E402
 
 if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -225,7 +226,14 @@ def synthetic_controls(match_blob, drug_syns, cond_syns):
 
 
 def main(argv):
-    out_path = Path(argv[1]) if len(argv) > 1 else None
+    args = [a for a in argv[1:] if not a.startswith("--")]
+    out_path = Path(args[0]) if args else None
+    # A FIXED TIMESTAMP FOR EVERY RECORD IN ONE RUN. They describe one scan of one snapshot,
+    # so stamping each with its own wall-clock would suggest 53 separate searches.
+    executed_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    emit_dir = None
+    if "--emit-records" in argv:
+        emit_dir = ROOT / "evidence" / "enumeration"
     aact_env = os.environ.get("AACT_DIR", "")
 
     ns, digest, src = load_matcher()
@@ -308,6 +316,21 @@ def main(argv):
         # neither number is reportable.
         led = {}
         full = ns["find_ncts"](drugs, conds, UNBOUNDED, led)
+        if emit_dir:
+            # Emitted at the bound the PIPELINE would actually apply, not at the unbounded
+            # value used for measurement -- a record showing a bound of 1,000,000,000 would
+            # describe a run nobody will ever make. The pool listed is the full eligible
+            # set either way, which is the point: the bound is served beside what it cut
+            # from rather than replacing it.
+            bounded_ledger = {}
+            ns["find_ncts"](drugs, conds, ns["MAX_PER_TOPIC"], bounded_ledger)
+            enumeration_search_record.write(
+                emit_dir,
+                enumeration_search_record.build(
+                    topic=stem, drug_patterns=drugs, condition_patterns=conds,
+                    ledger=bounded_ledger, eligible_ncts=full,
+                    snapshot=enumeration_search_record.snapshot_identity(aact),
+                    executed_utc=executed_utc))
         if led.get("eligible") != len(full):
             print("REFUSED: the matcher ledger and the measured pool disagree for %s "
                   "(ledger eligible %s, pool %d). NO COUNT IS PRINTED."
@@ -370,13 +393,19 @@ def main(argv):
     if out_path:
         out_path.write_text(json.dumps(
             {"instrument": "measure_cap_cost_by_topic_2026_09_03",
-             "matcher_sha256": digest, "snapshot": str(aact),
+             "matcher_sha256": digest,
+             # The snapshot NAME and its table fingerprints, never the mount point: a
+             # drive letter identifies a directory on one machine and nothing elsewhere.
+             "snapshot": enumeration_search_record.snapshot_identity(aact),
              "caps_reported": list(CAPS), "universe_size": len(universe),
              "topics_in_source": len(topics), "distinct_stems": len({t[0] for t in topics}),
              "duplicate_stems": dupes, "sample_size": len(rows), "rows": rows},
             indent=2), encoding="utf-8")
         print("")
         print("wrote %s" % out_path)
+    if emit_dir:
+        print("executed-search records written: %d -> %s"
+              % (len(rows), emit_dir.relative_to(ROOT)))
     return 0
 
 

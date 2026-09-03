@@ -1,0 +1,140 @@
+{
+  "topic": "LIPOSOMAL_BUPIVACAINE_AUTO",
+  "executed_utc": "2026-09-03T19:57:21Z",
+  "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
+  "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
+  "database_fingerprint": {
+    "interventions.txt": {
+      "bytes": 217740084,
+      "mtime_utc": "2026-08-30T18:01:33Z"
+    },
+    "conditions.txt": {
+      "bytes": 69968244,
+      "mtime_utc": "2026-08-30T17:55:46Z"
+    },
+    "studies.txt": {
+      "bytes": 407498431,
+      "mtime_utc": "2026-08-30T18:12:46Z"
+    },
+    "design_groups.txt": {
+      "bytes": 238478968,
+      "mtime_utc": "2026-08-30T17:56:07Z"
+    },
+    "design_group_interventions.txt": {
+      "bytes": 56282730,
+      "mtime_utc": "2026-08-30T17:55:50Z"
+    }
+  },
+  "tool": "scripts/add_topic_autodiscover.py::find_ncts",
+  "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['liposomal bupivacaine'] expanded through DRUG_SYNS; condition_patterns=['postoperative pain'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
+  "pages": [
+    {
+      "page": 1,
+      "returned": 48,
+      "total_reported": 48,
+      "next_page_token": "NONE -- full-table scan, not a paged API"
+    }
+  ],
+  "records_returned_total": 48,
+  "total_reported": 48,
+  "distinct": 48,
+  "duplicates_across_pages": 0,
+  "nct_ids": [
+    "NCT02222129",
+    "NCT03859635",
+    "NCT04777591",
+    "NCT03723447",
+    "NCT03508830",
+    "NCT02959996",
+    "NCT03854344",
+    "NCT03875664",
+    "NCT04333095",
+    "NCT02352922",
+    "NCT02074709",
+    "NCT05140499",
+    "NCT03383198",
+    "NCT04254692",
+    "NCT06569953",
+    "NCT07171125",
+    "NCT03036085",
+    "NCT06740214",
+    "NCT05161221",
+    "NCT07643792",
+    "NCT03353363",
+    "NCT06575010",
+    "NCT02287246",
+    "NCT02787226",
+    "NCT04751344",
+    "NCT04680221",
+    "NCT04003506",
+    "NCT03844451",
+    "NCT04764916",
+    "NCT02426164",
+    "NCT02624856",
+    "NCT03474510",
+    "NCT04232306",
+    "NCT04864210",
+    "NCT03001453",
+    "NCT02659501",
+    "NCT07134660",
+    "NCT07651722",
+    "NCT03728946",
+    "NCT04865211",
+    "NCT06499181",
+    "NCT07577934",
+    "NCT04571606",
+    "NCT02400645",
+    "NCT02875015",
+    "NCT03692546",
+    "NCT05038007",
+    "NCT07689162"
+  ],
+  "enumeration": {
+    "retrieved": 7348,
+    "identity_rejected": 7165,
+    "identity_reasons": {
+      "no intervention matches the drug pattern": 7130,
+      "matches only outside the experimental arm ('liposomal bupivacaine')": 7,
+      "matches only as a component of the combination 'liposomal bupivacaine with bupivacaine'": 2,
+      "matches only as a component of the combination 'liposomal bupivacaine + compound betamethasone injection'": 1,
+      "matches only as a component of the combination 'single-injection bupivacaine hcl plus liposomal bupivacaine'": 1,
+      "matches only as a component of the combination 'transversus abdominis plane (tap) block with liposomal bupivacaine'": 1,
+      "matches only as a component of the combination 'liposomal bupivacaine plus bupivacaine hydrochloride'": 1,
+      "matches only as a component of the combination 'liposomal bupivacaine/plain bupivacaine peri-articular injection'": 1,
+      "matches only as a component of the combination 'esp block with bupivacaine + liposomal bupivacaine'": 1,
+      "matches only as a component of the combination 'erector spinae plane block with liposomal bupivacaine'": 1,
+      "matches only as a component of the combination 'treatment with liposomal bupivacaine'": 1,
+      "matches only as a component of the combination 'abc block with bupivacaine/liposomal bupivacaine'": 1,
+      "matches only as a component of the combination 'liposomal bupivacaine plus bupivacaine'": 7,
+      "matches only outside the experimental arm ('1.3% liposomal bupivacaine (exparel)')": 1,
+      "matches only outside the experimental arm ('10ml 0.5% plain bupivacaine with 10ml 1.33% liposomal bupivacaine')": 1,
+      "matches only as a component of the combination 'intercostal nerve block and wound infiltration with liposomal bupivacaine'": 1,
+      "matches only as a component of the combination 'liposomal bupivacaine plus free bupivacaine'": 1,
+      "matches only as a component of the combination 'intra articular injection with liposomal bupivacaine'": 1,
+      "matches only as a component of the combination 'nerve block with liposomal bupivacaine and intravenous analgesia'": 1,
+      "matches only as a component of the combination 'tap block with liposomal bupivacaine and bupivacaine'": 1,
+      "matches only as a component of the combination 'bupivacaine-liposomal bupivacaine'": 2,
+      "matches only as a component of the combination 'liposomal bupivacaine + bupivacaine hcl 0.5% inj'": 1
+    },
+    "dropped_condition": 135,
+    "dropped_study_type": 0,
+    "eligible": 48
+  },
+  "bound": {
+    "applied": 500,
+    "source": "default",
+    "bit": false,
+    "ingested": 48,
+    "discarded": 0,
+    "discarded_ncts": [],
+    "note": "the bound did not bite: every eligible candidate was ingested"
+  },
+  "screening": {
+    "state": "NOT_RUN",
+    "reason": "no candidate in this record has been dispositioned. This is a state, not a silence: zero screened is not zero excluded, and an omitted field would read as nothing to report.",
+    "included": null,
+    "excluded": null,
+    "undecidable": null
+  }
+}

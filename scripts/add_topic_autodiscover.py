@@ -17,6 +17,8 @@ import os, json, csv, re, sys, io, time, urllib.request, urllib.parse
 from pathlib import Path
 from collections import defaultdict
 import xml.etree.ElementTree as ET
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import enumeration_search_record
 
 if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -5641,6 +5643,7 @@ def find_ncts(drug_patterns, condition_patterns, max_per_topic=None, ledger=None
 
 
 topic_specs = []
+_search_records = []
 for t in TOPICS:
     if len(t) == 4:
         stem, name, drugs, conds = t
@@ -5652,9 +5655,24 @@ for t in TOPICS:
     # reaches the delivered record instead of dying inside the matcher.
     enum_ledger = {}
     ncts = find_ncts(drugs, conds, ledger=enum_ledger)
+    # THE SEARCH THAT RAN, WRITTEN DOWN. 124 delivered pages have an empty Search tab
+    # because no executed search was ever recorded for them -- from outside, that is
+    # indistinguishable from no search having happened. The record lists the whole ELIGIBLE
+    # pool, not the ingested head, so the bound is served beside the number it cut from.
+    _eligible_pool = ncts + list(enum_ledger.get("discarded_ncts", []))
+    _search_records.append(
+        enumeration_search_record.build(
+            topic=stem, drug_patterns=drugs, condition_patterns=conds,
+            ledger=enum_ledger,
+            snapshot=enumeration_search_record.snapshot_identity(AACT),
+            eligible_ncts=_eligible_pool))
     topic_specs.append({"stem": stem, "name": name, "ncts": ncts,
                          "drug_patterns": drugs, "condition_patterns": conds,
                          "enumeration": enum_ledger})
+
+for _rec in _search_records:
+    enumeration_search_record.write(HERE / "evidence" / "enumeration", _rec)
+print(f"Executed-search records written: {len(_search_records)} -> evidence/enumeration/")
 
 print(f"\nNCT discovery summary:")
 n_with_ncts = sum(1 for t in topic_specs if t["ncts"])

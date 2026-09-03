@@ -1,0 +1,95 @@
+{
+  "topic": "FLUTICASONE_UMECLIDINIUM_VILANTEROL_AUTO",
+  "executed_utc": "2026-09-03T19:57:21Z",
+  "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
+  "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
+  "database_fingerprint": {
+    "interventions.txt": {
+      "bytes": 217740084,
+      "mtime_utc": "2026-08-30T18:01:33Z"
+    },
+    "conditions.txt": {
+      "bytes": 69968244,
+      "mtime_utc": "2026-08-30T17:55:46Z"
+    },
+    "studies.txt": {
+      "bytes": 407498431,
+      "mtime_utc": "2026-08-30T18:12:46Z"
+    },
+    "design_groups.txt": {
+      "bytes": 238478968,
+      "mtime_utc": "2026-08-30T17:56:07Z"
+    },
+    "design_group_interventions.txt": {
+      "bytes": 56282730,
+      "mtime_utc": "2026-08-30T17:55:50Z"
+    }
+  },
+  "tool": "scripts/add_topic_autodiscover.py::find_ncts",
+  "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['fluticasone furoate'] expanded through DRUG_SYNS; condition_patterns=['copd'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
+  "pages": [
+    {
+      "page": 1,
+      "returned": 1,
+      "total_reported": 1,
+      "next_page_token": "NONE -- full-table scan, not a paged API"
+    }
+  ],
+  "records_returned_total": 1,
+  "total_reported": 1,
+  "distinct": 1,
+  "duplicates_across_pages": 0,
+  "nct_ids": [
+    "NCT07192016"
+  ],
+  "enumeration": {
+    "retrieved": 7348,
+    "identity_rejected": 7276,
+    "identity_reasons": {
+      "no intervention matches the drug pattern": 7246,
+      "matches only as a component of the combination 'fluticasone furoate/gw642444 inhalation powder'": 1,
+      "matches only as a component of the combination 'vilanterol and fluticasone furoate'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/gw642444 inhalation powder 100/25mcg'": 1,
+      "matches only as a component of the combination 'batefenterol + fluticasone furoate'": 1,
+      "matches only as a component of the combination 'fluticasone furoate + vilanterol'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/umeclidinium/vilanterol (fuv)'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/umeclidinium/vilanterol'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/vilanterol inhalation powder'": 3,
+      "matches only as a component of the combination 'fluticasone furoate/gw642444'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/umeclidinium/vilanterol 100 mcg/1 actuation-62.5 mcg/1 actuation-25 mcg/1 actuation inhalation powder'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/vilanterol 100/25 mcg via ellipta inhaler'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/vilanterol 100/25mcg'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/vilanterol'": 6,
+      "matches only as a component of the combination 'fluticasone furoate/ vilanterol trifenatate'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/ vilanterol 100 mcg/25 mcg'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/umeclidinium bromide/vilanterol trifenatate'": 1,
+      "matches only outside the experimental arm ('fluticasone furoate')": 1,
+      "matches only as a component of the combination 'fluticasone furoate / vilanterol trifenatate 100/25 mcg'": 1,
+      "matches only as a component of the combination 'fluticasone furoate and fexofenadine'": 1,
+      "matches only as a component of the combination 'fluticasone furoate and vilanterol inhalation powder'": 1,
+      "matches only as a component of the combination 'fluticasone furoate-vilanterol trifenatate'": 1,
+      "matches only as a component of the combination 'fluticasone furoate + umeclidinium + vilanterol (100/62.5/25 mcg)'": 1,
+      "matches only as a component of the combination 'fluticasone furoate/vilanterol 100/25 mcgs'": 1
+    },
+    "dropped_condition": 71,
+    "dropped_study_type": 0,
+    "eligible": 1
+  },
+  "bound": {
+    "applied": 500,
+    "source": "default",
+    "bit": false,
+    "ingested": 1,
+    "discarded": 0,
+    "discarded_ncts": [],
+    "note": "the bound did not bite: every eligible candidate was ingested"
+  },
+  "screening": {
+    "state": "NOT_RUN",
+    "reason": "no candidate in this record has been dispositioned. This is a state, not a silence: zero screened is not zero excluded, and an omitted field would read as nothing to report.",
+    "included": null,
+    "excluded": null,
+    "undecidable": null
+  }
+}
