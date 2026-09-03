@@ -1,6 +1,6 @@
 {
   "topic": "BEPIROVIRSEN_HBV_AUTO",
-  "executed_utc": "2026-09-03T19:57:21Z",
+  "executed_utc": "2026-09-03T20:06:40Z",
   "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
   "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
   "database_fingerprint": {
@@ -27,6 +27,12 @@
   },
   "tool": "scripts/add_topic_autodiscover.py::find_ncts",
   "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['bepirovirsen'] expanded through DRUG_SYNS; condition_patterns=['hepatitis b'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "drug_patterns": [
+    "bepirovirsen"
+  ],
+  "condition_patterns": [
+    "hepatitis b"
+  ],
   "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
   "pages": [
     {

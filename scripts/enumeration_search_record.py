@@ -110,6 +110,11 @@ def build(topic, drug_patterns, condition_patterns, ledger, snapshot,
             "condition_patterns=%r expanded through COND_SYNS; "
             "gates applied in order: %s"
             % (list(drug_patterns), list(condition_patterns), " -> ".join(GATES_IN_ORDER))),
+        # THE PATTERNS AS FIELDS, not only inside the query prose. A later reader that
+        # needs the predicate must not have to parse it back out of a sentence -- that
+        # is how a record ends up being read with a regex and an eval.
+        "drug_patterns": list(drug_patterns),
+        "condition_patterns": list(condition_patterns),
         "sort_order": SORT_ORDER,
         # A SNAPSHOT SCAN HAS NO PAGINATION, and that is stated rather than left for a
         # reader to infer from a missing field. Class 20 is about a cursor abandoned early;

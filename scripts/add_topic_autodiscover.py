@@ -19,6 +19,7 @@ from collections import defaultdict
 import xml.etree.ElementTree as ET
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import enumeration_search_record
+import screening_states
 
 if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -5815,7 +5816,28 @@ def audit_nct(nct, topic):
                   for o in outcomes.get(nct, [])
                   if (o.get("param_type") or "").upper() in ("COUNT_OF_PARTICIPANTS", "NUMBER", "COUNT")]
     extracted["aact_outcome_count_rows"] = om_counts[:10]
-    return {"gates": gates, "extracted": extracted}
+    # THE THIRD OUTCOME, RECORDED BESIDE THE BOOLEANS AND CHANGING NEITHER.
+    #
+    # `gates` stays exactly as it was and so does the VIABLE/NOT_VIABLE verdict, so no topic
+    # changes status here. What is added is the distinction the booleans cannot carry: a
+    # gate returns False both when the evidence disagrees and when the evidence was never
+    # there, and until now those were the same word in the record.
+    #
+    #     Measured over the 1,805-candidate pool of the 53 sampled topics: 1,259 of them
+    #     (69.8%) have NO posted baseline participant counts, so gate E was recording them
+    #     as not having two arms. 109 were genuinely excluded by counts that were posted.
+    #     Not posted, read as not so.
+    _cls = screening_states.classify(
+        nct=nct, topic=topic, aact_rows=s,
+        intvs=intv_by_nct.get(nct, []), conds=cond_by_nct.get(nct, []),
+        pmids=nct_pmids.get(nct, []), pubmed_meta=pubmed_meta,
+        baseline_rows=baseline.get(nct, []),
+        design_outcome_rows=design_outs.get(nct, []),
+        match_blob=_match_blob, drug_syns=DRUG_SYNS, cond_syns=COND_SYNS)
+    return {"gates": gates, "extracted": extracted,
+            "gate_states": {g: {"state": st, "reason": why}
+                            for g, (st, why) in _cls["states"].items()},
+            "disposition": _cls["disposition"], "disposition_reasons": _cls["reasons"]}
 
 
 viable_count = 0
@@ -5836,6 +5858,19 @@ for topic in topic_specs:
             topic_audit["n_pass_all"] += 1
     # k>=2 gate for new reviews per Mahmood 2026-05-13: single-trial reviews
     # display fine but provide no pooling. Require ≥2 trials passing all gates.
+    # SCREENING, WITH A DENOMINATOR AND WITH UNDECIDABLE COUNTED SEPARATELY. `n_pass_all`
+    # answers "how many passed"; it has never been able to answer "out of how many, and how
+    # many of the rest were never assessable". Both are now on the record. The verdict below
+    # is deliberately unchanged -- this counts, it does not re-decide.
+    _disp = [t.get("disposition") for t in topic_audit["trials"] if t.get("disposition")]
+    topic_audit["screening"] = {
+        "denominator_audited": topic_audit["n_total"],
+        "eligible_pool": topic.get("enumeration", {}).get("eligible"),
+        "tally": screening_states.tally(_disp),
+        "note": ("denominator_audited is the number of candidates AUDITED, which is the "
+                 "ingested head; eligible_pool is what the bound cut it from. They differ "
+                 "whenever the bound bit, and the difference was never screened at all."),
+    }
     topic_audit["verdict"] = "VIABLE" if topic_audit["n_pass_all"] >= 2 else "NOT_VIABLE"
     topic_audit["pass_rate"] = topic_audit["n_pass_all"] / max(topic_audit["n_total"], 1)
     out_p = OUT / f"{topic['stem']}.json"
