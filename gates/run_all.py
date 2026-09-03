@@ -176,6 +176,19 @@ GATES = [
      "a correction must pin bytes that can still be obtained", "fast"),
     ("gate17_unpoolable_override",
      "nothing may publish a pool the store has recorded a refusal for", "fast"),
+    # RATCHETED at 2, 2026-09-03. A PASS here means NO NEW instances and never "clean":
+    # apixaban-vte-prophylaxis and apixaban-vte-treatment each name major bleeding in
+    # their own question AND their own eligibility estimand, and publish neither a
+    # bleeding synthesis nor a reason for its absence. Both are frozen by name in
+    # gates/GATE21_KNOWN_UNREPORTED_HARMS.json and the gate prints them every run.
+    #
+    # ITS CONTROL IS SYNTHETIC ON PURPOSE. Anchoring it to those two pages would retire
+    # the control the day they are fixed. Four in-memory probes decide the four branches
+    # every run, including the one that caught this gate's own shipped defect: an outcome
+    # AFFIRMING poolability read as a reasoned refusal, which made the first draft report
+    # zero findings where there are two.
+    ("gate21_harms_promised_not_reported",
+     "a PICO that names a harm must report it or refuse with a reason", "fast"),
 ]
 
 
