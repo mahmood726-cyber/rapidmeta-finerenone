@@ -4,7 +4,7 @@ Opened 2026-09-02 and committed before any fix in this lane, so it could not be 
 match what was achieved. Extended 2026-09-03 with reviews 9-17. Rows are added when a class
 is identified and never removed when one turns out to be hard.
 
-**Seventeen independent external reviews of seventeen pages. The arithmetic reproduced
+**Twenty-five independent external reviews. The arithmetic reproduced
 every time except once** — ceftaroline put a wrong number in a headline. Selection and
 description are still where almost everything fails, but FIX α is no longer hygiene.
 
@@ -100,6 +100,9 @@ question; the registry keeps precedence on pre-specification. Three rules sit un
 | **A12** | **A SOURCE-RETRIEVAL FAILURE RECORDED AS A TRIAL-CONDUCT JUDGEMENT** | OPEN | empagliflozin: RoB downgraded **because the NEJM methods were not in PMC**. The trials are randomised, double-blind, placebo-controlled, ITT-followed, centrally adjudicated, with published protocols and SAPs. Our reach became their risk of bias |
 | **A13** | **A CONTINUOUS TIME MEASUREMENT INGESTED AS A COUNT** | OPEN — **gate specified, sweep corpus-wide** | rosuvastatin's object labels JUPITER's `1,646.4` and `1,578.3` as counts or rates. ClinicalTrials.gov declares them **parameter type MEAN, unit DAYS, measure "Kaplan-Meier estimate of time to event/censoring"**. A generic registry-extraction defect that is **silent wherever it fires**. GATE: assert the registry's declared `param_type` and `unit` against the field we ingest into — oracle-free |
 | **A14** | **OUTCOME-DEFINITION INCOMPATIBILITY READ AS HETEROGENEITY** | OPEN | JUPITER's `142/251` is its **FIVE-component** primary (CV death, nonfatal MI, nonfatal stroke, hospitalisation for unstable angina, **arterial revascularisation**); HOPE-3's `235/304` is its **THREE-component** first co-primary. A patient revascularised or admitted with unstable angina enters the JUPITER numerator with no HOPE-3 first-primary event. The stored label omits revascularisation and is truncated mid-parenthesis |
+| **A15** | **A WRONG PMID, POINTING AT AN UNRELATED PAPER** | OPEN — **gate is trivially oracle-free; sweep corpus-wide** | finerenone cites FIDELIO as `PMID 33034526`. That PMID is *"Variability in antemortem and postmortem blood alcohol concentration"*. The correct one is `33264825`. **The portfolio index explicitly ADVERTISES identifier and provenance checking, and a citation pointing at a paper about blood alcohol survived it** — so the blast radius is the advertised claim itself, not one page. GATE: fetch every stored PMID and assert its title and authors against the trial it is attached to |
+| **A16** | **A SOURCE SET TREATED AS AN EVIDENCE GAP** | OPEN — **and this register stated it the wrong way round** | see the correction below |
+| **A17** | **REGISTRY COUNTS USED WHERE THE PUBLICATION'S ADJUDICATED COUNTS EXIST** | OPEN | **5th instance, and it moves our number.** AGYW: page has Ring `82/1302` vs `61/650` and an ASPIRE placebo denominator of 1313; the publications' adjudicated figures are `77/1300` vs `56/650` and 1316. `0.703` → corrected `0.7127` → published HR pool `0.713`. **The page itself recognises that adjudication explains the difference and uses the pre-adjudication counts anyway**, which makes it W6 as well as FIX α |
 | A3 | A REGISTRATION rendered as a PUBLICATION | NOT FIXED | not measured |
 | A4 | Blinded-adjudication facts missed by reading registry fields only | NOT FIXED | subsumed by A10 |
 | A5 | AMPLIFY `61/76` impossible reconstruction | NOT FIXED | 1 page CLAIMED |
@@ -129,6 +132,7 @@ world** (W1), a warning that is **false about our own work** (W5), and a warning
 
 > ## ***ONCE A DEFECT IS IDENTIFIED, ADDING A WARNING IS NOT A FIX. A DISCLOSED WRONG NUMBER IS STILL THE NUMBER A READER TAKES AWAY.***
 
+| **W8** | **THE PRINCIPLE IS IN THE PROSE AND NOT IN THE PIPELINE** | OPEN | **2 instances.** AGYW states, correctly, that a participant leaving at six months **contributes follow-up and is censored, not simply "missing"** — then pools a crude binary RR, discarding person-time, on two trials that both analysed TIME TO HIV INFECTION. SGLT2 prints *"refused: the measure is HR, not a risk ratio"* a few hundred bytes from two tables that violate it. **The page knows the rule and the code does not consult it** |
 | **W7** | **W6 ON THE POPULATION — THE WORST SURFACE IT CAN HIT** | OPEN | rosuvastatin's title, abstract, visual abstract, introduction and figures all say **"adults with stroke"**. **JUPITER and HOPE-3 are PRIMARY PREVENTION trials in people WITHOUT cardiovascular disease; neither recruited a stroke population.** The page carries a BURIED corrected question — "adults without established cardiovascular disease, at elevated risk" — **that reached no reader-facing surface.** The visual abstract attaches `30,507 participants` to it, lending authority to a pool that is not coherent |
 
 
@@ -161,8 +165,8 @@ no, as expected" each run; the projector half stays OPEN.
 | id | class | status | blast radius |
 |---|---|---|---|
 | **P1x** | **THE EXECUTED ANALYSIS DOES NOT FOLLOW OUR OWN STORED PROTOCOL** | **GATED** — `protocol_conformance_gate.py`, fully oracle-free | **MEASURED: 127 topics comparable, NINE differ from their own protocol with 0 dated amendments** — arni-hfref, cab-prep-hiv-review, doac-af-review, finerenone-cv, incretin-hfpef-review, iv-iron-hf, nirsevimab-infant-rsv-review, sglt2-hf, sglt2-mace-cvot-review. 119 have an axis NOT ESTABLISHED, counted not passed; 25 not comparable and named. CAB-LA differs on all three axes: DL→REML, log-HR→RR, HKSJ-primary→HKSJ-alongside |
-| **P2x** | **THE LINKED PROTOCOL IS FOR A DIFFERENT QUESTION — AND SOMETIMES FOR DIFFERENT TRIALS** | OPEN | **2 sightings, the second worse.** rosuvastatin's protocol specifies trials registered "for Coronary", an active-or-placebo comparator, DL+HKSJ, and names **LANCE and SATURN** — SATURN compared rosuvastatin with **atorvastatin** on atheroma volume and LANCE measured LDL-C, so it is not this review's protocol and not even this review's trials. | ceftaroline's protocol covers "Adults registered for MRSA", allows placebo or any active comparator, any primary outcome, and includes an observational study. **Worse than P1x: there the protocol was ignored; here it is not this review's at all** |
-| **P3x** | **WE REPLACED THE TRIALS' PRESPECIFIED FRAMEWORK WITHOUT JUSTIFYING IT** | OPEN | all three ceftaroline trials are non-inferiority with a `-10 pp` margin; we substituted a superiority-oriented risk-ratio headline. Corrected RDs MITT `+8.48 pp (-1.82 to +18.77)`, CE `+7.85 pp (-1.21 to +16.91)` — both above `-10 pp`. **The defensible statement is "non-inferiority is supported; superiority is not robust under our own conservative rule", and we said neither** |
+| **P2x** | **THE PROTOCOL RELATIONSHIP FAILS IN THREE DISTINCT FORMS** | OPEN | (1) CAB-LA: protocol present and IGNORED. (2) ceftaroline and rosuvastatin: protocol for a DIFFERENT QUESTION, and rosuvastatin's names different trials entirely. (3) **lefamulin, and it inverts the obvious fix:** the protocol is present, linkable, specifies DerSimonian-Laird + HKSJ with the trial-published metric, and the review runs REML with RR. **ATTACHING IT WOULD NOT DEMONSTRATE ADHERENCE — IT WOULD DOCUMENT DEVIATION. "Link the protocol" is not the remedy;** reconciliation with a dated amendment, or a clean prospective protocol before a rerun, is | **2 sightings, the second worse.** rosuvastatin's protocol specifies trials registered "for Coronary", an active-or-placebo comparator, DL+HKSJ, and names **LANCE and SATURN** — SATURN compared rosuvastatin with **atorvastatin** on atheroma volume and LANCE measured LDL-C, so it is not this review's protocol and not even this review's trials. | ceftaroline's protocol covers "Adults registered for MRSA", allows placebo or any active comparator, any primary outcome, and includes an observational study. **Worse than P1x: there the protocol was ignored; here it is not this review's at all** |
+| **P3x** | **WE REPLACED THE TRIALS' PRESPECIFIED FRAMEWORK WITHOUT JUSTIFYING IT** | OPEN — **now a RULE, not a coincidence: 3 pages** (ceftaroline, apixaban prophylaxis, lefamulin). **And the corrected framing is STRONGER for us, not weaker.** LEAP 1 `-2.9 (-8.5 to +2.8)` against a `-12.5%` margin; LEAP 2 `~+0.1` against `-10%`; our own pooled RD `-1.07 (-4.34 to +2.20)` reproduces the published programme RD `-1.1 (-4.4 to +2.2)`. *"The pooled interval comfortably excludes the -10% margin"* is clearer and more favourable than *"RR 0.988, CI crosses 1"* — **we are publishing the weaker version of our own result.** GATE: where every contributing trial declares a non-inferiority margin, the RD-vs-margin framing is primary and the ratio secondary | all three ceftaroline trials are non-inferiority with a `-10 pp` margin; we substituted a superiority-oriented risk-ratio headline. Corrected RDs MITT `+8.48 pp (-1.82 to +18.77)`, CE `+7.85 pp (-1.21 to +16.91)` — both above `-10 pp`. **The defensible statement is "non-inferiority is supported; superiority is not robust under our own conservative rule", and we said neither** |
 | **P4x** | **A DECLARED METHOD CONTRADICTED BY ITS OWN USE** | OPEN | ceftaroline: the house variance-floor rule gives `RR 1.1048 (0.9868-1.2371)`, **crossing 1**, while GRADE's "no imprecision downgrade" is justified on the UNFLOORED HKSJ `1.0356-1.1787` |
 | **P5x** | **A PROTOCOL-PROVENANCE CONTRADICTION** | OPEN | **5 sightings.** A page says it cannot establish protocol linkage, then speaks as though prespecification IS established. Correct form: *"no prespecified moderator is established in the current review record."* CAB-LA says the protocol "was first committed later" when git shows review, protocol and benchmark in the SAME commit — the honest statement is *"git history does not demonstrate prospective prespecification"* |
 
@@ -182,6 +186,7 @@ Design, not slips: each fires every time.
 | **E2** | **AN ELIGIBILITY CRITERION DERIVED FROM THE INCLUDED SET** | OPEN | bempedoic's two-arm design criterion was reverse-engineered from the already-included trial. Circular: it cannot exclude anything the set does not already exclude |
 | **E3** | **A QUERY FILTER ABSENT FROM THE DECLARED ELIGIBILITY** | OPEN | the registry query restricts to `PHASE3, PHASE4`; the declared eligibility has no phase restriction |
 | **E4** | **THE DECLARED POPULATION IS NOT THE ANALYSED POPULATION** | OPEN | **AGYW is 15-24 by UNAIDS; the pooled trials enrolled 18-45**, and the estimate is dominated by women 25+ where efficacy is greatest. ASPIRE prespecified `<25: 10% (-41 to 43)` against `>=25: 61% (32-77)`, interaction p=0.02; WHO records efficacy NOT demonstrated at 18-24. Our indirectness note names the under-18 gap and **misses that 25-45 is also outside AGYW and is driving the estimate**. THE ERROR FLATTERS US |
+| **E7** | **THE COMPOSITE IS PARTLY A PRODUCT OF SURVEILLANCE INTENSITY** | OPEN | apixaban prophylaxis: ADVANCE-1, -2 and -3 used **MANDATORY SYSTEMATIC BILATERAL VENOGRAPHY**, so "proximal DVT" in the pooled composite includes clots found only because the trial went looking — while the PICO says **symptomatic** VTE. This is no longer "the composite includes asymptomatic events"; it is that **the composite depends on how hard each trial searched, and that differs by trial** |
 | E5 | Eligibility criteria absent, so an exclusion cannot be justified | OPEN | ceftaroline: `NCT01530763` is ELIGIBLE on the literal PICO; all-age `k=4` gives `RR 1.093 (1.021-1.170)`, `I² 52.6%` |
 | **E6** | **A CIRCULAR PICO — THE OUTCOME CLAUSE DEFINED BY THE INCLUDED SET** | OPEN | **2nd sighting.** empagliflozin asks for "the outcome **both trials register as their primary**" — **no trial can ever fail that.** Rosuvastatin does the mirror: "the outcome each trial registered as its primary, **which differ across the 2 trials here**". Same family as E2 |
 
@@ -231,6 +236,8 @@ One shape: two surfaces from different sources with nothing asserting they agree
 | **D7** | **UNIT MIXING IN ABSOLUTE EFFECTS** | OPEN | AGYW applies a CUMULATIVE risk ratio to `4.5 infections per 100 woman-years` and derives an annual `NNT ~ 75`. **Incidence rates and cumulative risks are not interchangeable** |
 | **D8** | **HARMS COUNTS THAT DO NOT MATCH THE PUBLICATIONS, AND A CAUSAL CLAIM INFERRED FROM THE RATES** | OPEN | AGYW reports ASPIRE SAEs `116/1313` vs `130/1316`; the paper reports `52/1313` vs `48/1316`. **The page then infers "a difference in what was counted, not in what happened" FROM THE RATES ALONE** |
 | **D9** | **GRADE IMPRECISION COUNTING WHOLE MULTI-ARM POPULATIONS** | OPEN | **2 sightings** (azilsartan 1st). icosapent counts `229` and `702` where the 4-g-vs-placebo contrast is `151` and `453` — **and complains there were three arms while counting the unused one toward its own information size** |
+| **D10** | **THE FULL ANALYSIS SET LABELLED "ALL RANDOMISED PARTICIPANTS"** | OPEN | **sightings 8, 9 and 10.** FIDELIO 5,734 randomised, 60 excluded for GCP violations, FAS 5,674; FIGARO 7,437 randomised, 85 excluded, FAS 7,352 — **and the page separately states FIGARO "Randomised: 7352", which is the ANALYSED n.** apixaban VTE treatment prints `78 / 1155 / 2700` as randomised when those are analysed (`80 / 1170 / 2760`); apixaban prophylaxis prints `2481/4394/2394/4494` against actual `3195/5407/3057/6528`. **Randomised, FAS and analysed must be three fields and the exclusion count must be recorded.** The estimates are right; the LABEL is wrong |
+| **D11** | **THE TOPIC TOTAL PROJECTED INTO EVERY OUTCOME TABLE REGARDLESS OF CONTRIBUTORS** | OPEN — **cause identified from two directions at once** | SGLT2_HF labels its `k=3` harmonised analysis `20,725 participants`, which is exactly DAPA-HF 4,744 + EMPEROR-Reduced 3,730 + EMPEROR-Preserved 5,988 + **DELIVER 6,263**. The correct n for its three studies is `14,462`. **IT COUNTED DELIVER'S PARTICIPANTS WHILE OMITTING DELIVER'S EFFECT — the wrong number is the evidence that DELIVER was meant to be in the analysis and its row failed to propagate.** The `k=2` table gets `20,725` too, where DAPA-HF + DELIVER is `11,007`. See the convergence note below |
 | D5 | A missing denominator filled with a ZERO | NOT FIXED | SCREEN: 12 served pages |
 
 ---
@@ -249,6 +256,9 @@ One shape: two surfaces from different sources with nothing asserting they agree
 | **M11** | **THE WRONG EFFECT MEASURE FOR THE DATA TYPE** | OPEN | CAB-LA is time-to-event with person-time and early stopping; Cochrane directs pooling HRs by generic inverse variance. Pooled `HR ~ 0.186`. **Hazard ratios replaced by odds ratios from cumulative counts is now 2 sightings** — empagliflozin (16 vs 26.2 months) and rosuvastatin (1.9 vs 5.6 years). See also W6 |
 | **V1** | **A MANUFACTURED SYMMETRIC CI WHERE THE PUBLISHED ASYMMETRIC ONE IS AVAILABLE** | OPEN | icosapent MARINE displayed as `-33.1 (-45.65 to -20.55)`, reconstructed from a stored variance; the published Hodges-Lehmann interval is `-33.1 (-46.6 to -21.5)`. **HL intervals are non-parametric and need not be symmetric** |
 | **R1x** | **INTERVENTION AND COMPARATOR REVERSED IN THE OBJECT** | OPEN | both icosapent trials record **placebo as treatment** and **AMR101 4 g/day as control**. The signs happen to be consistent so the pooled number is not reversed — **but any downstream step reading the LABELS rather than the signs would invert it.** A latent defect is still a defect. **GATE: arm-role labels asserted against the direction of the stored effect** — oracle-free |
+| **M12** | **`no information` USED AS A RoB-2 DOMAIN JUDGEMENT** | OPEN | **5 pages.** RoB-2 domain judgements are Low / Some concerns / High. *"No information"* is an answer to a SIGNALLING QUESTION, not a domain verdict. finerenone recognises this for the OVERALL judgement and not at domain level, **so the fix is one level deeper than the page already knows** |
+| **M13** | **A FALSE-PREMISE DOWNGRADE — "SECONDARY OUTCOME = SOME CONCERNS"** | OPEN | **2nd sighting after icosapent (W5).** FIDELIO is driven to D5 *some concerns* largely because its CV composite was a SECONDARY outcome. **D5 asks whether the reported result was SELECTED from multiple eligible measurements or analyses ON THE BASIS OF RESULTS.** FIDELIO's composite was a prespecified key secondary reported in the primary paper. *Secondary outcome = some concerns* is not a RoB-2 rule |
+| **M14** | **"OPEN LABEL" CONFLATED WITH UNBLINDED OUTCOME ASSESSMENT** | OPEN | apixaban VTE treatment: all three trials had blinded adjudication — CARAVAGGIO blinded central adjudication, COBRRA explicitly PROBE, AMPLIFY-J adjudicated blind to assignment. **This directly mis-scores RoB-2 Domain 4** |
 | M5 | Multi-arm contrasts sharing one control pooled as independent | NOT FIXED | off-diagonal covariance is `τ²/2` |
 
 ---
@@ -280,12 +290,78 @@ survive checking — and leaving it would make the register an instrument that o
 |---|---|---|---|
 | **T1** | **A TEST THAT SILENTLY SKIPS WHAT IT CANNOT PARSE REPORTS "ALL CLEAN" ON A CORPUS IT DID NOT EXAMINE** | OPEN | `if not isinstance(bo, dict): continue` inside a corpus-wide loop, in a test fixture. **The remedy is always the same shape: COUNT THE SKIPS AND ASSERT ZERO** |
 | **T2** | **A SCREENING RECORD THAT CONTRADICTS ITSELF** | OPEN | **2 sightings.** ceftaroline: "42 records matched, 42 read … one appraised; the rest were not read". rosuvastatin renders `"? record(s)"`, `114 matched`, `8 appraised` and `2 appraised` on one page — and **our own screening file says 114 matched, 8 candidates, only 2 abstracts appraised, 6 unread, 106 rejected on title, so "eight appraised" is FALSE**. A reviewer independently reran our PubMed query and got **114**, which is an external positive control on one of our own counts |
+| **T7** | **A "VERBATIM" TRANSCRIPT STITCHED FROM TWO DIFFERENT MODEL FITS** | OPEN — **gate specified** | apixaban prophylaxis stores an R transcript claiming `rma(..., method="REML", test="knha")` and then prints a **z statistic with an ordinary normal CI** `0.7433 (0.4371-1.2639)`; below it, *"SAME FIT WITH HARTUNG-KNAPP"* prints the genuine t-based `0.7433 (0.3067-1.8013)`. **Both cannot be output of one `test="knha"` call — the first block is the UNADJUSTED model presented under a knha call line.** The numbers are fine and the PROVENANCE IS FABRICATED BY ASSEMBLY. **This page's selling point is verbatim reproducibility, so it is the password class in the one layer supposed to be beyond doubt.** GATE: assert a displayed transcript's printed statistic type against the call line above it; sweep for stitched blocks |
+| **T8** | **A MISSING REGISTRY DESCRIPTION FIELD READ AS AN ABSENT ENDPOINT DEFINITION** | OPEN — **a named emitter shape, go find it** | finerenone's endpoint table says *"No endpoint definition is recorded … its effect was pooled without one"* while the same page prints the exact four components verified word for word. **The renderer confuses a missing registry DESCRIPTION field with absence of an endpoint DEFINITION**, and this will explain several "no endpoint definition" false absences across the corpus |
 | **T6** | **CORRECTNESS BY COINCIDENCE IS NOT ADEQUATE PROVENANCE** | OPEN | *"The recovered event counts happen to match the publications, but correctness by coincidence is not adequate provenance."* The same shape as the `156.70` / `156.67` coincidence on SGLT2: **a right answer reached by a route that cannot be relied on.** A number that is correct today by luck will be wrong tomorrow by the same mechanism, and nothing in the record distinguishes the two cases |
 | **T3** | **A VALIDATION THAT DOES NOT VALIDATE THE DENOMINATORS** | OPEN | CAB-LA calls Wang 2023 an independent validation on matching RR and I², **while the page itself notices a ~1,250/arm denominator discrepancy** and still calls it validation |
 | **T4** | **A BASELINE THAT CANNOT SAY WHY IT MOVED** | **FIXED** in this lane's gates | `--write-baseline` refuses a rise without `--reason` and writes the reason beside the number. Earned: a failed patch anchor let it run twice and silently write a `21` over a committed `11`. **"Records its own reason" is a property of the write, not a habit of the operator** |
 | **T5** | **A DIVERGENCE BELIEVED BEFORE IT WAS DIAGNOSED** | **avoided, and recorded** | Re-measuring C7, a word-boundary escape written through a shell heredoc became a literal `0x08` byte; the pattern matched nothing and the count read **0 against a pinned 146**. That is a divergence by this lane's own rule and would have been chased. `lint_recurring_traps.py` caught it as `control_bytes`. **A number that disagrees can disagree because the tooling broke; neither reading is free.** It then happened a SECOND time, inside the write-up of the first |
 
 ---
+
+### A16 — a correction this register owes, and it inverts an earlier statement
+
+The SGLT2 lane reported DELIVER's two-component value absent from the sources we hold, and
+the finding was recorded as **"an evidence blocker, not an effort one"**. That is wrong.
+
+**DELIVER's own publication reports the two-component endpoint directly: `475/3131` against
+`577/3132`, `HR 0.80 (0.71-0.91)`.**
+
+> ***IT WAS A BLOCKER GIVEN OUR SOURCE SET, AND THE SOURCE SET WAS THE DEFECT. That is
+> FIX α, not an evidence gap, and the earlier wording put it the wrong way round.***
+
+Corrected harmonised pool: **`HR 0.774 (0.724-0.827)`, k=4, N=20,725, I² = 0%**, externally
+confirmed by the 2022 Lancet prespecified synthesis over the same two-component endpoint and
+the same trials, `HR 0.77 (0.72-0.82)`. The withdrawn mixed-primary derivation was `0.7785`
+— numerically almost identical, **so the endpoint error had little consequence and the
+withdrawal was still right**. Both halves of that are stated because W1 exists.
+
+Two consequences follow. *"Published-meta comparison pending"* is resolvable now: the Lancet
+paper names DELIVER, EMPEROR-Preserved, DAPA-HF, EMPEROR-Reduced and SOLOIST and publishes
+the trial-level estimates `0.80 · 0.79 · 0.75 · 0.75 · 0.71`, so no registration-identity
+mystery remains. And the SOLOIST exclusion wording is wrong as written — those patients did
+have chronic heart failure; the distinguishing feature is randomisation AT a worsening
+episode, and DELIVER itself randomised 654 patients (10.4%) during or within 30 days of a
+heart-failure hospitalisation, so "recent hospitalisation" is not a clean binary criterion.
+
+### A convergent diagnosis, which is the strongest confirmation a defect class can get
+
+**D11 was reached twice, from opposite directions, by parties who could not see each
+other's work.**
+
+- **From the inside**, by reading our own code: `contributing_n()` returns `None` because the
+  store holds no `inputs.trials[*].by_outcome` rows, so the renderer falls back to the topic
+  total.
+- **From the outside**, by checking a printed number: `20,725` is arithmetically DAPA-HF +
+  EMPEROR-Reduced + EMPEROR-Preserved + DELIVER, on a page whose analysis contains three of
+  those four.
+
+One diagnosis from source, one from output, same cause. Neither party had the other's
+evidence. **That is worth more than either finding alone**, and it is the pattern to look
+for when deciding whether a class is real: a defect that can be found from two independent
+starting points is not an artefact of how you looked.
+
+### The validation suite — six known-answer cases, pinned
+
+Several topics have a **prespecified patient-level or published pooled counterpart**. On
+those, the pipeline is not discovering anything; it is reconstructing a known answer, and
+agreement is a measurement of the pipeline.
+
+| topic | published counterpart | published | ours |
+|---|---|---|---|
+| finerenone | FIDELITY prespecified IPD pooling | `HR 0.86 (0.78-0.95)` | `0.8655 (0.7877-0.9510)` |
+| bococizumab | 2017 NEJM SPIRE | `-55.2 (-57.9 to -52.6)` | `-55.24` |
+| SGLT2 heart failure | 2022 Lancet prespecified synthesis | `HR 0.77 (0.72-0.82)` | `0.774 (0.724-0.827)` corrected |
+| apixaban prophylaxis | published patient-level pool of ADVANCE-2 + ADVANCE-3 | crude `RR 0.451` | `RR 0.453 (0.277-0.739)`, τ²=0 |
+| lefamulin | published pooled LEAP development programme | `RD -1.1 (-4.4 to +2.2)` | `-1.07 (-4.34 to +2.20)` |
+| AGYW | USPSTF pooled the same two RCTs | `RR 0.71 (0.57-0.89)`, I²=0% | `0.713` corrected |
+
+> ***THESE PAGES ARE WEAK AS NOVEL CLINICAL META-ANALYSES AND STRONG AS KNOWN-ANSWER
+> VALIDATION CASES.*** That set is the validation suite, not the discovery set.
+
+**And every one of them currently hides the match behind a "pending external comparison"
+flag or an "unreplicated" claim.** The most defensible thing these pages do is the thing
+they do not say.
 
 ## Refusals that are right
 
@@ -315,6 +391,17 @@ Converting a **non-parametric Hodges-Lehmann interval into a normal standard err
 approximation.** The icosapent arithmetic reproduces exactly under that assumption, and a
 definitive synthesis needs a method appropriate to the estimator. Recorded as a stated
 limitation, because it is a modelling choice and not an error.
+
+## Twenty-five reviews, one verdict shape
+
+Lefamulin is one of the BETTER pages: the trials are right, the counts are right, the
+arithmetic is exact, FDA confirms LEAP 1 + LEAP 2 are the complete pivotal CABP evidence
+base at 1,289 randomised, and the reviewer would KEEP the synthesis. **Every defect found on
+it is in the machinery.**
+
+> ***That is the finding now. Twenty-five reviews, and the shape does not vary: the
+> arithmetic reproduces, the selection and the description fail. A defect distribution that
+> stable is a statement about where the fragility lives, and it is not in the statistics.***
 
 ## What is NOT fixed
 
