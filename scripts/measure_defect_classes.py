@@ -151,3 +151,62 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+# ===========================================================================================
+# ADDED 2026-09-03. A hardcoded topic-specific sentence, checked against each topic's real k.
+# ===========================================================================================
+
+# ANCHORED, not a bare substring test. `X in text` cannot tell the phrase from a longer
+# word containing it, and scripts/lint_recurring_traps.py is right to flag that shape even
+# where the hazard is small. This is a PROSE search and an anchored pattern says so.
+#
+# THE ANCHORS ARE LOOKAROUNDS RATHER THAN A BACKSLASH-B ESCAPE, AND THAT IS DELIBERATE.
+# Writing this line through a shell heredoc turned each escape into a literal 0x08
+# BACKSPACE byte, so the pattern matched NOTHING and the measurement read 0 pages against
+# a pinned figure of 146 -- A FALSE DISAGREEMENT MANUFACTURED BY A BYTE-LEVEL TRANSPORT
+# DEFECT IN THE TOOLING, not by the corpus. lint_recurring_traps.py caught it as
+# `control_bytes`; without that the zero would have been chased as a real divergence
+# against the pre-loss figure. Lookarounds carry no backslash and cannot be corrupted the
+# same way.
+_TWO_TRIAL_RE = re.compile("(?<![A-Za-z])named two-trial programme(?![A-Za-z])", re.I)
+
+
+def measure_two_trial_sentence(root: Path = ROOT):
+    """`ssot/projectors.py` writes "a named two-trial programme" wherever a topic declares
+    no `search.strategy`. The count TWO is a module constant, read from nothing.
+
+    FOUR STATES, because folding them together is how a reach figure comes to wear a
+    coverage figure's clothes:
+
+        contradicting_their_own_k       the object states a k and it is not 2
+        agreeing                        the object states a k and it is 2
+        records_no_k_so_not_checkable   the object resolves and states no k -- NOT a pass
+        no_object_so_not_checkable      PAGE_MAP names no resolvable object -- NOT a pass
+    """
+    page_map = json.loads((root / "ssot" / "PAGE_MAP.json").read_text(encoding="utf-8"))
+    rendering, contradicting, agreeing, no_k, unresolved = [], [], [], [], []
+    for page in served_pages(root):
+        renders_it = bool(_TWO_TRIAL_RE.search(
+            rendered(page.read_text(encoding="utf-8", errors="replace"))))
+        if renders_it is False:
+            continue
+        rendering.append(page.name)
+        rel = page_map.get(page.name)
+        resolves = bool(rel) and (root / rel).exists()
+        if resolves:
+            obj = json.loads((root / rel).read_text(encoding="utf-8"))
+            k = (obj.get("k_cascade") or {}).get("k_included_in_object")
+            if isinstance(k, int):
+                (contradicting if k != 2 else agreeing).append(
+                    {"page": page.name, "k_included_in_object": k})
+            else:
+                no_k.append(page.name)
+        else:
+            unresolved.append(page.name)
+    return {"rendering_the_sentence": len(rendering),
+            "checkable": len(contradicting) + len(agreeing),
+            "contradicting_their_own_k": contradicting,
+            "agreeing": len(agreeing),
+            "records_no_k_so_not_checkable": len(no_k),
+            "no_object_so_not_checkable": len(unresolved)}

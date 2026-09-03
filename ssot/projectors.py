@@ -440,6 +440,15 @@ def _attested(a):
                 and a.get("date_utc"))
 
 
+
+def _named_programme(canon):
+    """"a named 3-trial programme", or no number at all when the object states no k.
+
+    A guessed count is worse than no count: it is a specific, checkable claim that happens
+    to be false, and a reader has no way to know it was never read from anything.
+    """
+    k = ((canon.get("k_cascade") or {}).get("k_included_in_object"))
+    return ("a named %d-trial programme" % k) if isinstance(k, int) else            "a named programme of trials"
 def readiness(canon):
     """Compute the submission-readiness verdict. Three states, never a string.
 
@@ -543,9 +552,19 @@ def readiness(canon):
     if not (canon.get("search") or {}).get("strategy"):
         limits.append({
             "label": "No systematic search was run",
-            "detail": ("The included set is a named two-trial programme rather than the "
-                       "yield of a database search. Nothing on this page should be read "
-                       "as though a systematic search had been performed.")})
+            # THE COUNT IS READ FROM THE OBJECT, AND WHERE THERE IS NO COUNT THERE IS NO
+            # NUMBER. This detail said "a named TWO-TRIAL programme" as a module constant,
+            # and went onto every topic declaring no search strategy. MEASURED on the served
+            # surface: 146 of 1464 pages carry it; 18 record a k that can be checked; 13 of
+            # those 18 contradict it, with k of 1, 3, 4, 5, 6, 7 and 8. The remaining 128
+            # record no k_included_in_object and are NOT CHECKABLE, which is not agreement.
+            #
+            # The DISCLOSURE is correct and stays word for word -- it is protected, and it
+            # is the only true half of its contradiction with P1. Only the invented count
+            # goes.
+            "detail": ("The included set is %s rather than the yield of a database search. "
+                       "Nothing on this page should be read as though a systematic search "
+                       "had been performed." % _named_programme(canon))})
 
     sc = canon.get("screening") or {}
     und = [x for x in (sc.get("records") or [])
