@@ -4974,3 +4974,189 @@ The worst is `SEARCH-DAPIVIRINE` line 188, which recorded **Nel's paper — The 
 as answering three signalling questions "for `NCT01617096`"**, which is ASPIRE. A real
 finding attached to the wrong trial: the exact failure the label fix existed to end,
 committed downstream of it because the prose was keyed by name.
+
+---
+
+## Class 98 — A REVIEW THAT NAMES A HARM IN ITS OWN PICO AND SYNTHESISES NONE
+
+**2026-09-03, the harms lane.** Across fifteen external reviews, seven pages were told the
+same thing: the review's own PICO names harms and the review synthesises none, while the
+harms data sit in the primary publications. That complaint bundles **two different defects
+with two different fixes**, and separating them is most of the work.
+
+> **CLASS 1 — A BROKEN PROMISE.** The stored PICO names a harm outcome and the object
+> publishes neither a synthesis of it nor a reasoned refusal. The page contradicts itself.
+> **2 of 141 live topics.**
+>
+> **CLASS 2 — AN UNTAKEN OPPORTUNITY.** The PICO names no harm, but a trial the review
+> **already read** registered one, and the object synthesises no harm at all. Nothing was
+> promised; something in hand was not used. **54 of 102 assessable topics (53%).**
+
+**FIVE OF THE SEVEN PAGES THE REVIEWS NAMED ARE CLASS 2** — cangrelor, inclisiran, CAB-LA,
+bempedoic acid, ceftaroline. Their PICOs name no harm. Reporting all seven as broken
+promises would have produced a headline of "7" where the number is 2, and 56 where no
+single fix addresses the set. *An inflated count with a true story attached to it is still
+inflated.*
+
+### Kinds before counts, because the denominator was otherwise assumed
+
+1,464 `.html` in the root = **744 app shells** (a boilerplate PICO and `trials:[]` EMPTY —
+there is no synthesis for a harm to be missing from) + **492 redirect stubs** + **163
+SSOT-backed** + **65 unclassified**. Coverage is **163 of 1,464 (11.1%)**. `ssot/` is 141
+live topics + 14 tombstones + 2 directories with no json. Class 2 is further scoped: 102 of
+141 store registered-outcome text at all, and the other 39 are NOT-ASSESSABLE, which is its
+own kind and is not folded into a pass.
+
+### What rejects it
+
+`gates/gate21_harms_promised_not_reported.py`, wired into `gates/run_all.py`. A topic whose
+PICO names a harm outcome must publish a synthesis of one **or** a refusal carrying a
+reason. Both class-1 findings are fixed and **the freeze file is empty**, so a PASS from
+gate 21 now means what it appears to mean.
+
+Precision is measured **by census, not by sample**: all 16 detector candidates are
+hand-adjudicated in `gates/HARMS_PICO_ADJUDICATION.json` with the quote each verdict was
+read from. Recall was estimated at a seed recorded before the sample was drawn (n=25, seed
+20260903, 0 false negatives, 95% upper bound ~11.3% by the rule of three — **not** a
+demonstration that no hole exists; that sample is now burned for tuning).
+
+### Four defects in this lane's own instruments, each caught by a check rather than by care
+
+- **The gate reported ZERO findings where there were two.** `published_refusal()` tested
+  `key in node`, so `poolable: True` — a declaration that the efficacy outcome **is**
+  poolable, beside a long `poolable_reason` saying why — counted as a published refusal.
+  **A gate that reads an affirmation as its opposite fails silently and in the flattering
+  direction.** This is the repository's own inverted-guard class, committed by someone who
+  had read that entry. *A field is not a value.* Fixed at the source:
+  `REFUSAL_FLAG_KEYS` is now `{key: the value that means refused}`.
+- **And the probe set passed the bug it existed to prevent.** Three probes exercised three
+  branches and none carried `poolable: True`. There are now four, and the fourth is the
+  inverted case.
+- **The measurement still said 2 after the gate said 0.** `measure_harms_gap.py` read the
+  **stored disposition** while the gate re-derived from the object, so minutes after both
+  pages published their bleeding outcome the gate was right and the measurement was
+  reporting a defect that no longer existed — *because a file still said so*. The mirror of
+  the defect gate 21's own docstring warns against, one module away, by the author of the
+  warning. `decide()` now lives in `scripts/harms_pico_surface.py` and both callers share
+  it; the measurement additionally **prints** rows that have gone stale in the flattering
+  direction rather than dropping them.
+- **The negative test retired itself, exactly as the gate's docstring predicted of the
+  control it refused to use.** `test_apixaban_pages_decide_as_unreported` asserted the two
+  pages were broken; fixing them turned it red. Replaced by a **synthetic corpus** — a
+  temporary repository the real `G.main()` runs over and must FAIL on. Controls are built
+  in memory; assertions about the corpus assert the **repaired** state, which does not
+  retire.
+
+### Class 98a — the brief's own headline number did not reproduce
+
+The task brief gave apixaban VTE prophylaxis as *"ADOPT major bleeding 15/3,184 vs 6/3,217
+RR 2.58 (1.02–7.24) ← a HARM SIGNAL, omitted"*.
+
+**THE COUNTS ARE CONFIRMED. THE INTERVAL IS NOT.** ClinicalTrials.gov posts 0.47% on 3,184
+and 0.19% on 3,217 and exactly one integer rounds to each, so 15 and 6 are determined.
+`RR = (15/3184)/(6/3217) = 2.5259`, SE(log RR) 0.482399, **95% CI 0.9813 to 6.5018 — it
+includes 1.** The quoted 2.58 (1.02–7.24) is reproduced by 18/3184 vs 7/3217.
+
+> **An omitted OUTCOME is what this was. A suppressed SIGNAL is what it was not.** Publishing
+> the second would have put a false number on a page whose whole complaint is about false
+> numbers.
+
+### Class 98b — the endpoint label is read, never inferred from position
+
+ClinicalTrials.gov returns a four-row bleeding table as `classes[]` and the labels — "Major
+bleeding", "CRNM", "Major or CRNM", "Any bleeding" — live at `classes[].title`;
+`categories[].title` is `None` for all four. **Positional reading would have been correct
+here and is still refused.** A multi-row table with no labels emits zero rows and a named
+refusal.
+
+Two near-misses, both caught by reading a title to its end:
+
+- `NCT01780987`'s **PRIMARY** is titled *"Number of Participants With Major Bleeding Events
+  [Per ISTH Definition] **OR** Clinically Relevant Non-major (CRNM) Bleeding Events"* —
+  3/40 vs 11/39. Its **SECONDARY** is major bleeding alone — 0/40 vs 2/39. A rule taking
+  the first title beginning "Major Bleeding" takes the **composite**.
+- CARAVAGGIO posts **one** outcome measure, recurrent VTE, and no bleeding outcome. Its
+  `adverseEventsModule` holds serious AEs 255/576 vs 276/579, and **a serious-adverse-event
+  count is not major bleeding.**
+
+### Class 98c — a percentage is not a count
+
+Every bleeding row in the four apixaban prophylaxis trials is posted as an event rate. A
+count reconstructed from a rounded percentage is **admissible only when exactly one integer
+rounds to the posted value at the posted precision**, and the precision is read from the
+string — `"0.5"` is one decimal and `"0.50"` is two and they admit different sets. Otherwise
+`events` is null and the refusal **names the candidates it could not choose between**.
+
+### Class 98d — never infer provenance statistically *(the AGYW case)*
+
+`agyw-hiv-prep-review` declined to pool serious adverse events because *"THE TWO PLACEBO
+ARMS DIFFER SEVEN-FOLD … a difference in what was counted and reported, not in what
+happened."* **That is a claim about documents, inferred from two percentages.** No ratio can
+distinguish a reporting difference from a real one, at any size.
+
+Reading the document — ASPIRE's own Table 2, **staged in the object's own `sources/` since
+2026-08-30 and never consulted** — showed the page's numbers disagree with their own paper:
+
+| | dapivirine | placebo | RR |
+|---|---|---|---|
+| registry `NCT01617096` | 116/1313 | 130/1316 | 0.8943 (0.7047–1.1351) |
+| publication (Table 2) | 52/1313 | 48/1316 | 1.0858 (0.7390–1.5954) |
+
+**And the seven-fold figure was itself built on one of the two disputed numbers:** 7.16×
+registry-against-registry, **2.64×** against ASPIRE's own paper. The premise moved by a
+factor of nearly three the moment the document was opened.
+
+What reading **established**: the denominators are identical in both sources (1313, 1316)
+and **the deaths are identical in both** (4, 3) — so it is neither an arm-mapping error nor
+a population mismatch, the two candidates a rate comparison could never have ruled out.
+What is recorded **UNRESOLVED**: which participants the registry's 116 and 130 count.
+Neither document says, and the object does not guess it a second time.
+
+> The decision not to pool **stands**; its reason does not. The new reason is checkable from
+> the two documents: **the ASPIRE input is not established** — two sources give 116 and 52
+> for the same arm over the same denominator. The withdrawn reason was checkable from nothing.
+
+The withdrawn sentences are **left in place** with a withdrawal pointer written **on the
+field that carries them**, not only in the new block. *A correction a reader meets only if
+they scroll elsewhere has not been made.*
+
+### ⛔ OPEN — what this lane needs from FIX α, and did not build
+
+**FIX α (the publication-first source hierarchy) is not landed.** No branch on the remote
+and no entry in this register defines it. This lane **consumes** a hierarchy and does not
+define one: `harms_extract.declared_source_hierarchy()` reads whatever the object declares
+at `sources.*.layer_rank` and returns `[]` when it declares nothing.
+
+What the corpus declares today, measured:
+
+- **117 of 141 live topics declare no source hierarchy at all.** Both apixaban objects are
+  among them, so every row this lane wrote says in as many words that the registry was the
+  sole source and the publications were not read.
+- The 24 that do declare one **do not agree on what a rank means**: rank 1 is *"Trial
+  primary report"* in some objects and *"Regulator: FDA approved label"* in others; rank 4
+  is *"Primary paper"*. That is one field carrying two orderings.
+
+Two harm rows are blocked on it and are named rather than quietly dropped:
+
+1. **CARAVAGGIO's major bleeding** (`NCT03045406`, 576 vs 579 — the largest trial in
+   `apixaban-vte-treatment`) exists in Agnelli, *N Engl J Med* 2020;382:1599-1607 and **is
+   not in the registry**. It is why that topic publishes no pool.
+2. **The Ring Study's published SAE counts** (`NCT01539226`). The brief states 38 vs 6; this
+   lane holds only an STI-scoped excerpt of Nel 2016 and **did not read the adverse-event
+   table**, so that number is not printed. The retrieval route and the PDF sha256 are already
+   recorded in the object's own excerpt header, so the read is a task and not a search.
+
+**Class 2 — 54 of 102 assessable topics whose trials registered a harm nobody synthesised —
+is deliberately NOT policed by gate 21** and is the natural next target once the hierarchy
+exists. The ten largest by harm-named registered outcomes already read: `malaria-vaccines`
+(62 across 7 trials), `cvncov-covid19` (20/2), `doravirine-hiv` (19/2), `covid19-vaccines`
+(14/3), `dabigatran-vte-cerebral` (13/4), `rivaroxaban-vasc-review` (13/4),
+`dabigatran-vte-surgical` (12/8), `bezlotoxumab-cdi` (11/2), `colchicine-stroke-prevention`
+(11/5), `colchicine-peripheral-arterial` (10/2).
+
+### A neighbouring lane's artefact, left for its owner
+
+`outputs/self_retiring_controls_2026_08_25.txt` is committed at **106** checks declaring a
+control and the audit now reports **113** (synthetic 98 → 105). Measured with this lane's
+gate and tests **removed from the tree**, so the +7 is not ours. Not regenerated here:
+committing another lane's artefact mixes lanes.
