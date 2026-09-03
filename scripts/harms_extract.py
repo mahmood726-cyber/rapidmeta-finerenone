@@ -145,8 +145,20 @@ def harm_rows(nct, study, hierarchy):
         groups = {g.get("id"): g.get("title") for g in (o.get("groups") or [])}
         denoms = {c.get("groupId"): c.get("value")
                   for cl in (o.get("denoms") or []) for c in (cl.get("counts") or [])}
-        window = o.get("timeFrame")
-        population = o.get("populationDescription")
+        # ⛔ AN ABSENT POPULATION IS RECORDED AS ABSENT, NEVER LEFT NULL. A bare null in
+        # this field reads as "not applicable" and would let a row claim the discipline
+        # the block above advertises while carrying nothing. Three of the four
+        # apixaban-vte-treatment rows are in exactly this state: ClinicalTrials.gov posts
+        # a denominator for them and no populationDescription at all.
+        window = o.get("timeFrame") or (
+            "NOT STATED BY THE REGISTRATION -- this outcome posts no timeFrame, so the "
+            "ascertainment window of these counts is unknown from this source.")
+        population = o.get("populationDescription") or (
+            "NOT STATED BY THE REGISTRATION -- this outcome posts a denominator and no "
+            "populationDescription, so which participants it counts is unknown from this "
+            "source. The numerator and denominator still come from the SAME denoms "
+            "block, so they are the same population as each other; what that population "
+            "IS, this source does not say.")
         unit = str(o.get("unitOfMeasure") or "")
         is_pct = bool(PCT_UNITS.search(unit))
         for cls in (o.get("classes") or []):

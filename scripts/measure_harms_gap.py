@@ -64,7 +64,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 
 from harms_pico_surface import (  # noqa: E402
-    HARM_RX, harm_mentions, harms_synthesis, pico_surface, synthesised_outcome_ids)
+    HARM_RX, decide, harm_mentions, harms_synthesis, synthesised_outcome_ids)
 
 ADJUDICATION = os.path.join(REPO, "gates", "HARMS_PICO_ADJUDICATION.json")
 
@@ -200,13 +200,36 @@ def main(argv):
           % (len(candidates), len(candidates)))
     for k, v in by_disp.most_common():
         print("      %3d  %s" % (v, k))
-    class1 = sorted(d for d in candidates if adj[d]["disposition"] == "NAMED_AND_ABSENT")
+    # ⛔ RE-DERIVED FROM THE OBJECT, never read off the stored disposition.
+    #
+    # This line used to be `adj[d]["disposition"] == "NAMED_AND_ABSENT"`, and on
+    # 2026-09-03 -- minutes after both apixaban pages published their bleeding outcome --
+    # gate 21 correctly reported 0 findings while THIS FILE STILL REPORTED 2, because the
+    # adjudication file still said they were absent. A stored verdict outlives the state
+    # it describes. That is the mirror of the defect gate 21's own docstring warns
+    # against, committed one module away by the author of the warning, and it is why
+    # `decide()` now lives in harms_pico_surface.py and both callers share it.
+    #
+    # The adjudication supplies ONLY what kind of mention this is. Whether the harm is
+    # there today is a question about the object.
+    verdicts = {d: decide(live[d], adj[d]["disposition"])[0] for d in candidates}
+    class1 = sorted(d for d in candidates if verdicts[d] == "PROMISED_NOT_REPORTED")
+    stale = sorted(d for d in candidates
+                   if adj[d]["disposition"] == "NAMED_AND_ABSENT"
+                   and verdicts[d] != "PROMISED_NOT_REPORTED")
     print()
     print("  ⛔ CLASS 1 DEFECTS: %d of %d live topics" % (len(class1), len(live)))
     for d in class1:
         print("      %s" % d)
         print("          by_outcome: %s" % synthesised_outcome_ids(live[d]))
         print("          %s" % adj[d]["quote"][:150])
+    if stale:
+        print("  REPAIRED SINCE ADJUDICATION -- adjudicated NAMED_AND_ABSENT and no longer")
+        print("  absent. Reported rather than silently dropped, because a row that has gone")
+        print("  stale in the FLATTERING direction is the one nobody checks:")
+        for d in stale:
+            print("      %-34s now %s, by_outcome=%s"
+                  % (d, verdicts[d], synthesised_outcome_ids(live[d])))
     rs = adj_doc.get("_recall_sample", {})
     print()
     print("  recall, on the %d live topics the detector did NOT flag: a sample of %s"

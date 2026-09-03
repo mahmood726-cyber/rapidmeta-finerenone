@@ -37,6 +37,17 @@
    "comparator_type": "active",
    "direction_of_benefit": "lower",
    "null_value": 1.0
+  },
+  {
+   "id": "major_bleeding",
+   "type": "harm",
+   "name": "Major bleeding",
+   "definition": "Major bleeding as each trial's registration defines it, read verbatim from the registry row named in `per_trial[].endpoint_as_the_registry_titles_it`. THE DEFINITIONS ARE NOT IDENTICAL: ADOPT and the ADVANCE trials use the ISTH criteria as each registrant states them, and each row carries its own title, window and population so a reader can see what was combined.",
+   "measure": "RR",
+   "effect_scale": "log",
+   "direction_of_benefit": "lower",
+   "null_value": 1.0,
+   "why_this_outcome_exists_now": "This review's question and its `screening.eligibility` estimand both name major bleeding. Until 2026-09-03 `results.by_outcome` carried the efficacy outcome alone. gate 21 refuses that shape."
   }
  ],
  "withholding_question": {
@@ -519,6 +530,219 @@
      "what_would_close_it": "re-run scripts/repool_apixaban_prophylaxis_2026_08_19.py with Paule-Mandel and a floored Knapp-Hartung interval, and promote through every derived block.",
      "how": "Refitted with REML in ssot/reml_corpus_refit.R and promoted through the pooled estimate, the heterogeneity, the estimator declarations, the object config, the prediction interval where one exists and the quoted model output, in one pass, per P19."
     }
+   },
+   "major_bleeding": {
+    "measure": "RR",
+    "k": 4,
+    "model": "random-effects",
+    "estimator": "REML",
+    "per_trial": [
+     {
+      "trial_id": "NCT00457002",
+      "nct": "NCT00457002",
+      "label": "ADOPT",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT00457002",
+      "read_utc": "2026-09-03",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "apixaban_events": 15,
+       "apixaban_n": 3184,
+       "comparator_events": 6,
+       "comparator_n": 3217
+      },
+      "measure": "RR",
+      "point": 2.5259,
+      "ci_low": 0.9813,
+      "ci_high": 6.5018,
+      "se_log_rr": 0.482399,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown.",
+      "endpoint_as_the_registry_titles_it": "Incidence of Major Bleeding During the Treatment Period in Treated Participants",
+      "endpoint_label_read_from": "outcomeMeasures[].title (single-class)",
+      "outcome_rank_in_the_registration": "PRIMARY",
+      "ascertainment_window": "Day 1, first dose of study drug, to last dose of study drug plus 2 days",
+      "population": "Participants who received at least one dose of study drug were analyzed (As Treated population). Participants were categorized to the group to which they were randomized, unless the same incorrect treatment was received throughout the study; in such case, the As Treated were equal to the treatment received.",
+      "apixaban_arm_as_the_registry_names_it": "Apixaban 2.5 mg",
+      "comparator_arm_as_the_registry_names_it": "Enoxaparin 40 mg",
+      "posted": {
+       "apixaban": "0.47",
+       "comparator": "0.19",
+       "unit": "Event Rate (%)"
+      },
+      "count_provenance": "DERIVED, not read. The registry posts 0.47% on 3184. Exactly one integer rounds to that at the posted precision, so the count is determined: 15.",
+      "source_layer": "REGISTRY -- ClinicalTrials.gov posted results",
+      "layers_above_not_consulted": [
+       "THIS OBJECT DECLARES NO SOURCE HIERARCHY. The registry was the sole source and the trial publications were NOT read. Where the two disagree this row follows the registry, and nothing here establishes which is right."
+      ]
+     },
+     {
+      "trial_id": "NCT00423319",
+      "nct": "NCT00423319",
+      "label": "ADVANCE-3",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT00423319",
+      "read_utc": "2026-09-03",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "apixaban_events": 22,
+       "apixaban_n": 2673,
+       "comparator_events": 18,
+       "comparator_n": 2659
+      },
+      "measure": "RR",
+      "point": 1.2158,
+      "ci_low": 0.6537,
+      "ci_high": 2.2615,
+      "se_log_rr": 0.316638,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown.",
+      "endpoint_as_the_registry_titles_it": "Major bleeding",
+      "endpoint_label_read_from": "outcomeMeasures[].classes[].title",
+      "outcome_rank_in_the_registration": "SECONDARY",
+      "ascertainment_window": "First dose of study drug (presurgery) through 2 days after the last dose of study drug",
+      "population": "All participants who received at least 1 dose of study drug",
+      "apixaban_arm_as_the_registry_names_it": "Apixaban, 2.5 mg BID Plus Placebo",
+      "comparator_arm_as_the_registry_names_it": "Enoxaparin, 40 mg QD Plus Placebo",
+      "posted": {
+       "apixaban": "0.82",
+       "comparator": "0.68",
+       "unit": "Percentage of events/patients evaluted"
+      },
+      "count_provenance": "DERIVED, not read. The registry posts 0.82% on 2673. Exactly one integer rounds to that at the posted precision, so the count is determined: 22.",
+      "source_layer": "REGISTRY -- ClinicalTrials.gov posted results",
+      "layers_above_not_consulted": [
+       "THIS OBJECT DECLARES NO SOURCE HIERARCHY. The registry was the sole source and the trial publications were NOT read. Where the two disagree this row follows the registry, and nothing here establishes which is right."
+      ]
+     },
+     {
+      "trial_id": "NCT00371683",
+      "nct": "NCT00371683",
+      "label": "ADVANCE-1",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT00371683",
+      "read_utc": "2026-09-03",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "apixaban_events": 11,
+       "apixaban_n": 1596,
+       "comparator_events": 22,
+       "comparator_n": 1588
+      },
+      "measure": "RR",
+      "point": 0.4975,
+      "ci_low": 0.2421,
+      "ci_high": 1.0225,
+      "se_log_rr": 0.36757,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown.",
+      "endpoint_as_the_registry_titles_it": "Major Bleeding (n=1596, 1588)",
+      "endpoint_label_read_from": "outcomeMeasures[].classes[].title",
+      "outcome_rank_in_the_registration": "PRIMARY",
+      "ascertainment_window": "First dose of study drug to last dose, plus 2 days post last dose",
+      "population": "All participants who received at least one dose of study drug (Treated population).",
+      "apixaban_arm_as_the_registry_names_it": "Apixaban 2.5mg BID",
+      "comparator_arm_as_the_registry_names_it": "Enoxaparin 30 mg SC Injection q 12 Hours",
+      "posted": {
+       "apixaban": "0.69",
+       "comparator": "1.39",
+       "unit": "percentage of participants"
+      },
+      "count_provenance": "DERIVED, not read. The registry posts 0.69% on 1596. Exactly one integer rounds to that at the posted precision, so the count is determined: 11.",
+      "source_layer": "REGISTRY -- ClinicalTrials.gov posted results",
+      "layers_above_not_consulted": [
+       "THIS OBJECT DECLARES NO SOURCE HIERARCHY. The registry was the sole source and the trial publications were NOT read. Where the two disagree this row follows the registry, and nothing here establishes which is right."
+      ]
+     },
+     {
+      "trial_id": "NCT00452530",
+      "nct": "NCT00452530",
+      "label": "ADVANCE-2",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT00452530",
+      "read_utc": "2026-09-03",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "apixaban_events": 9,
+       "apixaban_n": 1501,
+       "comparator_events": 14,
+       "comparator_n": 1508
+      },
+      "measure": "RR",
+      "point": 0.6459,
+      "ci_low": 0.2804,
+      "ci_high": 1.4876,
+      "se_log_rr": 0.425688,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown.",
+      "endpoint_as_the_registry_titles_it": "Major bleeding (n=9, 14)",
+      "endpoint_label_read_from": "outcomeMeasures[].classes[].title",
+      "outcome_rank_in_the_registration": "SECONDARY",
+      "ascertainment_window": "Days 1 to 12",
+      "population": "All participants who received at least 1 dose of study drug",
+      "apixaban_arm_as_the_registry_names_it": "Apixaban, 2.5 mg BID + Placebo",
+      "comparator_arm_as_the_registry_names_it": "Enoxaparin, 40 mg QD + Placebo",
+      "posted": {
+       "apixaban": "0.60",
+       "comparator": "0.93",
+       "unit": "Percentage of events/patients evaluated"
+      },
+      "count_provenance": "DERIVED, not read. The registry posts 0.60% on 1501. Exactly one integer rounds to that at the posted precision, so the count is determined: 9.",
+      "source_layer": "REGISTRY -- ClinicalTrials.gov posted results",
+      "layers_above_not_consulted": [
+       "THIS OBJECT DECLARES NO SOURCE HIERARCHY. The registry was the sole source and the trial publications were NOT read. Where the two disagree this row follows the registry, and nothing here establishes which is right."
+      ]
+     }
+    ],
+    "heterogeneity": {
+     "tau2": 0.305824,
+     "q": 8.633,
+     "df": 3,
+     "i2_percent": 65.2,
+     "DIRECTION_TEST": "SUBSTANTIVE -- I-squared is 65.2% AND the trial intervals do not all exclude 1, or do not all point the same way. The trials disagree on WHETHER. THE POOLED POINT IS A NUMBER AND NOT A CONCLUSION.",
+     "how_to_read_this_at_low_k": "At k=2 or k=3 these statistics are weak evidence about consistency in EITHER direction. A low value means the estimates are CONSISTENT WITH a common effect, not that one is demonstrated."
+    },
+    "_what_this_outcome_is": "MAJOR BLEEDING, the harm this review's own question and its own eligibility estimand named and which it did not report until 2026-09-03.",
+    "_source": "ClinicalTrials.gov posted results, read 2026-09-03 and cached at outputs/harms_registry_cache/. THIS OBJECT DECLARES NO SOURCE HIERARCHY, so the registry was the SOLE source and the trial publications were NOT read. Where registry and publication disagree this block follows the registry and nothing here establishes which is right -- the dapivirine page reports registry SAE counts of 116/1313 vs 130/1316 where its own publication reports 52 vs 48.",
+    "_every_row_carries_its_window_and_its_population": "`ascertainment_window` and `population` are on every per-trial row, AND WHERE THE REGISTRATION STATES NEITHER, THE ROW SAYS SO IN THOSE WORDS rather than carrying a null that reads as 'not applicable'. A numerator and a denominator that do not come from the same population are not a 2x2, and that rule is not theoretical: it produced a wrong ceftaroline headline of 235/315 where the publication says 235/289. Within a row the two ALWAYS come from the same denoms block and so are the same population as each other; what that population IS is a separate question and some registrations do not answer it.",
+    "poolable": true,
+    "poolable_reason": "All four post major bleeding on the treated population over their own on-treatment window, and each row's endpoint label was READ from the registry's `classes[].title` rather than inferred from its position in the table.",
+    "pooled": {
+     "point": 0.9682,
+     "ci_low": 0.497,
+     "ci_high": 1.886,
+     "ci_level": 95
+    },
+    "pooled_hartung_knapp": {
+     "point": 0.9682,
+     "ci_low": 0.3178,
+     "ci_high": 2.9502,
+     "df": 3,
+     "t_critical": 3.1824463,
+     "variance_inflation_applied": 1.0591,
+     "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends Hartung-Knapp where k is small. Shown ALONGSIDE the unadjusted interval, not instead of it. A FLOOR OF 1 is applied to the variance-inflation factor so the adjustment can never NARROW the interval below the unadjusted one."
+    },
+    "sensitivity_k5_adding_NCT02366871": {
+     "pooled": {
+      "point": 0.966,
+      "ci_low": 0.517,
+      "ci_high": 1.805,
+      "ci_level": 95
+     },
+     "heterogeneity": {
+      "tau2": 0.269451,
+      "q": 8.6332,
+      "df": 4,
+      "i2_percent": 53.7
+     },
+     "why": "NCT02366871 is recorded at `inputs.trials[].contributes_to_no_pool` as 'ELIGIBLE, NOT POOLABLE' BECAUSE its registered primaries are major bleeding and CRNM bleeding -- 'a SAFETY estimand'. THAT REASON IS SPECIFIC TO THE VTE OUTCOME AND EVAPORATES FOR THIS ONE: for major bleeding it is the only contributing trial whose registered PRIMARY is the endpoint. It is kept out of the headline k=4 so that both outcomes on this page rest on the same trial set, and shown as a k=5 sensitivity below."
+    },
+    "⛔_the_brief_said_this_was_a_signal_and_it_is_not": "The review request that opened this work gave ADOPT as 'major bleeding 15/3,184 vs 6/3,217 RR 2.58 (1.02-7.24) -- a HARM SIGNAL'. THE COUNTS ARE CONFIRMED and the interval is not. RR = (15/3184)/(6/3217) = 2.5259, SE(log RR) = 0.482399, 95% CI 0.9813 to 6.5018 -- IT INCLUDES 1. The quoted 2.58 (1.02-7.24) is reproduced by 18/3184 vs 7/3217, which are not the posted counts. WHAT THIS PAGE OMITTED WAS AN OUTCOME, NOT A SIGNAL.",
+    "why_the_denominators_are_not_the_ones_beside_them_on_this_page": "Major bleeding is posted on the AS-TREATED safety population and the VTE outcome on the EVALUABLE population. In ADOPT that is 3,184 against 2,304 -- 880 people apart. The two outcomes on this page therefore have different denominators BY CONSTRUCTION, and each row states its own. Pairing a bleeding numerator with a VTE denominator would be wrong by 28% and would read perfectly.",
+    "the_comparator_is_not_one_node": "ADVANCE-1 randomised ENOXAPARIN 30 mg SC every 12 hours -- the US regimen -- and ADOPT, ADVANCE-2 and ADVANCE-3 randomised 40 mg once daily. Read from the registry's own arm titles. A pooled comparator that is two doses on two schedules is a control node that drifts, and it is one of the things the heterogeneity below is measuring.",
+    "and_the_windows_are_not_one_window": "12 days (ADVANCE-2), first-dose-to-last-dose-plus-2 (ADVANCE-1), presurgery through last dose plus 2 (ADVANCE-3), and Day 1 to last dose plus 2 over a 30-day treatment course in medically ill patients (ADOPT). Each row carries its own.",
+    "why_it_is_pooled_at_all_given_that": "BECAUSE THIS PAGE ALREADY POOLS THESE SAME FOUR TRIALS FOR VTE AT I-SQUARED 71.5%, which is HIGHER than the 65.2% here. Declining to pool bleeding on heterogeneity grounds while pooling VTE across the same four trials at greater heterogeneity would be a refusal with a false reason, and a refusal with a false reason is worse than none. The pool is shown with the direction test beside it, exactly as the VTE pool is.",
+    "the_trial_this_page_excluded_for_a_reason_that_does_not_apply_here": "NCT02366871 is recorded at `inputs.trials[].contributes_to_no_pool` as 'ELIGIBLE, NOT POOLABLE' BECAUSE its registered primaries are major bleeding and CRNM bleeding -- 'a SAFETY estimand'. THAT REASON IS SPECIFIC TO THE VTE OUTCOME AND EVAPORATES FOR THIS ONE: for major bleeding it is the only contributing trial whose registered PRIMARY is the endpoint. It is kept out of the headline k=4 so that both outcomes on this page rest on the same trial set, and shown as a k=5 sensitivity below."
    }
   }
  },
@@ -709,7 +933,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status COMPLETED, hasResults=False"
+    "reason": "eligible; status COMPLETED, hasResults=False",
+    "subject_ref": "sha256:30023c0ba12086f0272c660e28b6f584918630b85f343b5d83eeedbc76059ae6",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT00320255",
@@ -723,7 +949,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT",
+    "subject_ref": "sha256:d0719291bdcbc1682e64bee93f335c01b1f15d38786087e50cfa961c5be3a97f",
+    "judgement_ref": "sha256:f8991c13f369079eb2cc6c61446ebf47e172eec29f72044255ff930ded796415"
    },
    {
     "nct": "NCT00371683",
@@ -737,7 +965,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT",
+    "subject_ref": "sha256:8903878cfbd99b9764a8a68c2c1d7c049741cd925e9a6c357704c577b7dbd662",
+    "judgement_ref": "sha256:f8991c13f369079eb2cc6c61446ebf47e172eec29f72044255ff930ded796415"
    },
    {
     "nct": "NCT00423319",
@@ -751,7 +981,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT",
+    "subject_ref": "sha256:61a15b7066a66ecae456f1e318fd3d878fc6a028d29306dc98ded85dd0c0d704",
+    "judgement_ref": "sha256:f8991c13f369079eb2cc6c61446ebf47e172eec29f72044255ff930ded796415"
    },
    {
     "nct": "NCT00452530",
@@ -765,7 +997,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there"
+    "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there",
+    "subject_ref": "sha256:250c53a7051867f9ad4b76a06b965b1e4409de636433ef3a0af096a0e4f7ba65",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT00457002",
@@ -779,7 +1013,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT",
+    "subject_ref": "sha256:dcaae1ec3949e3a25bd54601b5312ef42bf8c6a8fa5d95ba33fea3649ccd2da3",
+    "judgement_ref": "sha256:f8991c13f369079eb2cc6c61446ebf47e172eec29f72044255ff930ded796415"
    },
    {
     "nct": "NCT00633893",
@@ -793,7 +1029,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS",
+    "subject_ref": "sha256:4ad823868cc343205aee7165ec05f3e928eec8a498afc9cc575fb23af1f87939",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT00643201",
@@ -807,7 +1045,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:ab19270d57323ec327ce7eb47cfecbe93a56b12d6259a548ea7860f21bf30d4c",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT01195727",
@@ -821,7 +1061,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "OTHER",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND FAILS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND FAILS",
+    "subject_ref": "sha256:13ee71c092f0fa311385c5a118880a07f8a135d10d8b276e18785758a182754c",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT01707394",
@@ -835,7 +1077,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "OTHER",
-    "reason": "cannot settle COMPARATOR: no usable coded purpose; the condition text reads as prophylaxis"
+    "reason": "cannot settle COMPARATOR: no usable coded purpose; the condition text reads as prophylaxis",
+    "subject_ref": "sha256:5af141143e4b56e71a7a0826b3cd68ed996379c748d3750704b28a6c5de2c4bc",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT01780987",
@@ -849,7 +1093,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:43d0c964ac9b920b843a15175a11c3a9a7c144ecfbae6462e858b1422ec40129",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02048865",
@@ -863,7 +1109,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status COMPLETED, hasResults=False"
+    "reason": "eligible; status COMPLETED, hasResults=False",
+    "subject_ref": "sha256:5239f2313bd030e02fc2a9aab930b7010393c3b82553ec9d07a55a451c1ef92b",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT02066454",
@@ -877,7 +1125,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:0e22093cf63efaa5cb304b718e11e4388331e26fa13c3f2ae5f2191b985302ab",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02369653",
@@ -891,7 +1141,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here"
+    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here",
+    "subject_ref": "sha256:f0cd1654ba3341cad9761e592f602ad7337db43fcc2431a15ce90b0b86026216",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT02464969",
@@ -905,7 +1157,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:1f010488002668d63b517b1951f0a7dfdede668b193c2a42815ec7f95df9f81d",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02559856",
@@ -919,7 +1173,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:26612a56b380db334eb1880558f40a4abe24c4f7fc01a207c8a89f86ecb7313b",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02585713",
@@ -933,7 +1189,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "SUPPORTIVE_CARE",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:5017a14ff831111ff5c0a94d7821fd6ce47662de58de6354dc47e35a85309e5f",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02664155",
@@ -947,7 +1205,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:a89695cc44ff084e0de33a6b6d3846f5ee09d205b2368e660fb846c0a0edb74c",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02744092",
@@ -961,7 +1221,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:298c925c7c49ea0d9ffbe2f8a1845e5690b2a275c4884387b6f55c34d86ee522",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02829957",
@@ -975,7 +1237,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:b3f2b71fb655a4b2b35ad98b9172e1361dccda16c1fb8232adb825998bc93740",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02889562",
@@ -989,7 +1253,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible with results, but no VTE or bleeding outcome at any rank"
+    "reason": "eligible with results, but no VTE or bleeding outcome at any rank",
+    "subject_ref": "sha256:9b12590c72a5a630c3d1983e5d3d78287539cf548719b49c3493e8e9efcbeda9",
+    "judgement_ref": "sha256:6dac9e38855ebd6041c0c8f188bc65e748a302264e8fab68970492171ea95264"
    },
    {
     "nct": "NCT02912234",
@@ -1003,7 +1269,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "BASIC_SCIENCE",
-    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND FAILS"
+    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND FAILS",
+    "subject_ref": "sha256:44e50c4b657c57d437008af9860eaa134a2ab5a6e510004355dcd20270887b7d",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02945280",
@@ -1017,7 +1285,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:f30bec95d5531f8297733fad16fdc93fc444c3e47da6e9b0231a2795f1e7a2d6",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT02958969",
@@ -1031,7 +1301,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "fails COMPARATOR (coded PREVENTION and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails COMPARATOR (coded PREVENTION and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:669e011a5a81350771f850c959723c04e37d4aca25c668e60e518e1d6b725f8a",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT03045406",
@@ -1045,7 +1317,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:2cbec6d3ebe72278f3aaf870cc30e4c0d289ba8007b0be8d95b0296ddcc459e7",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT03080883",
@@ -1059,7 +1333,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "cannot settle POPULATION, COMPARATOR: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here"
+    "reason": "cannot settle POPULATION, COMPARATOR: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here",
+    "subject_ref": "sha256:794fcc9b1919ad3492434c92adea4ad3963c5f4edec0a76e6e33a63b44da6640",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT03129555",
@@ -1073,7 +1349,9 @@
     },
     "status": "ACTIVE_NOT_RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:5609d706bbdc8650408d5ade3e9e75ed08063b03f9ca89ab14bd400b32dfdbcc",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT03139487",
@@ -1087,7 +1365,9 @@
     },
     "status": "UNKNOWN",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:5cdf0b9e9fd30a7cf300b80d71097bb82912575df00ed0fca32e5ef8b5a49dac",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT03196349",
@@ -1101,7 +1381,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:e3d981172afafc3953b2bc0eeb2475042dc8dd0c48623d0c74a6bd520a6083b3",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT03200613",
@@ -1115,7 +1397,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status TERMINATED, hasResults=False"
+    "reason": "eligible; status TERMINATED, hasResults=False",
+    "subject_ref": "sha256:518a8951c9471a9665652f5eb0daa20fc44cecadbedf5971319d83ef7629b8fc",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT03266783",
@@ -1129,7 +1413,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:6a6c8d19ceb0866acbbba560bca3c77256f4d2fce7ac2ae199ce8e7c3e41d969",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT03276143",
@@ -1143,7 +1429,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status COMPLETED, hasResults=False"
+    "reason": "eligible; status COMPLETED, hasResults=False",
+    "subject_ref": "sha256:71a046db91903facdb71daac9904a621d5d62ba4eb7f409ab751d7a690a9e925",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT03590743",
@@ -1157,7 +1445,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:20665b2f7f359d14e53d32a4ccd2db0eb13267abd0d3fdd4bfad50812c13b171",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT03678506",
@@ -1171,7 +1461,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "PREVENTION",
-    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here"
+    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here",
+    "subject_ref": "sha256:17c3b74fb8cf56f56e38fad59c20b077e5f2e08723de0751c2bebe92ab9dee87",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT03935451",
@@ -1185,7 +1477,9 @@
     },
     "status": "UNKNOWN",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status UNKNOWN, hasResults=False"
+    "reason": "eligible; status UNKNOWN, hasResults=False",
+    "subject_ref": "sha256:528810285399bdac1a9ffadafc63c1b95850da3cc7e60cfb8b729180d8500147",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT04041843",
@@ -1199,7 +1493,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:38bfcf90c872c8c5e607388b27688cd0b94e7d7eba9737f7de67da6b8f779b1d",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT04106700",
@@ -1213,7 +1509,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails COMPARATOR (coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there). ALL limbs: POPULATION UNSETTLED, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails COMPARATOR (coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there). ALL limbs: POPULATION UNSETTLED, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:9d017d69a2d43da60d87f6dd1261f350092c327528e667681d2a48cfb1511db3",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT04168203",
@@ -1227,7 +1525,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:ac6e0b0f3a3ab8c989bafacea57a11347a1deacddbfcd5cf5118368daf3da2ea",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT04191928",
@@ -1241,7 +1541,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND FAILS"
+    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND FAILS",
+    "subject_ref": "sha256:99642b2aa00dd339b89640bbc3f164778d524386f9f81b5b9b3591702f18f792",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT04243122",
@@ -1255,7 +1557,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status COMPLETED, hasResults=False"
+    "reason": "eligible; status COMPLETED, hasResults=False",
+    "subject_ref": "sha256:5d2b50e72f6eb7d98b393374b7ac10c743538ed2e8545a9d1c4b346944ffbf7f",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT04462003",
@@ -1269,7 +1573,9 @@
     },
     "status": "UNKNOWN",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:11409c4effb26114ca2fe430e264554eb254dffe9ddc8ae154087ea0c986ff10",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT04479579",
@@ -1283,7 +1589,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "fails COMPARATOR (coded PREVENTION and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails COMPARATOR (coded PREVENTION and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:f8e4d7c52f4017491b21f30251d16a566eba304e1aa1ec135dd0a0027f5a0a1a",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT04504318",
@@ -1297,7 +1605,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here"
+    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here",
+    "subject_ref": "sha256:25a24b78885c7344620b36ecac5881f0c00f7e28315b2f6652ae9ffa6cfd65f0",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT04746339",
@@ -1311,7 +1621,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status TERMINATED, hasResults=False"
+    "reason": "eligible; status TERMINATED, hasResults=False",
+    "subject_ref": "sha256:210d92469221b4c54a4356d87cf6960c7f0242e61ab2b58801894f73f82db82c",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT04874428",
@@ -1325,7 +1637,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "BASIC_SCIENCE",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND FAILS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND FAILS",
+    "subject_ref": "sha256:8d0ea0f10bc597649534c06809f8a18ae67e1cc7faa21a873ac7a32d0d5e9e98",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT05089227",
@@ -1339,7 +1653,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "cannot settle COMPARATOR: coded PREVENTION and the text agrees"
+    "reason": "cannot settle COMPARATOR: coded PREVENTION and the text agrees",
+    "subject_ref": "sha256:bcd9d1791fa38017b3c336b17ab4e70ffe3eb5a8a6219da6955638c847a109c1",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT05171049",
@@ -1353,7 +1669,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS",
+    "subject_ref": "sha256:ad13200d6872ff30999770705552c218cb6e451574aae8a591b54cf088752553",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT05198960",
@@ -1367,7 +1685,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status RECRUITING, hasResults=False"
+    "reason": "eligible; status RECRUITING, hasResults=False",
+    "subject_ref": "sha256:890f864c94442ca30675809bf33afdd5ab5cc7a3172ec084ddc330021d5d80a2",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT05259553",
@@ -1381,7 +1701,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND FAILS"
+    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND FAILS",
+    "subject_ref": "sha256:08d596bfa1c6ac398d18c7f20dab16e589e37be8189cb9305ae6d2d932a35274",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT05618808",
@@ -1395,7 +1717,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "TREATMENT",
-    "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there"
+    "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there",
+    "subject_ref": "sha256:a899f222280591863700e7bd6effc98b93bb63eefaaab6a6b234119cb7787235",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT05622500",
@@ -1409,7 +1733,9 @@
     },
     "status": "TERMINATED",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND FAILS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND FAILS",
+    "subject_ref": "sha256:c7ce22eea67dc7100b05addfa6718bc2bdfad09297cc798e3186a8752336632e",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT05683808",
@@ -1423,7 +1749,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "SUPPORTIVE_CARE",
-    "reason": "fails COMPARATOR (no usable coded purpose; the condition text reads as prophylaxis). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails COMPARATOR (no usable coded purpose; the condition text reads as prophylaxis). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:7493087b7719599b48df7fb98f110e4ab45a601a13ec95fb191264f269a03bba",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT05701917",
@@ -1437,7 +1765,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND FAILS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND FAILS",
+    "subject_ref": "sha256:34f466d500834fcab0d56fe09b133e3ad6d59b5454281e7f1e0f165c3bf09ca2",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT05735639",
@@ -1451,7 +1781,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status RECRUITING, hasResults=False"
+    "reason": "eligible; status RECRUITING, hasResults=False",
+    "subject_ref": "sha256:7d38c051395bbb89bd020c8bda97d63a13730615e550f9b4d436927d43353d0b",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT06055920",
@@ -1465,7 +1797,9 @@
     },
     "status": "ACTIVE_NOT_RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS",
+    "subject_ref": "sha256:d71a130f1d3ee7551d62daf1f593844cc8416b9efc3d7e00fc1ce4d4ec057329",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT06243510",
@@ -1479,7 +1813,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:a3c14ea12dff89d4fdc25a07022f555f197de66c8f54e019203ca49e1150a538",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT06523959",
@@ -1493,7 +1829,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there"
+    "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there",
+    "subject_ref": "sha256:07ed86d6c31365a59845fcd6ba8f8e818766069a226ae4124c6b805e84b1ed51",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT06531122",
@@ -1507,7 +1845,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:132db2edfb4baa8f746eca49740eb92000a24ddb9cabd14d55a313d620c2b191",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT06551415",
@@ -1521,7 +1861,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:c51814028c1c06ed8d1ae4a403c5fdbff1ead0cbfe8c0e8fe7b64b07e2753b5a",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT06581965",
@@ -1535,7 +1877,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "cannot settle COMPARATOR: coded PREVENTION and the text agrees"
+    "reason": "cannot settle COMPARATOR: coded PREVENTION and the text agrees",
+    "subject_ref": "sha256:517dd0be0e353f65f8644943785eb0f5d7e22060dabb4dec75e3684fcd342fd3",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT06603870",
@@ -1549,7 +1893,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails COMPARATOR (coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there). ALL limbs: POPULATION UNSETTLED, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails COMPARATOR (coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there). ALL limbs: POPULATION UNSETTLED, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:ad86c723a816d4b085ce467fb07a2c7c9f4b3c6af81fe9fe321e03ae6a9dc6e5",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT06886516",
@@ -1563,7 +1909,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in prophylaxis). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:6388f71e6b6323f842e2a2c19903d5fae72e17e292e526bfee39c24025115043",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT07005024",
@@ -1577,7 +1925,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "cannot settle COMPARATOR: coded PREVENTION and the text agrees"
+    "reason": "cannot settle COMPARATOR: coded PREVENTION and the text agrees",
+    "subject_ref": "sha256:c7b378da92a9650eb617e3210e178802875f18c447794e5c61db7bb09e06f3ac",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT07015905",
@@ -1591,7 +1941,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there"
+    "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there",
+    "subject_ref": "sha256:2247ade03cc558af42b8ece97350e4c5f143281f2d6cc6c05f4f1a3f565ea811",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT07160686",
@@ -1605,7 +1957,9 @@
     },
     "status": "NOT_YET_RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status NOT_YET_RECRUITING, hasResults=False"
+    "reason": "eligible; status NOT_YET_RECRUITING, hasResults=False",
+    "subject_ref": "sha256:e5991f987ec51c23741cb27f6b53429acfa0f0b65d81df57ff601fd95f2a4d19",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT07189897",
@@ -1619,7 +1973,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status RECRUITING, hasResults=False"
+    "reason": "eligible; status RECRUITING, hasResults=False",
+    "subject_ref": "sha256:a61a6af59e14c750cae04abf9c83c24ddfd7c6d9941418b0d898a0db4978f8c0",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT07228663",
@@ -1633,7 +1989,9 @@
     },
     "status": "NOT_YET_RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status NOT_YET_RECRUITING, hasResults=False"
+    "reason": "eligible; status NOT_YET_RECRUITING, hasResults=False",
+    "subject_ref": "sha256:d05e0012911c40030546ecccbbf8cfd911abd4746d88e6238e9601d9175f103a",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    },
    {
     "nct": "NCT07270263",
@@ -1647,7 +2005,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here"
+    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here",
+    "subject_ref": "sha256:a33154071784507fa948ac07d5ada03ed9606cb30d79cc829da53125d5878607",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT07493304",
@@ -1661,7 +2021,9 @@
     },
     "status": "RECRUITING",
     "primaryPurpose": "TREATMENT",
-    "reason": "cannot settle POPULATION, COMPARATOR: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there"
+    "reason": "cannot settle POPULATION, COMPARATOR: coded TREATMENT but the text reads as prophylaxis -- exactly ADVANCE-2's shape, and the coded field is what is wrong there",
+    "subject_ref": "sha256:23e9168e6ad6cfcbe8e6139e204f733ef01a98147c81c72d36b5811c41dc7331",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT07699796",
@@ -1675,7 +2037,9 @@
     },
     "status": "COMPLETED",
     "primaryPurpose": "PREVENTION",
-    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here"
+    "reason": "cannot settle POPULATION: coded PREVENTION but the condition text reads as treatment -- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here",
+    "subject_ref": "sha256:b11833e077c58e81be0975cd615cf64ece489125204eb71c98809f3bb3932c0e",
+    "judgement_ref": "sha256:fc9967b1e542ffaff637e15e2988394163fb47eeaec55ea07885f9c6b91ef1bc"
    },
    {
     "nct": "NCT07713875",
@@ -1689,7 +2053,9 @@
     },
     "status": "NOT_YET_RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "fails COMPARATOR (coded PREVENTION and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    "reason": "fails COMPARATOR (coded PREVENTION and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS",
+    "subject_ref": "sha256:917167cf37b10ec0a01f0ee097b523ff72e22b72bf7b43c15b4b9ce686d7532e",
+    "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
    },
    {
     "nct": "NCT07716332",
@@ -1703,7 +2069,9 @@
     },
     "status": "NOT_YET_RECRUITING",
     "primaryPurpose": "PREVENTION",
-    "reason": "eligible; status NOT_YET_RECRUITING, hasResults=False"
+    "reason": "eligible; status NOT_YET_RECRUITING, hasResults=False",
+    "subject_ref": "sha256:aeeca12e18252ad1502812c83bb52c94450f9002731d12f87bffc38c28a7bd0c",
+    "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
    }
   ],
   "adjudication": {
@@ -1718,77 +2086,107 @@
     {
      "nct": "NCT00452530",
      "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
-     "why": "ADVANCE-2, n=3221 knee-replacement thromboprophylaxis. Its coded purpose says TREATMENT and its DESIGN says prophylaxis; the design settles it and it is admitted HERE. THE FOURTH LARGE ADVANCE-PROGRAMME TRIAL MISSING FROM THIS REVIEW."
+     "why": "ADVANCE-2, n=3221 knee-replacement thromboprophylaxis. Its coded purpose says TREATMENT and its DESIGN says prophylaxis; the design settles it and it is admitted HERE. THE FOURTH LARGE ADVANCE-PROGRAMME TRIAL MISSING FROM THIS REVIEW.",
+     "subject_ref": "sha256:5f60469811169cf707d14e6f274d5b478c8941ae7a87727a07406a4635026658",
+     "judgement_ref": "sha256:f8991c13f369079eb2cc6c61446ebf47e172eec29f72044255ff930ded796415"
     },
     {
      "nct": "NCT02369653",
      "verdict": "ELIGIBLE_NO_RESULTS_YET",
-     "why": "primary thromboprophylaxis in lymphoma and ALL, n=512."
+     "why": "primary thromboprophylaxis in lymphoma and ALL, n=512.",
+     "subject_ref": "sha256:cbd02fbcac9817295615156ddcdc45f8ba4fe4be52baf72b9bf3e4f2b2b0aac2",
+     "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
     },
     {
      "nct": "NCT04504318",
      "verdict": "ELIGIBLE_NOT_POOLABLE",
-     "why": "apixaban vs enoxaparin after microsurgical breast reconstruction, n=82. In scope; its registered outcomes are surgical-flap endpoints."
+     "why": "apixaban vs enoxaparin after microsurgical breast reconstruction, n=82. In scope; its registered outcomes are surgical-flap endpoints.",
+     "subject_ref": "sha256:2009863698d06afe7169271318d87b20d35374e1325141e34310bce8d09915a5",
+     "judgement_ref": "sha256:6dac9e38855ebd6041c0c8f188bc65e748a302264e8fab68970492171ea95264"
     },
     {
      "nct": "NCT05089227",
      "verdict": "ELIGIBLE_NO_RESULTS_YET",
-     "why": "prolonged anticoagulation for PRIMARY prophylaxis, n=72."
+     "why": "prolonged anticoagulation for PRIMARY prophylaxis, n=72.",
+     "subject_ref": "sha256:3df982dc9103a7e1196b5cfbbc7a5cc3b4b26ea4f52f1a426045b7df2d4aa521",
+     "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
     },
     {
      "nct": "NCT06581965",
      "verdict": "ELIGIBLE_NO_RESULTS_YET",
-     "why": "n=10078, individualised versus standard thrombosis prophylaxis. THE LARGEST TRIAL IN EITHER REMAINDER, and not yet reported."
+     "why": "n=10078, individualised versus standard thrombosis prophylaxis. THE LARGEST TRIAL IN EITHER REMAINDER, and not yet reported.",
+     "subject_ref": "sha256:ea121bbf1a836624be2380e55f5ea63277c74dafee278d4b8f71d9a564383a64",
+     "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
     },
     {
      "nct": "NCT07005024",
      "verdict": "ELIGIBLE_NO_RESULTS_YET",
-     "why": "DOAC dosing options in anticoagulation prophylaxis for cancer, n=996."
+     "why": "DOAC dosing options in anticoagulation prophylaxis for cancer, n=996.",
+     "subject_ref": "sha256:f747be9454e00e4b5b5e88ae5804182c3e1b981149e7f900db0e479da934df6c",
+     "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
     },
     {
      "nct": "NCT07015905",
      "verdict": "ELIGIBLE_NO_RESULTS_YET",
-     "why": "REGN7508 thromboprophylaxis, n=2000."
+     "why": "REGN7508 thromboprophylaxis, n=2000.",
+     "subject_ref": "sha256:e8d2d7389d83eb312673169efa6223d3d6ca39e50e89a81749ad1871a1a0a484",
+     "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
     },
     {
      "nct": "NCT06523959",
      "verdict": "ELIGIBLE_NO_RESULTS_YET",
-     "why": "perioperative thrombosis and bleeding, n=5436."
+     "why": "perioperative thrombosis and bleeding, n=5436.",
+     "subject_ref": "sha256:12db9f572ca982da21ab93eb9f7cb632ad5cd2ee75b92c8f65e48f402df80f3c",
+     "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
     },
     {
      "nct": "NCT07270263",
      "verdict": "ELIGIBLE_NO_RESULTS_YET",
-     "why": "reduced-dose DOAC vs LMWH prophylaxis in haematological malignancy, n=100."
+     "why": "reduced-dose DOAC vs LMWH prophylaxis in haematological malignancy, n=100.",
+     "subject_ref": "sha256:a8e201172e0b093f6e6667e8f092554ea18986ebd682b842bc677588f04d32dd",
+     "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
     },
     {
      "nct": "NCT07699796",
      "verdict": "ELIGIBLE_NO_RESULTS_YET",
-     "why": "apixaban vs rivaroxaban vs no anticoagulant to prevent thrombosis, n=564."
+     "why": "apixaban vs rivaroxaban vs no anticoagulant to prevent thrombosis, n=564.",
+     "subject_ref": "sha256:0d67dc5c4ea221fc44368b656cd34fe7e904ec112b4272ede93a09c287f70e21",
+     "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
     },
     {
      "nct": "NCT05618808",
      "verdict": "ELIGIBLE_NO_RESULTS_YET",
-     "why": "REGN9933 for prevention of VTE, n=373."
+     "why": "REGN9933 for prevention of VTE, n=373.",
+     "subject_ref": "sha256:3bb56f2079869a2e68bd585b76e002ee868c4902e867dafb71b1a4fb5da8c319",
+     "judgement_ref": "sha256:0b3a4924703cd933f7852049f02a79a7c57c07d4b6eefe6fa4d0c5662d3370a7"
     },
     {
      "nct": "NCT01707394",
      "verdict": "ELIGIBLE_NOT_POOLABLE",
-     "why": "single-dose paediatric pharmacokinetic study, n=49. In scope by population; a PK design contributes no clinical effect estimate."
+     "why": "single-dose paediatric pharmacokinetic study, n=49. In scope by population; a PK design contributes no clinical effect estimate.",
+     "subject_ref": "sha256:97ad85212abe462dc4d57ba66712fee97367377179a0261544b2019995678981",
+     "judgement_ref": "sha256:6dac9e38855ebd6041c0c8f188bc65e748a302264e8fab68970492171ea95264"
     },
     {
      "nct": "NCT03080883",
      "verdict": "EXCLUDED",
-     "why": "'preventing SECONDARY cancer-related VTE' -- after a first event, so treatment by the boundary above. Belongs to the treatment review, where it is admitted."
+     "why": "'preventing SECONDARY cancer-related VTE' -- after a first event, so treatment by the boundary above. Belongs to the treatment review, where it is admitted.",
+     "subject_ref": "sha256:dbc39fd746884843a975de6ce390612a96ff933754e51bddc3d9f2493f59f01a",
+     "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
     },
     {
      "nct": "NCT03678506",
      "verdict": "EXCLUDED",
-     "why": "APIDULCIS: extended anticoagulation after a VTE. Coded PREVENTION and it is treatment."
+     "why": "APIDULCIS: extended anticoagulation after a VTE. Coded PREVENTION and it is treatment.",
+     "subject_ref": "sha256:0f39bf854ffb5ff80fd1789875a3160a154be9757752c35bd3a60e3fad357ed4",
+     "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
     },
     {
      "nct": "NCT07493304",
      "verdict": "EXCLUDED",
-     "why": "'Treatment and Secondary Prevention' -- both post-event."
+     "why": "'Treatment and Secondary Prevention' -- both post-event.",
+     "subject_ref": "sha256:d5f1829295fa80b745c74055aea1042a49669b6fdace70eb571637edf5c78eed",
+     "judgement_ref": "sha256:211b35b2489ebea8b2cca889dd3446e370bab3f6b67864c0c9ea2108cda8abe2"
     }
    ],
    "eligible_poolable_total": 5
@@ -1881,7 +2279,9 @@
      "ci_high": 1.2309
     },
     "i2_superseded_2026_08_20": 67.8,
-    "reratings_checked_2026_08_20": "The pooled estimate moved from 0.7469 (0.4532 to 1.2309) to 0.7433 (0.4371 to 1.264) and I-squared from 67.8 to 71.48. Each domain was re-read against the new values: the interval still crosses the null, so imprecision is unchanged at its recorded level; inconsistency reads I-squared, whose restated value is above. NO LEVEL WAS CHANGED BY THIS SCRIPT -- a certainty rating is a judgement, and this pass moves the numbers a judgement reads, not the judgement."
+    "reratings_checked_2026_08_20": "The pooled estimate moved from 0.7469 (0.4532 to 1.2309) to 0.7433 (0.4371 to 1.264) and I-squared from 67.8 to 71.48. Each domain was re-read against the new values: the interval still crosses the null, so imprecision is unchanged at its recorded level; inconsistency reads I-squared, whose restated value is above. NO LEVEL WAS CHANGED BY THIS SCRIPT -- a certainty rating is a judgement, and this pass moves the numbers a judgement reads, not the judgement.",
+    "subject_ref": "sha256:892dad2727b7cde72d5ed099e4c5f2cebd69a3e224cdb3d0981ba95721b43939",
+    "judgement_ref": "sha256:04df1cc100c48ae1d6fb370a80f31374e42ae7a16bd600d8afc27fa2264c97b4"
    }
   }
  },
@@ -1992,42 +2392,58 @@
    "population_stated": {
     "verdict": "PASS",
     "reason": "present: question carries 220 characters",
-    "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+    "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)",
+    "subject_ref": "sha256:b1f4c37661c7c1d154692bad584cd4197a99af6bc28f8b7bb06632b9daa533b5",
+    "judgement_ref": "sha256:32e3c0215358a1f45d846a4a2d924cf7901caa608db81c166e70fc4ac2fecd9a"
    },
    "arm_role_resolved": {
     "verdict": "NOT-ASSESSABLE",
     "reason": "cannot assess: inputs.trials has 1 trial(s) with no readable arms ['NCT02366871'] and 0 with a blank arm role []. Absent role data is not a wrong role.",
-    "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+    "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated.",
+    "subject_ref": "sha256:8b6beceb70712a281ee20379ffdca244a9367140d9ddc3da15f1d35c1ffbab35",
+    "judgement_ref": "sha256:693afd6f58f86a0c2d13cf861df2adbdb75c3bd03de542aa48368c954fd07d41"
    },
    "comparators_identified": {
     "verdict": "PASS",
     "reason": "every outcome names a comparator type ['active']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
-    "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+    "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency.",
+    "subject_ref": "sha256:fe6b94bd3d0dc48c345fb59054312dacf42a6c93d0ff38a953e6759261913237",
+    "judgement_ref": "sha256:32e3c0215358a1f45d846a4a2d924cf7901caa608db81c166e70fc4ac2fecd9a"
    },
    "estimand_named": {
     "verdict": "PASS",
     "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
-    "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+    "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb",
+    "subject_ref": "sha256:bb5e08846f8a35d7ae28d76578849d4e2c34ab7a5c102ba6185995b5594c2534",
+    "judgement_ref": "sha256:32e3c0215358a1f45d846a4a2d924cf7901caa608db81c166e70fc4ac2fecd9a"
    },
    "criteria_stated": {
     "verdict": "PASS",
     "reason": "present: screening.eligibility carries 891 characters",
-    "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+    "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107.",
+    "subject_ref": "sha256:4447f1f7707300abd2ccc5ebc917ddaa7e4c203f95c85ebb715629774fc50054",
+    "judgement_ref": "sha256:32e3c0215358a1f45d846a4a2d924cf7901caa608db81c166e70fc4ac2fecd9a"
    },
    "criteria_predefined": {
     "verdict": "FAIL",
     "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
-    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation.",
+    "subject_ref": "sha256:9f2dd53796f63cae12fedbb6aeca3d7ebe9d48bcf944429dcad8f8cf048d09f7",
+    "judgement_ref": "sha256:0ccbc9f6ff6bdc29ac5fae6bc92ac462113fa662c7ea6a10236b51fa74c4e88d"
    },
    "eligibility_met": {
     "verdict": "NOT-ASSESSABLE",
     "reason": "cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose",
-    "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+    "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report",
+    "subject_ref": "sha256:3d7a75387daba196df1acdc8bf25242a371ff37f0c357f1cb51df025ff00e172",
+    "judgement_ref": "sha256:693afd6f58f86a0c2d13cf861df2adbdb75c3bd03de542aa48368c954fd07d41"
    },
    "contributes_a_randomised_contrast": {
     "verdict": "NOT-ASSESSABLE",
     "reason": "cannot assess: 1 of 5 trial(s) carry no readable arm roles ['NCT02366871']",
-    "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+    "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)",
+    "subject_ref": "sha256:b1fcb39d88fb31ec6719ae12229280f46d766ec8fe6615685e05f1b8b903891b",
+    "judgement_ref": "sha256:693afd6f58f86a0c2d13cf861df2adbdb75c3bd03de542aa48368c954fd07d41"
    }
   }
  },
