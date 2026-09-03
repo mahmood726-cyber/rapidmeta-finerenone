@@ -93,6 +93,8 @@ def main(argv):
                      [os.path.join(HERE, "test_source_hierarchy_refuses.py")])
         fails += run("no invented trial count in a served sentence",
                      [os.path.join(HERE, "test_no_invented_trial_count.py")])
+        fails += run("protocol conformance gate -- controls + ratchet",
+                     [os.path.join(HERE, "protocol_conformance_gate.py")])
         # The three ratchet gates carry their positive and negative controls inline and
         # refuse BEFORE printing any count, so running them here exercises those controls.
         fails += run("property recompute gate -- controls + ratchet",
