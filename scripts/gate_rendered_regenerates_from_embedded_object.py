@@ -70,8 +70,22 @@ WHAT THIS DOES NOT ESTABLISH, WRITTEN IN ADVANCE.
       polices one failure mode: prose that has come loose from its own object.
     - NOT that a page with no embedded object is clean. It is UNCHECKED, and the denominator
       below says so by name rather than by omission.
-    - NOTHING about values a client-side script computes at run time. This reads the static
-      bytes a reader is served, which is the surface the defect lived on.
+    - NOTHING about values a client-side script computes at run time, AND THE SIZE OF THAT
+      BLIND SPOT IS MEASURED, NOT WAVED AT. On HFREF_NMA_AUTO_FULL_REVIEW.html the static
+      text this gate reads is 21,072 characters; the text a browser actually renders
+      (document.body.textContent with script and style removed, loaded from the served
+      URL on 2026-09-03) is 568,879. THIS GATE SEES 3.70% OF WHAT A READER SEES.
+
+      It caught this defect because this defect happened to be static. It would not have
+      caught the same disagreement had it been rendered by script -- and on this page the
+      JS-rendered surface is the one that is CORRECT. The live DOM prints, in a table
+      titled "All 14 nodes vs placebo", ACEI 0.894 (0.625-1.277), ACEI+BB+MRA 0.593
+      (0.348-1.011), +SGLT2i 0.526 (0.288-0.958) -- the object's own values -- roughly one
+      screen below the static prose printing 0.8619, 0.5181 and 0.4588 for the same three
+      quantities. ONE PAGE SERVED TWO DIFFERENT NUMBERS FOR THE SAME QUANTITY TO THE SAME
+      READER. Comparing prose against the object is equivalent to comparing it against
+      that table, because the table is built from the object -- which is why this gate is
+      useful at 3.70% reach, and is still 3.70% reach.
 
 USAGE
     python scripts/gate_rendered_regenerates_from_embedded_object.py            # whole corpus
