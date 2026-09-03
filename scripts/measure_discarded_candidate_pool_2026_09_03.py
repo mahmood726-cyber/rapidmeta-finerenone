@@ -100,7 +100,11 @@ if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower()
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "scripts" / "add_topic_autodiscover.py"
 SLICE_START = "DRUG_SYNS = {"
-SLICE_END = "    return matches[:max_per_topic]"
+# The matcher now applies its cap above the return and hands back `kept`, so the slice
+# ends at that statement. The marker is a TEXT anchor, not a line number, and it moved
+# once already: when the enumeration ledger landed, both instruments raised ValueError
+# rather than silently measuring a shorter slice, which is the behaviour to keep.
+SLICE_END = "    return kept"
 
 # Filled by load_matcher so the static check reads the SAME bytes that were exec'd.
 EXTRACT_CACHE = {}
@@ -132,7 +136,11 @@ def load_matcher(source):
     # `re` is a module-level import in the source file and therefore outside the extracted
     # slice. Supplying it here keeps the slice itself unmodified; rewriting the block to add
     # its own import would mean measuring an edited matcher and calling it the matcher.
-    ns = {"re": re}
+    # `re` and `os` are module-level imports in the source and therefore outside the
+    # extracted slice; the slice now reads os.environ for the cap. Supplying them keeps
+    # the slice itself unmodified -- editing the block to add its own imports would mean
+    # measuring an edited matcher and calling it the matcher.
+    ns = {"re": re, "os": os}
     exec(compile(block, str(source), "exec"), ns)
     return (ns,
             hashlib.sha256(block.encode("utf-8")).hexdigest(),

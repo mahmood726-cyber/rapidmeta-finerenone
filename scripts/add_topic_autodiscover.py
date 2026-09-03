@@ -5519,41 +5519,125 @@ def _pivotal_score(nct):
     return score
 
 
-# For each topic, find candidate NCTs (consolidated Fix A + B + C + cap 20)
-def find_ncts(drug_patterns, condition_patterns, max_per_topic=20):
+# THE BOUND IS NAMED, CONFIGURABLE, AND ITS COST HAS BEEN MEASURED.
+#
+# It used to be a bare default of 20, and the delivered corpus was built under an effective
+# 8. Measured over the 53 topics that have both a source definition and a delivered record
+# (AACT 2026-08-30, scripts/measure_cap_cost_by_topic_2026_09_03.py):
+#
+#     cap    8 -> 34 of 53 topics truncated, 1,453 already-eligible candidates cut
+#     cap   20 -> 10 of 53 topics truncated, 1,168 cut
+#     cap  100 ->  5 of 53 topics truncated,   657 cut
+#     cap  200 ->  2 of 53 topics truncated,   354 cut
+#     cap  500 ->  0 of 53 topics truncated,     0 cut
+#
+# 500 is chosen because it is the smallest round bound that truncated NOTHING in the
+# measured sample -- not because it feels safe. 53 is a sample of 1,893 stems, so a topic
+# with a larger pool certainly exists; when the bound bites, `ledger` records how many were
+# discarded and which ones. That is the whole point:
+#
+#     A CAP IS A LEGITIMATE OPERATIONAL CHOICE ONLY IF THE NUMBER IT DISCARDED IS RECORDED.
+#     Slicing a list whose length nothing ever read is not a choice, it is a loss.
+MAX_PER_TOPIC = int(os.environ.get("RM_MAX_PER_TOPIC", "500"))
+
+
+def find_ncts(drug_patterns, condition_patterns, max_per_topic=None, ledger=None):
     """Return the top `max_per_topic` candidate NCTs whose interventions match a
     drug pattern AND whose conditions match a condition pattern (synonym- and
     normalization-aware, Fix B), dropping explicitly non-interventional studies
     (Fix A), ranked by pivotal_score then enrollment (Fix C). Deterministic:
     NCT id is the final tie-break."""
     matches = []
+    if max_per_topic is None:
+        max_per_topic = MAX_PER_TOPIC
+    examined = 0
+    identity_reasons = {}
     rejected_for_identity = []
+    dropped_condition = 0
+    dropped_study_type = 0
     for nct, intvs in intv_by_nct.items():
-        intv_blob = " | ".join(intvs)
+        examined += 1
         # TRIAL IDENTITY (2026-08-25). Was: a substring gate over ALL arms, which matched
         # a combination by its component and matched a trial where the drug is the control.
         _ok, _why = _studies_subject(nct, drug_patterns)
         if not _ok:
             rejected_for_identity.append((nct, _why))
+            identity_reasons[_why] = identity_reasons.get(_why, 0) + 1
             continue
         cond_blob = " | ".join(cond_by_nct.get(nct, []))
         # Fix B: condition synonym + token-subset (MeSH inversion) + hyphen norm.
         if not _match_blob(condition_patterns, cond_blob, token_subset=True,
                           synmap=COND_SYNS):
+            dropped_condition += 1
             continue
         # Fix A: drop explicit observational / expanded-access (keep blank/unknown).
         stype = study_type_by_nct.get(nct, "")
         if stype and not stype.startswith("interv"):
+            dropped_study_type += 1
             continue
         matches.append(nct)
     # Fix C then A: pivotal score first, enrollment within tier, NCT tie-break.
+    #
+    # NOT MERELY STABLE. The sort is TOTAL -- NCT id breaks every remaining tie -- so two
+    # runs over one snapshot agree because the order is DETERMINED, not because a dict
+    # happened to iterate the same way twice. Agreement between runs is not by itself
+    # evidence of correctness: a tie broken by hash order would look just as reproducible
+    # inside a single interpreter while ranking differently in the next one.
     matches.sort(key=lambda n: (-_pivotal_score(n), -enroll_by_nct.get(n, 0), n))
+
+    kept = matches[:max_per_topic]
+    discarded = matches[len(kept):]
+
+    # THE DENOMINATOR, RECORDED BEFORE THE SLICE IS SERVED.
+    #
+    # `len(matches)` sat one expression above this line for the whole life of this file and
+    # was never read. Downstream, n_total stored len(topic["ncts"]) -- the count AFTER the
+    # cut -- which reads like a denominator and is a reach figure. Every stage below now
+    # carries its input, its output, and a NAMED reason for the difference.
+    record = {
+        "retrieved": examined,
+        "identity_rejected": len(rejected_for_identity),
+        "identity_reasons": identity_reasons,
+        "dropped_condition": dropped_condition,
+        "dropped_study_type": dropped_study_type,
+        "eligible": len(matches),
+        "cap_applied": max_per_topic,
+        "cap_source": "RM_MAX_PER_TOPIC" if "RM_MAX_PER_TOPIC" in os.environ else "default",
+        "ingested": len(kept),
+        "discarded_by_cap": len(discarded),
+        "discarded_ncts": discarded,
+        "cap_bit": bool(discarded),
+    }
+    # FAIL CLOSED ON A LEDGER THAT DOES NOT RECONCILE. A record whose stages do not add up
+    # is worse than no record: it is a denominator carrying a provenance that cannot be
+    # true, and everything downstream would read it as measured.
+    _accounted = (record["identity_rejected"] + record["dropped_condition"]
+                  + record["dropped_study_type"] + record["eligible"])
+    if _accounted != examined:
+        raise AssertionError(
+            "enumeration ledger does not reconcile for %r: %d examined, %d accounted for "
+            "(identity %d + condition %d + study_type %d + eligible %d)"
+            % (drug_patterns, examined, _accounted, record["identity_rejected"],
+               record["dropped_condition"], record["dropped_study_type"],
+               record["eligible"]))
+    if record["ingested"] + record["discarded_by_cap"] != record["eligible"]:
+        raise AssertionError(
+            "cap accounting does not reconcile for %r: %d eligible, %d ingested, %d discarded"
+            % (drug_patterns, record["eligible"], record["ingested"],
+               record["discarded_by_cap"]))
+    if ledger is not None:
+        ledger.update(record)
+
     if rejected_for_identity:
         # NAMED, NOT SILENT. A trial dropped for identity is a decision about the evidence
         # base and belongs in the record, not in a discarded local.
         print("  identity gate rejected %d candidate(s); first 5: %s"
               % (len(rejected_for_identity), rejected_for_identity[:5]))
-    return matches[:max_per_topic]
+    if discarded:
+        print("  CAP BIT: %d eligible, %d ingested, %d DISCARDED at cap %d"
+              % (record["eligible"], record["ingested"], record["discarded_by_cap"],
+                 max_per_topic))
+    return kept
 
 
 topic_specs = []
@@ -5564,9 +5648,13 @@ for t in TOPICS:
         stem, name, drugs, conds, _ = t
     drugs = [d.lower() for d in drugs]
     conds = [c.lower() for c in conds]
-    ncts = find_ncts(drugs, conds)
+    # The ledger is a fresh dict per topic and travels WITH the topic, so the denominator
+    # reaches the delivered record instead of dying inside the matcher.
+    enum_ledger = {}
+    ncts = find_ncts(drugs, conds, ledger=enum_ledger)
     topic_specs.append({"stem": stem, "name": name, "ncts": ncts,
-                         "drug_patterns": drugs, "condition_patterns": conds})
+                         "drug_patterns": drugs, "condition_patterns": conds,
+                         "enumeration": enum_ledger})
 
 print(f"\nNCT discovery summary:")
 n_with_ncts = sum(1 for t in topic_specs if t["ncts"])
@@ -5716,7 +5804,12 @@ viable_count = 0
 results = []
 for topic in topic_specs:
     if not topic["ncts"]: continue
-    topic_audit = {"topic": topic, "trials": [], "n_total": 0, "n_pass_all": 0}
+    # `n_total` is KEPT under its old name and old meaning -- the number of candidates
+    # actually audited -- because other readers depend on it. What changes is that it is no
+    # longer the only number here: `enumeration` carries the pool it was cut from, so
+    # n_total can no longer be mistaken for the denominator.
+    topic_audit = {"topic": topic, "trials": [], "n_total": 0, "n_pass_all": 0,
+                   "enumeration": topic.get("enumeration", {"state": "NOT_RECORDED"})}
     for nct in topic["ncts"]:
         r = audit_nct(nct, topic)
         topic_audit["trials"].append(r)

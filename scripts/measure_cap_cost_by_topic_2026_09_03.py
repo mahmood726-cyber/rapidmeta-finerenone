@@ -60,7 +60,11 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "scripts" / "add_topic_autodiscover.py"
 RECORDS = ROOT / "outputs" / "new_topics"
 SLICE_START = "DRUG_SYNS = {"
-SLICE_END = "    return matches[:max_per_topic]"
+# The matcher now applies its cap above the return and hands back `kept`, so the slice
+# ends at that statement. The marker is a TEXT anchor, not a line number, and it moved
+# once already: when the enumeration ledger landed, both instruments raised ValueError
+# rather than silently measuring a shorter slice, which is the behaviour to keep.
+SLICE_END = "    return kept"
 
 # The bound the delivered records were produced under, and the bound the source now
 # defaults to. Both are reported because they are different numbers and the corpus was
@@ -74,7 +78,11 @@ def load_matcher():
     i = src.index(SLICE_START)
     j = src.index(SLICE_END) + len(SLICE_END)
     block = src[i:j]
-    ns = {"re": re}
+    # `re` and `os` are module-level imports in the source and therefore outside the
+    # extracted slice; the slice now reads os.environ for the cap. Supplying them keeps
+    # the slice itself unmodified -- editing the block to add its own imports would mean
+    # measuring an edited matcher and calling it the matcher.
+    ns = {"re": re, "os": os}
     exec(compile(block, str(SOURCE), "exec"), ns)
     return ns, hashlib.sha256(block.encode("utf-8")).hexdigest(), src
 
@@ -294,12 +302,23 @@ def main(argv):
 
     rows = []
     for stem, drugs, conds, n_total, ncts in sample:
-        full = ns["find_ncts"](drugs, conds, UNBOUNDED)
+        # The ledger the matcher now fills, captured against REAL data rather than the
+        # synthetic indexes the unit tests use. Its `eligible` must equal the pool this
+        # instrument measures independently; if it does not, one of the two is wrong and
+        # neither number is reportable.
+        led = {}
+        full = ns["find_ncts"](drugs, conds, UNBOUNDED, led)
+        if led.get("eligible") != len(full):
+            print("REFUSED: the matcher ledger and the measured pool disagree for %s "
+                  "(ledger eligible %s, pool %d). NO COUNT IS PRINTED."
+                  % (stem, led.get("eligible"), len(full)))
+            return 1
         row = {"stem": stem, "drug_patterns": drugs, "condition_patterns": conds,
                "n_total_recorded": n_total, "pool_now": len(full),
                "recorded_ncts": ncts,
                "stem_defined_times": stem_times.get(stem, 1),
-               "definition_used": "LAST of %d" % stem_times.get(stem, 1)}
+               "definition_used": "LAST of %d" % stem_times.get(stem, 1),
+               "ledger": {k: v for k, v in led.items() if k != "discarded_ncts"}}
         for cap in CAPS:
             row["discarded_at_cap_%d" % cap] = max(0, len(full) - cap)
         row["pool_ncts"] = full[:200]
