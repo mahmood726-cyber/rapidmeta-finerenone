@@ -319,6 +319,11 @@ _L="$(mktemp)"; python "$R/scripts/lint_collinear_protocol.py" > "$_L" 2>&1 || _
 # sits here and not in a document. Ratcheted: a file may not gain a NEW trap kind; the 322
 # already present are OWED, NOT CLEARED. --staged, because a tree-wide gate in a four-lane
 # worktree makes every lane's violation block every other lane's commit -- which happened.
+# A REPEATED TOPICS STEM SILENTLY REPLACES A TOPIC. 335 stems already collide and 158 of
+# those pairs carry DIFFERENT condition patterns, so one question is overwriting another
+# and both write the same outputs/new_topics/<STEM>.json. Baselined as OWED; this
+# refuses a stem gaining a NEW collision. Proven to refuse: --selftest plants one.
+_L="$(mktemp)"; python "$R/scripts/lint_topic_stem_collisions.py" > "$_L" 2>&1 || _refuse "$_L" "a TOPICS stem gained a NEW collision -- the later entry silently replaces the earlier one and both write the same outputs/new_topics file" "scripts/lint_topic_stem_collisions.py"
 _L="$(mktemp)"; python "$R/scripts/lint_recurring_traps.py" --staged > "$_L" 2>&1 || _refuse "$_L" "a file gained a NEW recurring-trap violation above its baseline" "scripts/lint_recurring_traps.py"
 
 # The chain survived. Recorded so "last run" is answerable too -- an empty ledger then
