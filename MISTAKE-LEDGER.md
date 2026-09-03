@@ -2180,3 +2180,84 @@ judgement or its prompt. That is a different fix — enrich the packet — and i
 more likely to raise real agreement than rewording anything.
 
 This bears on every review in the corpus that ran dual screening, not on this one.
+
+---
+
+## 2026-09-03 — A CLEAN-CLONE GREEN IS NOT A GREEN. Three limits, recorded because each one has already been believed.
+
+### 1. A PRISTINE CLONE WITH NOTHING STAGED CANNOT EXERCISE A STAGED-SCOPED CHECK
+
+`lint_recurring_traps --staged` is invoked by `.githooks/pre-commit`. In a fresh clone with
+nothing staged it prints *"no .py staged in this commit -- this lint has nothing to say
+about it"* and **exits 0**. It is counted as a pass. It examined nothing.
+
+    A CHECK THAT EXAMINED NOTHING AND A CHECK THAT EXAMINED EVERYTHING AND FOUND NOTHING
+    RETURN THE SAME EXIT CODE. ONLY ONE OF THEM IS EVIDENCE.
+
+This matters because the standard way to prove the trunk healthy is "clone it fresh, arm the
+hooks, run everything, show it green". That proof is sound for TREE-scoped checks and
+**vacuous by construction** for STAGED-scoped ones — there is no diff in a fresh clone for
+them to read. A green from an untouched clone says the tree-scoped gates pass. It cannot say
+the staged-scoped ones do, and it never could.
+
+**Mechanised, not merely written down.** `gates/run_hook_chain.py` now reports a
+staged-scoped check as `VACUOUS` rather than `ok` when the index is empty, and says why.
+The detection is deterministic — is this invocation staged-scoped, and is `git diff --cached`
+empty — not a phrase match on the check's output. Prose did not hold the other rules in this
+file either.
+
+### 2. `lint_composite_by_components` PRINTS THAT ITS RESULT IS NOT CLEAN AND EXITS 0
+
+Measured on a fresh full clone at `a3f22424e`:
+
+    coherent        0
+    mismatched      0
+    NOT_ASSESSABLE  26 -- the corpus does not record, per trial per pooled outcome,
+                       WHICH REGISTERED ENDPOINT SUPPLIED THE NUMBER. A gap, not a
+                       clean result.
+
+It assessed **nothing**, states in its own words that this is *"a gap, not a clean result"*,
+and returns success. The operator sees a pass.
+
+    THIS IS THE PASSWORD CLASS, IN THE GATE LAYER. The marker is satisfiable without the
+    property being true — exactly the shape as a page reporting `P1`/`P5` HELD on a surface
+    that refutes it. Having it on BOTH layers is the strongest form of the generalisation:
+    ASSERT THE PROPERTY, NEVER THE EXIT CODE.
+
+**NOT FIXED HERE, DELIBERATELY, AND THIS IS A DECISION SOMEBODY OWNS.** Making it exit
+non-zero blocks every push until 26 objects gain a field they do not carry. That is a
+scope call for the lane that owns the check and the corpus, not a 3am edit by the lane that
+found it. Two others share the shape and are recorded with it:
+
+| check | what it reported | denominator actually examined |
+|---|---|---|
+| `lint_composite_by_components` | `clean result` at exit 0 | 0 of 26 assessable |
+| `lint_manuscript_whole_document` | `FINDINGS: 0` | `0 topic(s)` |
+| `lint_recurring_traps --staged` | pass | nothing staged |
+
+### 3. THE HOOKS ARE INERT IN EVERY FRESH CLONE, AND CI ONLY COMPENSATES
+
+`.githooks/` is tracked, but a clone sets no `core.hooksPath`. Every hook here is inert
+until someone runs one command.
+
+    A GATE THAT IS OPT-IN IS NOT A GATE. It selects for the lanes that already care, and
+    then taxes them with the defects of the lanes that do not.
+
+Two defects reached `main` on 2026-09-02 through exactly this — a bare `text=True` decode
+hazard and a module-scope `sys.stdout` rebind, both in one landed file, neither seen by any
+check. `git merge` does not run `pre-commit` either, so a merge is a second hole straight
+through every check in the hook.
+
+`.github/workflows/hook-chain.yml` (`add369578`) closes the enforcement half: CI now runs the
+whole hook chain and `gates/run_repo_checks.py`, neither of which any workflow ran before.
+**The local half is still open** — nothing yet arms `core.hooksPath` on clone, and nothing
+fails loudly when it is unset. A missing config must read `NOT_RUN`, never a silent pass.
+
+### AND THE REASON ALL THREE ARE IN THIS FILE RATHER THAN IN A REPORT
+
+An external drive holding a lane's work detached on 2026-09-03 and took seven unpushed
+commits with it. Findings that live only in a transcript are one detached drive from never
+having happened.
+
+    A COMMIT THAT EXISTS IN ONLY ONE PLACE IS NOT SAVED. THE REMOTE IS THE ONLY DURABLE COPY.
+    One commit, one push, one content-verified probe. Never batch.

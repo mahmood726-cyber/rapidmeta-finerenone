@@ -24,12 +24,17 @@ output read. gates/WIRED_REPO_CHECKS.json::correction_2026_08_28 records what ha
 otherwise: of 12 non-zero exits, 2 were harness error, 2 not assessable, 1 a control that
 could not load, 1 broken code, and only 6 were real.
 
-FIVE NAMED STATES, BECAUSE THREE OF THEM ARE NOT VERDICTS:
-    ok            the check ran and was satisfied
+SIX NAMED STATES, BECAUSE FOUR OF THEM ARE NOT VERDICTS:
+    ok            the check ran, examined something, and was satisfied
     FAILED        the check ran and refused              <- the only one that is a finding
     INDETERMINATE it ran out of clock; it judged nothing
     NOT_RUN       its inputs are computed by the hook at run time and are not available
     MISSING       the hook names a script this tree does not carry
+    VACUOUS       it exited 0 having examined nothing -- a staged-scoped check over an
+                  empty index, which is exactly what a fresh clone is. A PRISTINE CLONE
+                  WITH NOTHING STAGED CANNOT EXERCISE A STAGED-SCOPED CHECK, so the usual
+                  proof of health -- clone fresh, arm hooks, run everything, show it green
+                  -- is sound for tree-scoped checks and empty for these.
 
 DEFECTS THIS RUNNER HAS ALREADY HAD, kept here because each is a house class and each
 produced a red table with nothing real in it:
@@ -134,6 +139,41 @@ def expand(args, root):
     return a, re.findall(r"\$[A-Za-z_][A-Za-z0-9_]*", a)
 
 
+def _git_no_inherit(argv, root):
+    """git with every GIT_* variable stripped.
+
+    ⛔ `git commit` exports GIT_INDEX_FILE and GIT_DIR to its hooks. A child git spawned
+    from inside a hook operates on THE COMMIT'S OWN INDEX unless the environment is
+    scrubbed. That corrupted a real index on 2026-09-02 -- a fixture's `git add` wrote a
+    blob hash into the live commit index, naming an object that existed only in a temp
+    store, and three commits died on `invalid object ... Error building trees`.
+    """
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    return subprocess.run(["git"] + argv, cwd=root, capture_output=True, env=env)
+
+
+def index_is_empty(root):
+    p = _git_no_inherit(["diff", "--cached", "--name-only"], root)
+    return p.returncode == 0 and not p.stdout.strip()
+
+
+def is_staged_scoped(rel, args, root):
+    """Does this invocation judge THE STAGED SET rather than the tree?
+
+    Decided from the invocation and the source, NOT from a phrase in the output. A text
+    match on "nothing to say" would be the same password class this runner exists to
+    report.
+    """
+    if "--staged" in args:
+        return True
+    full = os.path.join(root, rel.replace("/", os.sep))
+    try:
+        src = io.open(full, encoding="utf-8", errors="replace").read()
+    except OSError:
+        return False
+    return ("--cached" in src) or ("diff-index" in src)
+
+
 def run_one(rel, args, root, budget):
     full = os.path.join(root, rel.replace("/", os.sep))
     if not os.path.exists(full):
@@ -152,6 +192,20 @@ def run_one(rel, args, root, budget):
         rc = p.returncode
         blob = (p.stdout + p.stderr).decode("utf-8", "replace")
         state = "ok" if rc == 0 else "FAILED"
+        # ⛔ A STAGED-SCOPED CHECK OVER AN EMPTY INDEX EXAMINED NOTHING.
+        #
+        # A PRISTINE CLONE WITH NOTHING STAGED CANNOT EXERCISE A STAGED-SCOPED CHECK. It
+        # passes vacuously, by construction, and the standard proof of health -- clone
+        # fresh, arm the hooks, run everything, show it green -- is therefore sound for
+        # TREE-scoped checks and empty for these. `lint_recurring_traps --staged` prints
+        # "no .py staged in this commit" and exits 0, and was counted as a pass.
+        #
+        #     A CHECK THAT EXAMINED NOTHING AND A CHECK THAT EXAMINED EVERYTHING AND FOUND
+        #     NOTHING RETURN THE SAME EXIT CODE. ONLY ONE OF THEM IS EVIDENCE.
+        if state == "ok" and is_staged_scoped(rel, args, root) and index_is_empty(root):
+            state = "VACUOUS"
+            blob += ("\n[run_hook_chain] staged-scoped, and the index is empty: this check "
+                     "examined nothing. Not a pass, and not a failure either.")
     except subprocess.TimeoutExpired:
         rc, blob, state = None, "timed out after %ds" % budget, "INDETERMINATE"
     lines = [l.rstrip() for l in blob.splitlines() if l.strip()]
@@ -198,16 +252,28 @@ def selftest():
                 encoding="utf-8", newline="\n").write("import sys\nsys.exit(1)\n")
         io.open(os.path.join(tmp, "scripts", "always_green.py"), "w",
                 encoding="utf-8", newline="\n").write("print('fine')\n")
+        # A REAL EMPTY INDEX, because the vacuity arm asks git and must get a real answer.
+        io.open(os.path.join(tmp, "scripts", "staged_only.py"), "w",
+                encoding="utf-8", newline="\n").write(
+                    "print('nothing staged; nothing to say')\n")
+        for a in (["init", "-q", "."], ["config", "user.email", "t@t"],
+                  ["config", "user.name", "t"]):
+            _git_no_inherit(a, tmp)
         io.open(os.path.join(tmp, ".githooks", "pre-commit"), "w",
                 encoding="utf-8", newline="\n").write(
                     '#!/bin/sh\n'
                     'python "$R/scripts/always_red.py" > "$_L" 2>&1 || exit 1\n'
                     'python "$R/scripts/always_green.py" || exit 1\n'
+                    'python "$R/scripts/staged_only.py" --staged || exit 1\n'
                     'python "$R/scripts/not_here_at_all.py" || exit 1\n')
         targets, _skipped = collect(tmp)
         got = {t[1]: run_one(t[1], t[2], tmp, 60)["state"] for t in targets}
         cases = [("a check that exits 1 is FAILED", got.get("scripts/always_red.py"), "FAILED"),
                  ("a check that exits 0 is ok", got.get("scripts/always_green.py"), "ok"),
+                 # THE ONE THIS ARM EXISTS FOR. It exits 0 and examined nothing; scoring it
+                 # `ok` is how a fresh-clone green gets read as proof of everything.
+                 ("staged-scoped over an EMPTY index is VACUOUS, not ok",
+                  got.get("scripts/staged_only.py"), "VACUOUS"),
                  ("a check the tree lacks is MISSING", got.get("scripts/not_here_at_all.py"),
                   "MISSING")]
         print("SELFTEST -- the chain must reach every check, not stop at the first")
@@ -217,12 +283,12 @@ def selftest():
             print("  %-48s -> %-8s want %-8s %s"
                   % (label, actual, want, "correct" if good else "WRONG"))
         # THE POINT OF THE FILE: the red is FIRST in the chain, and the two after it were
-        # still reached. A `|| exit 1` chain returns one row here; this must return three.
+        # still reached. A `|| exit 1` chain returns one row here; this must return four.
         reached = len(got)
-        good = reached == 3
+        good = reached == 4
         ok &= good
         print("  %-48s -> %-8s want %-8s %s"
-              % ("all three reached despite the first failing", reached, 3,
+              % ("all four reached despite the first failing", reached, 4,
                  "correct" if good else "WRONG -- it stopped early"))
     finally:
         import shutil
@@ -266,18 +332,24 @@ def main(argv):
     indet = [r for r in results if r["state"] == "INDETERMINATE"]
     notrun = [r for r in results if r["state"] == "NOT_RUN"]
     missing = [r for r in results if r["state"] == "MISSING"]
+    vacuous = [r for r in results if r["state"] == "VACUOUS"]
+    ok = [r for r in results if r["state"] == "ok"]
 
     print()
     print("-" * 78)
-    print("  %d ok, %d FAILED, %d INDETERMINATE, %d NOT_RUN, %d MISSING"
-          % (len(results) - len(failed) - len(indet) - len(notrun) - len(missing),
-             len(failed), len(indet), len(notrun), len(missing)))
+    print("  %d ok, %d FAILED, %d INDETERMINATE, %d NOT_RUN, %d MISSING, %d VACUOUS"
+          % (len(ok), len(failed), len(indet), len(notrun), len(missing), len(vacuous)))
+    if vacuous:
+        print("  ⛔ %d check(s) EXAMINED NOTHING. A staged-scoped check over an empty index"
+              % len(vacuous))
+        print("     is vacuous by construction -- which is exactly what a fresh clone is.")
+        print("     This run says nothing about what those checks police.")
     for r in failed:
         print("  FAILED   %-52s exit=%s" % ((r["script"] + " " + r["args"]).strip()[:52],
                                             r["exit"]))
         for l in r["tail"][-3:]:
             print("             %s" % l[:110])
-    for r in indet + notrun + missing:
+    for r in indet + notrun + missing + vacuous:
         print("  %-13s %-52s %s" % (r["state"], (r["script"] + " " + r["args"]).strip()[:52],
                                     r["tail"][0][:70] if r["tail"] else ""))
 
