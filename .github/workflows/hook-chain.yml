@@ -70,6 +70,18 @@ jobs:
         if: always()
         run: python scripts/gate_rendered_regenerates_from_embedded_object.py
 
+      # SAME TREATMENT, SAME REASON. gate8 refused this one too, on the same ground and
+      # correctly: a file named assert_* that can fail and that nothing runs is a gate
+      # written and left inert. The selftest runs first because a retraction check that
+      # cannot report a loss is the failure mode that matters here.
+      - name: the retraction check can report a loss
+        if: always()
+        run: python scripts/assert_hfref_retractions_survive_2026_09_03.py --selftest
+
+      - name: every retraction enumerated from the served page still survives
+        if: always()
+        run: python scripts/assert_hfref_retractions_survive_2026_09_03.py
+
       - name: upload the full result table
         if: always()
         uses: actions/upload-artifact@v4
