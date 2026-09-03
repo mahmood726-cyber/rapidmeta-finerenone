@@ -1178,7 +1178,9 @@
       "downgrade_levels": 3,
       "sensitivity": "This letter DEPENDS on the imprecision threshold: under line_of_no_effect it would be LOW.",
       "regenerate_with": "grade_engine.derive(canon, \"primary\")",
-      "this_is_a_cache_not_a_source": "Stored so a consumer that cannot import the engine still reads the right letter. It is STALE THE MOMENT ANY INPUT CHANGES -- which is exactly how the ledger above went wrong -- so the engine is the source and this is a convenience."
+      "this_is_a_cache_not_a_source": "Stored so a consumer that cannot import the engine still reads the right letter. It is STALE THE MOMENT ANY INPUT CHANGES -- which is exactly how the ledger above went wrong -- so the engine is the source and this is a convenience.",
+      "subject_ref": "sha256:a6c4680b78e3f8fa31b7bfadfeea3bfcd9f97163bbd4abeff12e0c601c10cacd",
+      "judgement_ref": "sha256:04df1cc100c48ae1d6fb370a80f31374e42ae7a16bd600d8afc27fa2264c97b4"
      },
      "certainty": "VERY_LOW",
      "domains": {
@@ -1186,31 +1188,41 @@
        "rating": "serious",
        "levels": 1,
        "state": "DOWNGRADE",
-       "basis_in_sources": "1 of 2 contributing result(s) carry SOME CONCERNS and none is at high risk of bias (1 low)."
+       "basis_in_sources": "1 of 2 contributing result(s) carry SOME CONCERNS and none is at high risk of bias (1 low).",
+       "subject_ref": "sha256:5ba356e10740151090b3823dd6cf3ead980c72182eefcbb162873635165fa774",
+       "judgement_ref": "sha256:d921a0fad670faf0ee38cef7abd65749794df3aa404d44141cbc5190788d3229"
       },
       "inconsistency": {
        "rating": "not serious",
        "levels": 0,
        "state": "NO_DOWNGRADE",
-       "basis_in_sources": "I-squared 0.0%, tau-squared 0.0000, Q 0.1533 on 1 df. No downgrade: the contributing estimates do not disagree beyond chance. AT k = 2 THE STATISTIC IS NEARLY POWERLESS: I-squared and Q have very little ability to detect heterogeneity with this few studies, so a low value is weak evidence of consistency rather than evidence of it (Handbook s10.10.1, which distinguishes clinical and methodological diversity from the statistic)."
+       "basis_in_sources": "I-squared 0.0%, tau-squared 0.0000, Q 0.1533 on 1 df. No downgrade: the contributing estimates do not disagree beyond chance. AT k = 2 THE STATISTIC IS NEARLY POWERLESS: I-squared and Q have very little ability to detect heterogeneity with this few studies, so a low value is weak evidence of consistency rather than evidence of it (Handbook s10.10.1, which distinguishes clinical and methodological diversity from the statistic).",
+       "subject_ref": "sha256:7425c7505d858a753846e73d8e33217a5c3de9bbc8cffe1865d7536fbfd08e8e",
+       "judgement_ref": "sha256:b7dae0cd353681bfff7a508e4a27dc3d5af41829b4ccefffb0ac16b5e71a2e75"
       },
       "indirectness": {
        "rating": "serious",
        "levels": 1,
        "state": "DOWNGRADE",
-       "basis_in_sources": "Downgraded one level for indirectness of POPULATION. The question is \"in women\", UNQUALIFIED. The evidence is women aged 18-45 (ClinicalTrials.gov, read 2026-08-30: both trials FEMALE, min 18 / max 45) recruited in four sub-Saharan African countries. A pooled effect from one region and one age band is not a direct answer to a question about women without qualification."
+       "basis_in_sources": "Downgraded one level for indirectness of POPULATION. The question is \"in women\", UNQUALIFIED. The evidence is women aged 18-45 (ClinicalTrials.gov, read 2026-08-30: both trials FEMALE, min 18 / max 45) recruited in four sub-Saharan African countries. A pooled effect from one region and one age band is not a direct answer to a question about women without qualification.",
+       "subject_ref": "sha256:4191169081943b27460e8feb91cd50b963f09c6d8640f78fd4863931bc19579b",
+       "judgement_ref": "sha256:d921a0fad670faf0ee38cef7abd65749794df3aa404d44141cbc5190788d3229"
       },
       "imprecision": {
        "rating": "serious",
        "levels": 1,
        "state": "DOWNGRADE",
-       "basis_in_sources": "RR 0.703 (0.566 to 0.8731). The interval excludes the line of no effect and does not span appreciable benefit and harm, but k = 2. The Hartung-Knapp interval is 0.1725 to 2.865 on t = 12.7062 and it INCLUDES the line of no effect. THE TWO INTERVALS DISAGREE ABOUT WHETHER AN EFFECT IS DEMONSTRATED, and that disagreement is disclosed rather than resolved silently in either direction. At this k the interval is itself estimated from almost no information about between-study variance (Handbook s10.10.4.5, which is why the more conservative interval is reported beside the ordinary one at small k). Optimal information size is NOT evaluated. Handbook s14.2.2 rates precision on the interval AND on whether the accrued events or participants exceed the OIS, and this object does not hold the pooled sample size and event count for this outcome. So no rating here may claim precision is adequate on OIS grounds; a downgrade rests on the interval alone and could only ever be MORE severe once OIS were known, never less. SENSITIVITY OF THIS RATING TO THE THRESHOLD: under line_of_no_effect (structural) it would NOT be rated down; under appreciable_benefit_or_harm_0.75_1.25 (declared default) it WOULD be rated down. The rating above uses decision_threshold. Naming the alternatives is how a reader disagrees with a specific step rather than with a letter."
+       "basis_in_sources": "RR 0.703 (0.566 to 0.8731). The interval excludes the line of no effect and does not span appreciable benefit and harm, but k = 2. The Hartung-Knapp interval is 0.1725 to 2.865 on t = 12.7062 and it INCLUDES the line of no effect. THE TWO INTERVALS DISAGREE ABOUT WHETHER AN EFFECT IS DEMONSTRATED, and that disagreement is disclosed rather than resolved silently in either direction. At this k the interval is itself estimated from almost no information about between-study variance (Handbook s10.10.4.5, which is why the more conservative interval is reported beside the ordinary one at small k). Optimal information size is NOT evaluated. Handbook s14.2.2 rates precision on the interval AND on whether the accrued events or participants exceed the OIS, and this object does not hold the pooled sample size and event count for this outcome. So no rating here may claim precision is adequate on OIS grounds; a downgrade rests on the interval alone and could only ever be MORE severe once OIS were known, never less. SENSITIVITY OF THIS RATING TO THE THRESHOLD: under line_of_no_effect (structural) it would NOT be rated down; under appreciable_benefit_or_harm_0.75_1.25 (declared default) it WOULD be rated down. The rating above uses decision_threshold. Naming the alternatives is how a reader disagrees with a specific step rather than with a letter.",
+       "subject_ref": "sha256:6e25e87ecde1359d8e2d1d4e9762c310f2e3c19bf93ad532797aad83fb380d1a",
+       "judgement_ref": "sha256:d921a0fad670faf0ee38cef7abd65749794df3aa404d44141cbc5190788d3229"
       },
       "publication_bias": {
        "rating": "not assessable",
        "levels": 0,
        "state": "NOT_ASSESSABLE",
-       "basis_in_sources": "k = 2, below the ten studies at which funnel-plot asymmetry can be tested with any power. Handbook ch 13 s13.3.4.4: \"As a rule of thumb, tests for funnel plot asymmetry should be used only when there are at least 10 studies included in the meta-analysis, because when there are fewer studies the power of the tests is low.\" THIS IS 'NOT ASSESSABLE', NOT 'UNDETECTED': no test capable of detecting small-study effects was available here, so their absence is not evidence of their absence."
+       "basis_in_sources": "k = 2, below the ten studies at which funnel-plot asymmetry can be tested with any power. Handbook ch 13 s13.3.4.4: \"As a rule of thumb, tests for funnel plot asymmetry should be used only when there are at least 10 studies included in the meta-analysis, because when there are fewer studies the power of the tests is low.\" THIS IS 'NOT ASSESSABLE', NOT 'UNDETECTED': no test capable of detecting small-study effects was available here, so their absence is not evidence of their absence.",
+       "subject_ref": "sha256:20d9a923febdd498e07e3dbb7efc559cb5d3387fb5641266667db55db97d0286",
+       "judgement_ref": "sha256:422a3da99a06455830667d4c0d8c0a2fb1e18b77fe7b83f8b8ad7607dc222bbe"
       }
      },
      "starting_point": "HIGH",
@@ -1218,7 +1230,9 @@
      "certainty_derivation": "Started HIGH; rated down 3 level(s) across risk of bias, indirectness, imprecision; total -3 -> VERY_LOW.",
      "certainty_is_threshold_sensitive": "This letter DEPENDS on the imprecision threshold: under line_of_no_effect it would be LOW.",
      "projected_from": "grade_engine.derive(canon, 'primary'), projected into the renderer's shape by scripts/project_grade_for_render_2026_08_30.py. DERIVED, NOT AUTHORED -- re-run after any input change and it overwrites.",
-     "projected_utc": "2026-08-30T17:12:55.706401+00:00"
+     "projected_utc": "2026-08-30T17:12:55.706401+00:00",
+     "subject_ref": "sha256:431a70e77ddb4e1d85a1616e9adf668a6fba7be924adb7ac36e8994966873cf5",
+     "judgement_ref": "sha256:04df1cc100c48ae1d6fb370a80f31374e42ae7a16bd600d8afc27fa2264c97b4"
     },
     "decision_threshold": {
      "lo": 0.9,
@@ -1688,7 +1702,9 @@
         "1.3": "NO_INFORMATION"
        },
        "derived_because": "Table 4: 1.2 = NI AND 1.3 = N/PN/NI -> Some concerns. Table 3 states the same in words: \"There is no information to answer any of the signalling questions\" -> Some concerns",
-       "derived_by": "rob2_algorithm.d1 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties."
+       "derived_by": "rob2_algorithm.d1 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties.",
+       "subject_ref": "sha256:d0600e9de90900722a8634400ba279f478cdf42a3e5232859b43a6fa69faab09",
+       "judgement_ref": "sha256:4675a49e4ffc227074da6d2c8e69937c0296ebb47b8d26764f022bc391fef72a"
       },
       "D2_deviations_from_intended_intervention": {
        "judgement": "LOW",
@@ -1723,7 +1739,9 @@
         "2.7": "NA"
        },
        "derived_because": "effect of ASSIGNMENT variant | Part 1 row 1: 2.1 & 2.2 = N/PN -> Low | Part 2 row 1: 2.6 = Y/PY -> Low | domain criteria: the more severe of the two parts -> LOW",
-       "derived_by": "rob2_algorithm.d2 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties."
+       "derived_by": "rob2_algorithm.d2 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties.",
+       "subject_ref": "sha256:b4914a6f5447a64a3cbdba393d3540b2c17e2eb05baa4ee30e9b3431c5a9ac3c",
+       "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
       },
       "D3_missing_outcome_data": {
        "judgement": "LOW",
@@ -1751,17 +1769,23 @@
         "3.4": "NA"
        },
        "derived_because": "Table 10 row 1: 3.1 = Y/PY -> Low",
-       "derived_by": "rob2_algorithm.d3 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties."
+       "derived_by": "rob2_algorithm.d3 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties.",
+       "subject_ref": "sha256:ea54ce3e81042d34957a48b6b050397934e33c4c2b330802d87e950fe69eebae",
+       "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
       },
       "D4_measurement_of_the_outcome": {
        "judgement": "LOW",
        "basis": "THE REGISTERED ENDPOINT DEFINITION AND THE MASKED ROLES TOGETHER",
-       "reason": "The outcome is HIV-1 seroconversion determined by a LABORATORY TESTING ALGORITHM, not by a rater's judgement, so an unmasked assessor has essentially nothing to decide. STATED PLAINLY BECAUSE IT CUTS THE OTHER WAY ON A SISTER TOPIC: the outcomes assessor is NOT among the masked roles here -- masking is DOUBLE -- and LOW rests on the endpoint being an algorithmic determination, NOT on masking. Where the endpoint carries a judgement and the assessor is unmasked, this project scores SOME_CONCERNS."
+       "reason": "The outcome is HIV-1 seroconversion determined by a LABORATORY TESTING ALGORITHM, not by a rater's judgement, so an unmasked assessor has essentially nothing to decide. STATED PLAINLY BECAUSE IT CUTS THE OTHER WAY ON A SISTER TOPIC: the outcomes assessor is NOT among the masked roles here -- masking is DOUBLE -- and LOW rests on the endpoint being an algorithmic determination, NOT on masking. Where the endpoint carries a judgement and the assessor is unmasked, this project scores SOME_CONCERNS.",
+       "subject_ref": "sha256:2569afaa98c89ba086763efdfbffd22aed9af057e5c61cc8a6b7bb564ab19382",
+       "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
       },
       "D5_selection_of_the_reported_result": {
        "judgement": "LOW",
        "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
-       "reason": "TWO primary outcomes are registered, but the second is SAFETY -- adverse events -- not a competing measure of efficacy. There is no set of efficacy endpoints to choose between, so the selection concern found on gepotidacin and inclisiran cannot arise here. RECORDED SEPARATELY AND NOT SCORED: this review does not carry the registered safety co-primary at all."
+       "reason": "TWO primary outcomes are registered, but the second is SAFETY -- adverse events -- not a competing measure of efficacy. There is no set of efficacy endpoints to choose between, so the selection concern found on gepotidacin and inclisiran cannot arise here. RECORDED SEPARATELY AND NOT SCORED: this review does not carry the registered safety co-primary at all.",
+       "subject_ref": "sha256:d1235cd1ae09e019a0a6eab7e3819e07432174c209b7f909d40e0012022183e3",
+       "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
       }
      },
      "overall": "SOME_CONCERNS",
@@ -1824,7 +1848,9 @@
         "1.3": "NO_INFORMATION"
        },
        "derived_because": "Table 4 row 1: 1.1 = Y/PY/NI, 1.2 = Y/PY, 1.3 = NI/N/PN -> Low",
-       "derived_by": "rob2_algorithm.d1 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties."
+       "derived_by": "rob2_algorithm.d1 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties.",
+       "subject_ref": "sha256:20818d91a58209faf1524fc47f93775426e700059ae0749d75a7cecf00a7dae3",
+       "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
       },
       "D2_deviations_from_intended_intervention": {
        "judgement": "LOW",
@@ -1859,7 +1885,9 @@
         "2.7": "NA"
        },
        "derived_because": "effect of ASSIGNMENT variant | Part 1 row 1: 2.1 & 2.2 = N/PN -> Low | Part 2 row 1: 2.6 = Y/PY -> Low | domain criteria: the more severe of the two parts -> LOW",
-       "derived_by": "rob2_algorithm.d2 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties."
+       "derived_by": "rob2_algorithm.d2 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties.",
+       "subject_ref": "sha256:5310fe1f878d730f897b680f6c55c11ecdcf4818bee626efd854ab05eb889c67",
+       "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
       },
       "D3_missing_outcome_data": {
        "judgement": "LOW",
@@ -1887,17 +1915,23 @@
         "3.4": "NA"
        },
        "derived_because": "Table 10 row 1: 3.1 = Y/PY -> Low",
-       "derived_by": "rob2_algorithm.d3 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties."
+       "derived_by": "rob2_algorithm.d3 applied to answers read from the trial's own primary report, quotes extracted by answer_rob_from_fulltext. Previous value 'NO_INFORMATION' came from the ClinicalTrials.gov registration, which does not report these properties.",
+       "subject_ref": "sha256:edaa326c53260a2c1c0c8850f94b56d892734bc592b825522fae990f2288f1c3",
+       "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
       },
       "D4_measurement_of_the_outcome": {
        "judgement": "LOW",
        "basis": "THE REGISTERED ENDPOINT DEFINITION AND THE MASKED ROLES TOGETHER",
-       "reason": "The outcome is HIV-1 seroconversion determined by a LABORATORY TESTING ALGORITHM, not by a rater's judgement, so an unmasked assessor has essentially nothing to decide. STATED PLAINLY BECAUSE IT CUTS THE OTHER WAY ON A SISTER TOPIC: the outcomes assessor is NOT among the masked roles here -- masking is DOUBLE -- and LOW rests on the endpoint being an algorithmic determination, NOT on masking. Where the endpoint carries a judgement and the assessor is unmasked, this project scores SOME_CONCERNS."
+       "reason": "The outcome is HIV-1 seroconversion determined by a LABORATORY TESTING ALGORITHM, not by a rater's judgement, so an unmasked assessor has essentially nothing to decide. STATED PLAINLY BECAUSE IT CUTS THE OTHER WAY ON A SISTER TOPIC: the outcomes assessor is NOT among the masked roles here -- masking is DOUBLE -- and LOW rests on the endpoint being an algorithmic determination, NOT on masking. Where the endpoint carries a judgement and the assessor is unmasked, this project scores SOME_CONCERNS.",
+       "subject_ref": "sha256:2569afaa98c89ba086763efdfbffd22aed9af057e5c61cc8a6b7bb564ab19382",
+       "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
       },
       "D5_selection_of_the_reported_result": {
        "judgement": "LOW",
        "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
-       "reason": "TWO primary outcomes are registered, but the second is SAFETY -- adverse events -- not a competing measure of efficacy. There is no set of efficacy endpoints to choose between, so the selection concern found on gepotidacin and inclisiran cannot arise here. RECORDED SEPARATELY AND NOT SCORED: this review does not carry the registered safety co-primary at all."
+       "reason": "TWO primary outcomes are registered, but the second is SAFETY -- adverse events -- not a competing measure of efficacy. There is no set of efficacy endpoints to choose between, so the selection concern found on gepotidacin and inclisiran cannot arise here. RECORDED SEPARATELY AND NOT SCORED: this review does not carry the registered safety co-primary at all.",
+       "subject_ref": "sha256:d1235cd1ae09e019a0a6eab7e3819e07432174c209b7f909d40e0012022183e3",
+       "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
       }
      },
      "overall": "LOW",
@@ -3097,7 +3131,9 @@
     },
     "certainty_recorded_by_the_hand_written_ledger": "LOW",
     "certainty_source": "grade_engine.derive(canon, \"primary\"), regenerated -- not hand-written.",
-    "certainty_moved_2026_08_30": "⛔ THIS FIELD HELD 'LOW' WHILE A MARKER BESIDE IT SAID THAT VALUE WAS SUPERSEDED. The engine derives 'VERY_LOW'. A supersede marker written in PROSE is a claim ABOUT the data, not a change TO it: `certainty` is the field a generator reads, so the constraint \"no surface may render both\" was being satisfied by rendering only the WRONG one, and a rebuild would have published it. ⇒ A DISCLOSURE IS NOT A FIX. The disclosure was right and was doing nothing. Found by rapidmeta-staging-33; registered as class A32."
+    "certainty_moved_2026_08_30": "⛔ THIS FIELD HELD 'LOW' WHILE A MARKER BESIDE IT SAID THAT VALUE WAS SUPERSEDED. The engine derives 'VERY_LOW'. A supersede marker written in PROSE is a claim ABOUT the data, not a change TO it: `certainty` is the field a generator reads, so the constraint \"no surface may render both\" was being satisfied by rendering only the WRONG one, and a rebuild would have published it. ⇒ A DISCLOSURE IS NOT A FIX. The disclosure was right and was doing nothing. Found by rapidmeta-staging-33; registered as class A32.",
+    "subject_ref": "sha256:f6e22514854428eb16fa58f1ceeecd457801640099b0d7719c0b2745d8850a9b",
+    "judgement_ref": "sha256:04df1cc100c48ae1d6fb370a80f31374e42ae7a16bd600d8afc27fa2264c97b4"
    }
   }
  },
@@ -4894,19 +4930,25 @@
     "nct": "NCT03965923",
     "comparator": "oral Truvada, open label",
     "primary_outcome": "safety adverse events; pregnancy outcomes",
-    "verdict": "ELIGIBILITY"
+    "verdict": "ELIGIBILITY",
+    "subject_ref": "sha256:864a69d9a4513322b9277a23245793b1edd348780a60a4528533d8367573dabb",
+    "judgement_ref": "sha256:5b2ff59dac8d18c741cb8536f0d87129e02cf16d4b5b8761751bf48b58ab7c2d"
    },
    {
     "nct": "NCT04140266",
     "comparator": "oral Truvada",
     "primary_outcome": "serious adverse events",
-    "verdict": "ELIGIBILITY"
+    "verdict": "ELIGIBILITY",
+    "subject_ref": "sha256:631a726e9e40131e813a4b0185d0e812a1890690fa96c97dd9db14e22cea140a",
+    "judgement_ref": "sha256:5b2ff59dac8d18c741cb8536f0d87129e02cf16d4b5b8761751bf48b58ab7c2d"
    },
    {
     "nct": "NCT06250504",
     "comparator": "enhanced standard of care",
     "primary_outcome": "PrEP uptake and retention",
-    "verdict": "ELIGIBILITY"
+    "verdict": "ELIGIBILITY",
+    "subject_ref": "sha256:fcd54d1b371c1243e3dbb4a3a9a3ea565ecb82437c0ead242b5ad61dcba936aa",
+    "judgement_ref": "sha256:5b2ff59dac8d18c741cb8536f0d87129e02cf16d4b5b8761751bf48b58ab7c2d"
    }
   ],
   "adjudication_rule": "The screen tests phase and randomisation; it does NOT test the comparator or the outcome. A raw set difference is therefore never reported as a recall figure -- each difference is attributed to a search miss, an eligibility difference or a source boundary, and only the first measures recall.",
@@ -5681,7 +5723,9 @@
     "what_it_is": "UChoose. A randomised, open-label trial of CONTRACEPTIVE options -- Nur-Isterate injectable, NuvaRing, Triphasil oral -- in 131 South African females aged 16-17, as a PROXY for HIV prevention methods. Primary outcome: a 13-item contraceptive satisfaction/acceptability score at 32 weeks.",
     "verdict": "EXCLUDE -- INTERVENTION",
     "reason": "No arm contains dapivirine. The registry search was right not to return it; the bibliographic record mentions dapivirine in its discussion, which is why the screen surfaced it.",
-    "NOT_a_search_miss": true
+    "NOT_a_search_miss": true,
+    "subject_ref": "sha256:0f8aa04812b396ba9d829c698625f3c1968cc6640a0fe813c9f9b4575dcc6dbd",
+    "judgement_ref": "sha256:ba4c3d2cf286f6d33679097968819b48396cbd33b561f361dd671fa933a478f3"
    },
    "NCT01796613": {
     "cited_by": "PMID 25880636 (BMC Public Health 2015)",
@@ -5689,7 +5733,9 @@
     "what_it_is": "Ring-Plus / ITMC0313. A randomised open-label trial of two NuvaRing (etonogestrel/ethinylestradiol) regimens -- intermittent against continuous -- in 120 women aged 18-35. Primary outcome: vaginal bacterial counts at 5 months.",
     "verdict": "EXCLUDE -- INTERVENTION",
     "reason": "A contraceptive vaginal ring, not a dapivirine ring. Same mechanism as above.",
-    "NOT_a_search_miss": true
+    "NOT_a_search_miss": true,
+    "subject_ref": "sha256:d9374d850fbc49d4d181c3225e356a599882b4a70fc30cfea7ca3b1d5f2d0a76",
+    "judgement_ref": "sha256:ba4c3d2cf286f6d33679097968819b48396cbd33b561f361dd671fa933a478f3"
    },
    "so": "⭐ ZERO CONFIRMED SEARCH MISSES, and the zero is worth something because the check produced two candidates and each was resolved by reading its registration rather than by asserting that none existed."
   },
@@ -18902,7 +18948,8 @@
     "why": "THE TWO PLACEBO ARMS DIFFER SEVEN-FOLD. Serious adverse events occurred in 9 of 652 placebo participants (1.38%) in NCT01539226 and 130 of 1316 (9.88%) in NCT01617096 -- a ratio of 7.2 -- in trials that enrolled women of the same ages, in the same four countries, over overlapping years, against the same placebo ring. A seven-fold difference in the CONTROL arm is a difference in what was counted and reported, not in what happened. Pooling across it produces a number (0.9817) that is arithmetic wearing the clothes of evidence.",
     "the_statistic_that_shows_it": "Fixed-effect Q = 5.8868 on 1 degree of freedom, p = 0.0153. The two relative risks are 2.27 (1.11 to 4.65) and 0.89 (0.70 to 1.14): they do not merely differ in size, THEY POINT IN OPPOSITE DIRECTIONS and one of them excludes no difference.",
     "what_IS_reported_instead": "Both 2x2s, both relative risks, both intervals, and this reason. A reader who disagrees can pool them in one line from the counts printed here. Declining to pool is a judgement and it is shown rather than enacted silently.",
-    "and_this_is_not_a_safety_verdict": "⚠️ NCT01539226's serious-adverse-event relative risk of 2.27 excludes no difference. It is NOT reported here as a harm signal: it sits beside a companion trial showing 0.89, on a control-arm rate seven times lower, which is the signature of an ascertainment difference rather than of a hazard. It is shown because hiding an inconvenient interval is worse than showing one that needs explaining."
+    "and_this_is_not_a_safety_verdict": "⚠️ NCT01539226's serious-adverse-event relative risk of 2.27 excludes no difference. It is NOT reported here as a harm signal: it sits beside a companion trial showing 0.89, on a control-arm rate seven times lower, which is the signature of an ascertainment difference rather than of a hazard. It is shown because hiding an inconvenient interval is worse than showing one that needs explaining.",
+    "⛔_THIS_REASON_IS_WITHDRAWN_2026_09_03": "The sentence above infers provenance from two rates, and its seven-fold figure is computed from a registry count that DISAGREES WITH ITS OWN PUBLICATION (ASPIRE: registry 130, paper 48). Against the paper the gap is 2.64x, not 7.16x. See harms_provenance_2026_09_03. THE DECISION NOT TO POOL STANDS; THIS REASON FOR IT DOES NOT."
    }
   },
   "deaths": {
@@ -19244,7 +19291,9 @@
     },
     "resource_implications": "⛔ NOT ADDRESSED. This review holds no cost, no price, no delivery-system requirement and no budget-impact input. Nothing in it can support a cost-effectiveness statement, and the absolute table above is an effectiveness input to such a model, not a substitute for one.",
     "certainty": "VERY LOW by this review's GRADE derivation. An HTA body should read that as: the direction is probably right and the magnitude should not be relied on for a threshold decision.",
-    "harms_input": "Serious adverse events and deaths per arm are held for both trials and are DELIBERATELY NOT POOLED -- the two placebo arms differ more than seven-fold in serious-adverse-event rate, which is an ascertainment difference. A harms input to a model must not be taken from a pool this review declines to compute."
+    "harms_input": "Serious adverse events and deaths per arm are held for both trials and are DELIBERATELY NOT POOLED -- the two placebo arms differ more than seven-fold in serious-adverse-event rate, which is an ascertainment difference. A harms input to a model must not be taken from a pool this review declines to compute.",
+    "subject_ref": "sha256:db8ec4be261a2ae2dcef36128759fff46fd6cb429c749c0fb2b0dae12f216902",
+    "judgement_ref": "sha256:3fdb11cfe97c7853a3b834b019db7940c6ec251edd8b2f8f7f8bed314c95c2c0"
    },
    "guideline": {
     "_reader": "A guideline panel using a GRADE evidence-to-decision framework.",
@@ -19403,7 +19452,9 @@
     "could_a_harness_derive_it": "⛔ NO, AND IT MUST NOT TRY. Deriving the question's population from the enrolled populations returns DIRECT by construction: the answer would always be that the evidence matches the question, because the question was read off the evidence. `grade_engine.d_indirectness` names this as a gaming risk in its own source and refuses that branch.",
     "alternative": "Declare the question as the studied band -- \"women aged 18-45 at substantial risk in sub-Saharan Africa\" -- which is what the trials actually answer.",
     "if_alternative": "The indirectness downgrade would fall away and the certainty would rise VERY LOW to LOW. ⚠️ AND THE OBJECT ALREADY FORBIDS TAKING IT FOR THAT REASON: `grade.indirectness.what_would_have_to_differ_BOTH_ARMS.⛔_the_guard_on_arm_(a)` states that narrowing the question to escape a downgrade is the same defect as deleting the downgrade, and that rescoping is legitimate only as an editorial decision about what the review CLAIMS, taken independently of the letter it produces, and only if it changes the title and the question a reader meets.",
-    "cost_to_regenerate_on_a_new_topic": "ONE declaration. Cannot be automated."
+    "cost_to_regenerate_on_a_new_topic": "ONE declaration. Cannot be automated.",
+    "subject_ref": "sha256:cef0191610bd3e8de1f7d85cda8463abed649eae1609dbec5bf4f5aa65caf8a5",
+    "judgement_ref": "sha256:c12aea27e817ba9f4cdfe88c2ceaede3ef7ebb8189d2dec36e624723454e988d"
    },
    {
     "id": "J2",
@@ -19413,7 +19464,9 @@
     "could_a_harness_derive_it": "⛔ NO. And the proof is already in this corpus: a drug-only concept block returned an IDENTICAL 125 candidates across six different colchicine topics. A CANDIDATE COUNT IS NOT AN ELIGIBILITY DECISION. The block finds the drug; the rule that turns candidates into an included set is the judgement, and it is the part no query expresses.",
     "alternative": "Admit active-comparator trials -- ring against oral tenofovir/emtricitabine -- which is the comparison a funder and a guideline panel actually face.",
     "if_alternative": "k would rise from 2, and the three named registrations would enter: NCT03965923, NCT04140266, NCT03593655. ⚠️ BUT NOT AS EFFICACY EVIDENCE -- every one of them has a primary of safety, adherence or uptake, NOT HIV incidence. So the pooled efficacy estimate would not change at all; what would change is that the review would carry an adherence and safety comparison against oral prophylaxis that it currently does not. The head-to-head EFFICACY trial does not exist to be included.",
-    "cost_to_regenerate_on_a_new_topic": "ONE declaration, and it is currently UNDECLARED on this topic -- recorded here as owed rather than as done."
+    "cost_to_regenerate_on_a_new_topic": "ONE declaration, and it is currently UNDECLARED on this topic -- recorded here as owed rather than as done.",
+    "subject_ref": "sha256:43b9f56ff0dcb9994312d8955fbdc6825b4492af40b2f81a879ed991a70f7009",
+    "judgement_ref": "sha256:c7c9e75d2b0e8667ca02cb70fd70a35c28de13cc6082c4ca4fc7d5913e181433"
    },
    {
     "id": "J3",
@@ -19430,7 +19483,9 @@
      "and_it_is_entangled_with_J5": "The tier chooses the ESTIMAND as a side effect. The registry reports events over participants, so it forces a risk ratio; the publications report events over person-years, so they force a rate ratio. Choosing the document chose the measure, and that was never a separate decision anyone took.",
      "harms_differ_too": "Serious adverse events on NCT01539226: registry 41 of 1306 and 9 of 652; the publication reports 38 (2.9%) and 6 (0.9%). The harms tier disagrees on the same trial and in the same direction."
     },
-    "cost_to_regenerate_on_a_new_topic": "ONE declaration."
+    "cost_to_regenerate_on_a_new_topic": "ONE declaration.",
+    "subject_ref": "sha256:c920f7fe65c2d813b960d62bc0b6f9013279a9180056c221f838b47a05951e80",
+    "judgement_ref": "sha256:9e0592bbab7ea81b7848394ca1f6d095a20ee25df9988ff6149b6ac238e7044c"
    },
    {
     "id": "J4",
@@ -19441,7 +19496,9 @@
     "alternative": "NO_DOWNGRADE, on the reasoning that the trials ran in the settings carrying the burden the intervention is for.",
     "if_alternative": "Certainty would be LOW rather than VERY LOW. ⭐ AND THIS ALTERNATIVE WAS ACTUALLY TAKEN, FOR EIGHT MINUTES, AND REVERSED: the object stores the earlier NO_DOWNGRADE at 15:05:54 and the reversal at 15:13:50, with the reason -- burden-relevance is an argument that these were the RIGHT TRIALS TO RUN, which is a prioritisation claim and not a directness claim. Handbook 14.2.2 domain (3) never mentions burden. THE REVERSAL LOWERED OUR OWN CERTAINTY.",
     "what_it_rests_on": "A within-trial effect modifier, not an assertion from outside: ASPIRE reports efficacy 61% at 25 or older against 10% below, P = 0.02 for interaction. A cross-family reviewer qualified the strong form -- the Ring Study's own interaction is same-direction but NOT significant (P = 0.43) -- and the qualification is stored beside the rating.",
-    "cost_to_regenerate_on_a_new_topic": "ONE judgement, per outcome."
+    "cost_to_regenerate_on_a_new_topic": "ONE judgement, per outcome.",
+    "subject_ref": "sha256:35753c04418097cb608f492bd0e53c9f2279fe9408a8a8ea6c4fe151df5f61c0",
+    "judgement_ref": "sha256:74566c1b69b0f1e90f6f8cc072cba4b692fe1bb275af36debe0226d2bd5bc92a"
    },
    {
     "id": "J5",
@@ -19451,7 +19508,9 @@
     "could_a_harness_derive_it": "⛔ NO. Both time frames are stored verbatim and a harness can see they differ. Whether that difference makes the two cumulative incidences incommensurable is a judgement about the hazard being roughly constant, which no field records.",
     "alternative": "Pool RATE ratios over person-years, which is what both publications report and which is estimand-consistent across unequal follow-up.",
     "if_alternative_COMPUTED": "0.7037 (0.5598 to 0.8845) against the stored 0.7030 (0.5660 to 0.8731). The point moves by 0.0007. The estimand mismatch is REAL IN PRINCIPLE AND IMMATERIAL IN FACT ON THIS TOPIC, and saying so with the number beside it is worth more than either ignoring it or flagging it as a limitation nobody quantified.",
-    "cost_to_regenerate_on_a_new_topic": "ONE declaration, per outcome."
+    "cost_to_regenerate_on_a_new_topic": "ONE declaration, per outcome.",
+    "subject_ref": "sha256:9e230dd11d849217f8ec17f187ff479aa5de087ffb8d1e5e378771257ddba398",
+    "judgement_ref": "sha256:8d38f9a6e4b0ad956b289d15becc46d447ffee28e1b9ea700dc603922947deb6"
    },
    {
     "id": "J6",
@@ -19462,7 +19521,9 @@
     "alternative": "The Handbook default 0.75 to 1.25.",
     "if_alternative_COMPUTED": "⭐ NOTHING CHANGES. Re-deriving the engine with the threshold set to 0.75-1.25 returns VERY_LOW, down 3, with imprecision still downgraded -- identical to the stored rating. The object's own sensitivity block agrees: under the Handbook default the letter is VERY_LOW, `changes_the_letter: false`. THIS JUDGEMENT IS NOT LOAD-BEARING ON THIS TOPIC and it was worth executing to find that out.",
     "⚠️_the_judgement_that_IS_load_bearing_is_a_different_one": "The stored sensitivity block shows the letter turns on the imprecision RULE, not on the threshold value: under a `line_of_no_effect` rule imprecision would NOT downgrade and the certainty would be LOW, `changes_the_letter: true`. So the consequential choice is whether imprecision is judged on the interval excluding no effect or on the interval spanning an appreciable-benefit zone -- and the object foregrounds the threshold VALUE while the RULE is what moves the letter.",
-    "cost_to_regenerate_on_a_new_topic": "ONE declaration, per outcome."
+    "cost_to_regenerate_on_a_new_topic": "ONE declaration, per outcome.",
+    "subject_ref": "sha256:b8a2f2a9677cfd4883efc590a42fe66954be0f736db12adeb9ae2367a2a108b2",
+    "judgement_ref": "sha256:282ad5e7031924e18cde28e3ae6a671f63b5f60edb45c87bdbeec2cfc17a804f"
    },
    {
     "id": "J7",
@@ -19472,7 +19533,9 @@
     "could_a_harness_derive_it": "⚠️ PARTLY, AND THIS IS THE ONLY ENTRY IN THIS REGISTER WHERE THAT IS TRUE. The statistics are derivable. What is not derivable is the inference that a seven-fold difference in the CONTROL arm of two trials enrolling the same women in the same countries indicates ASCERTAINMENT rather than RISK. A harness that pooled on heterogeneity alone would have reported a random-effects estimate with a wide interval and no explanation.",
     "alternative": "Pool with a random-effects model and report the heterogeneity, which is what most reviews do.",
     "if_alternative": "A fixed-effect pool gives 0.9818 -- a serious-adverse-event relative risk of almost exactly one, which reads as reassurance and is manufactured entirely by averaging 2.27 against 0.89 across incommensurable ascertainment. That number would be the single most misleading figure on the page.",
-    "cost_to_regenerate_on_a_new_topic": "ONE judgement, per harms outcome."
+    "cost_to_regenerate_on_a_new_topic": "ONE judgement, per harms outcome.",
+    "subject_ref": "sha256:d9a3322028636b2d9870a52fedfb5484776b1cf37f595152da53efc18466933c",
+    "judgement_ref": "sha256:ccecdfaed6ad97edffd6df4d6b02056b45bd3d59857cc8270deaecdd7b40e530"
    }
   ],
   "count": {
@@ -19533,5 +19596,118 @@
    "what_would_actually_move_it": "Lift the four generic functions out of the topic-named renderings script; parameterise the concept block, the output path and the formulation rule in the screen; and replace the hand-written rendering prose with templates keyed on the fact table. Estimated to take the by-line figure from 84% to roughly 55%. NOT DONE, NOT SCHEDULED, and stated so nobody reads 16% general as a plan."
   },
   "what_this_register_does_NOT_do": "⚠️ It does not make the judgements right. Every entry is one person's call, and J4 was reversed once within eight minutes on this very topic. It also does not prove the list is COMPLETE -- it is bounded by what its author noticed, which is the same limitation as any enumeration, and the honest form of the claim is \"seven found\" rather than \"seven exist\"."
+ },
+ "harms_provenance_2026_09_03": {
+  "_what": "THE SERIOUS-ADVERSE-EVENT COUNTS ON THIS PAGE DO NOT MATCH THE COUNTS IN THE TRIALS' OWN PRIMARY REPORTS, and until 2026-09-03 the page explained the discrepancy from the rates rather than from the documents. This block records both sources side by side, states what reading the documents DID establish, and records the rest as UNRESOLVED.",
+  "_the_rule_this_closes": "⛔ NEVER INFER PROVENANCE STATISTICALLY. 'A difference in what was counted rather than in what happened' is a claim about documents. A ratio between two percentages cannot distinguish a reporting difference from a real one, at any size. Establish it from the sources or record it as unresolved.",
+  "ASPIRE_NCT01617096": {
+   "registry": {
+    "source": "ClinicalTrials.gov NCT01617096 resultsSection.adverseEventsModule",
+    "read_utc": "2026-09-03",
+    "eventGroups_time_frame_as_posted": "24 Months",
+    "frequency_threshold_as_posted": 2,
+    "dapivirine": {
+     "serious": 116,
+     "n": 1313,
+     "deaths": 4
+    },
+    "placebo": {
+     "serious": 130,
+     "n": 1316,
+     "deaths": 3
+    },
+    "rr_serious": {
+     "point": 0.8943,
+     "ci_low": 0.7047,
+     "ci_high": 1.1351,
+     "se_log_rr": 0.12162
+    }
+   },
+   "publication": {
+    "source": "Baeten JM et al. Use of a Vaginal Ring Containing Dapivirine for HIV-1 Prevention in Women. N Engl J Med 2016. PMID 26900902, PMCID PMC4993693, doi 10.1056/NEJMoa1506110, TABLE 2.",
+    "staged_at": "ssot/agyw-hiv-prep-review/sources/ASPIRE_PMC4993693.extract.txt",
+    "read_utc": "2026-09-03",
+    "table_2_verbatim_rows": {
+     "primary safety end point": {
+      "dapivirine": 180,
+      "placebo": 186
+     },
+     "any serious adverse event": {
+      "dapivirine": 52,
+      "placebo": 48
+     },
+     "death": {
+      "dapivirine": 4,
+      "placebo": 3
+     },
+     "any grade 4 event": {
+      "dapivirine": 22,
+      "placebo": 23
+     },
+     "any grade 3 event": {
+      "dapivirine": 151,
+      "placebo": 162
+     },
+     "any grade 2 event assessed as related": {
+      "dapivirine": 7,
+      "placebo": 9
+     }
+    },
+    "n": {
+     "dapivirine": 1313,
+     "placebo": 1316
+    },
+    "primary_safety_end_point_definition_verbatim": "a composite of any serious adverse event, any grade 3 or 4 adverse event, and any grade 2 adverse event that was assessed by the trial clinicians as being related to dapivirine",
+    "rr_serious": {
+     "point": 1.0858,
+     "ci_low": 0.739,
+     "ci_high": 1.5954,
+     "se_log_rr": 0.196323
+    }
+   },
+   "⛔_they_disagree": "SERIOUS ADVERSE EVENTS: registry 116 and 130; publication 52 and 48. Same trial, same denominators, a factor of 2.2 in one arm and 2.7 in the other. The relative risks are 0.8943 (0.7047 to 1.1351) from the registry and 1.0858 (0.7390 to 1.5954) from the paper -- both intervals include 1, so nothing about the safety reading turns on it, and the DISCREPANCY ITSELF is the finding.",
+   "✓_what_reading_the_documents_ESTABLISHED": [
+    "THE DENOMINATORS ARE IDENTICAL in both sources: 1313 and 1316.",
+    "THE DEATHS ARE IDENTICAL in both sources: 4 and 3.",
+    "Therefore this is NOT an arm-mapping error and NOT a population mismatch -- the two candidates that would have mattered most, and the two that a rate comparison could never have ruled out."
+   ],
+   "⛔_UNRESOLVED": "WHICH PARTICIPANTS THE REGISTRY'S 116 AND 130 COUNT. Neither document states it. The registry posts a time frame of '24 Months' and a frequency threshold of 2; the paper's Table 2 gives no period for its own rows in the text this lane read. NOTHING HERE ESTABLISHES THE REASON AND THIS OBJECT DOES NOT GUESS IT A SECOND TIME.",
+   "what_would_resolve_it": "Summing the registry's own MedDRA serious-event table BY PARTICIPANT and comparing that total with Table 2, or reading the MTN-020 clinical study report. Either is a document. Neither is a ratio.",
+   "an_observation_that_is_NOT_an_explanation": "The registry's serious counts fall BETWEEN the paper's serious-adverse-event row and its broader primary-safety composite, in both arms: 52 < 116 < 180 and 48 < 130 < 186. ⛔ THAT IS AN ORDERING, NOT A REASON. It is recorded because it is where a reader should look first, and it is labelled so that it cannot be quoted as the answer."
+  },
+  "RING_STUDY_NCT01539226": {
+   "registry": {
+    "source": "ClinicalTrials.gov NCT01539226 resultsSection.adverseEventsModule",
+    "read_utc": "2026-09-03",
+    "dapivirine": {
+     "serious": 41,
+     "n": 1306,
+     "deaths": 2
+    },
+    "placebo": {
+     "serious": 9,
+     "n": 652,
+     "deaths": 3
+    },
+    "arm_keying": "Keyed from the eventGroup TITLE. EG000 on this registration is PLACEBO, which is the OPPOSITE of its OG000. Confirmed again on 2026-09-03: EG000 title 'Placebo Vaginal Ring', EG001 title 'Dapivirine Vaginal Ring'.",
+    "rr_serious": {
+     "point": 2.2743,
+     "ci_low": 1.1122,
+     "ci_high": 4.6506,
+     "se_log_rr": 0.364968
+    }
+   },
+   "publication": {
+    "⛔_NOT_READ_BY_THIS_LANE": "The review request that opened this work states the Ring Study publication reports 38 against 6. THAT NUMBER IS NOT REPRODUCED HERE AND IS NOT RECORDED AS A FINDING, because this lane holds only an STI-scoped excerpt of Nel et al. and did not read its adverse-event table. A number this object has not read is a number it must not print.",
+    "source_if_it_is_read": "Nel A et al. Safety and Efficacy of a Dapivirine Vaginal Ring for HIV Prevention in Women. N Engl J Med 2016;375:2133-2143. PMID 27959766, doi 10.1056/NEJMoa1602046. This object's own sources/RING_STUDY_NEJMoa1602046.sti_excerpt.txt records the retrieval route -- a Europe PMC Free PDF -- and the sha256 of the PDF, so the read is a task and not a search."
+   }
+  },
+  "⛔_THE_PAGES_OWN_REASON_FOR_NOT_POOLING_IS_WITHDRAWN": {
+   "what_it_said": "'THE TWO PLACEBO ARMS DIFFER SEVEN-FOLD ... A seven-fold difference in the CONTROL arm is a difference in what was counted and reported, not in what happened.'",
+   "why_it_is_withdrawn": "TWO REASONS, AND THE SECOND IS THE SERIOUS ONE. (1) It infers provenance from rates, which no ratio can establish. (2) THE SEVEN-FOLD FIGURE IS ITSELF BUILT ON ONE OF THE TWO DISPUTED NUMBERS: it is 7.16x comparing registry against registry (9/652 = 1.380% against 130/1316 = 9.878%) and 2.64x when ASPIRE's placebo arm is taken from ASPIRE's own paper (48/1316 = 3.647%). The premise moved by a factor of nearly three the moment the document was read.",
+   "the_decision_not_to_pool_STANDS_on_a_different_reason": "THE ASPIRE INPUT IS NOT ESTABLISHED. Two sources give 116 and 52 for the same arm over the same denominator and nothing read here says which counts what. A pool whose largest contributing arm is uncertain by a factor of 2.2 is not a pool. This reason is checkable from the two documents cited above; the withdrawn one was checkable from nothing.",
+   "and_it_is_still_not_a_safety_verdict": "⚠️ The Ring Study's registry serious-event relative risk of 2.2743 (1.1122 to 4.6506) excludes 1. It is NOT reported as a harm signal, and the reason is NOT a rate comparison: it is that the companion trial's counts for the same outcome are in dispute with its own publication, so the set these two belong to is not yet established. It is shown because hiding an inconvenient interval is worse than showing one that needs explaining."
+  },
+  "_supersedes": "harms_2026_08_30.serious_adverse_events.⛔_NOT_POOLED.why and harms_2026_08_30.serious_adverse_events.⛔_NOT_POOLED.and_this_is_not_a_safety_verdict. Those fields are LEFT IN PLACE and not deleted: the record of what the page said is part of the correction, and removing it would launder the error. This block states that they are withdrawn and why."
  }
 }
