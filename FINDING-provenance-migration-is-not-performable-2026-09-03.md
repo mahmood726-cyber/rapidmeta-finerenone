@@ -132,3 +132,72 @@ Test the Effect of Rivaroxaban or Apixaban on Menstrual Blood Loss in Women"*, *
 `NCT03266783` is *"Comparison of Bleeding Risk Between Rivaroxaban and Apixaban"*. Both are
 apixaban-versus-rivaroxaban; the prophylaxis rows are apixaban-versus-enoxaparin. Recorded
 because it was seen, not assessed.
+
+
+---
+
+# RESOLUTION, same day: identification by reproduction clears 6 of 7
+
+The verdict above stands as it was reached, and is superseded on the facts. What changed is
+not the schema and not the authorisation — it is the **method**. Instead of asking what a
+string *means*, ask which posted row *reproduces the stored number*. The arithmetic decides.
+
+**Method, named:** *identify a source row by reproducing the stored value from it.* Enumerate
+**every** posted outcome measure with **no keyword filter at all**, recompute the stored
+estimate from each candidate row under a closed, declared convention set, and require **two
+witnesses — the point and the 95% interval**. Implemented at
+`scripts/identify_source_row_by_reproduction_2026_09_03.py`, reproducible offline from
+`evidence/2026-09-03-provenance-rows/ctgov_outcomes.json`.
+
+## Result: 6 IDENTIFIED, 1 AMBIGUOUS
+
+| NCT | stored | posted row that reproduces it | arithmetic |
+|---|---|---|---|
+| NCT00457002 | 2.5259 (0.9813–6.5018) | *Incidence of Major Bleeding During the Treatment Period in Treated Participants* | 15/3184 ÷ 6/3217 |
+| NCT00423319 | 1.2158 (0.6537–2.2615) | *Rate of Major Bleeding, CRNM, Major or CRNM, and Any Bleeding*, class `Major bleeding` | 22/2673 ÷ 18/2659 |
+| NCT00371683 | 0.4975 (0.2421–1.0225) | *Event Rate for Participants With Major Bleeding, CR Non-Major…*, class `Major Bleeding (n=1596, 1588)` | 11/1596 ÷ 22/1588 |
+| NCT00452530 | 0.6459 (0.2804–1.4876) | *Rate of Major Bleeding, CRNM, and Major Bleeding or CRNM*, class `Major bleeding (n=9, 14)` | 9/1501 ÷ 14/1508 |
+| NCT03266783 | 0.1574 (0.0615–0.4028) | *Number of Participants With Adjudicated Major Bleeding Events* | 5/1345 ÷ 32/1355 |
+| NCT01780987 | 0.1950 (0.0097–3.9330) | *Number of Participants With Adjudicated Major Bleeding Events [ISTH]* | 0/40 ÷ 2/39, +0.5 to events |
+
+Every one reproduces **point and interval** to the stored precision. Each therefore yields
+`registry`, `table` and `row_identifier` **from evidence**, and `accessed_utc` from the fetch —
+four of four required fields, none inferred from the words in the string.
+
+## The seventh is genuinely ambiguous, and the ambiguity is in the data
+
+`NCT02829957` (RAMBLE, n=19) stores 0.7273 (0.0161–32.9244). **Six posted rows reproduce it
+exactly**, because all six are `0/11` against `0/8` and every zero-versus-zero outcome yields
+the same continuity-corrected `8/11`: *Major Hemorrhage*, *Venous Thromboembolism*,
+*Clinically Relevant Non-major Bleeding*, *Discontinued Planned Drug Administration*, *Held
+Drug for Menorrhagia*, *Crossed Over to Another Anticoagulant*. **No amount of enumeration
+resolves this** — the method is blind exactly where both arms have zero events. Named, not
+chosen.
+
+## What almost went into the register as an absence
+
+The first full pass returned **zero reproducing rows for four of the seven** and was wrong
+about all four. Two conventions were missing: the registry posts **rates**, and the stored
+count is `round(rate% × n)` (0.47% of 3184 is 14.96; the arithmetic uses **15**, and from
+14.96 nothing reproduces); and the zero-cell correction adds **0.5 to the events only**,
+denominators untouched (`events+0.5` with `n+1` gives 0.19512 where 0.19500 is stored). A
+third failure appeared during the rewrite: a convention that had **already identified**
+NCT00452530 — counts carried in a class title — was silently dropped, turning an identified
+row back into a zero.
+
+> **AN INSTRUMENT WITH A KNOWN MISS AND NO MEASURED ERROR RATE CANNOT ASSERT AN ABSENCE.**
+> **`NOT_ASSESSABLE` IS NOT "DID NOT COME FROM THE REGISTRY".**
+> **A CONVENTION THAT HAS EVER IDENTIFIED A ROW MUST NOT BE LOST IN A REWRITE.**
+
+And the interval earns its keep: on NCT00423319 six unrelated rows — *Bloody discharge*,
+*Hypoaesthesia*, *Monocytes (absolute), high*, *Neutrophils (absolute), low*, *Glucose,
+fasting serum, high*, a non-fatal PE rate — reproduce the stored **point** to within 0.2%.
+Not one reproduces the **interval**.
+
+## Status
+
+**Stopped at the ambiguity, as instructed.** No store object has been written. Landing the
+migration for six of seven would leave the seventh a legacy string, so the gate stays red
+either way; the remaining decision — whether `NCT02829957` should be recorded as
+`COULD_NOT_DETERMINE`, which is now *literally true* (someone looked, exhaustively, and the
+data cannot distinguish six rows) — belongs to whoever owns that pool.
