@@ -95,6 +95,8 @@ def main(argv):
                      [os.path.join(HERE, "test_no_invented_trial_count.py")])
         fails += run("protocol conformance gate -- controls + ratchet",
                      [os.path.join(HERE, "protocol_conformance_gate.py")])
+        fails += run("withdrawal states both halves -- controls + ratchet",
+                     [os.path.join(HERE, "withdrawal_states_both_halves_gate.py")])
         # The three ratchet gates carry their positive and negative controls inline and
         # refuse BEFORE printing any count, so running them here exercises those controls.
         fails += run("property recompute gate -- controls + ratchet",
