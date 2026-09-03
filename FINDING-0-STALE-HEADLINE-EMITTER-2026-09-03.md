@@ -27,8 +27,19 @@ scripts/hfref_relabel_and_strip_2026_08_28.py
 
 Every one of those seven values is a **string literal** in the emitter. Nothing in that file
 reads the page's own model object. The block was written on 2026-08-28 in commit `e3056de3f`,
-whose message sources the vector to `multiverse-lookup.json` — a file that exists **at no path
-in this repository**.
+whose message sources the vector to `multiverse-lookup.json` — a file present **at no path in
+this repository**.
+
+> ## THE SERVED HEADLINE WAS NEVER COMPUTED FROM ANYTHING WE HOLD. IT WAS TRANSCRIBED FROM A FILE THAT DOES NOT EXIST.
+
+**This is not staleness.** Staleness implies the numbers were once right for some fit we can
+name. These are **unsourced literals**, and the fact that they *look* like a plausible netmeta
+output is the whole hazard — a reader, and every check that reads prose, sees six well-formed
+estimates with plausible intervals in plausible rank order. **`ACEI+BB+MRA` is significant as a
+string literal and not significant in the object below it.** That converts this from a
+synchronisation bug into a **provenance void**: there is no artefact in this repository from
+which the served numbers can be recomputed, checked, or defended, and the block asserted
+otherwise in prose.
 
 ## What was measured, and how
 
