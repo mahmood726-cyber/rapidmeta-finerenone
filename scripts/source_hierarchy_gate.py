@@ -208,9 +208,34 @@ def main(argv):
                "mixed_variant_topics": sorted(res["pools_mixing_variants"])}
 
     if "--write-baseline" in argv:
-        BASELINE.write_text(json.dumps({"summary": summary, "detail": res}, indent=2),
-                            encoding="utf-8")
+        # A BASELINE MAY FALL FREELY AND MAY ONLY RISE WITH A RECORDED REASON.
+        #
+        # This gate predated the mechanism and wrote silently. On 2026-09-03 its A2 count
+        # rose 610 -> 623 from trunk content; a --reason WAS supplied on the command line
+        # and this block DROPPED IT ON THE FLOOR, leaving a baseline that could not say why
+        # it moved. That is the rule this lane wrote hours earlier after doing the same
+        # thing to a different baseline -- second instance, same mechanism -- so it stops
+        # being a habit of the operator and becomes a property of the write.
+        prior = (json.loads(BASELINE.read_text(encoding="utf-8"))["summary"]
+                 if BASELINE.exists() else None)
+        reason = argv[argv.index("--reason") + 1] if "--reason" in argv else None
+        rose = prior is not None and (
+            n_silence > prior.get("registry_silence_total", 0)
+            or n_variantless > prior.get("variantless_total", 0))
+        if rose and not reason:
+            print("\nREFUSED: the baseline would RISE and no --reason was given. A baseline "
+                  "that rises silently is indistinguishable from a defect landing.")
+            return 1
+        record = {"summary": summary, "detail": res}
+        if reason:
+            record["baseline_moved_because"] = reason
+            record["moved_from"] = ({"registry_silence_total": prior.get("registry_silence_total"),
+                                     "variantless_total": prior.get("variantless_total")}
+                                    if prior else None)
+        BASELINE.write_text(json.dumps(record, indent=2), encoding="utf-8")
         print("\nbaseline written -> %s" % BASELINE)
+        if reason:
+            print("reason recorded: %s" % reason[:110])
         return 0
     if not BASELINE.exists():
         print("\nNO BASELINE. Run with --write-baseline once, then commit it.")

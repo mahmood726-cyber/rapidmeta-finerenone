@@ -60,8 +60,18 @@ _WITHDRAWAL_REASON = re.compile(r"^withdrawn_reason$|^withdrawn_note$|^withdrawn
 #: Language stating what SURVIVES. Deliberately broad: the point is that the author said
 #: SOMETHING about survival, not that they used a house phrase. A narrow pattern here would
 #: report absence of a wording convention as absence of the thought.
+#
+# THE "what this ... does not" ARM ALLOWS AN INTERVENING NOUN, AND THAT IS A CORRECTION.
+# It first read `what (?:this|the withdrawal) does not`, which cannot match
+# "WHAT THIS WITHDRAWAL DOES NOT ESTABLISH" -- the noun sits between "this" and "does".
+# apixaban-vte-treatment states exactly that, verbatim, and was reported as saying nothing
+# about what survives. That is this instrument accusing a page for doing the very thing the
+# gate exists to reward, which is the fourth over-flagging predicate written in this lane
+# and the one with the worst direction: it would have pushed an author to delete a correct
+# sentence. The string is pinned as a negative control below.
 _STATES_WHAT_SURVIVES = re.compile(
-    r"what is confirmed|what is not invalidated|what (?:this|the withdrawal) does not|"
+    r"what is confirmed|what is not invalidated|"
+    r"what (?:this|the)(?:\s+\w+){0,3}\s+does not|"
     r"remains? (?:correct|valid|true|unaffected)|is (?:independently|separately) correct|"
     r"the (?:clinical )?claim (?:survives|stands|is unaffected)|"
     r"not a statement about the (?:effect|world)|still (?:holds|stands|correct)|"
@@ -153,12 +163,25 @@ def _run_controls(res):
     clean = {"results": {"o": {"pooled": dict(
         base, withdrawn_note="WHAT IS CONFIRMED: the headline reproduces a published "
                              "patient-level analysis and is unaffected by this withdrawal.")}}}
+    # THE REAL SENTENCE THAT WAS WRONGLY ACCUSED, pinned verbatim. A control written from a
+    # false positive is the only one that stops the same false positive returning.
+    real = {"results": {"o": {"pooled": {
+        "withdrawn": True,
+        "withdrawn_reason": "no pool is published -- see poolable_reason",
+        "withdrawn_note": "WHAT THIS WITHDRAWAL DOES NOT ESTABLISH: not that apixaban and "
+                          "its comparators bleed alike.",
+    }}}}
     require_controls(
         "withdrawal_states_both_halves_gate",
         positive=("a withdrawal saying nothing about what survives",
                   bool(audit_object(planted)), True),
         negative=("the same withdrawal with one sentence stating what is confirmed",
                   bool(audit_object(clean)), True))
+    require_controls(
+        "withdrawal_states_both_halves_gate (intervening-noun form)",
+        positive=("the bare withdrawal is still flagged", bool(audit_object(planted)), True),
+        negative=("'WHAT THIS WITHDRAWAL DOES NOT ESTABLISH' -- a noun between 'this' and "
+                  "'does' must not defeat the match", bool(audit_object(real)), True))
 
 
 def main(argv):

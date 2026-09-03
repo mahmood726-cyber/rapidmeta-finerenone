@@ -117,3 +117,69 @@ place, silently writing a `21` where the committed baseline said `11`. It was re
 The pinned figures and this caveat first existed only in a scratch directory. **A finding
 that lives only on scratch is one detached drive away from never having happened**, and
 this lane has the receipt for that.
+
+---
+
+# THE COMPARISON, RUN AFTER `E:` RETURNED
+
+The seven commits were recovered on 2026-09-03 and pushed as `harness/complete-20260902`
+(tip `a88466e46`), verified by `git ls-remote` plus a byte probe per commit fetched back
+from the remote. Both implementations then existed and could be run against the SAME tree,
+which is the only fair comparison.
+
+## The headline figures agreed. That turned out to mean less than it looked.
+
+| measurement | original | rebuild | |
+|---|---|---|---|
+| P1-vs-banner flips | 21 | 21 | agree |
+| protocol drift, topics | 9 | 9 | agree, and the SAME nine |
+| protocol: compared / not-located / unestablished | 127 / 25 / 118 | 127 / 25 / 118 | agree, zero symmetric difference on every set |
+| withdrawal reasons read | 153 | 153 | agree |
+| unqualified withdrawals | **113 on 99 topics** | **111 on 98 topics** | **DIFFER** |
+| of those, harmful | **4** | **2** | **DIFFER** |
+
+## The divergence, and which implementation is wrong
+
+The whole difference is one topic: **`apixaban-vte-treatment`**, flagged by the original and
+not by the rebuild.
+
+**The rebuild is right.** That object says, verbatim:
+
+> WHAT THIS WITHDRAWAL DOES NOT ESTABLISH: not that apixaban and its comparators bleed
+> alike. COBRRA alone gives RR 0.16 (0.06 to 0.40) against rivaroxaban on 5 events against
+> 32.
+
+The original's pattern is `what (?:this|the withdrawal) does not`, which cannot match across
+the intervening noun in "what this WITHDRAWAL does not". So the original reports a page as
+saying nothing about what survives **while it says exactly that** — and counts it twice in
+the harmful subset, the shape reserved for an unqualified claim about the world.
+
+That is the worst direction an instrument can fail in here: it would have pushed an author
+to delete a correct sentence.
+
+## Why the agreement did not catch it, and what that costs the whole exercise
+
+**On the corpus both were originally measured against, the two implementations agree
+exactly — 111 and 2.** The sentence that separates them did not exist yet: it arrived with
+trunk commit `98526921a`, which added harms provenance to that object. The divergence only
+became visible when new content exercised the difference.
+
+> ## ***AGREEMENT ON THE FOUR FIGURES DID NOT ESTABLISH THAT THE TWO IMPLEMENTATIONS WERE EQUIVALENT. THEY AGREED BECAUSE THE CORPUS DID NOT YET CONTAIN THE CASE THAT SEPARATES THEM.***
+
+This is a real qualification on the reproducibility claim and it points the same way as the
+caveat pinned before the rebuild ran. A number agreeing is weaker evidence than it appears:
+it establishes that two routes produced the same answer **on the inputs available**, not
+that they implement the same predicate. The protocol gate, which agreed on every SET and not
+only on the count, is the stronger result of the two — set-level agreement across 127 topics
+constrains the predicate far more than one integer does.
+
+## The code, compared
+
+Both gates were rewritten rather than recalled line by line, and the diffs are large:
+`protocol_conformance_gate` 119 insertions / 159 deletions, `withdrawal_states_both_halves_gate`
+124 / 92. The substantive difference in approach is **where the controls are anchored**: the
+original protocol gate pinned its controls to corpus topics (`cab-prep-hiv-review`,
+`colchicine-cvd-coronary` — six references), the rebuild uses synthetic fixtures and zero
+corpus references, because a control anchored to live data retires itself the moment somebody
+fixes that topic. The rebuild's withdrawal gate carries two control pairs to the original's
+one, the second being the false positive above, pinned verbatim so it cannot return.

@@ -5,7 +5,7 @@
       "ablation-af-heart-failure"
     ],
     "registry_silence_total": 2,
-    "variantless_total": 610,
+    "variantless_total": 623,
     "mixed_variant_topics": []
   },
   "detail": {
@@ -29,10 +29,10 @@
       "ablation-af-medical-therapy": 7,
       "ablation-af-review": 8,
       "acs-antiplatelet-review": 9,
-      "agyw-hiv-prep-review": 15,
+      "agyw-hiv-prep-review": 18,
       "alirocumab-lipid": 33,
-      "apixaban-vte-prophylaxis": 13,
-      "apixaban-vte-treatment": 14,
+      "apixaban-vte-prophylaxis": 20,
+      "apixaban-vte-treatment": 17,
       "arni-hfref": 68,
       "attr-pn-review": 7,
       "azilsartan-chlorthalidone-vs-olmesartan-hctz": 7,
@@ -78,6 +78,11 @@
       "tigecycline-ciai": 17
     },
     "pools_mixing_variants": {},
-    "declared_variants": 0
+    "declared_variants": 4
+  },
+  "baseline_moved_because": "Rose 610 to 623 entirely from TRUNK content, not from this branch. The gainers are agyw-hiv-prep-review (+3), apixaban-vte-prophylaxis (+7) and apixaban-vte-treatment (+3); those three objects were modified by trunk commits cb5651469 and 98526921a, which add harms provenance -- new stored effects declaring no analysis_variant. Attributed by diffing per-topic counts against the baseline and matching the gainers to git log over origin/main~4..origin/main. This branch DECLARED four variants (empagliflozin) and removed none. The rise is the ratchet working; it is recorded rather than fixed because those objects belong to another lane, and it is reported upward with the introducing shas.",
+  "moved_from": {
+    "registry_silence_total": 2,
+    "variantless_total": 610
   }
 }
