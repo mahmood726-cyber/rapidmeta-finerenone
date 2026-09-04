@@ -5411,3 +5411,77 @@ is a reach figure until that third population is counted.
 **Rejected by:** nothing yet. `BUILD-PATHS.md` is prose, and prose did not hold the
 `git add -A` rule either. The mechanical form would be a check that refuses a committed
 document asserting a corpus-wide count without naming its path.
+
+### Class 99i — A REPAIR THAT WOULD HAVE DESTROYED THE ONLY CORRECT INSTANCE
+
+The approved plan for the retrieval-remainder fix was to recompute
+`k_cascade.k_unscreened_remainder` as the sum of the per-source remainders. Applied, it would
+have written **0** over `early-rhythm-control-af`'s **88**.
+
+That 88 is the only correct aggregate remainder in the corpus. It counts trials read by ONE
+seat during a 352-trial adjudication, and it refuses to treat a single reading as a screen.
+
+> ***THE REPAIR WOULD HAVE DESTROYED THE ONE NUMBER THAT GOT IT RIGHT WHILE FIXING THE ONES
+> THAT DID NOT*** — and it was aimed, without anyone intending it, at the single object this
+> project holds up as the standard.
+
+**The plan was the reviewer's; the correction was the implementer's**, and it came from
+re-diagnosing mid-build rather than executing the approved design. What surfaced it was
+reading what `k_unscreened_remainder` MEANS on each object instead of what it equals:
+sglt2-hf's 0 is backed by *"all 32 screened"* and *"all 10 screened"*; early-rhythm-control-af's
+88 by trials one seat read. **Both are SCREENING remainders and both are correct.** The defect
+was never a wrong aggregate — it was a MISSING one, and no object in the corpus published how
+many records a search returned and nobody retrieved.
+
+The fix became purely additive and **the step that removed a published number was not
+performed at all.**
+
+**And the instrument had the same defect.** `gate_remainder_is_per_source_2026_09_04.py`
+shipped one commit earlier refusing sglt2-hf on the grounds that `k_unscreened_remainder` was
+wrong.
+
+> **A gate that accuses a correct field is the defect class this repository catalogues, and
+> mine did it in the commit that introduced it.**
+
+Corrected in place: it now checks `search.retrieval_remainder` and leaves every screening
+field alone.
+
+**Rejected by:** nothing general. The specific case is closed; the class — *a repair aimed at
+a population that includes the one instance already correct* — has no instrument. The cheap
+form would be: before a bulk correction, name the members of the target population that are
+already right, and require the correction to leave them unchanged.
+
+### Class 99j — TWO CONTROLS ARE A PROOF OF TWO POINTS, NOT A PROOF OF COVERAGE
+
+`gate_remainder_is_per_source` carried a positive control (**missing block → REFUSED**) and a
+negative control (**correct block → PROVED**). Both held. **Both hold on a gate that cannot
+see the actual defect**, which is a numeric total published over a source that never said what
+it returned — an absence silently becoming a proven zero.
+
+> ***A POSITIVE AND A NEGATIVE CONTROL CAN BOTH PASS WHILE A WHOLE FAILURE MODE GOES
+> UNDETECTED.*** The two controls sit at either end; the defect sits between them.
+
+A third control was constructed for exactly that case and required `REFUSED`. **Constructing
+it is what made the gate real.**
+
+**This generalises to every gate in this repository.** For each one, ask what a case looks
+like that sits BETWEEN its two controls, and whether the gate can see it. A gate with a
+positive and a negative control has been shown to work at two points and nowhere else.
+
+**Rejected by:** nothing. The mechanical form would be a check that refuses an instrument
+declaring exactly two controls where the property under test is not binary — but "not binary"
+is a judgement, so this may only ever be a habit. Recorded as a habit with its reason.
+
+### Class 99k — A DIVERGENCE OPENED ON PURPOSE, WRITTEN DOWN SO IT RESOLVES TO A DECISION
+
+Commit `553c1193` left 18 store objects holding a field their pages do not render.
+`SGLT2_HF_REVIEW.html` still says *"unscreened remainder 0."* and still contains `1402` zero
+times, while its object now holds `retrieval_remainder: {state: PROVED, total: 1402}`.
+
+**This is indistinguishable in shape from the `CODE-FIXED, CORPUS-STALE` class**, and a future
+sweep will report it. `STORE-PAGE-DIVERGENCE.md` names all 18, says why, gives the five-step
+protocol that closes it, and carries a command that prints `0` when it is closed — at which
+point the file is to be deleted.
+
+> **A divergence you have written down is a decision. The same divergence you have not is the
+> defect this project has spent a week cataloguing.**
