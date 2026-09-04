@@ -265,11 +265,49 @@ def selftest():
         print("  POSITIVE a declared artefact that is absent      -> %-4s (%s) %s"
               % (v2, rows2[0][1], "correct" if good2 else "WRONG"))
 
+        # KNOWN_NEGATIVE. The first of these PRE-EXISTS -- it was written with this selftest
+        # and has always run. gate2 flagged this file for having "no known-negative control"
+        # regardless, because it matches on the TOKENS `KNOWN_NEGATIVE` / `control(` and this
+        # file never used the word. THIRD FALSE FINDING OF THAT KIND IN THIS SERIES.
+        #
+        # The SECOND negative is new and is the hard one, because the pre-existing negative
+        # is the easy case: "the real manifest as it stands now" is the whole declared list
+        # passing, which any implementation gets right.
+        #
+        #     A KNOWN-NEGATIVE DRAWN FROM THE EASY MAJORITY MEASURES NOTHING. IT MUST BE THE
+        #     CASE THE CHECK IS MOST LIKELY TO GET WRONG.
+        #
+        # evidence/2026-08-12/recovered-generator/build_app_v2.cpython-313.pyc MATCHES AN
+        # IGNORED PATTERN (`*.pyc`) AND IS NONETHELESS TRACKED, rescued by the `.gitignore`
+        # negation `!evidence/**/*.pyc`. Any implementation that answers "is this ignored?"
+        # by reading patterns rather than by ASKING GIT reports it IGNORED -- a false alarm
+        # on the single file in this repository whose entire reason for existing is
+        # preservation. The .gitignore says so in its own words: "The only surviving copy of
+        # a day of generator work was a .pyc, and *.pyc above silently excluded it from the
+        # commit that existed to preserve it."
+        #
+        # Both negatives are corpus-anchored and therefore perishable: if that .pyc is ever
+        # removed, this control must be pinned rather than dropped.
+        KNOWN_NEGATIVE = ("evidence/2026-08-12/recovered-generator/"
+                          "build_app_v2.cpython-313.pyc")
+        DURABLE = [(KNOWN_NEGATIVE,
+                    "tracked by a .gitignore NEGATION despite matching *.pyc", None)]
+        v_neg, rows_neg = check()
+        good_neg = (v_neg == "PASS" and rows_neg and rows_neg[0][1] == "ok")
+        ok &= good_neg
+        print("  NEGATIVE tracked-by-negation .pyc (matches *.pyc)-> %-4s (%s) %s"
+              % (v_neg, rows_neg[0][1] if rows_neg else "-",
+                 "correct" if good_neg else
+                 "WRONG -- a pattern reader would call this IGNORED"))
+
         DURABLE = real
         v3, _ = check()
         ok &= v3 == "PASS"
         print("  NEGATIVE the real manifest as it stands now      -> %-4s %s"
               % (v3, "correct" if v3 == "PASS" else "WRONG"))
+        _neg_fp = (0 if good_neg else 1) + (0 if v3 == "PASS" else 1)
+        print("  KNOWN-NEGATIVE CONTROL: %d/2 matched (measured false-positive rate %.1f%%)"
+              % (_neg_fp, 50.0 * _neg_fp))
 
         # ---- THE BOUND. A guard with no failing fixture is not a guard. ----
         # Five cases, because the entire defect was that three distinct
