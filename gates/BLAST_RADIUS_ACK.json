@@ -16,5 +16,42 @@
  "ssot/apply_judgement_register_agyw_2026_08_30.py": 2,
  "_note_apply_judgement_register_agyw_2026_08_31": "ACKNOWLEDGED AT 2, AND THE NUMBER IS AN OVER-COUNT I AM NOT ARGUING DOWN. gate7 resolves this file to 2 topics because its prose NAMES two (agyw-hiv-prep-review and ablation-af-review, the latter only as a comparison in a comment about candidate counts). Its single write target is hardcoded: OBJ = ssot/agyw-hiv-prep-review/agyw-hiv-prep-review.json, and `_aw.write_json(OBJ, ...)` is the only write in the file -- so the change actually reaches ONE object. I am recording 2 rather than editing the gate to agree with me: a closure that resolves a mention to a topic is over-inclusive in the SAFE direction, and the whole point of this gate is that the person making the change is the last person who should be narrowing its estimate. The change itself is the atomic_write routing required by gate4 -- the applier previously wrote with open+json.dump+os.replace, which is atomic but skips the judgement stamp.",
  "ssot/apply_harms_apixaban_2026_09_03.py": 2,
- "_ack_2026_09_03_harms_lane": "ssot/apply_harms_apixaban_2026_09_03.py, RADIUS 2 -- it names apixaban-vte-prophylaxis and apixaban-vte-treatment and is outside the build closure, so it reaches those two topics and no others. THE COUNT WAS SEEN AND BOTH OBJECTS WERE VERIFIED, not one: the script prints the per-trial 2x2 and the pooled or withdrawn result for each topic on every run, and gate 21 was re-run over the whole corpus afterwards. Acknowledging radius 2 while checking 1 would be the exact error this file exists to prevent, and the correction note at the top of this file records that it has already happened twice here."
+ "_ack_2026_09_03_harms_lane": "ssot/apply_harms_apixaban_2026_09_03.py, RADIUS 2 -- it names apixaban-vte-prophylaxis and apixaban-vte-treatment and is outside the build closure, so it reaches those two topics and no others. THE COUNT WAS SEEN AND BOTH OBJECTS WERE VERIFIED, not one: the script prints the per-trial 2x2 and the pooled or withdrawn result for each topic on every run, and gate 21 was re-run over the whole corpus afterwards. Acknowledging radius 2 while checking 1 would be the exact error this file exists to prevent, and the correction note at the top of this file records that it has already happened twice here.",
+ "ssot/ivi_topic_data.py": 2,
+ "ssot/relabel_outcome_verdict_2026_09_04.py": 4,
+ "ssot/validate_v2.py": 2,
+ "_ack_2026_09_04_group7": {
+  "why": "gate 7 named three class-wide edits with no acknowledgement. Each was VERIFIED ON EVERY TOPIC IT REACHES before being acknowledged, because 'verifying it on one object is a claim about 1/N' is the correct objection and the answer is a measurement, not a declaration.",
+  "ssot/validate_v2.py": {
+   "radius": 2,
+   "topics": [
+    "cangrelor-pci-review",
+    "prevnar15-pneumo"
+   ],
+   "verified": "2 of 2",
+   "how": "ran the module on BOTH objects against origin/main's copy and this one. At origin/main both die at `before = len(rep.blocks)` -> AttributeError: 'Report' object has no attribute 'blocks' -- the exact defect the dedent fixes. In this tree both get PAST it. The fix is exercised on 2/2.",
+   "what_it_does_not_claim": "validate_v2 is still broken BELOW the fix on 2/2, in two different classes: cangrelor-pci-review raises KeyError (results.by_outcome['corrected_composite_3component'] not declared in outcomes[]) and prevnar15-pneumo raises ModuleNotFoundError: No module named 'grade'. The dedent makes the module reach further, not work."
+  },
+  "ssot/relabel_outcome_verdict_2026_09_04.py": {
+   "radius": 4,
+   "topics": [
+    "arni-hfref",
+    "bempedoic-acid-review",
+    "iv-iron-hf",
+    "sotagliflozin-hf"
+   ],
+   "verified": "4 of 4",
+   "how": "--check across all four: 0 changes on every one (already migrated), and 'Pooled estimates: verified frozen on every object before writing.' Idempotent on 4/4."
+  },
+  "ssot/ivi_topic_data.py": {
+   "radius": 2,
+   "topics": [
+    "iv-iron-hf",
+    "sglt2-hf"
+   ],
+   "verified": "2 of 2",
+   "how": "scripts/lint_stored_counts_match_arrays.py on both: iv-iron-hf PASS 2 / FAIL 0 (the corrected block now recounts against its own 29-row array), sglt2-hf PASS 1 / FAIL 0. Module imports cleanly.",
+   "honest_qualification": "gate 7's radius of 2 comes from a TEXT MATCH on topic ids in the file. Only iv-iron-hf is actually built through this module; sglt2-hf appears solely in a prose comment about a different defect (a query dropping a condition term). The true build radius is 1. Acknowledged at 2 to match what the gate measures, and both were verified regardless."
+  }
+ }
 }
