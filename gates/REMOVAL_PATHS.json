@@ -141,7 +141,7 @@
   },
   "scripts/plant_correction_survives_rebuild.py": {
    "state": "NOT-A-CORPUS-REMOVAL",
-   "why": "os.remove() in a `finally`, over paths this script created itself seconds earlier with tempfile.mkstemp -- the two throwaway corrections lists the plant writes so it can exercise the guard against a SYNTHETIC entry instead of a live page. They live in the system temp directory, are never read by anything else, and exist only inside one function call. Deleting them is the cleanup of a fixture, not the removal of an artefact. \u2b50 AND THE PLANT TOUCHES NO DELIVERED PAGE AT ALL: its named positive is built in memory precisely so there is no restore to get wrong, which is why the only paths it removes are ones it invented."
+   "why": "os.remove() in a `finally`, over paths this script created itself seconds earlier with tempfile.mkstemp -- the two throwaway corrections lists the plant writes so it can exercise the guard against a SYNTHETIC entry instead of a live page. They live in the system temp directory, are never read by anything else, and exist only inside one function call. Deleting them is the cleanup of a fixture, not the removal of an artefact. ⭐ AND THE PLANT TOUCHES NO DELIVERED PAGE AT ALL: its named positive is built in memory precisely so there is no restore to get wrong, which is why the only paths it removes are ones it invented."
   },
   "scripts/contradicting_surfaces_gate.py": {
    "state": "NOT-A-CORPUS-REMOVAL",
@@ -170,6 +170,11 @@
   "scripts/registration_chronology_gate.py": {
    "state": "NOT-A-CORPUS-REMOVAL",
    "why": "a harness gate landed 2026-09-02. Its only deletion is shutil.rmtree/os.unlink of the temporary fixture directory its own --selftest builds, inside a finally:. Read-only over the corpus: it opens pages and objects and writes nothing a reader receives. Verified by reading every deletion site in the file."
+  },
+  "scripts/lint_stored_counts_match_arrays.py": {
+   "state": "NOT-A-CORPUS-REMOVAL",
+   "why": "the only removal is shutil.rmtree on a tempfile.mkdtemp directory created by _control_failures to hold the two SYNTHETIC control fixtures, deleted in a finally block. Nothing a reader receives, nothing under ssot/ or a delivered page. The fixtures are synthetic on purpose: the live case that motivated this instrument (iv-iron-hf's tally reading 13/10/6 against an array recounting to 14/10/5) was corrected the same day, so a control anchored to it would have retired itself.",
+   "declared_utc": "2026-09-04"
   }
  }
 }
