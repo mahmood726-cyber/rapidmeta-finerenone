@@ -1653,6 +1653,12 @@ class Section(object):
         self.tables = []         # [(caption, [headers], [[cells]], [field paths])]
         self.figures = []        # [(n, caption, svg, refusal_reason, [field paths])]
         self.refusals = []       # [(what was not written, which field was absent)]
+        # A refusal that is CORRECT but is being held back because something else is
+        # standing in for it -- drafts in place of a Discussion, say. It is kept rather
+        # than dropped so that a later pass which removes the stand-in can reinstate it.
+        # A refusal deleted at the point of suppression cannot be recovered by the pass
+        # that invalidates the reason for suppressing it.
+        self.suppressed_refusals = []
 
     def add(self, obj, text, fields):
         """Emit `text` only if EVERY field it cites resolves. Otherwise record the refusal.
@@ -2716,7 +2722,25 @@ _ESSENTIAL = {"title", "abstract", "intro", "methods_search", "methods_synthesis
 # are not article content at all -- they are our workings.
 _DROP_ORDER = ["drafts", "validation", "bookkeeping", "conformance", "not_written",
                "figure_legends", "extended", "keywords", "software", "reporting_guideline",
-               "statistical_output", "disagreements", "reporting_guidelines"]
+               "disagreements", "reporting_guidelines"]
+
+# `statistical_output` WAS IN THAT LIST AND CONTRADICTED THIS FILE'S OWN REQUIREMENT.
+#
+# The reading-order note below states it plainly: "P46 limb 4 requires it verbatim and it is
+# not deleted or shortened -- it moves to the end". Deleting it for length is exactly
+# deleting it. The requirement is not this module's invention either -- `apply_*` scripts
+# across the repo store the model output verbatim SO THAT it can be quoted, on the recorded
+# reasoning that "a paraphrase of the model output is not the model output".
+#
+# MEASURED on alirocumab-lipid, 2026-09-04: this eviction removed 3,072 characters of R
+# console transcript from a panel whose total shrink against the delivered page was 2,402.
+# One evicted section, contradicting a stated requirement, was the entire regression.
+#
+# It is the longest thing in the manuscript, so it is the obvious thing for a length pass to
+# reach for. That is the reason to name it here rather than leave it to be re-added: a
+# verbatim quote is long BECAUSE it is verbatim, and shortening it by deleting it is the one
+# edit the requirement forbids.
+_NEVER_DROP_FOR_LENGTH = {"statistical_output"}
 
 # SECTIONS THAT ENUMERATE WHERE A REVIEW SUMMARISES.
 #
@@ -2742,13 +2766,35 @@ _VALIDATION_PROSE = re.compile(
 
 
 def _words(secs):
+    """Words a READER READS AS THE ARTICLE. Refusals are not among them.
+
+    THIS COUNTED REFUSALS AS PROSE, AND THE RENDERER STOPPED PRINTING THEM AS PROSE.
+
+    When this budget was written, a refusal was a "Refused: ..." paragraph in the body, so
+    charging it the full prose price was right. `_projected_paper_html` then moved every
+    refusal out of the flow and into ONE table at the end -- "REFUSALS NO LONGER INTERRUPT
+    THE PAPER" -- where a refusal costs a reader one table row, and a section that is
+    NOTHING BUT a refusal costs no heading at all.
+
+    The budget was never told. So it kept charging article prices for audit-table rows, and
+    step 5 -- whose removal condition is `state == REFUSED`, meaning it only ever removes
+    refusal-only sections -- spent that phantom overage deleting NAMED ABSENCES. Deleting a
+    named absence does not shorten the article by one word a reader reads; it removes the
+    line that told them a gap was a decision rather than an oversight, which is the property
+    this whole corpus is built to have.
+
+    MEASURED on alirocumab-lipid, 2026-09-04: 11 sections evicted, 7 of them refusal-only --
+    Discussion, funding, competing interests, grant information, author contributions,
+    registration, methods_withholding. Their refusals reached no table and no reader.
+    """
     n = 0
     for s in secs:
+        if not (s.paras or getattr(s, "tables", []) or getattr(s, "figures", [])):
+            # A refusal-only section prints no heading either. It costs nothing.
+            continue
         n += len(str(s.heading).split())
         for text, _f in s.paras:
             n += len(str(text).split())
-        for what, _m in s.refusals:
-            n += len(str(what).split())
     return n
 
 
@@ -2774,6 +2820,26 @@ def _fit_to_budget(secs, obj):
         if len(keep) != len(s.paras):
             removed.append("%d draft passage(s) in %s" % (len(s.paras) - len(keep), s.key))
             s.paras = keep
+        # THE STAND-IN IS GONE, SO THE REFUSAL IT DISPLACED COMES BACK.
+        #
+        # `project` withholds the CONTENT-gap refusal for a section whose drafts it is
+        # about to render, on the reasoning that a drafted topic should read as a draft
+        # rather than as an empty refusal. This loop is what makes that reasoning false:
+        # it deletes the drafts. Reinstating here -- and ONLY where the section is now
+        # genuinely bodiless -- restores the property the corpus is built on, that an
+        # absent section is NAMED so a reader can tell a gap from an oversight.
+        #
+        # Guarded on emptiness rather than applied unconditionally, because a section that
+        # kept authored prose after the strip is not a content gap and must not be told it
+        # is one.
+        if getattr(s, "suppressed_refusals", None) and not (
+                s.paras or getattr(s, "tables", []) or getattr(s, "figures", [])):
+            for r in s.suppressed_refusals:
+                if r not in s.refusals:
+                    s.refusals.append(r)
+            removed.append("reinstated %d suppressed refusal(s) in %s"
+                           % (len(s.suppressed_refusals), s.key))
+            s.suppressed_refusals = []
 
     # 2. VALIDATION NARRATIVE -- our QA process, printed inside Methods. "This object's
     #    verification rests on Two things, and neither is a badge this repository can emit
@@ -2880,11 +2946,31 @@ def _fit_to_budget(secs, obj):
             removed.append("published_comparison detail")
 
     # 4. Whole non-essential sections, lowest value first, until inside the budget.
+    #
+    # THE SAME HOLE STEP 5 WAS PATCHED FOR, STILL OPEN HERE. `_words` counts headings,
+    # paragraphs and refusals; it does NOT count tables or figures. So a section whose body
+    # is a TABLE costs this budget almost nothing, and deleting it frees almost nothing --
+    # while removing object values a reader can see. Step 5 below already carries the long
+    # note about `trial_characteristics` being silently deleted for exactly this reason.
+    # Step 4 runs FIRST, and was never given the same fix.
+    #
+    # MEASURED on alirocumab-lipid, 2026-09-04: `figure_legends` was evicted here to save
+    # TWO WORDS -- its heading -- against an overage of 2,285. What went with those two
+    # words was the table carrying the pooled estimate, its interval and its k. That is not
+    # a length decision; it is a content deletion with a length decision's paperwork.
+    #
+    # So a section carrying a table or a figure is not eligible for length eviction. It is
+    # not scaffolding, it is not repetition, and it is not what is making the page long.
+    # The prose-and-refusal sections in `_DROP_ORDER` are still evictable, which is what
+    # the budget was built to do.
+    def _is_display(sec):
+        return bool(getattr(sec, "tables", []) or getattr(sec, "figures", []))
+
     for key in _DROP_ORDER:
         if _words(secs) <= budget:
             break
         for s in list(secs):
-            if s.key == key and s.key not in _ESSENTIAL:
+            if s.key == key and s.key not in _ESSENTIAL and not _is_display(s):
                 secs.remove(s)
                 removed.append("section %s" % s.key)
 
@@ -2902,10 +2988,20 @@ def _fit_to_budget(secs, obj):
     # and the log said it was never there.
     #
     # Using the class's own predicate means the two cannot disagree again.
+    # AND IT MAY NOT REMOVE A NAMED ABSENCE. `state == REFUSED` is true of exactly the
+    # sections that print no heading and no prose, so before this condition step 5's whole
+    # effect was to delete refusals -- the one kind of content whose removal saves a reader
+    # nothing and costs them the difference between "not done" and "not mentioned". With
+    # `_words` no longer charging for them the loop will rarely reach here at all; the
+    # condition is stated anyway, because a budget that CAN delete a named absence will do
+    # it again the next time a page runs long.
+    #
+    # A section with neither body nor refusal is still removable: it says nothing at all.
     for s in reversed(list(secs)):
         if _words(secs) <= budget:
             break
-        if s.key not in _ESSENTIAL and s.state == REFUSED:
+        if (s.key not in _ESSENTIAL and s.key not in _NEVER_DROP_FOR_LENGTH
+                and s.state == REFUSED and not s.refusals):
             secs.remove(s)
             removed.append("empty section %s" % s.key)
     return secs, budget, removed
@@ -4681,15 +4777,35 @@ def project(obj, journal="generic", length="standard"):
         # A topic the author has written reads as a finished paper: his prose first, and the
         # drafts still beneath it so he can see what they said. A topic he has not touched
         # reads as a full draft he can dictate over rather than an empty refusal.
-        if not _has and not _drafted(obj, heading):
-            # "a conclusions written by the renderer" -- the heading is spliced after an
-            # article, and "Conclusions" is plural, so 118 pages carried the disagreement.
-            # The heading is already named at the start of this sentence, so the second
-            # mention was redundant as well as ungrammatical.
-            s.refusals.append(("the %s -- this is a CONTENT gap. The object records no "
-                               "interpretive text, and none is generated here: text "
-                               "written by the renderer would be an argument no field "
-                               "supports" % (heading,), [field]))
+        # "a conclusions written by the renderer" -- the heading is spliced after an
+        # article, and "Conclusions" is plural, so 118 pages carried the disagreement.
+        # The heading is already named at the start of this sentence, so the second
+        # mention was redundant as well as ungrammatical.
+        _gap = ("the %s -- this is a CONTENT gap. The object records no interpretive "
+                "text, and none is generated here: text written by the renderer would be "
+                "an argument no field supports" % (heading,), [field])
+        if not _has:
+            if not _drafted(obj, heading):
+                s.refusals.append(_gap)
+            else:
+                # SUPPRESSED, NOT DISCARDED -- AND THAT DISTINCTION WAS THE WHOLE DEFECT.
+                #
+                # The refusal was dropped on the floor here because the drafts were about
+                # to be rendered in its place. `_fit_to_budget` step 1 then removes every
+                # draft passage UNCONDITIONALLY, budget or no budget, because a draft is a
+                # note to the author and not article content at any length. So the two
+                # passes each made a defensible decision and between them the CONTENT gap
+                # was named NOWHERE: no prose, no draft, no refusal, and -- because
+                # `_projected_paper_html` gives a body-less section no heading -- not even
+                # a heading. Discussion and Conclusions left the manuscript in silence.
+                #
+                # MEASURED on alirocumab-lipid, 2026-09-04: both sections reached the
+                # renderer with 0 paragraphs and 0 refusals, while the delivered page
+                # named both gaps. The delivered page was right.
+                #
+                # Handing the refusal forward instead of deleting it lets the pass that
+                # actually removes the drafts decide, which is the only pass that knows.
+                s.suppressed_refusals.append(_gap)
         _add_drafts(s, obj, heading)
         secs.append(s)
 
