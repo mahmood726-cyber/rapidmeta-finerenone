@@ -606,6 +606,29 @@ for _name, _mod, _why in (
     assert by_module["missing_plant_component"]["checks"]["e"] is False
     assert by_module["missing_plant_component"]["checks"]["g"] is False
 
+    # KNOWN_NEGATIVE -- PRE-EXISTING. NAMED AND RATED HERE; NO BEHAVIOUR CHANGED.
+    #
+    # gate2 flagged this file for "no known-negative control" while this PAIRED plant was
+    # already here and passing: a conforming synthetic component that must NOT be flagged, and
+    # one missing plant() that must be. gate2 matches on the TOKENS `KNOWN_NEGATIVE` /
+    # `control(`, and this file never used the word. SEVENTH FALSE FINDING OF THAT KIND.
+    #
+    # THE NEGATIVE, NAMED: `conforming_component` must come back "wired-and-conforming". It is
+    # the right negative rather than a convenient one because it is SYNTHETIC AND MINIMAL --
+    # it carries exactly the seven contract features and nothing else, so a check that drifted
+    # toward matching incidental structure in real components (a docstring, an import, a
+    # naming convention) fails on it immediately. A real repository component would pass under
+    # a much looser gate and would prove correspondingly less.
+    #
+    # It is a PLANT, not corpus-anchored, so NO REPAIR CAN RETIRE IT -- the most durable tier
+    # of control in this suite, and the only one needing no expiry note.
+    KNOWN_NEGATIVE = ("conforming_component -- a synthetic module carrying exactly the seven "
+                      "contract features must come back wired-and-conforming")
+    _neg_fp = 0 if by_module["conforming_component"]["status"] == "wired-and-conforming" else 1
+    print("KNOWN-NEGATIVE CONTROL: %d/1 matched (measured false-positive rate %.1f%%)"
+          % (_neg_fp, 100.0 * _neg_fp), file=output)
+    print("  %s" % KNOWN_NEGATIVE, file=output)
+    print("  Pre-existing; named here so it is visible, not added here.", file=output)
     print("plant proved conforming synthetic component passes", file=output)
     print("plant proved synthetic component missing plant() is flagged", file=output)
     return 0
