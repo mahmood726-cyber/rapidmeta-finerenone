@@ -1,0 +1,163 @@
+{
+  "instrument": "measure_extraction_depth_ceiling_2026_09_04",
+  "snapshot": "2026-08-30",
+  "path_b_trials": 349,
+  "fields": [
+    {
+      "field": "id",
+      "class": "b",
+      "table": null,
+      "covered": null,
+      "pct": null,
+      "why": "a slug of `name`. Deterministic string transform, no source needed."
+    },
+    {
+      "field": "name",
+      "class": "a",
+      "table": "studies",
+      "columns": [
+        "acronym"
+      ],
+      "covered": 191,
+      "of": 349,
+      "pct": 54.7,
+      "why": "the trial acronym, which the registry stores in its own column."
+    },
+    {
+      "field": "pmid",
+      "class": "a",
+      "table": "study_references",
+      "columns": [
+        "pmid"
+      ],
+      "covered": 301,
+      "of": 349,
+      "pct": 86.2,
+      "why": "the registry links its own publications."
+    },
+    {
+      "field": "year",
+      "class": "a",
+      "table": "study_references",
+      "columns": [
+        "citation"
+      ],
+      "covered": 301,
+      "of": 349,
+      "pct": 86.2,
+      "why": "the citation string carries the year; PubMed confirms it but is not required to obtain a candidate."
+    },
+    {
+      "field": "design",
+      "class": "b",
+      "table": "designs",
+      "columns": [
+        "allocation",
+        "intervention_model",
+        "masking"
+      ],
+      "covered": 344,
+      "of": 349,
+      "pct": 98.6,
+      "why": "allocation + intervention_model + masking + phase compose the sentence. The PROSE is written; the FACTS are columns."
+    },
+    {
+      "field": "population",
+      "class": "b",
+      "table": "eligibilities",
+      "columns": [
+        "criteria"
+      ],
+      "covered": 348,
+      "of": 349,
+      "pct": 99.7,
+      "why": "the registry stores the eligibility criteria verbatim. Summarising them into one sentence is composition, not judgement."
+    },
+    {
+      "field": "comparator_type",
+      "class": "a",
+      "table": "design_groups",
+      "columns": [
+        "group_type"
+      ],
+      "covered": 342,
+      "of": 349,
+      "pct": 98.0,
+      "why": "PLACEBO_COMPARATOR / ACTIVE_COMPARATOR / NO_INTERVENTION is a registry enum."
+    },
+    {
+      "field": "comparator_type_basis",
+      "class": "c",
+      "table": "design_groups",
+      "columns": [
+        "title",
+        "description"
+      ],
+      "covered": 309,
+      "of": 349,
+      "pct": 88.5,
+      "why": "THE LOAD-BEARING ONE. The arm title and description supply the raw material -- 'Placebo + standard of care' -- but deciding that this makes the contrast COMMENSURABLE with another trial's is a judgement about constructs."
+    },
+    {
+      "field": "arms",
+      "class": "a",
+      "table": "outcome_counts",
+      "columns": [
+        "ctgov_group_code",
+        "count"
+      ],
+      "covered": 243,
+      "of": 349,
+      "pct": 69.6,
+      "why": "per-arm event counts, where results are posted."
+    },
+    {
+      "field": "arms_not_used",
+      "class": "c",
+      "table": null,
+      "covered": null,
+      "pct": null,
+      "why": "which arms to exclude from the pool. A decision about scope, not a fact to look up."
+    },
+    {
+      "field": "enrolment_note",
+      "class": "b",
+      "table": "studies",
+      "columns": [
+        "enrollment",
+        "enrollment_type"
+      ],
+      "covered": 347,
+      "of": 349,
+      "pct": 99.4,
+      "why": "randomised-versus-analysed is two numbers and a rule; the note is generated from them."
+    },
+    {
+      "field": "by_outcome",
+      "class": "a",
+      "table": "outcome_analyses",
+      "columns": [
+        "param_type",
+        "param_value",
+        "ci_lower_limit",
+        "ci_upper_limit"
+      ],
+      "covered": 157,
+      "of": 349,
+      "pct": 45.0,
+      "why": "the registry posts the effect estimate AND its interval for analysed outcomes."
+    },
+    {
+      "field": "registered_primary_timeframe_basis",
+      "class": "b",
+      "table": "design_outcomes",
+      "columns": [
+        "time_frame"
+      ],
+      "covered": 342,
+      "of": 349,
+      "pct": 98.0,
+      "why": "the timeframe is a column; the 'basis' sentence states that it was quoted verbatim, which is a template, not a reading."
+    }
+  ]
+}
