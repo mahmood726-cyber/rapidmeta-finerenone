@@ -416,7 +416,43 @@ def _pi_is_informative(k):
                    "to fall. An interval is shown from k = 4, where that factor "
                    "drops below two." % (k, t, _Z_CRIT, t / _Z_CRIT))
 
-def statistics_tables(res, p):
+def trial_registrations(canon):
+    """{trial slug -> registration id}, for tables that identify trials by slug alone.
+
+    A READER MEETING `paradigm-hf` IN A DIAGNOSTICS TABLE CANNOT CONFIRM WHICH TRIAL IT IS.
+    The per-trial influence and baseline-risk panels store only `trial`, which is the
+    object's own `inputs.trials[].id` -- a slug. The registration sits on that very same
+    trial entry (paradigm-hf -> NCT01035255) and was simply never carried into the render.
+
+    ADDITIVE AND FAILS SOFT: a slug with no known registration renders exactly as it does
+    today, so no row can be lost by this lookup and no identifier is invented for a trial
+    that has none.
+    """
+    out = {}
+    for t in ((canon.get("inputs") or {}).get("trials") or []):
+        if not isinstance(t, dict):
+            continue
+        reg = t.get("nct") or t.get("registration")
+        if not reg:
+            continue
+        for key in ("id", "trial_id", "slug"):
+            if t.get(key):
+                out[str(t[key])] = str(reg)
+    return out
+
+
+def _with_reg(name, regs):
+    """A trial cell carrying its registration, where one is known."""
+    # PLAIN TEXT, NOT MARKUP. The caller wraps this in p(), which ESCAPES -- an earlier
+    # version returned "<br><small>...</small>" and the reader saw the literal tags.
+    # Caught by reading the rendered bytes, not by the build succeeding.
+    reg = (regs or {}).get(str(name))
+    if not reg:
+        return "%s" % name
+    return "%s (%s)" % (name, reg)
+
+
+def statistics_tables(res, p, regs=None):
     pan = res.get("panels") or {}
     cp = res.get("count_panels") or {}
     out, rows = "", ""
@@ -467,7 +503,8 @@ def statistics_tables(res, p):
         r2 = "".join("    <tr><th>%s</th><td class='num'>%s%%</td>"
                      "<td class='num'>%s</td><td class='num'>%s</td>"
                      "<td class='num'>%s</td></tr>%s"
-                     % (p(str(x["trial"])), pj.fmt(x["weight"]), pj.fmt(x["hat"]),
+                     % (p(_with_reg(str(x["trial"]), regs)), pj.fmt(x["weight"]),
+                        pj.fmt(x["hat"]),
                         pj.fmt(x["cook_d"]), pj.fmt(x["rstudent"]), NL)
                      for x in inf)
         out += ("<div class='card'>%s  <h3>Per-trial influence and weight</h3>%s"
@@ -493,7 +530,7 @@ def statistics_tables(res, p):
     return out
 
 
-def count_tables(res, p):
+def count_tables(res, p, regs=None):
     cp = res.get("count_panels")
     if not cp:
         return ""
@@ -532,7 +569,7 @@ def count_tables(res, p):
     if br:
         r = "".join("    <tr><th>%s</th><td class='num'>%s / %s</td>"
                     "<td class='num'>%s</td></tr>%s"
-                    % (p(str(x["trial"])), pj.fmt(x["control_events"]),
+                    % (p(_with_reg(str(x["trial"]), regs)), pj.fmt(x["control_events"]),
                        pj.fmt(x["control_n"]), pj.fmt(x["control_risk"]), NL)
                     for x in br)
         out += ("<div class='card'>%s  <h3>Baseline risk, per trial</h3>%s"
@@ -1702,6 +1739,7 @@ def _store_declaration(canon):
 
 
 def build(canon, store_path=None):
+    _REGS = trial_registrations(canon)
     # AN OBJECT WITH NO TITLE AND NO RESULTS IS NOT A PAPER, AND THIS SAYS SO ONCE.
     #
     # 14 topics are empty shells -- no `results` key, no `title`. Building them produced a
@@ -1832,8 +1870,9 @@ def build(canon, store_path=None):
                         + p2.underpowered_figures(res, p))
         d["countfigs"] = p2.count_figures(res, p)
         d["grade"] = p2.grade_section(res, p, canon, oid)
-        d["stats"] = p2.population_card(res, p) + statistics_tables(res, p)
-        d["counttabs"] = count_tables(res, p)
+        d["stats"] = (p2.population_card(res, p)
+                      + statistics_tables(res, p, _REGS))
+        d["counttabs"] = count_tables(res, p, _REGS)
         d["crossengine"] = cross_engine_card(res, p)
         d["panels"] = panels_card(res, p)
         parts.append(d)
