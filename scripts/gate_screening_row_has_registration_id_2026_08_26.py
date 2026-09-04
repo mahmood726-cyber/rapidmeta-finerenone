@@ -159,10 +159,70 @@ def scan():
     return bad, total
 
 
+# KNOWN_NEGATIVE -- AND THE COMMENT ABOVE PROMISED THIS BEFORE IT EXISTED.
+#
+# The note at "Accepting these is NOT a relaxation: a row with no identifier of any kind
+# still fails, WHICH IS CHECKED BY THE NEGATIVE CONTROL BELOW" described a control that was
+# not in this file. A COMMENT ASSERTING A PROPERTY THE CODE DOES NOT HAVE IS MANUFACTURED
+# PROVENANCE AT THE DOCUMENTATION LAYER: it survives review precisely because nobody
+# re-derives a comment. The control now exists, so the sentence is true.
+#
+# THE ROW CHOSEN IS THE ONE THAT DEFEATED TWO EARLIER VERSIONS OF THIS GATE, not one from
+# the easy majority. `europepmc:ETH:733423` in agyw-hiv-prep-review is a verdict-bearing
+# screening row whose ONLY identifier is the Europe PMC record key: measured, it carries
+# NCT=False, PMID=False, DOI=False, URL=False, RECORD_KEY=True. A thesis, re-findable at
+# europepmc.org exactly as a PMID resolves at pubmed -- and invisible to every earlier
+# vocabulary this gate tried. Its own comments record the loop: "Third narrowing of this
+# gate's vocabulary in one sitting... Each narrowing pointed the same way -- at the corpus,
+# wrongly", then a fourth widening for the same reason.
+#
+# So this is the case the gate is MOST LIKELY TO GET WRONG, and it has demonstrably got it
+# wrong twice. A row with an NCT would prove nothing: every version of this gate has always
+# found those.
+#
+# FAILS CLOSED. If the row is gone the rate is UNMEASURED and the gate refuses, because an
+# unmeasured false-positive rate is not a measured zero. It is CORPUS-ANCHORED, so it is
+# perishable: repairing or re-screening agyw-hiv-prep-review can retire it. Declared here
+# rather than discovered later -- if this control disappears, pin it.
+KNOWN_NEGATIVE_TOPIC = "agyw-hiv-prep-review"
+KNOWN_NEGATIVE_KEY = "europepmc:ETH:733423"
+
+
+def known_negative(bad):
+    """(n, false_positives, note): the ETH row must never be reported as identifier-less."""
+    path = os.path.join(SSOT, KNOWN_NEGATIVE_TOPIC, KNOWN_NEGATIVE_TOPIC + ".json")
+    if not os.path.exists(path):
+        return 0, 0, "topic object absent"
+    with io.open(path, encoding="utf-8") as fh:
+        blob = fh.read()
+    if ('"%s"' % KNOWN_NEGATIVE_KEY) not in blob:
+        return 0, 0, "the control row is no longer in the object"
+    hit = [b for b in bad
+           if b["topic"] == KNOWN_NEGATIVE_TOPIC and KNOWN_NEGATIVE_KEY in json.dumps(b)]
+    return 1, len(hit), "re-findable only via the Europe PMC record key"
+
+
 def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     bad, total = scan()
     keys = {"%s%s" % (b["topic"], b["path"]) for b in bad}
+
+    n_neg, fp_neg, neg_note = known_negative(bad)
+    if n_neg == 0:
+        print("KNOWN-NEGATIVE CONTROL: UNMEASURED -- %s / %s (%s)."
+              % (KNOWN_NEGATIVE_TOPIC, KNOWN_NEGATIVE_KEY, neg_note))
+        print("   An unmeasured false-positive rate is NOT a measured zero. REFUSED.")
+        return 1
+    print("KNOWN-NEGATIVE CONTROL: %d/%d matched (measured false-positive rate %.1f%%)"
+          % (fp_neg, n_neg, 100.0 * fp_neg / n_neg))
+    print("   %s / %s -- %s. It defeated two earlier versions of this gate's vocabulary;"
+          % (KNOWN_NEGATIVE_TOPIC, KNOWN_NEGATIVE_KEY, neg_note))
+    print("   a row carrying an NCT would prove nothing, because those always matched.")
+    if fp_neg:
+        print("   CONTROL FAILED: the gate reported a re-findable row as identifier-less. "
+              "REFUSED; no count below is trusted.")
+        return 1
+    print()
 
     if "--write-baseline" in sys.argv:
         if not os.path.isdir(os.path.dirname(BASELINE)):
