@@ -1,15 +1,15 @@
 {
   "summary": {
-    "objects_read": 152,
+    "objects_read": 155,
     "registry_silence_topics": [
       "ablation-af-heart-failure"
     ],
     "registry_silence_total": 2,
-    "variantless_total": 623,
+    "variantless_total": 688,
     "mixed_variant_topics": []
   },
   "detail": {
-    "objects_read": 152,
+    "objects_read": 155,
     "registry_silence": {
       "ablation-af-heart-failure": [
         {
@@ -31,6 +31,7 @@
       "acs-antiplatelet-review": 9,
       "agyw-hiv-prep-review": 18,
       "alirocumab-lipid": 33,
+      "antimalarial-act": 3,
       "apixaban-vte-prophylaxis": 20,
       "apixaban-vte-treatment": 17,
       "arni-hfref": 68,
@@ -44,6 +45,7 @@
       "colchicine-cvd-coronary": 8,
       "colchicine-cvd-review": 6,
       "covid19-vaccines": 2,
+      "cryptococcal-meningitis": 12,
       "doac-af-review": 7,
       "doac-cancer-vte-review": 7,
       "early-rhythm-control-af": 1,
@@ -62,6 +64,7 @@
       "lefamulin-cabp-auto-full-review": 8,
       "lefamulin-cap-auto-full-review": 4,
       "lenacapavir-prep": 12,
+      "malaria-vaccines": 50,
       "netarsudil-ocular-hypertension-auto-full-review": 7,
       "nirsevimab-infant-rsv-review": 5,
       "pcsk9-inhibitors-cv-review": 11,
@@ -80,9 +83,9 @@
     "pools_mixing_variants": {},
     "declared_variants": 4
   },
-  "baseline_moved_because": "Rose 610 to 623 entirely from TRUNK content, not from this branch. The gainers are agyw-hiv-prep-review (+3), apixaban-vte-prophylaxis (+7) and apixaban-vte-treatment (+3); those three objects were modified by trunk commits cb5651469 and 98526921a, which add harms provenance -- new stored effects declaring no analysis_variant. Attributed by diffing per-topic counts against the baseline and matching the gainers to git log over origin/main~4..origin/main. This branch DECLARED four variants (empagliflozin) and removed none. The rise is the ratchet working; it is recorded rather than fixed because those objects belong to another lane, and it is reported upward with the introducing shas.",
+  "baseline_moved_because": "CORRECTION, NOT A BUMP -- no new failure is absorbed. 623 -> 688, and all +65 is content the baseline should have counted when it was written on 2026-09-03 (3f0d01a29) and did not: malaria-vaccines +50, cryptococcal-meningitis +12, antimalarial-act +3, sum exactly 65. Rise from any OTHER topic: +0. Topics that fell: 0. Topics dropped: 0. All three object blobs are BYTE-IDENTICAL at the baseline commit, at HEAD and in the worktree (581a4690dc / a885057452 / 5a647d8124), and scripts/source_hierarchy_gate.py is byte-identical since the baseline (50688ee99b, 0 commits). Same scanner, same bytes, different count: the baseline recorded objects_read 152 while topic_objects() finds 155, so its denominator was short by three at the moment of writing. Attributed by diffing per-topic counts against detail.variantless_effects.",
   "moved_from": {
     "registry_silence_total": 2,
-    "variantless_total": 610
+    "variantless_total": 623
   }
 }
