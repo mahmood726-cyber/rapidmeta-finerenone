@@ -67,6 +67,38 @@ def estimates():
                     yield ("%s|inputs.trials[%s].by_outcome.%s.effect" % (t, n, oid), e)
 
 
+# KNOWN-NEGATIVE, NAMED RATHER THAN DESCRIBED, WITH THE RATE MEASURED NOT ASSERTED.
+#
+#     apixaban-vte-treatment|results.by_outcome.major_bleeding.per_trial[2]
+#
+# Chosen because it is the case this check is MOST LIKELY TO GET WRONG, not because it
+# passes. Its declared tier is COULD_NOT_DETERMINE -- a row that explicitly states its
+# provenance could not be established. It therefore LOOKS EXACTLY LIKE THE DEFECT THIS GATE
+# HUNTS (a number a reader cannot trace) while being a VALID DECLARATION, and it carries
+# `migrated_from_legacy_string: "REGISTRY -- ClinicalTrials.gov posted result..."`, so it is
+# a row that WAS untraced and has since been declared honestly. Any implementation that
+# conflates "declares it cannot determine" with "declares nothing" flags it.
+#
+# A KNOWN-NEGATIVE DRAWN FROM THE EASY MAJORITY MEASURES NOTHING: 6 rows here carry
+# REGISTRY_POSTED_RESULT and 3 carry JOURNAL_FULL_TEXT, and any of those would pass under a
+# broken implementation too. This one would not.
+#
+# UNREACHABLE IS NOT ZERO. If the row is gone the rate is reported UNMEASURED and the gate
+# refuses, because an unmeasured false-positive rate and a measured zero are different
+# claims and only one of them is evidence.
+KNOWN_NEGATIVE = "apixaban-vte-treatment|results.by_outcome.major_bleeding.per_trial[2]"
+
+
+def known_negative(rows):
+    """(n, false_positives, note) measured over the SAME traversal the findings come from."""
+    for key, rec in rows:
+        if key == KNOWN_NEGATIVE:
+            probs = validate(rec)
+            tier = (rec.get("provenance") or {}).get("tier")
+            return 1, (1 if probs else 0), "tier=%s" % tier
+    return 0, 0, "NOT REACHED by the traversal"
+
+
 def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     rows = list(estimates())
@@ -123,7 +155,26 @@ def main():
     for k in sorted(dist, key=lambda x: -dist[x]):
         print("   %-32s %4d" % (k, dist[k]))
 
+    n_neg, fp_neg, neg_note = known_negative(rows)
+    print()
+    if n_neg == 0:
+        print("KNOWN-NEGATIVE CONTROL: UNMEASURED -- %s (%s)." % (KNOWN_NEGATIVE, neg_note))
+        print("   An unmeasured false-positive rate is NOT a measured zero. No count below")
+        print("   is trustworthy until the control is reachable again.")
+    else:
+        print("KNOWN-NEGATIVE CONTROL: %d/%d matched (measured false-positive rate %.1f%%)"
+              % (fp_neg, n_neg, 100.0 * fp_neg / n_neg))
+        print("   %s  [%s]" % (KNOWN_NEGATIVE, neg_note))
+        print("   It DECLARES that provenance could not be determined, so it resembles the")
+        print("   defect while being a valid declaration -- the case most likely to be got")
+        print("   wrong. It must never be flagged.")
+
     rc = 0
+    if n_neg == 0 or fp_neg:
+        print()
+        print("REFUSED: the known-negative control did not hold, so this gate is not trusted "
+              "for anything else and NO COUNT IS RELIED ON.")
+        rc = 1
     if gone:
         print()
         print("REFUSED: the baseline names %d row(s) that no longer exist. A baseline that "

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Is the k deficit RETRIEVAL or INGESTION? A decisive, bounded test.
+r"""Is the k deficit RETRIEVAL or INGESTION? A decisive, bounded test.
 
 THE LOGIC, and it needs no ground truth:
   The AACT snapshot is ON LOCAL DISK. If trials that belong in a topic are sitting in that
@@ -7,7 +7,7 @@ THE LOGIC, and it needs no ground truth:
   absence -- there was no search. Retrieval cannot be the bottleneck for a file you already
   have. That makes this a near-impossibility argument of the same kind as the OR<AND result.
 
-Snapshot: F:\\AACT-storage\\AACT\\2026-08-30  (DATA DATE 2026-08-27 -- cite the data date,
+Snapshot: F:\AACT-storage\AACT\2026-08-30  (DATA DATE 2026-08-27 -- cite the data date,
 never the folder date). NO PHASE FILTER: NCT01539226 is registered phase=NA and a phase
 filter silently drops it.
 """
