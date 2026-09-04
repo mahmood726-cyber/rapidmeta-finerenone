@@ -80,6 +80,9 @@ def per_source(db):
     rkey, returned = _first(db, RETURNED_KEYS)
     mkey, rem = _first(db, REMAINDER_KEYS)
     name = str(db.get("database") or db.get("tool") or "<unnamed source>")[:58]
+    if isinstance(rem, str) and rem == "NOT_EXECUTED":
+        return ("NOT_EXECUTED", None,
+                "%s: declared and never searched" % name)
     if isinstance(rem, int):
         if isinstance(total, int) and isinstance(returned, int) and total - returned != rem:
             return ("INCONSISTENT", rem,
@@ -129,27 +132,42 @@ def check(obj):
                  "a search returned and nobody retrieved is not stated anywhere." % len(rows)])
 
     reasons = []
+    # FOUR STATES, because NOT_EXECUTED and NOT_RECORDED are different claims about the world.
+    # A declared source that was never searched has NO remainder -- not zero. Reading it as
+    # zero would let "we never searched PubMed" stand as "PubMed left nothing unexamined".
     silent = [r for r in rows if r[0] == "NOT_ASSESSABLE"]
-    for state, rem, detail in rows:
-        if state == "COMPUTABLE":
+    unexecuted = [r for r in rows if r[0] == "NOT_EXECUTED"]
+    for state_, rem, detail in rows:
+        if state_ == "COMPUTABLE":
             reasons.append("a source does not record its remainder -- %s" % detail)
-        elif state == "INCONSISTENT":
+        elif state_ == "INCONSISTENT":
             reasons.append("a source contradicts itself -- %s" % detail)
 
     state = block.get("state")
     total = block.get("total")
+    summed = sum(r[1] for r in rows if isinstance(r[1], int))
     if silent:
         if state != "NOT_PROVABLE":
             reasons.append(
-                "%d source(s) do not state how many records they returned, so no total is "
+                "%d source(s) ran and do not state what they returned, so no total is "
                 "provable, yet the block claims state=%r. A SUM OVER A SILENT FIELD IS NOT A "
                 "SMALLER SUM -- IT IS NOT A SUM." % (len(silent), state))
         if isinstance(total, int):
             reasons.append(
                 "a numeric total (%d) is published while %d source(s) are NOT_RECORDED. An "
                 "absence must not become a proven zero." % (total, len(silent)))
+    elif unexecuted:
+        if state != "PROVED_FOR_EXECUTED_SOURCES":
+            reasons.append(
+                "%d declared source(s) were never executed, so a bare PROVED overstates the "
+                "cover, yet the block claims state=%r" % (len(unexecuted), state))
+        if not block.get("sources_not_executed"):
+            reasons.append("declared sources were never executed and none is NAMED in "
+                           "sources_not_executed")
+        if isinstance(total, int) and total != summed:
+            reasons.append("the published total is %d but the executed sources sum to %d"
+                           % (total, summed))
     else:
-        summed = sum(r[1] for r in rows if r[1] is not None)
         if state != "PROVED":
             reasons.append("every source states its remainder, so the total is provable, yet "
                            "the block claims state=%r" % state)

@@ -13679,8 +13679,8 @@
     "executed_utc": "2026-08-12T12:22:39.556Z (response 12:22:40.277Z)",
     "hit_count": "331 — read from esearchresult.count, not counted or computed",
     "records_retrieved": "331 of 331 (idlist length 331 at retmax=1000)",
-    "records_not_retrieved": "NOT_RECORDED",
-    "records_not_retrieved_basis": "NOT_RECORDED. This source records a search that RAN and does not state how many records it returned, so the remainder cannot be derived. A zero here would be an invention: an absence is not a proven zero."
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: hit_count (331) minus records_retrieved (331). Both are this object's own recorded numbers, read as the leading integer of '331 — read from esearchresult.count, not cou' and '331 of 331 (idlist length 331 at retmax=1000'."
    },
    {
     "database": "ClinicalTrials.gov API v2",
@@ -13691,21 +13691,23 @@
     "executed_utc": "2026-08-12T12:26:16.427Z (response 12:26:16.604Z)",
     "hit_count": "92 — read from totalCount, not counted or computed",
     "records_retrieved": "92 of 92, via nextPageToken pagination",
-    "records_not_retrieved": "NOT_RECORDED",
-    "records_not_retrieved_basis": "NOT_RECORDED. This source records a search that RAN and does not state how many records it returned, so the remainder cannot be derived. A zero here would be an invention: an absence is not a proven zero."
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: hit_count (92) minus records_retrieved (92). Both are this object's own recorded numbers, read as the leading integer of '92 — read from totalCount, not counted or co' and '92 of 92, via nextPageToken pagination'."
    }
   ],
   "reproducibility_note": "Every string above is the string as EXECUTED, copied from the capture rather than from the protocol, so a reader can re-run it. Hit counts are the values the APIs returned (esearchresult.count and totalCount) and were not counted or computed here. Where the two differ from the registered strings, that would be recorded as a departure rather than silently reconciled.",
   "retrieval_remainder": {
-   "state": "NOT_PROVABLE",
-   "total": "NOT_RECORDED",
+   "state": "PROVED",
+   "total": 0,
    "by_source": {
-    "PubMed (NCBI E-utilities esearch)": "NOT_RECORDED",
-    "ClinicalTrials.gov API v2": "NOT_RECORDED"
+    "PubMed (NCBI E-utilities esearch)": 0,
+    "ClinicalTrials.gov API v2": 0
    },
+   "sources_not_executed": [],
    "_scope": "Records a SEARCH returned and this object never retrieved. It is NOT the screening remainder: k_cascade.k_unscreened_remainder counts candidates that ENTERED the cascade and went unscreened, and both are published because they answer different questions.",
    "_not": "This is not a completeness claim. It says how many records were returned and not retrieved -- nothing about whether the query was well aimed, nor whether the retrieved records were the right ones.",
-   "_why_not_provable": "At least one source does not state how many records it returned. A sum containing an unknown is unknown, so no total is published."
+   "_why_not_provable": null,
+   "_executed_only": null
   }
  },
  "registration": {
