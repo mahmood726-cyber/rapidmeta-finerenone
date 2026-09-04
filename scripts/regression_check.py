@@ -20,6 +20,7 @@ import io
 import json
 import os
 import subprocess
+import tempfile
 import sys
 from pathlib import Path
 
@@ -607,12 +608,32 @@ for _marker, _sig in (("arni_hf_protocol", "wrong_protocol_link"),):
         print("    otherwise. Either the marker is stale or the check is.")
 
 # Save raw
-# PER-PROCESS, BECAUSE /tmp IS SHARED. On this machine `/tmp` resolves to F:/claude-temp,
-# which every agent lane writes into -- 31,531 loose files. This hook runs on EVERY push
-# from EVERY lane, so a fixed name means two concurrent pushes overwrite each other's
-# results and whoever opens the file afterwards reads the wrong run. Nothing reads it back,
-# so no verdict was ever wrong; a human comparing runs would simply have been misled.
-_raw = Path("/tmp/regression_results_%d.json" % os.getpid())
+# PER-PROCESS, BECAUSE THE TEMP DIRECTORY IS SHARED. Every agent lane writes into it --
+# 31,531 loose files. This hook runs on EVERY push from EVERY lane, so a fixed name means
+# two concurrent pushes overwrite each other's results and whoever opens the file afterwards
+# reads the wrong run. Nothing reads it back, so no verdict was ever wrong; a human
+# comparing runs would simply have been misled.
+#
+# `Path("/tmp/...")` WAS DRIVE-RELATIVE, AND IT TOOK THE WHOLE GATE DOWN WITH IT.
+#
+# On Windows a leading-slash path has no drive, so it resolves against the CURRENT one. The
+# comment here used to assert that "/tmp resolves to F:/claude-temp", which is true of the
+# shell and false of Python: from a clone on E: it is E:	mp, which does not exist, and the
+# write raised FileNotFoundError. C:	mp and F:	mp both happen to exist, so every clone on
+# those drives wrote successfully and the defect stayed invisible.
+#
+#     THE CRASH LANDED ABOVE THE GATE'S OWN VERDICT AND ABOVE ITS OWN SELF-TEST.
+#
+# The script exits non-zero on an uncaught exception, so the hook reported "Regression check
+# FAILED (exit 1)" -- indistinguishable, from the hook's side, from a real regression. The
+# findings had all been computed and printed (0/5 on every blocking signal); the exit logic
+# below never ran, and neither did `__control_planted_defect__`, the control that exists to
+# prove this gate can block. A DIAGNOSTIC WRITE KILLED THE VERDICT AND THE PROOF OF THE
+# VERDICT, and the failure it produced was one nobody could act on.
+#
+# tempfile.gettempdir() returns what the old comment claimed: it honours TMP/TEMP and is
+# drive-absolute on every platform.
+_raw = Path(tempfile.gettempdir()) / ("regression_results_%d.json" % os.getpid())
 _raw.write_text(json.dumps({k: v for k, v in signals.items()}, default=str), encoding='utf-8')
 print()
 print("Raw JSON saved to %s" % _raw)
