@@ -68,6 +68,42 @@ K_STRUCT_RE = re.compile(r"estimator\s+[A-Za-z\-]+,\s*k\s*=\s*(\d+)")
 K_BARE_RE = re.compile(r"\bk\s*=\s*(\d+)")
 
 
+BACKLOG = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                       "gates", "CONTRIBUTING_ROWS_BACKLOG.json")
+
+# KNOWN_NEGATIVE -- a page this gate must NEVER flag, with the rate MEASURED not asserted.
+#
+# WHY THIS PAGE AND NOT ANOTHER. It is not chosen because it passes; it is chosen because it
+# is the condition the gate must never flag: a page whose Contributing-trials table is
+# COMPLETE. APIXABAN_AF_AUTO_FULL_REVIEW declares k=4 and renders 4 rows -- and it renders
+# them from `inputs.trials[*].by_outcome` while its `results...per_trial` is EMPTY, which is
+# the MIRROR of the defect this gate hunts. So it exercises the one path most likely to
+# produce a false positive: a correct table whose rows did not come from the container the
+# gate consults. A negative control drawn from the easy majority would prove much less.
+#
+# WHY IT IS DECLARED RATHER THAN LEFT TO --selftest. The selftest has a `complete` case that
+# must not fire, and that is NOT the same thing: a synthetic document proves the comparison,
+# a corpus page proves the TRAVERSAL, the object resolution and the k-pairing on real bytes.
+# gate2 exists to enforce exactly that distinction, and `# no-control:` was declined here
+# because this gate genuinely matches document text -- the marker would be the exemption we
+# refuse on other lanes' instruments.
+KNOWN_NEGATIVE = "APIXABAN_AF_AUTO_FULL_REVIEW.html"
+
+
+def known_negative(root):
+    """Run the gate's own assessment over the known-negative. Returns (n, false_positives).
+
+    A DETECTOR THAT HAS ONLY EVER SAID ONE THING HAS NOT BEEN SHOWN TO DISCRIMINATE.
+    If the page cannot be reached the rate is UNMEASURED, and that is reported as such --
+    never as zero, because an unmeasured rate and a measured zero are different claims.
+    """
+    path = os.path.join(root, KNOWN_NEGATIVE)
+    if not os.path.exists(path):
+        return None, None
+    verdict, _ = assess(path)
+    return 1, (1 if verdict == "VIOLATION" else 0)
+
+
 def tables_with_k(html):
     """[(rows, k, how)] -- each table paired with the k declared in ITS window."""
     out = []
@@ -216,8 +252,23 @@ def main(argv):
         kinds[verdict].append(name)
         detail[name] = info
 
+    n_neg, fp = known_negative(root)
     assessable = len(kinds["OK"]) + len(kinds["VIOLATION"])
     print("GATE  contributing-table rows == k")
+    if n_neg is None:
+        print("  known-negative control : UNMEASURED -- %s was not reachable. An unmeasured"
+              % KNOWN_NEGATIVE)
+        print("                           false-positive rate is NOT a measured zero.")
+    else:
+        print("  known-negative control : %d/%d matched (measured false-positive rate %.1f%%)"
+              % (fp, n_neg, 100.0 * fp / n_neg))
+        print("                           %s -- a COMPLETE contributing table, rendered from"
+              % KNOWN_NEGATIVE)
+        print("                           by_outcome while per_trial is empty: the mirror of")
+        print("                           the defect this gate hunts, so the likeliest false")
+        print("                           positive. It must never be flagged.")
+        if fp:
+            print("  CONTROL FAILED: the gate accused a clean page. No count below is trusted.")
     print("  population    : %d *.html at the repo root" % len(files))
     for key in ("NO_TABLE", "NOT_ASSESSABLE", "NO_OBJECT", "OBJECT_UNREADABLE",
                 "POOL_DECLARED_NO_PER_TRIAL", "OK", "VIOLATION"):
@@ -238,17 +289,55 @@ def main(argv):
             for rows, k, _ in detail[name]:
                 print("      %-50s k=%-3d rows=%d" % (name, k, rows))
     print()
+    # RATCHET. A GREEN HERE MEANS NO NEW INSTANCES, NOT A CLEAN CORPUS.
+    # Five pages violate deliberately and each is held for a stated reason in
+    # gates/CONTRIBUTING_ROWS_BACKLOG.json (external-review pre-registrations, a page
+    # that renders correctly but cannot be SHOWN to, a two-surface drift that a rebuild
+    # would COMPLETE rather than fix, and a page whose rebuild would make a known-wrong
+    # headline more persuasive). Wiring this gate red would block every other lane over
+    # decisions already taken, so the held set is frozen and only NEW instances fail --
+    # the same shape gate8 and gate16 use. THE FROZEN KEYS ARE PRINTED EVERY RUN: a
+    # backlog that stops being read is a defect nobody is looking at.
+    frozen, why = set(), {}
+    if os.path.exists(BACKLOG):
+        with open(BACKLOG, encoding="utf-8") as fh:
+            _b = json.load(fh)
+        frozen = set(_b.get("keys") or [])
+        why = _b.get("why_each_is_held") or {}
+    live = set()
+    for name in kinds["VIOLATION"]:
+        for rows, k, how in detail[name]:
+            live.add("%s:k=%d" % (name, k))
+    new, retired = sorted(live - frozen), sorted(frozen - live)
+
     if kinds["VIOLATION"]:
-        print("  VIOLATIONS: %d of %d assessable" % (len(kinds["VIOLATION"]), assessable))
+        print("  VIOLATIONS: %d of %d assessable  (%d frozen, %d NEW)"
+              % (len(kinds["VIOLATION"]), assessable, len(live & frozen), len(new)))
         for name in kinds["VIOLATION"]:
             for rows, k, how in detail[name]:
-                print("      %-50s k=%-3d rows=%-3d missing=%-3d [%s]"
-                      % (name, k, rows, k - rows, how))
+                key = "%s:k=%d" % (name, k)
+                print("      %-50s k=%-3d rows=%-3d missing=%-3d [%s] %s"
+                      % (name, k, rows, k - rows, how,
+                         "FROZEN" if key in frozen else "*** NEW ***"))
         print()
         print("  A reader of these pages can see WHICH trials contributed but not")
         print("  WHAT EACH CONTRIBUTED, so the pool is not checkable from the page.")
+    for key in retired:
+        print("  RETIRED (remove from the backlog): %s no longer violates." % key)
+    if new:
+        print()
+        print("  FINDINGS: %d NEW instance(s) not in the frozen backlog." % len(new))
+        for key in new:
+            print("      %s" % key)
         return 1
-    print("  VIOLATIONS: 0 of %d assessable." % assessable)
+    if frozen:
+        print("  ratchet: %d frozen, %d now, %d retired, 0 NEW. A PASS MEANS NO NEW"
+              % (len(frozen), len(live & frozen), len(retired)))
+        print("           INSTANCES, NOT A CLEAN CORPUS -- every frozen key below is a")
+        print("           live defect a reader can still meet on the page:")
+        for key in sorted(frozen):
+            page = key.split(":")[0]
+            print("      %-50s %s" % (key, (why.get(page, "") or "")[:70]))
     return 0
 
 

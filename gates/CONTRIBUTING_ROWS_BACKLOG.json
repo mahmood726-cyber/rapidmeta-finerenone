@@ -1,0 +1,24 @@
+{
+ "frozen_utc": "2026-09-04",
+ "what": "Pages whose rendered Contributing-trials table has fewer rows than the k its own headline states. The projector builds that table from inputs.trials[*].by_outcome while the pool is computed from results.by_outcome[oid].per_trial, so any write that added a trial to per_trial or incremented k without writing inputs.trials silently truncated the table. Fixed at source in build_app_v2.py on 2026-09-04; these are the pages NOT yet rebuilt, each held for a stated reason rather than left unexamined.",
+ "how_measured": "scripts/gate_contributing_rows_equal_k.py, run against the delivered bytes. 10 of 94 assessable pages violated before the repair; 5 were rebuilt and delivered, and these 5 remain.",
+ "a_pass_means": "NO NEW INSTANCES, not a clean corpus. Every key below is a live defect a reader can still meet on the page. Removing a key requires the page to stop violating, not a decision to stop counting it.",
+ "count": 6,
+ "keys": [
+  "AGYW_HIV_PREP_REVIEW.html:k=2",
+  "NIRSEVIMAB_INFANT_RSV_REVIEW.html:k=2",
+  "FCM_HF_REVIEW.html:k=2",
+  "ALIROCUMAB_LIPID_SSOT.html:k=8",
+  "SGLT2_HF_REVIEW.html:k=3",
+  "SGLT2_HF_REVIEW.html:k=2"
+ ],
+ "why_each_is_held": {
+  "AGYW_HIV_PREP_REVIEW.html": "*** THREE ROLES, ONE ARTEFACT. DO NOT REPAIR THIS PAGE WITHOUT READING ALL THREE. ***  (1) HELD DEFECT: its Contributing-trials table renders 0 rows against a declared k=2. (2) EXTERNAL REVIEW TARGET: a pre-registration is written against its CURRENTLY SERVED BYTES, so rebuilding makes the reviewer audit something nobody predicted about -- and it already carries TWO machine-known defects (this one, plus gate14's 7 unanchored-authority findings), which therefore score ZERO if a reviewer reports them. (3) gate16's LIVE KNOWN-NEGATIVE CONTROL: gate16 measures its false-positive rate by asserting this page is NOT flagged. Repairing it would disarm gate16 FROM THE OTHER DIRECTION -- exactly what happened on 2026-09-04 when repairing ALIROCUMAB removed gate16's last live POSITIVE case and the gate went BROKEN and refused to print a count. *** ORDERING CONSTRAINT: PIN gate16's NEGATIVE CONTROL BEFORE ANYONE REPAIRS THIS PAGE. A MUST-NOT-FIRE CASE IS AS PERISHABLE AS A MUST-FIRE ONE, AND THE ONLY TIME TO CAPTURE IT IS WHILE THE PAGE STILL SATISFIES IT. *** The pinned-fixture pattern already exists: see gates/GATE16_C1_PINNED.html and the block that consumes it in gate16_reader_can_check.py.",
+  "NIRSEVIMAB_INFANT_RSV_REVIEW.html": "Queued for external review; same pre-registration reason as AGYW.",
+  "FCM_HF_REVIEW.html": "The rebuild renders correctly ([4,0] -> [4,2], matching the object's k=4/per_trial=4 and k=2/per_trial=2) but the page declares no `estimator ..., k = N` string, so the check cannot confirm it FROM THE PAGE. A page that renders correctly but cannot be SHOWN to is not ready.",
+  "ALIROCUMAB_LIPID_SSOT.html": "The builder emits byte-identical output for both alirocumab surfaces while the delivered pages differ by 106,947 bytes, SSOT carrying 14 sections the rebuild would remove and losing absent-state and 'not assessable'. REBUILDING WOULD NOT FIX THAT DRIFT, IT WOULD COMPLETE IT -- overwriting a distinct delivered surface with a copy of the other page. This is the SOTAGLIFLOZIN condition live; that tombstone's remedy was byte-identity proven, a merge under a refusal condition, an archive and a marker at the retired URL. A publication decision, not a repair.",
+  "SGLT2_HF_REVIEW.html": "The only page whose rebuild SHRINKS (-2,497 B) and removes a section -- the opposite profile from the five delivered, which each gained ~33 KB and removed nothing. Its contributing tables would be fixed ([4,0,0] -> [4,3,2]) while its k=3 headline stays at 0.7636, an estimate established as too favourable in the flattering direction and whose withdrawal is blocked on DELIVER's unsourced harmonised input. A page that gains an audit trail and a recompute envelope while keeping a headline we know is wrong is a WORSE artefact than the one it replaces, because it is more persuasive."
+ },
+ "count_note": "6 keys over 5 PAGES -- SGLT2_HF_REVIEW violates on two outcomes (k=3 and k=2) and each is its own key, because a page fixed on one outcome and not the other must not read as fixed. The first draft of this file said 5, counting pages while keying on outcomes.",
+ "sweep_lead": "The corpus-anchored-control sweep should NOT look only for controls naming a corpus file. The AGYW case shows the real question is wider: FIND ARTEFACTS REFERENCED BY MORE THAN ONE INSTRUMENT. An artefact counted once while serving three purposes is the objects-vs-pages denominator problem in another form, and repairing it satisfies one instrument while silently breaking the others."
+}
