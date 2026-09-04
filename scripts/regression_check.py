@@ -20,7 +20,6 @@ import io
 import json
 import os
 import subprocess
-import tempfile
 import sys
 from pathlib import Path
 
@@ -608,40 +607,44 @@ for _marker, _sig in (("arni_hf_protocol", "wrong_protocol_link"),):
         print("    otherwise. Either the marker is stale or the check is.")
 
 # Save raw
-# PER-PROCESS, BECAUSE THE TEMP DIRECTORY IS SHARED. Every agent lane writes into it --
-# 31,531 loose files. This hook runs on EVERY push from EVERY lane, so a fixed name means
-# two concurrent pushes overwrite each other's results and whoever opens the file afterwards
-# reads the wrong run. Nothing reads it back, so no verdict was ever wrong; a human
-# comparing runs would simply have been misled.
+# WRITTEN INSIDE THE REPOSITORY, NOT THE SHARED SCRATCH ROOT.
 #
-# A LEADING-SLASH TEMP PATH WAS DRIVE-RELATIVE, AND IT TOOK THE WHOLE GATE DOWN WITH IT.
+# This diagnostic used to be written to a leading-slash temp path, which on Windows has no
+# drive and so resolves against the CURRENT one. From a clone on a drive with no top-level
+# temp directory the write raised FileNotFoundError -- ABOVE this gate's verdict and above
+# its own planted control -- so the hook printed "Regression check FAILED (exit 1)" for a
+# run in which every blocking signal had already come back zero. A DIAGNOSTIC WRITE
+# DESTROYED THE VERDICT AND THE PROOF OF THE VERDICT.
 #
-# (The offending literal is deliberately NOT quoted in full anywhere in this file.
-#  scripts\lint_shared_scratch_path_2026_08_24.py scans SOURCE TEXT and cannot tell a
-#  comment from code, so the first draft of this paragraph -- which quoted the path
-#  it was explaining -- was itself reported as a new shared-scratch path and failed
-#  gate 9. THE PROSE DESCRIBING A DEFECT WAS ACCUSED OF COMMITTING IT. The lint is
-#  another lane's and gate 9 wraps it deliberately rather than editing it, so the
-#  accommodation is made here, in the file that introduced the string.)
+# THE FIRST REPAIR WAS WORSE THAN THE DEFECT, AND IS THE REASON THIS COMMENT IS LONG.
 #
-# On Windows a leading-slash path has no drive, so it resolves against the CURRENT one. The
-# comment here used to assert that "/tmp resolves to F:/claude-temp", which is true of the
-# shell and false of Python: from a clone on E: it is E:\tmp, which does not exist, and
-# the write raised FileNotFoundError. C:\tmp and F:\tmp both exist, so every clone on
-# those drives wrote successfully and the defect stayed invisible.
+# Replacing the literal with tempfile.gettempdir() fixed the crash and ALSO removed this
+# site from gate 9's view, because that lint matches SOURCE TEXT for the literal and cannot
+# see a path assembled at runtime. The ratchet then reported the frozen entry RETIRED. The
+# behaviour had not changed at all: the same generic name still went into the same shared
+# root, where every lane writes and any of them can collide with it.
 #
-#     THE CRASH LANDED ABOVE THE GATE'S OWN VERDICT AND ABOVE ITS OWN SELF-TEST.
+#     A GREEN OBTAINED BY LEAVING A DETECTOR'S FIELD OF VIEW IS WORSE THAN THE RED IT
+#     REPLACED. THE RED WAS INFORMATION; THE GREEN IS NOT.
 #
-# The script exits non-zero on an uncaught exception, so the hook reported "Regression check
-# FAILED (exit 1)" -- indistinguishable, from the hook's side, from a real regression. The
-# findings had all been computed and printed (0/5 on every blocking signal); the exit logic
-# below never ran, and neither did `__control_planted_defect__`, the control that exists to
-# prove this gate can block. A DIAGNOSTIC WRITE KILLED THE VERDICT AND THE PROOF OF THE
-# VERDICT, and the failure it produced was one nobody could act on.
+# That is the same class of defect as three others fixed in this repository on the same
+# day -- a check matching on surface form, satisfied by changing the form while the
+# property is untouched -- except committed by the lane clearing the gates rather than
+# found in someone else's code.
 #
-# tempfile.gettempdir() returns what the old comment claimed: it honours TMP/TEMP and is
-# drive-absolute on every platform.
-_raw = Path(tempfile.gettempdir()) / ("regression_results_%d.json" % os.getpid())
+# So the property is fixed instead of the spelling. The file goes under this repository's
+# own outputs/ directory, beside settle_profile.json which is written the same way a few
+# lines below. That root is per-clone, so two lanes cannot collide; the pid suffix keeps
+# two concurrent pushes from ONE clone apart; and the artefact survives the run, which a
+# torn-down temporary directory would not -- it exists to be read by a human comparing
+# runs, and nothing reads it back programmatically.
+#
+# KNOWN, AND FOR GATE 9'S OWNER: that lint pattern-matches literal leading-slash temp
+# strings and CANNOT SEE A PATH ASSEMBLED AT RUNTIME FROM A VARIABLE. gate 9's own COVERAGE
+# line already declares that blind spot; this is a report from inside it. Any script can
+# leave the lint's view, with no intent, by the ordinary act of using tempfile.
+(ROOT / "outputs").mkdir(exist_ok=True)
+_raw = ROOT / "outputs" / ("regression_results_%d.json" % os.getpid())
 _raw.write_text(json.dumps({k: v for k, v in signals.items()}, default=str), encoding='utf-8')
 print()
 print("Raw JSON saved to %s" % _raw)

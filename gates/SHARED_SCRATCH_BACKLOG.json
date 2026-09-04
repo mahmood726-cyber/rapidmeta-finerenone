@@ -2,7 +2,7 @@
  "frozen_utc": "2026-08-28",
  "what": "scripts using a generic name in the shared scratch root, which another lane could independently choose and overwrite.",
  "escalated_to": "out/ESCALATIONS.jsonl",
- "count": 67,
+ "count": 66,
  "keys": [
   "scripts/add_r_output.py:6 -> arni\\r_out.json",
   "scripts/build_vintage_arm_2026_08_27.py:31 -> wt\\genstore",
@@ -68,7 +68,6 @@
   "scripts/lint_destructive_without_asserted_backup.py:140 -> x.bak",
   "scripts/panel_round2_2026_08_25.py:24 -> msg.txt",
   "scripts/pilot_pmc_fetch.py:91 -> _pilot_pmids.txt",
-  "scripts/regression_check.py:615 -> regression_results_%d.json",
   "scripts/search_recall_gate.py:74 -> searchrun",
   "scripts/subject_match_gate.py:132 -> tabbuild\\SOTA_v3.html"
  ],
@@ -305,13 +304,15 @@
   }
  ],
  "retired_2026_08_30": "scripts/lane_rob/regeneration_test.py:103 -> pend\\out is RETIRED, not re-baselined. The test no longer writes to the shared scratch root at all: its output now goes to <worktree>/out/regen, which is unique per lane BY CONSTRUCTION because each lane has its own git worktree, and needs no coordination between lanes. ⚠️ A first attempt kept the shared root and appended the lane name at RUNTIME; gate 9 refused that too, correctly -- it reads the literal, and its own coverage note says a path assembled at runtime from a variable is uncounted, so that fix would have made the collision invisible to the lint rather than impossible.",
- "annotations": {
-  "scripts/regression_check.py:615 -> regression_results_%d.json": {
+ "resolved": [
+  {
    "utc": "2026-09-04",
-   "state": "STILL PRESENT. NOW INVISIBLE TO THE LINT. NOT FIXED.",
-   "what_happened": "The line was changed from a literal leading-slash path to tempfile.gettempdir(), because the literal was drive-relative and crashed the pre-push regression gate on any clone whose drive has no top-level tmp directory. The lint matches SOURCE TEXT for that literal, so it can no longer see this site and reports it RETIRED.",
-   "why_the_key_stays": "THE BEHAVIOUR IS UNCHANGED: this script still writes regression_results_<pid>.json into the SHARED scratch root, which is exactly what the lint exists to find. Only the detector's view changed. Deleting this key because the lint went quiet would convert a detector blind spot into a clean record -- a defect retired by becoming unobservable. gate9's own COVERAGE note already names this class: 'uncounted, and named here rather than hidden -- any path assembled at runtime from a variable'. This entry is now one of those.",
-   "owed": "write to the per-session scratch directory instead of the shared root."
+   "key": "scripts/regression_check.py:615 -> regression_results_%d.json",
+   "state": "FIXED. THE WRITE NO LONGER TOUCHES THE SHARED ROOT.",
+   "evidence": "scripts/regression_check.py now writes ROOT/outputs/regression_results_<pid>.json -- inside the repository, beside settle_profile.json which the same file already wrote that way. The root is per-clone so two lanes cannot collide, and the pid keeps two concurrent pushes from one clone apart.",
+   "what_this_entry_nearly_became": "AN HOUR EARLIER THIS KEY WAS RETIRED FOR THE WRONG REASON AND I ALMOST SHIPPED IT. The literal path had been replaced with a runtime-assembled one, which fixed a crash and ALSO took the site out of the lint's view -- it matches source text -- while the same generic name still went to the same shared root. The ratchet reported RETIRED and the trunk went green. A GREEN OBTAINED BY LEAVING A DETECTOR'S FIELD OF VIEW IS WORSE THAN THE RED IT REPLACED: the red was information and the green is not. Recorded here because the retirement notice looks identical in both cases, and only the evidence line tells them apart.",
+   "detection_proven": "A shared-scratch write was planted in scripts/ and gate9 reported 1 NEW and FAILED; with the plant removed it reports 0 NEW and PASSES. The gate still sees the class this entry belonged to.",
+   "for_gate9s_owner": "The lint pattern-matches literal leading-slash temp strings and cannot see a path assembled at runtime from a variable. gate9's COVERAGE line already declares that blind spot; this is a report from inside it. Any script can leave the lint's view with no intent, by the ordinary act of using tempfile."
   }
- }
+ ]
 }
