@@ -206,6 +206,89 @@ carries the argument. And when you meet somebody else's guard, treat its refusal
 finding rather than the obstacle: a gate that refuses is telling you something that a gate
 that passes never can.
 
+## A scoped pass names its scope
+
+Measured 2026-09-04, one run of `gates/run_all.py --fast`:
+
+    14 PASS, 2 FAIL, 5 SKIPPED
+
+and then, in the suite's own words:
+
+    SKIPPED (--fast): gate2_textmatch_control, gate5_absence_defined_set,
+                      gate6_nct_beside_name, gate13_nonraw_regex_escape,
+                      gate14_unanchored_authority
+    A scoped pass names its scope. These gates read all delivered pages and were
+    NOT run; this run says nothing about what they check.
+
+That is the standard. Three of the five that did not run are the three separately
+measured as mostly false-positive (`gate2` 58% false, `gate14` 100% false) -- so the run
+says nothing about them **in either direction**, and a green that did not name its skips
+would have been read as saying they were fine.
+
+Compare, from the same evening: six of seven diff-scoped pre-push gates printed
+`clean over what this push changes` while the diff contained nothing they could examine.
+Same word, opposite meaning, no way to tell from the output. **Every gate should report
+its coverage as a fraction of the population it polices, and name what it could not
+judge.** `denominator_axis_gate` does it in one block -- `3 PASS, 1 FAIL, 7 could not be
+judged` out of 11, plus `BLIND TO 16 number(s) ... A zero here reads NOT OBSERVED, not
+SAFE` -- and it was the gate that found a real error in a published Abstract the first
+time it was ever allowed to look.
+
+## A probe that can only report absence is the same defect as a gate that can only report clean
+
+Four probe failures in one evening, by one author, while specifically watching for this:
+
+| probe | wrote | corpus writes | reported |
+|---|---|---|---|
+| searching for a flagged number | `9734` | `9,734` | not found |
+| censusing pages for a shell | `data-tab` | `class="panel"` | 168 of 168 "missing" |
+| verifying an edit reached a page | `REPRODUCES FROM NEITHER` | sentence case | not found |
+| finding topic ids in a module | `"topic-id"` quoted | bare in prose | 0 of 2 |
+
+**Every one reported absence. Absence was the flattering answer every time** -- the number
+isn't there, the corpus is uniformly broken so my change is not special, my edit did not
+land, the file names no topics so there is nothing to verify. Three of the four were
+caught only because a gate disagreed with the probe.
+
+A probe is an instrument. It needs what every instrument here needs: **a case that MUST
+fire.** Before trusting a search that returned nothing, run it against a string you know
+is present. A separator, a case fold, a quoting convention and a wrong marker are all the
+same failure -- a pattern that excludes the one form the corpus actually uses, failing
+toward the comfortable conclusion.
+
+## When a gate names the false positive it is emitting, believe it
+
+`gate8` refused a push for a script that had just been given a baseline, a ratchet, two
+synthetic controls and a real caller -- because arm A greps a fixed `CALLER_SOURCES` list
+and cannot see manifest-based wiring through `gates/WIRED_REPO_CHECKS.json`. Its own
+header says so, before the finding:
+
+    ARM A READS THIS LIST ... a module run by any workflow other than
+    executable-rule-gates.yml is invisible to arm A, which then accuses it of having no
+    caller ... Adding a caller SURFACE does not change what counts as a violation; it
+    stops one being manufactured.
+
+**A gate that can describe the false positive it emits, and cannot avoid emitting it, is
+telling you its REACH is wrong -- not that the code is.** That is a different thing from a
+defect, and reading it as a defect is how a lane ends up editing a gate to satisfy a check
+the gate itself says is misfiring. It is also, awkwardly, indistinguishable from a real
+finding at the point of refusal: both arrive as a red gate naming your file.
+
+For the next ratchet: **make the caller list configurable at the point where it is most
+likely to be wrong**, and have the gate say which surfaces it consulted, so a reader can
+see whether the one that runs the script was among them.
+
+## The one sentence
+
+**An instrument that cannot contradict you isn't measuring anything.**
+
+That is the whole of it. The gates that found things were the ones that could say what
+they had NOT looked at -- coverage as a fraction, skips by name, `NOT_OBSERVED` distinct
+from `SAFE`, `NOT_RUN` distinct from `PASS`. The probes that failed were the ones that
+could only report absence. A baseline must state its reasons for the same reason: an entry
+that says only "known" cannot argue with the person reading it, and a register that cannot
+argue is a suppression with better manners.
+
 ## Checklist
 
 - [ ] Names what is lost, with a quantity
