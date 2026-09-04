@@ -3646,8 +3646,13 @@
   "built_by": "ssot/build_to_standard.py",
   "properties": {
    "P1_executed_search": {
-    "state": "HELD",
-    "reason": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
+    "state": "REFUSING",
+    "reason": "2 database queries were executed ('ClinicalTrials.gov API v2 -- QUERY 1, NARROW (condition + drug)', 'ClinicalTrials.gov API v2 -- QUERY 2, BROAD (intervention only)'), but the object declares NO SEARCH STRATEGY. Registry lookups are not a systematic search, and this page's own readiness banner already says so. What was run is recorded; what is refused is the claim that it constitutes an executed search.",
+    "superseded_2026_09_04": {
+     "state": "HELD",
+     "reason": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted.",
+     "why": "Stored 2026-08-19 by ssot/build_to_standard.py and never refreshed. P1 later gained a search.strategy arm: an object declaring no search strategy can no longer certify an executed search. This object's search.strategy is null and its two databases are ClinicalTrials.gov registry lookups. Corrected BY HAND, not by re-running build_to_standard -- that builder ABORTS on this object because its k_cascade merge would remove k_cascade.remainder_dispositions.the_two_that_matter_superseded_2026_08_20."
+    }
    },
    "P2_k_cascade": {
     "state": "HELD",
@@ -3705,7 +3710,6 @@
   "held": [
    "P18_restatement_is_reproducible",
    "P19_promotion_reaches_derived_blocks",
-   "P1_executed_search",
    "P20_cascade_reconciles",
    "P22_sharing_recorded",
    "P23_recall_measured",
@@ -3718,9 +3722,11 @@
    "P8_registration_identity"
   ],
   "refusing": [
+   "P1_executed_search",
    "P21_ambiguous_question_split"
   ],
-  "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
+  "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant.",
+  "properties_hand_corrected_2026_09_04": "P1_executed_search only. built_utc stays 2026-08-19 because the REST of this stamp is still that build's output; only one verdict was recomputed. A stamp date that moved would claim the whole block was refreshed when 12 of its 13 verdicts were not."
  },
  "recovery_2026_08_19": {
   "recovered_utc": "2026-08-19",
