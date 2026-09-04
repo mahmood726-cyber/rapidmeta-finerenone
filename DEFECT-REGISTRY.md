@@ -5389,3 +5389,25 @@ Corrected in place, with the superseded sentence quoted rather than deleted.
 **Rejected by:** `scripts/gate_remainder_is_per_source_2026_09_04.py` distinguishes the four
 categories, so the mistake is now one command away from being caught. It was one command away
 before, too, and the command was not run before the recommendation was made.
+
+### LEAD — NAME THE TWO PATHS, BECAUSE NEITHER 99a NOR 99g SURVIVES IT
+
+99a and 99g are the same absence seen from two ends: *a fix measured on the wrong population*
+and *a brief written from the wrong one*. Both were invisible because **the two build paths
+have never been named anywhere**, so nothing prompted anyone to ask which one a number came
+from. The cheapest preventive fix available is therefore a documentation one, and it is done:
+`BUILD-PATHS.md`.
+
+> **Before quoting a number about "the corpus", say which path it was measured on. If you
+> cannot, you do not yet have the number.**
+
+**And naming them exposed a third population nobody has counted.** `PAGE_MAP` holds 163
+entries over 152 objects; `outputs/new_topics/` holds 66 tracked records; the delivered corpus
+is ~1,427 `*_REVIEW*.html` pages. **The remainder belongs to neither path and has never been
+enumerated** — `VENETOCLAX_CLL_REVIEW.html` is one instance, absent from `PAGE_MAP` with an
+`*_AUTO` sibling that is a different topic. Any statement of the form "the corpus has N pages"
+is a reach figure until that third population is counted.
+
+**Rejected by:** nothing yet. `BUILD-PATHS.md` is prose, and prose did not hold the
+`git add -A` rule either. The mechanical form would be a check that refuses a committed
+document asserting a corpus-wide count without naming its path.
