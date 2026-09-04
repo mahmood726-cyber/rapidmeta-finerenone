@@ -46,7 +46,7 @@ CALLER_SOURCES = (".githooks/pre-push", ".github/workflows/executable-rule-gates
                   # three correctly-wired instruments of having no caller. That is
                   # the manufactured violation the note below already describes.
                   # Reach only: nothing about what counts as a violation changed.
-                  "gates/WIRED_REPO_CHECKS.json")
+                  )
 # ⚠️ ARM A READS THIS LIST; ARM B READS EVERY FILE IN .github/workflows/. That is an
 # inconsistency inside one gate rather than a policy: a module run by any workflow other
 # than executable-rule-gates.yml is invisible to arm A, which then accuses it of having no
@@ -148,6 +148,29 @@ def run_shape_control(gate):
                     % (len(wrong), len(SHAPE_PROBES), "; ".join(wrong)))
 
 
+def _manifest_executed_names(repo):
+    """Only what gates/run_repo_checks.py ACTUALLY EXECUTES: the `pre_push` list.
+
+    READING THE WHOLE MANIFEST AS TEXT IS WRONG, AND WAS TRIED FIRST (2026-09-04). The
+    file also carries `ci_only` (8), `red_not_yet_a_gate` (12 -- scripts that exit 1 or 2,
+    one tagged REAL-FINDING) and `timeout_needs_scoping` (4). A raw text match counted all
+    of those as CALLED: 51 scripts mentioned, 26 executed, 25 silently exempted -- the
+    precise defect this gate exists to catch, re-introduced by the edit meant to fix it.
+    A manifest entry is a CLAIM; only `pre_push` is a claim that something runs it.
+    """
+    import json as _json
+    p = os.path.join(repo, "gates", "WIRED_REPO_CHECKS.json")
+    if not os.path.exists(p):
+        return ""
+    try:
+        with open(p, "r", encoding="utf-8", errors="replace") as fh:
+            man = _json.load(fh)
+    except Exception:
+        return ""      # an unreadable manifest must not widen the caller set
+    return chr(10).join(e.get("script", "")
+                        for e in (man.get("pre_push") or []))
+
+
 def arm_a(gate, repo):
     """Every gate module must be named by something that runs it."""
     callers = ""
@@ -159,6 +182,7 @@ def arm_a(gate, repo):
         else:
             gate.broken("caller source %s is absent; arm A would under-report every gate as "
                         "uncalled, which is the opposite error and just as bad." % rel)
+    callers += _manifest_executed_names(repo)
 
     kinds = collections.Counter()
     uncalled = []
@@ -205,12 +229,12 @@ def arm_a2(gate, repo):
     # its OWN copy of this list, separate from CALLER_SOURCES above -- the same list
     # written twice, which is why adding the surface in one place did not reach here.
     for rel in (".githooks/pre-push", ".githooks/pre-commit", ".githooks/pre-commit-staging",
-                "gates/run_all.py", "gates/verify_gates_can_fail.py",
-                "gates/WIRED_REPO_CHECKS.json"):
+                "gates/verify_gates_can_fail.py"):
         p = os.path.join(repo, rel)
         if os.path.exists(p):
             with open(p, "r", encoding="utf-8", errors="replace") as fh:
                 callers += fh.read()
+    callers += _manifest_executed_names(repo)
     wf = os.path.join(repo, ".github", "workflows")
     if os.path.isdir(wf):
         for f in sorted(os.listdir(wf)):
