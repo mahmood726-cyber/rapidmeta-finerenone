@@ -698,6 +698,69 @@ def _not_contributing(canon, p, e):
 """ % (p(blk.get("note") or "No reason is recorded."), rows))
 
 
+def _per_trial_analysed(as_posted, fmt, e):
+    """Analysed treatment / control from a `per_trial` row, or a stated absence.
+
+    per_trial IS NOT SCHEMA-UNIFORM ACROSS THIS CORPUS. Ceftaroline- and lefamulin-style
+    rows carry an `as_posted` block with arm counts; alirocumab-style rows carry only the
+    effect and its interval. So this returns what is held and SAYS SO when nothing is --
+    a blank in a counts column reads as a zero, which is the failure this file already
+    guards against for rank labels.
+    """
+    if not isinstance(as_posted, dict) or not as_posted:
+        return "<em>not held</em>"
+    ns = [(str(k), v) for k, v in as_posted.items()
+          if str(k).lower().endswith("_n") and isinstance(v, (int, float))]
+    if not ns:
+        return "<em>not held</em>"
+
+    def _role(key):
+        lk = key.lower()
+        if any(w in lk for w in ("experimental", "intervention", "treatment", "active")):
+            return "t"
+        if any(w in lk for w in ("comparator", "control", "placebo", "reference")):
+            return "c"
+        return None
+
+    roles = {_role(k): v for k, v in ns if _role(k)}
+    if "t" in roles and "c" in roles:
+        return "%s / %s" % (fmt(roles["t"]), fmt(roles["c"]))
+
+    # ARMS NAMED BY DRUG, NOT BY ROLE -- SO THE ROLES ARE NOT ASSERTED.
+    # ceftaroline-auto-full-review stores `ceftaroline_n` / `ceftriaxone_n` and carries no
+    # arm-role field anywhere on the row. Mapping those onto "treatment / control" would
+    # take a fact from the topic's name and print it as though the object held it, and
+    # getting it backwards would swap an intervention for its comparator beside an effect
+    # estimate. An earlier draft of this helper looked for the word "control" and rendered
+    # "315 / not stated" -- AN ABSENCE PRINTED OVER A VALUE THE OBJECT PLAINLY HELD, which
+    # is the defect class this whole repair exists to close. So the counts are shown in the
+    # object's own order and the arms are NAMED beneath them; the reader is given the
+    # mapping instead of our guess at it.
+    if len(ns) >= 2:
+        (k1, v1), (k2, v2) = ns[0], ns[1]
+        return ("%s / %s<br><small>%s / %s</small>"
+                % (fmt(v1), fmt(v2),
+                   e(k1[:-2].replace("_", " ")), e(k2[:-2].replace("_", " "))))
+    return "%s / <em>not held</em><br><small>%s</small>" % (
+        fmt(ns[0][1]), e(ns[0][0][:-2].replace("_", " ")))
+
+
+def _per_trial_source(row, e):
+    """Provenance for a recovered row, from whatever the per_trial entry holds."""
+    bits = []
+    if row.get("provenance"):
+        bits.append(e(str(row["provenance"])))
+    elif row.get("registry"):
+        bits.append(e(str(row["registry"])))
+    if row.get("source_url"):
+        bits.append("<a href='%s' rel='noopener'>source</a>" % e(str(row["source_url"])))
+    if row.get("read_utc"):
+        bits.append("read %s" % e(str(row["read_utc"])))
+    if row.get("derivation"):
+        bits.append(e(str(row["derivation"])))
+    return " &middot; ".join(bits) if bits else "<em>no source recorded for this row</em>"
+
+
 def _outcome_section(canon, oid, p, e):
     # AN OUTCOME BLOCK WITH NO DECLARATION IS REFUSED BY NAME, NOT CRASHED ON.
     #
@@ -732,6 +795,16 @@ def _outcome_section(canon, oid, p, e):
     rm = canon.get("removed_citations")
 
     rows = ""
+    # Which trials this loop rendered, and which it deliberately withheld.
+    #
+    # THE NULLED SET IS NOT AN OPTIMISATION, IT IS THE WHOLE SAFETY OF THE RECOVERY
+    # BELOW. A nulled trial is skipped by the first `continue` in this loop, so it
+    # never reaches the render point -- which means a recovery keyed only on "was it
+    # rendered?" would REINSTATE THE ROW THE NULLING REMOVED, silently undoing a
+    # deliberate exclusion (`finerenone-review` carries NULLED:NCT01874431 and once
+    # showed four rows under a headline stating k=3). Withheld-on-purpose and
+    # missing-by-accident are different states and the recovery must tell them apart.
+    _rendered_ids, _nulled_ids = set(), set()
     for ti, t in enumerate(canon["inputs"]["trials"]):
         # A NULLED TRIAL IS NOT A CONTRIBUTING TRIAL, AND THIS TABLE IS HEADED
         # "Contributing trials". `finerenone-review` carries `NULLED:NCT01874431` and the
@@ -741,6 +814,9 @@ def _outcome_section(canon, oid, p, e):
         # as though it contributed.
         if t.get("nulled") or str(t.get("trial_id") or t.get("nct")
                                   or t.get("id") or "").startswith("NULLED:"):
+            for _k in ("id", "trial_id", "nct"):
+                if t.get(_k):
+                    _nulled_ids.add(str(t[_k]).replace("NULLED:", ""))
             continue
         # Not every trial posts every symptom: induration is absent from three
         # of these registrations. A trial that does not report an outcome has no
@@ -749,6 +825,9 @@ def _outcome_section(canon, oid, p, e):
         if oid not in t.get("by_outcome", {}):
             continue
         scope = f"inputs.trials[{ti}]"
+        for _k in ("id", "trial_id", "nct"):
+            if t.get(_k):
+                _rendered_ids.add(str(t[_k]))
         d = t["by_outcome"][oid]
         eff = d.get("effect")
         if eff:
@@ -1533,6 +1612,57 @@ def _outcome_section(canon, oid, p, e):
     # labelled a 99% interval as a 95% one, in the table a reader reads, on the
     # single row in that outcome. The object stored the level correctly the whole
     # time; only the header was wrong, which is the worst place for it to be.
+    # ROW COUNT BECOMES k BY CONSTRUCTION -- THE DEFECT IS MADE IMPOSSIBLE, NOT DETECTED.
+    #
+    # The loop above renders one row per trial carrying `inputs.trials[*].by_outcome[oid]`
+    # and `continue`s past the rest, while the pool is computed from
+    # `results.by_outcome[oid].per_trial`. Nothing kept the two in step, so ANY WRITE THAT
+    # ADDED A TRIAL TO per_trial OR INCREMENTED k WITHOUT WRITING inputs.trials SILENTLY
+    # TRUNCATED THIS TABLE. Alirocumab rendered 6 rows under a headline stating k=8: the
+    # two missing were NCT02289963 and NCT02585778, positions 7 and 8 of per_trial --
+    # exactly the pair added by its k=6 -> k=8 recovery. Measured pre-fix: 10 pages over
+    # 9 objects (SGLT2_HF on two outcomes, ALIROCUMAB on two surfaces, AGYW_HIV_PREP,
+    # CAB_PREP_HIV, CEFTAROLINE, FCM_HF, GEPOTIDACIN, LEFAMULIN_CABP, NIRSEVIMAB).
+    #
+    # WHY THIS APPENDS RATHER THAN REBUILDING THE TABLE FROM per_trial. THERE IS NO SINGLE
+    # SOURCE OF TRUTH FOR PER-TRIAL ROWS IN THIS CORPUS, AND NEITHER CONTAINER IS
+    # UNIVERSALLY AUTHORITATIVE. APIXABAN_ACS (k=2), APIXABAN_AF (k=4), MITRAL_FUNCMR
+    # (k=3) and BOCOCIZUMAB (k=3) render COMPLETE tables from by_outcome while their
+    # `per_trial` is EMPTY -- the mirror of the defect above. Rebuilding from per_trial
+    # would have emptied those nine correct tables, and would have hollowed alirocumab's
+    # six good rows besides: per_trial is NOT schema-uniform, and alirocumab's entries
+    # carry no label, no analysed counts and no provenance, which by_outcome does hold.
+    # So existing rows are left byte-identical and only the MISSING ones are recovered.
+    #
+    # AN ABSENCE IS RENDERED AS AN ABSENCE, never as a blank that reads like a zero --
+    # the rule this file already applies to rank labels and effect scales.
+    for _j, _r in enumerate(res.get("per_trial") or []):
+        _keys = {str(_r.get(k)) for k in ("trial_id", "nct") if _r.get(k)}
+        if _keys & _rendered_ids or _keys & _nulled_ids:
+            continue
+        _scope = f"results.by_outcome.{oid}.per_trial[{_j}]"
+        _name = _r.get("label") or _r.get("trial_id") or "unnamed trial"
+        _ident = _r.get("nct") or _r.get("registry") or "no registry identifier"
+        _ap = _r.get("as_posted") or {}
+        _size = _per_trial_analysed(_ap, fmt, e)
+        _pt, _lo, _hi = _r.get("point"), _r.get("ci_low"), _r.get("ci_high")
+        _meas = _r.get("measure") or outcome.get("measure") or ""
+        if _pt is None:
+            _est = "<em>no effect value held for this trial</em>"
+        else:
+            _est = f"<strong>{e(str(_meas))} {fmt(_pt)}</strong>"
+            if _lo is not None and _hi is not None:
+                _est += (f" ({fmt(_r.get('ci_level', 95))}% CI "
+                         f"{fmt(_lo)} to {fmt(_hi)})")
+        rows += (
+            f"    <tr><td>{e(str(_name))}<br><small>{e(str(_ident))}</small></td>"
+            f"<td class='num'>{_size}</td>"
+            f"<td class='num'>{_est}</td>"
+            f"<td><small>{_per_trial_source(_r, e)}<br><em>recovered from "
+            f"{e(_scope)}; this trial carries no <code>by_outcome</code> entry on the "
+            f"object, so the cell-level provenance the other rows show is not held for "
+            f"it.</em></small></td></tr>" + NL)
+
     _levels = {r.get("ci_level", 95) for r in (res.get("per_trial") or [])}
     _lvl = (f"{fmt(_levels.pop())}% CI" if len(_levels) == 1
             else "interval, at each row's own level")
