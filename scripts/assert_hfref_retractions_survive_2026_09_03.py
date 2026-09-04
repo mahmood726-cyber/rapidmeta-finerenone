@@ -146,6 +146,34 @@ def selftest() -> int:
     print("\n  WHAT A FAILURE LOOKS LIKE: case 3 or 4 reporting PRESENT. Case 4 is the one")
     print("  that matters -- the retraction's words survive somewhere on the page while the")
     print("  paragraph that made them a retraction has been deleted.")
+
+    # KNOWN_NEGATIVE -- PRE-EXISTING. THIS COMMIT ONLY NAMES IT AND PRINTS ITS RATE.
+    #
+    # Cases 1 and 2 above are must-NOT-fire cases and have been here since the file was
+    # written ("PLANTED BOTH WAYS. A check that cannot report a loss is not a check.").
+    # NO BEHAVIOUR CHANGED. gate2 flagged this file for having "no known-negative control"
+    # because it matches on the TOKENS `KNOWN_NEGATIVE` / `control(`, and this file never
+    # used the word -- the second false finding of that kind in this series.
+    #
+    # THE HARD NEGATIVE IS CASE 2, not case 1. Case 1 is the sentence unchanged, which any
+    # implementation gets right. Case 2 is THIS LANE'S ACTUAL REWORDING with the retraction
+    # intact: the surrounding paragraph was rewritten, so an exact-match implementation
+    # reports LOST and a real retraction is recorded as destroyed. That false alarm is the
+    # expensive direction here -- it would block a correct edit and, worse, teach whoever
+    # hit it that the check cries wolf.
+    KNOWN_NEGATIVE = ("case 2: the paragraph reworded, the retraction intact -- must be "
+                      "REWORDED, never LOST")
+    negs = [(lbl, aft, want) for lbl, aft, want in cases if want in ("PRESENT", "REWORDED")]
+    fp = sum(1 for _, aft, want in negs if classify(S, V, aft)[0] != want)
+    print()
+    print("  KNOWN-NEGATIVE CONTROL: %d/%d matched (measured false-positive rate %.1f%%)"
+          % (fp, len(negs), 100.0 * fp / len(negs) if negs else 0.0))
+    print("  %s" % KNOWN_NEGATIVE)
+    print("  Pre-existing; named here so it is visible, not added here.")
+    if fp:
+        ok = False
+        print("  CONTROL FAILED: an intact retraction was reported lost. No verdict from "
+              "this check is trusted.")
     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
     return 0 if ok else 1
 
