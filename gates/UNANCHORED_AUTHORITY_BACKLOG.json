@@ -2,24 +2,60 @@
  "frozen_utc": "2026-08-28",
  "what": "blocks naming an external authority as the source of a claim with no year, identifier, document version or link in the same block.",
  "escalated_to": "out/ESCALATIONS.jsonl",
- "count": 17,
+ "count": 13,
  "keys": [
+  "AGYW_HIV_PREP_REVIEW.html|\"It is automated\" is a claim a reader cannot check. \"It cost seven dec",
   "BRODALUMAB_PSORIASIS_AMAGINE_DOSE_RESP_REVIEW.html|Within-drug dose-response: All 3 trials use the same molecule (brodalu",
-  "EVIDENCE_GAPS.html|Olutasidenib in IDH1-mutated relapsed/refractory AML \u2014 0 randomized co",
+  "EVIDENCE_GAPS.html|Olutasidenib in IDH1-mutated relapsed/refractory AML — 0 randomized co",
   "HSCTN_NSTEMI_DTA_REVIEW.html|Disclosure: Different hs-cTn assays (Roche hs-cTnT, Abbott hs-cTnI, Si",
   "HSCTN_NSTEMI_DTA_REVIEW.html|ESC 0/1h algorithm. Two troponin samples one hour apart. The patient i",
   "HSCTN_NSTEMI_DTA_REVIEW.html|ESC NSTE-ACS clinical guidelines (cited in Methods, not extracted as p",
-  "IV_IRON_HF_REVIEW.html|Regulator: FDA approved label",
-  "IV_IRON_HF_REVIEW.html|Regulator: FDA approved label, the other molecule",
-  "LENACAPAVIR_PREP_SSOT.html|World Health Organization. Guidelines on lenacapavir for HIV preventio",
-  "PTAU217_AD_DTA_REVIEW.html|If your doctor has already done amyloid PET or CSF A\u03b242/40 , plasma p-",
+  "PTAU217_AD_DTA_REVIEW.html|If your doctor has already done amyloid PET or CSF Aβ42/40 , plasma p-",
   "SEMAGLUTIDE_T2D_SUSTAIN_DOSE_RESP_REVIEW.html|Within-drug dose-response: All 6 trials use the same molecule (semaglu",
-  "SGLT2_HF_REVIEW.html|Regulator: FDA approved label",
-  "SGLT2_HF_REVIEW.html|each trial's own primary composite of centrally adjudicated cardiovasc",
-  "SOTAGLIFLOZIN_HF_REVIEW.html|Regulator: EMA, authorisation for a different indication, withdrawn",
-  "SOTAGLIFLOZIN_HF_REVIEW.html|Regulator: FDA approved label",
+  "SGLT2_HF_REVIEW.html|Case definition each trial's own primary composite of centrally adjudi",
+  "SOTAGLIFLOZIN_HF_REVIEW.html|Not stated here because no source is held The proportion of SCORED par",
   "SOTAGLIFLOZIN_HF_REVIEW.html|The proportion of SCORED participants with heart failure at baseline i",
   "cardiology_mortality_atlas.html|Guideline concordance. Each drug class is tagged with its current reco",
-  "tb_tpt_open_synthesis.html|k = 3 trials \u00b7 I\u00b2 = 0% \u00b7 \u03c4\u00b2 = 0 \u00b7 consistent with non-inferiority of s"
- ]
+  "tb_tpt_open_synthesis.html|k = 3 trials · I² = 0% · τ² = 0 · consistent with non-inferiority of s"
+ ],
+ "reanchored_utc": "2026-09-04",
+ "reanchored_why": "THE KEYS MOVED BECAUSE THE BLOCK BOUNDARY MOVED, NOT BECAUSE THE CORPUS CHANGED. The detector was split at </td> and stripped tags before testing for an anchor, so a citation table read as unanchored: the title sat in one cell, its PubMed link in the cell beside it, and the link's URL lived in an href attribute that was deleted before the anchor test ran. Segmentation is now per <tr> and hrefs are tested. A key is block[:70], so a block that grew a leading header cell re-keys without changing. RE-ANCHORING A RATCHET IS THE MOVE MOST EASILY USED TO LAUNDER A CLEARANCE, so every key that left is accounted for individually below and the pairing was done on the FULL block text, not on the truncated key.",
+ "reanchor_ledger": {
+  "cleared_by_the_fix": {
+   "what": "the frozen text no longer appears in ANY flagged block on its page",
+   "keys": [
+    "IV_IRON_HF_REVIEW.html|Regulator: FDA approved label",
+    "IV_IRON_HF_REVIEW.html|Regulator: FDA approved label, the other molecule",
+    "LENACAPAVIR_PREP_SSOT.html|World Health Organization. Guidelines on lenacapavir for HIV preventio",
+    "SGLT2_HF_REVIEW.html|Regulator: FDA approved label",
+    "SOTAGLIFLOZIN_HF_REVIEW.html|Regulator: EMA, authorisation for a different indication, withdrawn",
+    "SOTAGLIFLOZIN_HF_REVIEW.html|Regulator: FDA approved label"
+   ]
+  },
+  "same_finding_new_key": {
+   "what": "the frozen text is still inside a flagged block; only the 70-char window moved",
+   "pairs": [
+    [
+     "SGLT2_HF_REVIEW.html|each trial's own primary composite of centrally adjudicated cardiovasc",
+     "SGLT2_HF_REVIEW.html|Case definition each trial's own primary composite of centrally adjudi"
+    ]
+   ]
+  },
+  "genuinely_new_and_NOT_cleared_by_this_fix": {
+   "what": "A REAL FINDING, frozen here rather than silently dropped. It was flagged BEFORE this fix as well -- it is absent from the 2026-08-28 freeze because the page post-dates it, not because the fix introduced it. Freezing it records a defect that is still on the page and still owed an edit; the prose attributes a practice to Cochrane with nothing a reader can follow.",
+   "keys": [
+    "AGYW_HIV_PREP_REVIEW.html|\"It is automated\" is a claim a reader cannot check. \"It cost seven dec"
+   ],
+   "owed": "an editorial fix on AGYW_HIV_PREP_REVIEW.html, not a gate change"
+  },
+  "one_frozen_key_split_into_two": {
+   "what": "THREE blocks on this page opened with the same 70 characters, so ONE frozen key stood for all three. Merging cells into rows gave one of them a leading header cell, so it now keys separately. The page did not change and no finding was added -- a key that was doing the work of three is now doing the work of two. This is the failure mode of keying on a text WINDOW rather than on content, and it is recorded here because it is indistinguishable, from the count alone, from a new defect.",
+   "frozen_key_kept": "SOTAGLIFLOZIN_HF_REVIEW.html|The proportion of SCORED participants with heart failure at baseline i",
+   "key_it_split_off": "SOTAGLIFLOZIN_HF_REVIEW.html|Not stated here because no source is held The proportion of SCORED par",
+   "blocks_before": 3,
+   "blocks_after": 3,
+   "keys_before": 1,
+   "keys_after": 2
+  }
+ }
 }

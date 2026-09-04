@@ -86,8 +86,34 @@ ANCHOR = re.compile(
     r"|\bread\s+(on\s+)?\d|\baccessed\b"       # an explicit read date
     r"|\bv\d+\.\d+)", re.I)
 
+# A TABLE ROW IS ONE SEMANTIC UNIT. `td` and `th` were block boundaries until 2026-09-04,
+# so a citation table -- the place a page's anchors are most rigorously supplied -- read as
+# unanchored: the title sat in one cell and its resolvable link in the cell beside it, and
+# the split put the anchor outside the block. Measured on AGYW_HIV_PREP_REVIEW, five of seven
+# findings were PubMed titles whose PMIDs (37606684, 25224620, 41859069, 41084700, 32708182)
+# were one cell away and clickable.
+#
+#     SPLITTING AT </td> MAKES A PAGE LOOK UNANCHORED AT EXACTLY THE PLACE ITS ANCHORS ARE
+#     MOST RIGOROUSLY SUPPLIED.
+#
+# Rows are the unit now. This makes the sweep report LESS, which is the shape of a loosened
+# check, so `must_still_fire()` below proves the true positives survive -- including an
+# unanchored claim inside a table row with no anchor anywhere in that row.
 BLOCK_SPLIT = re.compile(
-    r"(?is)</(p|li|td|th|h1|h2|h3|h4|h5|h6|div|section|blockquote|figcaption|caption)>")
+    r"(?is)</(p|li|tr|h1|h2|h3|h4|h5|h6|div|section|blockquote|figcaption|caption)>")
+
+# A PAGE DISCLOSING A FINDING MUST NOT BE FLAGGED FOR THE DISCLOSURE.
+#
+# AGYW's seventh finding WAS THE PAGE'S OWN DISCLOSURE OF ITS FOURTH, re-detected as an
+# eighth instance of itself. A detector that cannot tell MAKING a claim from REPORTING THAT
+# ONE WAS MADE penalises disclosure, and the penalty compounds with thoroughness -- it
+# selects against the behaviour this project most wants.
+#
+# ⛔ KEYED ON THE REGISTER'S MARKUP AND POSITION, NEVER ON THE WORDS THE GATE REPORTS. Keying
+# on "unanchored" would let any page immunise itself by quoting the finding. The idiom is a
+# defect-class id in a `mono` span at the head of the block, followed by a colon -- the
+# page's findings-register shape, which prose cannot fall into by accident.
+DISCLOSURE = re.compile(r'(?is)<span class="mono">[a-z0-9_.-]{4,60}</span>\s*:')
 
 
 def blocks(html):
@@ -97,7 +123,27 @@ def blocks(html):
     for chunk in BLOCK_SPLIT.split(body):
         if not chunk or len(chunk) < 3:
             continue
+        if DISCLOSURE.search(chunk):
+            continue
+        # A HYPERLINK IS AN ANCHOR, AND STRIPPING TAGS FIRST MADE IT INVISIBLE.
+        #
+        # ANCHOR asks for "something a reader could follow or date" and a URL is the
+        # canonical case -- but a link's URL lives in the `href` ATTRIBUTE, and this
+        # function removed every tag before testing. So a block reading
+        # `<a href="https://pubmed.ncbi.nlm.nih.gov/41084700/">41084700</a>` was judged on
+        # the bare digits "41084700", which match no anchor pattern: the year rule needs a
+        # word boundary before 19xx/20xx and there is none mid-number.
+        #
+        #     THE MOST FOLLOWABLE THING ON THE PAGE -- A CLICKABLE LINK -- WAS THE ONE FORM
+        #     OF ANCHOR THIS SWEEP COULD NOT SEE.
+        #
+        # The hrefs are appended to the visible text so ANCHOR tests what a reader can
+        # actually follow. This is additive: a block with no link is judged exactly as
+        # before.
+        hrefs = " ".join(re.findall(r"""(?i)href=["']([^"']+)["']""", chunk))
         text = re.sub(r"<[^>]+>", " ", chunk)
+        if hrefs:
+            text = text + " " + hrefs
         try:
             import html as _h
             text = _h.unescape(text)
@@ -172,6 +218,63 @@ KNOWN_NEGATIVE_CONTROLS = [
 ]
 
 
+# --------------------------------------------------------------------------
+# SEGMENTATION CONTROLS. (html, must_flag, why)
+#
+# The list above tests `decide()` on ready-made blocks, so it cannot see a segmentation
+# defect: it never runs `blocks()`. Both false positives fixed on 2026-09-04 were invisible
+# to it for that reason -- the rule was right and the block handed to it was wrong.
+#
+#     A CONTROL THAT SKIPS THE STEP THAT BROKE CERTIFIES THE STEP THAT DIDN'T.
+#
+# These run the whole path, HTML in, verdict out. The first two are the must-still-catch
+# cases for the row-level split: the fix makes the sweep report LESS, and a change that only
+# ever removes findings is indistinguishable from a loosened check unless the true positives
+# are held down by name.
+SEGMENTATION_CONTROLS = [
+    ("<p>WHO has recommended the ring for women at substantial risk.</p>", True,
+     "MUST STILL FIRE: an unanchored claim in ordinary prose. The row-level split must not "
+     "reach it"),
+    ("<table><tr><td>Guidance</td>"
+     "<td>WHO has recommended the ring for women at substantial risk.</td>"
+     "<td>no source recorded</td></tr></table>", True,
+     "MUST STILL FIRE: the same claim inside a table row with NO anchor anywhere in the "
+     "row. Widening the unit to the row must not grant a row an anchor it does not have"),
+    ("<table><tr>"
+     "<td><a href='https://pubmed.ncbi.nlm.nih.gov/41084700/'>41084700</a></td>"
+     "<td>FDA-Approved HIV-1 Capsid Inhibition With Lenacapavir: A Paradigm Shift in "
+     "Pre-exposure Prophylaxis.</td></tr></table>", False,
+     "THE CITATION-TABLE FALSE POSITIVE. Two defects in one block: the split at </td> put "
+     "the link outside the title's block, and stripping tags before the anchor test hid "
+     "the href even when it was inside. Five of AGYW's seven findings were this"),
+    ("<ul><li><span class=\"mono\">unanchored-external-authority</span>: "
+     "FDA-Approved HIV-1 Capsid Inhibition With Lenacapavir: A Paradigm Shift in "
+     "Pre-exposure Pr; FDA-Approved Drugs.</li></ul>", False,
+     "THE PAGE'S OWN DISCLOSURE, re-detected as a further instance of itself. Keyed on the "
+     "register's markup, never on the words this sweep reports -- keying on 'unanchored' "
+     "would let any page immunise itself by quoting the finding"),
+    ("<p>Unlike an unanchored-external-authority finding, this one is solid: "
+     "WHO has recommended the ring for women at substantial risk.</p>", True,
+     "THE IMMUNISATION ATTACK, and the reason the exclusion is keyed on markup. This block "
+     "contains the exact defect-class id this sweep reports, in ordinary prose, and it "
+     "MUST STILL BE FLAGGED. A keyword-keyed exclusion would let any page buy silence for "
+     "the price of naming the check -- and the pages most likely to name it are the ones "
+     "with the most to hide"),
+]
+
+
+def measure_segmentation(say):
+    bad = 0
+    for html, must, why in SEGMENTATION_CONTROLS:
+        got = any(decide(b) for b in blocks(html))
+        if got != must:
+            bad += 1
+            say("   SEGMENTATION CONTROL FAILED  expected %-5s got %-5s -- %s"
+                % (must, got, why))
+    say("   segmentation: %d/%d wrong" % (bad, len(SEGMENTATION_CONTROLS)))
+    return bad
+
+
 def measure_precision(say):
     bad = 0
     for text, must, why in KNOWN_NEGATIVE_CONTROLS:
@@ -183,7 +286,7 @@ def measure_precision(say):
     rate = 100.0 * bad / len(KNOWN_NEGATIVE_CONTROLS)
     say("   controls: %d/%d wrong (measured error rate %.1f%%)"
         % (bad, len(KNOWN_NEGATIVE_CONTROLS), rate))
-    return bad
+    return bad + measure_segmentation(say)
 
 
 def main():
