@@ -304,5 +304,14 @@
    "why": "Arrived by merge from another lane. Admitted rather than edited: these are that lane's output paths, and rewriting them here would be a class-wide change to code this lane does not own."
   }
  ],
- "retired_2026_08_30": "scripts/lane_rob/regeneration_test.py:103 -> pend\\out is RETIRED, not re-baselined. The test no longer writes to the shared scratch root at all: its output now goes to <worktree>/out/regen, which is unique per lane BY CONSTRUCTION because each lane has its own git worktree, and needs no coordination between lanes. ⚠️ A first attempt kept the shared root and appended the lane name at RUNTIME; gate 9 refused that too, correctly -- it reads the literal, and its own coverage note says a path assembled at runtime from a variable is uncounted, so that fix would have made the collision invisible to the lint rather than impossible."
+ "retired_2026_08_30": "scripts/lane_rob/regeneration_test.py:103 -> pend\\out is RETIRED, not re-baselined. The test no longer writes to the shared scratch root at all: its output now goes to <worktree>/out/regen, which is unique per lane BY CONSTRUCTION because each lane has its own git worktree, and needs no coordination between lanes. ⚠️ A first attempt kept the shared root and appended the lane name at RUNTIME; gate 9 refused that too, correctly -- it reads the literal, and its own coverage note says a path assembled at runtime from a variable is uncounted, so that fix would have made the collision invisible to the lint rather than impossible.",
+ "annotations": {
+  "scripts/regression_check.py:615 -> regression_results_%d.json": {
+   "utc": "2026-09-04",
+   "state": "STILL PRESENT. NOW INVISIBLE TO THE LINT. NOT FIXED.",
+   "what_happened": "The line was changed from a literal leading-slash path to tempfile.gettempdir(), because the literal was drive-relative and crashed the pre-push regression gate on any clone whose drive has no top-level tmp directory. The lint matches SOURCE TEXT for that literal, so it can no longer see this site and reports it RETIRED.",
+   "why_the_key_stays": "THE BEHAVIOUR IS UNCHANGED: this script still writes regression_results_<pid>.json into the SHARED scratch root, which is exactly what the lint exists to find. Only the detector's view changed. Deleting this key because the lint went quiet would convert a detector blind spot into a clean record -- a defect retired by becoming unobservable. gate9's own COVERAGE note already names this class: 'uncounted, and named here rather than hidden -- any path assembled at runtime from a variable'. This entry is now one of those.",
+   "owed": "write to the per-session scratch directory instead of the shared root."
+  }
+ }
 }

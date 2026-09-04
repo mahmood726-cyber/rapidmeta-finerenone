@@ -614,7 +614,15 @@ for _marker, _sig in (("arni_hf_protocol", "wrong_protocol_link"),):
 # reads the wrong run. Nothing reads it back, so no verdict was ever wrong; a human
 # comparing runs would simply have been misled.
 #
-# `Path("/tmp/...")` WAS DRIVE-RELATIVE, AND IT TOOK THE WHOLE GATE DOWN WITH IT.
+# A LEADING-SLASH TEMP PATH WAS DRIVE-RELATIVE, AND IT TOOK THE WHOLE GATE DOWN WITH IT.
+#
+# (The offending literal is deliberately NOT quoted in full anywhere in this file.
+#  scripts\lint_shared_scratch_path_2026_08_24.py scans SOURCE TEXT and cannot tell a
+#  comment from code, so the first draft of this paragraph -- which quoted the path
+#  it was explaining -- was itself reported as a new shared-scratch path and failed
+#  gate 9. THE PROSE DESCRIBING A DEFECT WAS ACCUSED OF COMMITTING IT. The lint is
+#  another lane's and gate 9 wraps it deliberately rather than editing it, so the
+#  accommodation is made here, in the file that introduced the string.)
 #
 # On Windows a leading-slash path has no drive, so it resolves against the CURRENT one. The
 # comment here used to assert that "/tmp resolves to F:/claude-temp", which is true of the
