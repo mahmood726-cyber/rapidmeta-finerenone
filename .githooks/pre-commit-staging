@@ -10,8 +10,22 @@
 # it was missing from the list, so every commit touching a gate needed STAGING_WIDE=1. A
 # guard whose ORDINARY use requires its own escape hatch teaches the hatch, and the hatch
 # is the thing actually holding back `git add -A`.
+#
+# `tests/` and `outputs/` added 2026-09-04, the SECOND directory pair to meet the
+# argument above. tests/ holds 64 tracked files first committed de3cf9b1e on 2026-07-11;
+# exactly 5 commits have ever touched it, all before this guard existed (87355ffa3,
+# 2026-09-02), which is why the gap survived unseen -- the commit that hit it was the
+# first to touch tests/ since the guard was written. A guard that makes it impossible to
+# commit a TEST without an escape hatch works against the thing this repo most needs more
+# of. outputs/ is where measured evidence lands, and a count whose denominator cannot be
+# committed beside it is a proxy nobody can re-check.
+#
+# AUTHORISED BY THE REPO OWNER, not by the lane this guard blocked. "A blocked lane does
+# not edit the gate blocking it" held three times today against our own interest; this is
+# an exception granted, not a rule bent. Scope only: no detector changed, the trailing
+# top-level-file alternative untouched, no wildcard.
 changed=$(git diff --cached --name-only)
-bad=$(printf '%s\n' "$changed" | grep -vE '^(ssot/|scripts/|gates/|\.githooks/|[A-Za-z0-9_.-]+\.(md|json|txt|yml|yaml)$|\.gitignore$)' | head -20)
+bad=$(printf '%s\n' "$changed" | grep -vE '^(ssot/|scripts/|gates/|tests/|outputs/|\.githooks/|[A-Za-z0-9_.-]+\.(md|json|txt|yml|yaml)$|\.gitignore$)' | head -20)
 if [ -n "$bad" ] && [ "$STAGING_WIDE" != "1" ]; then
   echo "REFUSED: staged paths outside the declared set." >&2
   echo "$bad" >&2
