@@ -110,7 +110,8 @@ def main():
     # not scale across this suite; instead it FAILS CLOSED: if the block is no longer
     # reachable the rate is UNMEASURED and the sweep refuses, rather than reporting a zero
     # it did not measure. If this check is ever wired as a blocking gate, pin it first.
-    NEG_TOPIC, NEG_OUTCOME = "incretin-hfpef-review", "kccq_css_change"
+    KNOWN_NEGATIVE = ("incretin-hfpef-review", "kccq_css_change")
+    NEG_TOPIC, NEG_OUTCOME = KNOWN_NEGATIVE
     neg = [r for r in asserted
            if r["topic"] == NEG_TOPIC and r["outcome"] == NEG_OUTCOME]
     neg_reached = len(neg)
