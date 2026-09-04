@@ -5335,3 +5335,57 @@ edit. The new gate in 99d was wired into **pre-commit instead**, which routes ar
 broken guard while leaving the guard for its owner.
 
 **Rejected by:** nothing. Routed to a fresh owner.
+
+### Class 99g — A LANE OPENED ON A FIGURE WHOSE PROVENANCE WAS NEVER ESTABLISHED
+
+The brief that started this lane gave `398 trials across 135 topics, 125 of 135 ingesting
+<= 5`. Measured over Path B at the end of it:
+
+| | brief | Path B measured |
+|---|---:|---:|
+| trials | 398 | **393** |
+| topics | 135 | **152** |
+| k <= 5 | 125 of 135 | **143 of 152** |
+
+> **The number that motivated the entire lane was a PATH-B figure, and the entire lane ran on
+> PATH A.** The cap, the ledger, the 1,453 discarded candidates and the 5 resurrected topics
+> are all Path A. Nobody checked which population the opening figure described, including the
+> people who quoted it — this lane among them, for a full night.
+
+This is 99a from the other end. 99a is *a fix measured on the wrong population*; this is *a
+brief written from the wrong population*. **Both were invisible for the same reason: the two
+paths have never been named anywhere, so nothing prompted anyone to ask which one a number
+came from.**
+
+**Rejected by:** nothing. The check that would close both is the same one: a claim about "the
+corpus" must name which build path it was measured on, and no instrument asks that.
+
+### Class 99h — AND THE SAME ERROR, ONE LAYER DOWN, IN THE RECOMMENDATION
+
+`PATH-B-ENUMERATION-SCOPE.md` as first written recommended stage 1 on the grounds that it
+*"fixes that class across 134 objects without adding a single trial"*. **It was acted on.**
+Measured immediately afterwards:
+
+| category | objects |
+|---|---:|
+| A publishes an aggregate remainder AND records sources | **17** |
+| C records sources but publishes no aggregate | **1** |
+| D neither — cannot have a remainder until a search is executed | **134** |
+| B publishes an aggregate with no sources | **0** |
+
+> **The 134 do not publish a false zero. They publish nothing at all.** The unproven-remainder
+> class lives entirely in the 17, and fixing the 134 is not *record a number* — it is *execute
+> 134 searches*, the expensive stage, recommended as the cheap one.
+
+The recommendation's DIRECTION survived — publishing an honest remainder is still cheaper and
+more valuable than raising `k`, and `early-rhythm-control-af` with `k=1` and a truthful 88 is
+still less misleading than `sglt2-hf` with `k=4` and a false 0. **Its POPULATION did not.**
+Corrected in place, with the superseded sentence quoted rather than deleted.
+
+    A RECOMMENDATION IS A COUNT WITH A VERB ATTACHED, and it inherits every denominator
+    defect this registry catalogues. This one named the largest number in view (134) rather
+    than the number the class actually covered (17).
+
+**Rejected by:** `scripts/gate_remainder_is_per_source_2026_09_04.py` distinguishes the four
+categories, so the mistake is now one command away from being caught. It was one command away
+before, too, and the command was not run before the recommendation was made.
