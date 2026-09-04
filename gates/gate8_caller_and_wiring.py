@@ -38,7 +38,15 @@ import _harness as H                                                        # no
 REGISTRY = "REMOVAL_PATHS.json"
 CALLER_SOURCES = (".githooks/pre-push", ".github/workflows/executable-rule-gates.yml",
                   ".github/workflows/hook-chain.yml",
-                  "gates/run_all.py", "gates/verify_gates_can_fail.py")
+                  "gates/run_all.py", "gates/verify_gates_can_fail.py",
+                  # ADDED 2026-09-04, OWNER-AUTHORISED. gates/run_repo_checks.py is
+                  # invoked from .githooks/pre-push:338 and executes every entry in
+                  # this manifest's `pre_push` list. A script wired THERE genuinely
+                  # runs on every push, and arm A could not see it -- so it accused
+                  # three correctly-wired instruments of having no caller. That is
+                  # the manufactured violation the note below already describes.
+                  # Reach only: nothing about what counts as a violation changed.
+                  "gates/WIRED_REPO_CHECKS.json")
 # ⚠️ ARM A READS THIS LIST; ARM B READS EVERY FILE IN .github/workflows/. That is an
 # inconsistency inside one gate rather than a policy: a module run by any workflow other
 # than executable-rule-gates.yml is invisible to arm A, which then accuses it of having no
@@ -193,8 +201,12 @@ UNCALLED_BACKLOG = "UNCALLED_REPO_GATES.json"
 
 def arm_a2(gate, repo):
     callers = ""
+    # ADDED 2026-09-04, OWNER-AUTHORISED: gates/WIRED_REPO_CHECKS.json. Arm A2 keeps
+    # its OWN copy of this list, separate from CALLER_SOURCES above -- the same list
+    # written twice, which is why adding the surface in one place did not reach here.
     for rel in (".githooks/pre-push", ".githooks/pre-commit", ".githooks/pre-commit-staging",
-                "gates/run_all.py", "gates/verify_gates_can_fail.py"):
+                "gates/run_all.py", "gates/verify_gates_can_fail.py",
+                "gates/WIRED_REPO_CHECKS.json"):
         p = os.path.join(repo, rel)
         if os.path.exists(p):
             with open(p, "r", encoding="utf-8", errors="replace") as fh:
