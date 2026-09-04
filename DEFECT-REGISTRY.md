@@ -5485,3 +5485,69 @@ point the file is to be deleted.
 
 > **A divergence you have written down is a decision. The same divergence you have not is the
 > defect this project has spent a week cataloguing.**
+
+### LEAD — A LINT THAT RUNS ON THE REPO'S EXISTING SET AND NOT ON THE FILE BEING ADDED ARRIVES ONE COMMIT LATE
+
+**For whoever owns the lint chain. This is a WIRING question, not a rule question — the rule
+exists and the guards work.**
+
+`scripts/apply_retrieval_remainder_2026_09_04.py` was committed carrying a literal `0x08` in a
+regex: `r"\s*(\d+)<BACKSPACE>"`, because a shell heredoc consumed ``\b``. It matched nothing,
+silently, and fabricated **eight absences** — six declared non-executions and two rows of the
+best-documented search record in the corpus.
+
+`lint_control_chars` and `lint_escape_hazards` both catch exactly this. Both return **0**. And
+**neither had seen the file before it was committed** — they ran, they passed, and the file
+carrying the defect was in the commit they passed on.
+
+> **THE GUARDS WORKED AND WERE NOT POINTED AT THE NEW FILE.** A lint whose population is
+> "what is already tracked" cannot see the thing being added, which is the only thing in the
+> commit that changed.
+
+**AND IT HAPPENED AGAIN WHILE THIS ENTRY WAS BEING WRITTEN.** The sentence above,
+*"because a shell heredoc consumed `\b`"*, went into the file with a literal `0x08` in place
+of the two characters it names. `lint_control_chars` returned **1** and named it. The register
+already records a `0x08` sitting inside the paragraph documenting the FIRST instance; this is
+the second time the defect has been reproduced by the act of describing it.
+
+> **THE RULE IS NOT HARD TO STATE AND IT IS NOT HARD TO BELIEVE. IT IS HARD TO APPLY IN THE
+> ONE KEYSTROKE WHERE IT MATTERS, AND THAT IS WHY IT NEEDS A LINT AND NOT A PARAGRAPH.**
+
+Caught here only because the lint was run BY HAND on the file before committing it -- which is
+precisely the wiring gap this lead is about.
+
+Same family as `gate8` not seeing the JSON registry: an available mechanism that is not
+operative on the case at hand. The question to answer is whether the pre-commit lints read the
+STAGED set or the tracked set, and if the latter, whether that is deliberate.
+
+**Standing rule this keeps re-proving, which did NOT fail here — it was not applied:** never
+put a backslash escape through a shell heredoc; a regex goes into a file via `Write`. Cost so
+far: a false `0` against a pinned `146`, a `0x08` inside the paragraph documenting that one,
+and now eight fabricated silences.
+
+### LEAD — ONE OBJECT, MANY PAGES, AND OUR DENOMINATORS DO NOT ACCOUNT FOR IT
+
+Measured: `PAGE_MAP` holds **163 page entries over 152 distinct objects**; **11 objects serve
+2 pages each**, 11 extra pages.
+
+```
+azilsartan-chlorthalidone-vs-olmesartan-hctz   bococizumab-lipid-review   doac-af-review
+doravirine-hiv   edoxaban-vte   evolocumab-dyslipidemia-review   fondaparinux-vte
+hiv-prep-injectable-review   pcsk9-inhibitors-cv-review
+rotavirus-vaccine-africa-review   sotatercept-pah
+```
+
+Several pair an `*_AUTO_FULL_REVIEW` with a hand-authored `*_REVIEW` over ONE object — the
+configuration in which ALIROCUMAB's two surfaces were found already drifted apart, and the one
+the SOTAGLIFLOZIN tombstone exists to prevent.
+
+> **OBJECTS AND PAGES ARE DIFFERENT DENOMINATORS AND THIS PROJECT HAS MIXED THEM AT LEAST FOUR
+> TIMES IN A DAY** — including in `STORE-PAGE-DIVERGENCE.md`, which says "18 objects" while its
+> own self-check prints "20 pages", and both are correct about different things.
+
+**The question, to be measured ONCE and properly rather than discovered a fifth time:** how
+many objects serve more than one page, and does any published count in the corpus use objects
+where it should use pages, or the reverse? It bears on every `n of N` quoted this week,
+including `163` against the ~1,427 delivered `*_REVIEW*.html` files.
+
+**Rejected by:** nothing. Not chased here, deliberately.
