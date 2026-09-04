@@ -613,22 +613,62 @@ def main(argv):
         gate.broken("the pinned c1 fixture is missing, so clause 1 has no reachable "
                     "positive case and no count from this gate is trustworthy.")
 
-    # ---------------- controls, counted from the SAME traversal -------------
-    neg = "AGYW_HIV_PREP_REVIEW.html"
+    # ---------------- known-negative: PINNED, for the same reason the positive is ----
+    #
+    # A MUST-NOT-FIRE CASE IS AS PERISHABLE AS A MUST-FIRE ONE, AND THE ONLY TIME TO
+    # CAPTURE IT IS WHILE THE PAGE STILL SATISFIES IT.
+    #
+    # This control was AGYW_HIV_PREP_REVIEW.html, live. That page is queued for repair --
+    # its Contributing-trials table renders 0 rows against a declared k=2, and gate14
+    # reports 7 unanchored-authority claims in its prose. Repairing it would have changed
+    # the bytes this gate measures its FALSE-POSITIVE RATE against, disarming gate16 FROM
+    # THE NEGATIVE SIDE -- the exact mirror of what happened on 2026-09-04, when repairing
+    # ALIROCUMAB removed this gate's last live POSITIVE case and it went BROKEN and refused
+    # to print a count. Same lesson, opposite direction, and the window to prevent it was
+    # open only while the page still passed.
+    #
+    # Pinned while it passed all four clauses (c1..c4 all True, verified before copying):
+    #     gates/GATE16_NEG_PINNED.html        1,966,499 B
+    #         sha256 197191b4d7cc93f6c29483cb5adbe2a80761d36ef5bd9a817d1120db27398fda
+    #     gates/GATE16_NEG_PINNED_STORE.json  the store as it stood beside it
+    #     taken from AGYW_HIV_PREP_REVIEW.html at cf73671cd8a9dc0e0a37f052b5448d40fb46d1b8
+    #
+    # ROT-GUARD, the same one the positive fixture carries: IF THE PINNED NEGATIVE EVER
+    # STARTS FIRING, that is `broken` -- it was altered, or a clause moved underneath it --
+    # and no count from this gate is trustworthy until someone looks. A pinned control
+    # without its own guard rots more slowly than a corpus-anchored one, which is worse,
+    # because nobody is watching by then.
+    neg = "GATE16_NEG_PINNED.html"
     fp = 0
     examples = []
-    if neg in results:
-        cl, ev = results[neg]
-        bad = [k for k, v in cl.items() if v is False]
-        if bad:
-            fp = 1
-            examples.append("%s flagged on %s -- %s"
-                            % (neg, ",".join(bad), "; ".join(ev[k] for k in bad)))
+    n_neg = 0
+    neg_html = os.path.join(REPO, "gates", "GATE16_NEG_PINNED.html")
+    neg_store = os.path.join(REPO, "gates", "GATE16_NEG_PINNED_STORE.json")
+    if os.path.exists(neg_html) and os.path.exists(neg_store):
+        try:
+            with io.open(neg_html, encoding="utf-8", errors="replace") as fh:
+                _nh = fh.read()
+            with io.open(neg_store, encoding="utf-8") as fh:
+                _nc = json.load(fh)
+            _ncl, _nev = assess(neg, _nh, _nc)
+            n_neg = 1
+            bad = [k for k, v in _ncl.items() if v is False]
+            if bad:
+                fp = 1
+                examples.append("%s flagged on %s -- %s"
+                                % (neg, ",".join(bad), "; ".join(_nev[k] for k in bad)))
+                gate.broken("the PINNED known-negative now fails clause(s) %s. It passed "
+                            "every clause when it was pinned, so either the fixture was "
+                            "altered or a clause moved underneath it. No count from this "
+                            "gate is trustworthy until that is resolved."
+                            % ",".join(bad))
+        except Exception as exc:
+            gate.broken("the pinned known-negative could not be read (%s), so the "
+                        "false-positive rate is UNMEASURED -- which is not a measured "
+                        "zero." % type(exc).__name__)
     else:
-        gate.broken("the known-negative control %s was not reached by the traversal, "
-                    "so the false-positive rate is unmeasured and no count is "
-                    "trustworthy." % neg)
-    n_neg = 1 if neg in results else 0
+        gate.broken("the pinned known-negative fixture is missing, so the false-positive "
+                    "rate is unmeasured and no count is trustworthy.")
     gate.control(n_neg, fp, examples)
 
     # ---------------- ratchet -----------------------------------------------

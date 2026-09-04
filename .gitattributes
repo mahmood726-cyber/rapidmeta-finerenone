@@ -1,0 +1,23 @@
+# SCOPED TO PINNED FIXTURES ONLY. This sets NO repository-wide line-ending policy.
+#
+# WHY IT EXISTS. `core.autocrlf` is true in this clone, so git strips CRs on commit. On
+# 2026-09-04 that silently altered the two files whose entire purpose is byte-exactness:
+#
+#     gates/GATE16_C1_PINNED.html   disk 1,344,077 B -> blob 1,342,601 B   (-1,476)
+#     removed/_new_SGLT2.html       disk 3,460,804 B -> blob 3,457,916 B   (-2,888)
+#
+#     A HASH RECORDED AGAINST A WORKING-TREE FILE IS NOT A HASH OF WHAT WAS COMMITTED
+#     WHEN core.autocrlf IS ON. THE ACT OF PRESERVING THE BYTES CHANGED THEM.
+#
+# Both artefacts are identified BY THEIR HASH and nothing else -- one is a gate's pinned
+# control, the other has unestablished authorship where the hash is its only identity --
+# so a recorded hash a fresh clone cannot reproduce is a provenance failure even though
+# neither gate's verdict changed (gate16 still PASSed, and its rot-guard would have caught
+# a functional break).
+#
+# `-text` disables all end-of-line conversion for these paths: the blob is the bytes.
+gates/GATE16_C1_PINNED.html          -text
+gates/GATE16_C1_PINNED_STORE.json    -text
+gates/GATE16_NEG_PINNED.html         -text
+gates/GATE16_NEG_PINNED_STORE.json   -text
+removed/_new_SGLT2.html              -text
