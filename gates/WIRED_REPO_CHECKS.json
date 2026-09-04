@@ -4,6 +4,12 @@
  "how_measured": "each script executed once with a 120s timeout; exit code and wall time recorded. One observation per script on one tree -- a check green today can be red after another lane lands, which is what the per-check reporting is for.",
  "pre_push": [
   {
+   "script": "scripts/audit_manuscript_h3_sets_2026_09_04.py",
+   "secs": 3.0,
+   "wired_utc": "2026-09-04",
+   "why": "gate 8 named it NEW-GATE-WITH-NO-CALLER. Wired against an INITIAL baseline (gates/MANUSCRIPT_H3_LOSS_BASELINE.json) frozen the same day; rc=0 measured before wiring, and negative-tested by removing a page from the baseline, which correctly returned rc=1."
+  },
+  {
    "script": "scripts/audit_our_k_against_theirs.py",
    "secs": 0.4
   },

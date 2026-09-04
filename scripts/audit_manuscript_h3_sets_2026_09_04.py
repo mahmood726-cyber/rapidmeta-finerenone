@@ -170,6 +170,21 @@ def main():
     # folding it into either a pass or a failure would state something the
     # audit does not know.
     losing = [r for r in rows if r.get("status") == "OK" and r.get("lost")]
+    # RATCHETED against an INITIAL baseline frozen the day this instrument was first
+    # wired (gates/MANUSCRIPT_H3_LOSS_BASELINE.json). A baseline entry is a standing debt
+    # with a named cause and owner, never absolution: any page NOT in it that would lose a
+    # heading fails this run immediately. A PASS means NO NEW LOSS, not a clean corpus.
+    _bl = os.path.join(REPO, "gates", "MANUSCRIPT_H3_LOSS_BASELINE.json")
+    frozen = {}
+    if os.path.exists(_bl):
+        frozen = json.load(io.open(_bl, encoding="utf-8")).get("pages") or {}
+    new_losing = [r for r in losing if r["page"] not in frozen]
+    still = [r for r in losing if r["page"] in frozen]
+    healed = [p for p in frozen if p not in {r["page"] for r in losing}]
+    print("baseline: %d frozen, %d still losing, %d NEW, %d healed"
+          % (len(frozen), len(still), len(new_losing), len(healed)))
+    for _p in sorted(healed):
+        print("  HEALED   %s -- remove it from the baseline" % _p)
     not_run = [r for r in rows
                if str(r.get("status", "")).startswith(
                    ("OBJECT_UNREADABLE", "PROJECTOR_RAISED", "NO_OBJECT"))]
@@ -178,17 +193,31 @@ def main():
           "raised, or no object)" % (len(examined), len(rows), len(not_run)))
     for r in not_run:
         print("  NOT_RUN  %-52s %s" % (r["page"], r.get("status")))
+    # EVERY losing page is printed, baselined or not. A baseline entry is a standing debt
+    # and must stay visible; only the VERDICT is ratcheted.
+    for r in losing:
+        tag = "BASELINED" if r["page"] in frozen else "NEW"
+        print("  %-10s %-52s -%d h3  %s"
+              % (tag, r["page"], len(r["lost"]), ", ".join(r["lost"][:6])))
     if losing:
-        print("\nFAIL: %d page(s) would LOSE delivered manuscript heading(s) on "
-              "rebuild." % len(losing))
-        for r in losing:
-            print("  %-52s -%d h3  %s"
-                  % (r["page"], len(r["lost"]), ", ".join(r["lost"][:6])))
-        print("\nA lost heading is not a cosmetic diff. On ALIROCUMAB_LIPID_SSOT "
-              "an evicted section took a pooled estimate with it, while the page "
-              "GREW -- so a size check scored that an improvement.")
+        print("")
+        print("A lost heading is not a cosmetic diff. On ALIROCUMAB_LIPID_SSOT an "
+              "evicted section took a pooled estimate with it, while the page GREW -- "
+              "so a size check scored that an improvement.")
+    if new_losing:
+        print("")
+        print("FAIL: %d page(s) NOT IN THE BASELINE would LOSE delivered manuscript "
+              "heading(s) on rebuild." % len(new_losing))
         return 1
-    print("\nOK: no page loses a delivered manuscript heading on rebuild.")
+    if losing:
+        print("")
+        print("PASS at or below the baseline: %d frozen page(s) still lose headings "
+              "and are OUTSTANDING WORK, not accepted behaviour. See "
+              "gates/MANUSCRIPT_H3_LOSS_BASELINE.json for the named cause and owner of "
+              "each. A PASS here means NO NEW LOSS, never a clean corpus." % len(still))
+        return 0
+    print("")
+    print("OK: no page loses a delivered manuscript heading on rebuild.")
     return 0
 
 
