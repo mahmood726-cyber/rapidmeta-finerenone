@@ -304,6 +304,33 @@ def selftest() -> int:
         if not good:
             for n in notes:
                 print("        " + n.strip()[:150])
+    # KNOWN_NEGATIVE -- PRE-EXISTING. NAMED AND RATED HERE; NO BEHAVIOUR CHANGED.
+    #
+    # gate2 flagged this file for having "no known-negative control" while FOUR must-NOT-fire
+    # cases were already here and passing. It matches on the TOKENS `KNOWN_NEGATIVE` /
+    # `control(`, and this file never used the word. FOURTH FALSE FINDING OF THAT KIND.
+    #
+    # THE HARD NEGATIVE IS CASE 4, named rather than described: "only ACEI+MRA is on the page,
+    # and it is correct; ACEI must not be scored against it." A label that is a PREFIX of a
+    # longer label is the subtlest false positive available here -- a substring matcher finds
+    # "ACEI" inside "ACEI+MRA", compares it against the wrong stored estimate, and
+    # manufactures a contradiction out of a page that is right. Cases 3 and 5 (rounding,
+    # en-dash intervals) are the same family: presentation differences that are not defects.
+    #
+    # This file already states why that direction matters as much as the other -- "a gate
+    # that cries wolf on rounding gets switched off".
+    KNOWN_NEGATIVE = ("case 4: a prefix label (ACEI) must not be scored against a longer "
+                      "one (ACEI+MRA) that is itself correct")
+    _negs = [(lbl, pg, want) for lbl, pg, want in cases if want == "ok"]
+    _fp = sum(1 for _, pg, want in _negs if compare_page(pg)[0] != want)
+    print()
+    print("  KNOWN-NEGATIVE CONTROL: %d/%d matched (measured false-positive rate %.1f%%)"
+          % (_fp, len(_negs), 100.0 * _fp / len(_negs) if _negs else 0.0))
+    print("  %s" % KNOWN_NEGATIVE)
+    print("  Pre-existing; named here so it is visible, not added here.")
+    if _fp:
+        ok = False
+        print("  CONTROL FAILED: a correct page was scored as contradicting its object.")
     print()
     print("  WHAT A FAILURE LOOKS LIKE: case 1 reporting ok. Those six values were served")
     print("  for six days beside an object that contradicted two of their verdicts.")
