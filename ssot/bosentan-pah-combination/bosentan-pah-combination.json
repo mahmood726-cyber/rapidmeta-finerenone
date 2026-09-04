@@ -256,7 +256,9 @@
     "records_returned": 57,
     "total_reported": 57,
     "recall_on_included_set": "1/1 -- COMPASS-2 (NCT00303459) surfaced",
-    "pagination_verified": "next_page_token null and returned == totalCount, from the FIRST page."
+    "pagination_verified": "next_page_token null and returned == totalCount, from the FIRST page.",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (57) minus records_returned (57). Both are this object's own recorded numbers."
    },
    {
     "database": "PubMed",
@@ -267,10 +269,23 @@
     "records_returned": null,
     "total_reported": null,
     "recall_on_included_set": "NOT MEASURED",
-    "what_is_unexamined": "NO PUBMED SEARCH WAS RUN FOR THIS TOPIC. Recorded as an absence rather than omitted: the registry search is the only executed search behind this review, so any trial reported in the literature and never registered is outside what was looked at. P23 cannot hold on a database nobody queried."
+    "what_is_unexamined": "NO PUBMED SEARCH WAS RUN FOR THIS TOPIC. Recorded as an absence rather than omitted: the registry search is the only executed search behind this review, so any trial reported in the literature and never registered is outside what was looked at. P23 cannot hold on a database nobody queried.",
+    "records_not_retrieved": "NOT_RECORDED",
+    "records_not_retrieved_basis": "NOT_RECORDED. This source records a search that RAN and does not state how many records it returned, so the remainder cannot be derived. A zero here would be an invention: an absence is not a proven zero."
    }
   ],
-  "pagination_verified": "returned == totalCount on the registry query."
+  "pagination_verified": "returned == totalCount on the registry query.",
+  "retrieval_remainder": {
+   "state": "NOT_PROVABLE",
+   "total": "NOT_RECORDED",
+   "by_source": {
+    "ClinicalTrials.gov API v2": 0,
+    "PubMed": "NOT_RECORDED"
+   },
+   "_scope": "Records a SEARCH returned and this object never retrieved. It is NOT the screening remainder: k_cascade.k_unscreened_remainder counts candidates that ENTERED the cascade and went unscreened, and both are published because they answer different questions.",
+   "_not": "This is not a completeness claim. It says how many records were returned and not retrieved -- nothing about whether the query was well aimed, nor whether the retrieved records were the right ones.",
+   "_why_not_provable": "At least one source does not state how many records it returned. A sum containing an unknown is unknown, so no total is published."
+  }
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed search above.",

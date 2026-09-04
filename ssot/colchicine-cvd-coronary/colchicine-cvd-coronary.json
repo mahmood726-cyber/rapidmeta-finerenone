@@ -707,7 +707,9 @@
     "total_reported": 137,
     "recall_on_included_set": "3/3",
     "pagination_verified": "100 + 37 = 137 == totalCount and the cursor returned null on page 2. THE PROOF IS THE SUM ACROSS PAGES. Page 2 held CLEAR SYNERGY (n=7,264), one of the review's own included trials and the largest -- a screen stopped at page 1 would have reported a complete-looking cascade over 100 records and been 27 per cent short.",
-    "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_surfaced_137.json"
+    "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_surfaced_137.json",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (137) minus records_returned (137). Both are this object's own recorded numbers."
    },
    {
     "database": "PubMed",
@@ -721,7 +723,9 @@
     "pagination_verified": "100 x 5 + 23 = 523 == total_count, has_more FALSE on the last page.",
     "why_this_limb_was_required": "The registry screen found EIGHT records with posted results against FIFTY-THREE completed or terminated with none, and CONVINCE, CHANCE-3 and CLEAR SYNERGY are all in the fifty-three. A REGISTRY-ONLY REVIEW HERE WOULD HAVE REFUSED TO POOL ON THE GROUND THAT ITS OWN ANCHOR TRIALS HAD NOT REPORTED -- a finding about the database presented as a finding about the literature.",
     "what_is_unexamined": "NO DISPOSITION HAS BEEN APPLIED TO ANY OF THE 523. Three publications were read and 520 were not. This limb establishes the denominator and recall and nothing else.",
-    "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_pubmed_523.json"
+    "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_pubmed_523.json",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (523) minus records_returned (523). Both are this object's own recorded numbers."
    },
    {
     "database": "ANZCTR",
@@ -732,10 +736,24 @@
     "records_returned": null,
     "total_reported": null,
     "recall_on_included_set": "NOT MEASURED",
-    "what_is_unexamined": "LoDoCo2 (ACTRN12614000093684) and COPS are registered on ANZCTR and NOWHERE on ClinicalTrials.gov. LoDoCo2 reaches this review through PubMed alone, so its ARMS and ENDPOINTS are read from the publication and its REGISTRATION IS UNREAD. COPS does not reach this review at all."
+    "what_is_unexamined": "LoDoCo2 (ACTRN12614000093684) and COPS are registered on ANZCTR and NOWHERE on ClinicalTrials.gov. LoDoCo2 reaches this review through PubMed alone, so its ARMS and ENDPOINTS are read from the publication and its REGISTRATION IS UNREAD. COPS does not reach this review at all.",
+    "records_not_retrieved": "NOT_RECORDED",
+    "records_not_retrieved_basis": "NOT_RECORDED. This source records a search that RAN and does not state how many records it returned, so the remainder cannot be derived. A zero here would be an invention: an absence is not a proven zero."
    }
   ],
-  "pagination_verified": "Both executed limbs exhausted; the third was not run and says so."
+  "pagination_verified": "Both executed limbs exhausted; the third was not run and says so.",
+  "retrieval_remainder": {
+   "state": "NOT_PROVABLE",
+   "total": "NOT_RECORDED",
+   "by_source": {
+    "ClinicalTrials.gov API v2": 0,
+    "PubMed": 0,
+    "ANZCTR": "NOT_RECORDED"
+   },
+   "_scope": "Records a SEARCH returned and this object never retrieved. It is NOT the screening remainder: k_cascade.k_unscreened_remainder counts candidates that ENTERED the cascade and went unscreened, and both are published because they answer different questions.",
+   "_not": "This is not a completeness claim. It says how many records were returned and not retrieved -- nothing about whether the query was well aimed, nor whether the retrieved records were the right ones.",
+   "_why_not_provable": "At least one source does not state how many records it returned. A sum containing an unknown is unknown, so no total is published."
+  }
  },
  "precondition_verdict": {
   "assessed_on": "2026-08-19",

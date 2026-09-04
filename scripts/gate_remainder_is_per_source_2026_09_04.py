@@ -1,41 +1,38 @@
 # -*- coding: utf-8 -*-
-"""A remainder of 0 must be PROVED from per-source arithmetic, with every source named.
+"""Every object that runs a search must publish how many records it never retrieved.
 
-THE DEFECT, MEASURED ON ssot/sglt2-hf/sglt2-hf.json AND ON THE PAGE IT SERVES.
+THE DEFECT, AND ITS FIRST DIAGNOSIS WAS WRONG. This gate originally refused sglt2-hf on the
+grounds that `k_cascade.k_unscreened_remainder` was 0 while its sources summed to 1,402. That
+accused the wrong field.
 
-    search.databases[0]  ClinicalTrials.gov q1   returned 23    total 23     not_retrieved ABSENT
-    search.databases[1]  ClinicalTrials.gov q2   returned 56    total 56     not_retrieved ABSENT
-    search.databases[2]  PubMed                  returned 50    total 1452   not_retrieved 1402
-    k_cascade.k_unscreened_remainder                                                          0
-    prisma_flow.reconciliation.arithmetic  "56 identified = 49 + 1 + 6 + 0"
+    `k_unscreened_remainder` is a SCREENING remainder -- candidates that ENTERED the cascade
+    and went unscreened -- and it is CORRECT on both objects that publish one. sglt2-hf's 0
+    is backed by "all 32 screened" and "all 10 screened". early-rhythm-control-af's 88 counts
+    trials read by ONE seat, and one seat is not a screen.
 
-The per-source record is HONEST -- it says in terms that "the other 1402 are UNEXAMINED, not
-excluded". The AGGREGATE destroys it. The reconciliation balances the 56 that ClinicalTrials
-returned and nothing else, and the single number it publishes is 0. SGLT2_HF_REVIEW.html then
-renders "unscreened remainder 0." and contains 1452 once and 1402 ZERO TIMES.
+    A GATE THAT ACCUSES A CORRECT FIELD IS THE DEFECT CLASS THIS REPOSITORY CATALOGUES, and
+    this one did it in the very commit that introduced it.
 
-    A ZERO THAT IS TRUE OF ONE CASCADE, SERVED AS THOUGH IT COVERED EVERY SOURCE. One number
-    cannot be right for more than one cascade, and a reader has no way to see which cascade
-    it belongs to.
-
-AND THE TWO SILENCES. The ClinicalTrials rows have no remainder field at all. Their remainder
-genuinely is zero -- returned equals total -- but the object does not SAY zero, it says
-nothing, and an aggregate assembled from two silences and one honest 1402 came out 0. So this
-gate demands the number be present, not merely correct: ABSENT and 0 are different claims,
-and only one of them can be checked.
+THE REAL DEFECT WAS A MISSING NUMBER, NOT A WRONG ONE. sglt2-hf's PubMed search returned
+1,452 records and retrieved 50. The other 1,402 never entered the cascade at all -- not in
+`k0_surfaced`, not in the screening remainder, nowhere. NO OBJECT IN THE CORPUS PUBLISHED HOW
+MANY RECORDS A SEARCH RETURNED AND NOBODY RETRIEVED. The page renders "unscreened remainder
+0." and contains `1402` zero times, and both statements were true of what the object held.
 
 WHAT THIS REFUSES
-    1. an aggregate remainder that does not equal the sum of the per-source remainders
-    2. an aggregate remainder of 0 where any source has a non-zero remainder
-    3. a source whose remainder can be computed (total and returned are both present) but
-       which does not record it
+    1. an object with recorded sources and NO `search.retrieval_remainder` at all
+    2. a published total that does not equal the sum of its per-source rows
+    3. `state: PROVED` on an object that has a NOT_RECORDED source
+    4. a source whose remainder is derivable from its own numbers and is still not written down
 
-WHAT THIS DELIBERATELY DOES NOT TOUCH -- and it is the behaviour we want, not a defect.
-`reconciliation.gap_stated_plainly` names all 45 of the 49 -> 4 screening gap, trial by trial
-and route by route. That is a SCREENING cascade, downstream of retrieval, and it is exactly
-what a reader needs. This gate is about the RETRIEVAL remainder: how many records the
-searches returned that nobody has looked at. A gate that conflated the two would refuse the
-best-documented object in the corpus for being well documented.
+    AN ABSENCE MUST NOT BECOME A PROVEN ZERO. A SUM OVER A SILENT FIELD IS NOT A SMALLER SUM
+    -- IT IS NOT A SUM. Rule 3 is the one that enforces it, and it needed a THIRD control,
+    because a positive and a negative control both pass a gate that cannot tell the difference.
+
+WHAT THIS DELIBERATELY DOES NOT TOUCH. `reconciliation.gap_stated_plainly` names all 45 of
+sglt2-hf's 49 -> 4 SCREENING gap, trial by trial and route by route, and `k_unscreened_
+remainder` is left exactly as it is on every object. A gate conflating retrieval with
+screening would refuse the best-documented object in the corpus for being well documented.
 """
 from __future__ import annotations
 
@@ -98,72 +95,97 @@ def per_source(db):
 
 
 def check(obj):
-    """(verdict, aggregate, per_source_rows, reasons)."""
+    """(verdict, retrieval_total, per_source_rows, reasons).
+
+    CORRECTED 2026-09-04, and the correction is that this gate was naming the wrong field.
+
+    Its first version refused an object because `k_cascade.k_unscreened_remainder` was 0 while
+    the sources summed to 1,402. That reading was wrong. `k_unscreened_remainder` is a
+    SCREENING remainder -- candidates that entered the cascade and went unscreened -- and it is
+    CORRECT on both objects that publish one: sglt2-hf's 0 ("all 32 screened", "all 10
+    screened") and early-rhythm-control-af's 88 (read by one seat, and one seat is not a
+    screen).
+
+        A GATE THAT ACCUSES A CORRECT FIELD IS THE DEFECT CLASS THIS REPOSITORY CATALOGUES.
+        The defect was never a wrong aggregate. It was a MISSING one: no object published how
+        many records a search returned and never retrieved.
+
+    So this now checks `search.retrieval_remainder`, written by
+    scripts/apply_retrieval_remainder_2026_09_04.py, and refuses:
+        1. an object with recorded sources that publishes no retrieval remainder at all
+        2. a published total that does not equal the sum of its per-source rows
+        3. a PROVED state on an object that has a NOT_RECORDED source
+        4. a source whose remainder is derivable and is still not written down
+    """
     dbs = ((obj.get("search") or {}).get("databases")) or []
     rows = [per_source(db) for db in dbs if isinstance(db, dict)]
-
-    agg_key, agg = None, None
-    for holder in ("k_cascade", "prisma_flow"):
-        blk = obj.get(holder)
-        if isinstance(blk, dict):
-            k, v = _first(blk, AGGREGATE_KEYS)
-            if isinstance(v, int):
-                agg_key, agg = "%s.%s" % (holder, k), v
-                break
-    if agg is None:
-        return "NO_AGGREGATE", None, rows, []
     if not rows:
-        return ("AGGREGATE_WITHOUT_SOURCES", agg, rows,
-                ["an aggregate remainder of %d is published and NO source is recorded, so "
-                 "it cannot be proved from anything" % agg])
+        return "NO_SOURCES", None, rows, []
+
+    block = (obj.get("search") or {}).get("retrieval_remainder")
+    if not isinstance(block, dict):
+        return ("REFUSED", None, rows,
+                ["records %d source(s) and publishes NO retrieval remainder. How many records "
+                 "a search returned and nobody retrieved is not stated anywhere." % len(rows)])
 
     reasons = []
-    known = [r for r in rows if r[1] is not None]
-    unknown = [r for r in rows if r[1] is None]
-    total_rem = sum(r[1] for r in known)
-
+    silent = [r for r in rows if r[0] == "NOT_ASSESSABLE"]
     for state, rem, detail in rows:
         if state == "COMPUTABLE":
             reasons.append("a source does not record its remainder -- %s" % detail)
         elif state == "INCONSISTENT":
             reasons.append("a source contradicts itself -- %s" % detail)
-        elif state == "NOT_ASSESSABLE":
-            reasons.append("a source cannot be assessed -- %s" % detail)
 
-    if agg == 0 and total_rem > 0:
-        reasons.insert(0, "%s is 0 while the sources sum to %d unexamined record(s). A zero "
-                          "scoped to one cascade is being served as though it covered every "
-                          "source." % (agg_key, total_rem))
-    elif agg != total_rem and not unknown:
-        reasons.insert(0, "%s is %d but the per-source remainders sum to %d"
-                       % (agg_key, agg, total_rem))
+    state = block.get("state")
+    total = block.get("total")
+    if silent:
+        if state != "NOT_PROVABLE":
+            reasons.append(
+                "%d source(s) do not state how many records they returned, so no total is "
+                "provable, yet the block claims state=%r. A SUM OVER A SILENT FIELD IS NOT A "
+                "SMALLER SUM -- IT IS NOT A SUM." % (len(silent), state))
+        if isinstance(total, int):
+            reasons.append(
+                "a numeric total (%d) is published while %d source(s) are NOT_RECORDED. An "
+                "absence must not become a proven zero." % (total, len(silent)))
+    else:
+        summed = sum(r[1] for r in rows if r[1] is not None)
+        if state != "PROVED":
+            reasons.append("every source states its remainder, so the total is provable, yet "
+                           "the block claims state=%r" % state)
+        elif total != summed:
+            reasons.append("the published retrieval remainder is %r but the per-source rows "
+                           "sum to %d" % (total, summed))
 
-    return ("REFUSED" if reasons else "PROVED"), agg, rows, reasons
+    return ("REFUSED" if reasons else "PROVED"), total, rows, reasons
 
 
 def controls():
-    """A proved zero must pass; the real defect must fire.
+    """A proved retrieval remainder must pass; a missing one must fire.
 
-    POSITIVE  the sglt2-hf SHAPE, rebuilt synthetically: one source with 1402 unexamined and
-              an aggregate of 0. It MUST be refused. A gate that cannot fire on the instance
+    POSITIVE  the sglt2-hf SHAPE: sources recording 1,402 unretrieved and NO retrieval
+              remainder block. It MUST be refused. A gate that cannot fire on the instance
               that motivated it has not been shown to do anything.
-    NEGATIVE  every source records a remainder of 0 and the aggregate is 0. It MUST NOT be
-              refused -- this is the over-flagging direction, where the gate would punish an
-              object for being complete.
+    NEGATIVE  the same sources WITH a correct PROVED block. It MUST NOT be refused -- the
+              over-flagging direction, where the gate would punish an object for carrying
+              exactly what it was asked to carry.
+    THIRD     a silent source with a numeric total published anyway. MUST be refused: this is
+              the absence-becomes-a-proven-zero case and neither of the first two catches it.
     """
-    bad = {"search": {"databases": [
+    srcs = [{"database": "ctgov", "records_returned": 56, "total_count": 56,
+             "records_not_retrieved": 0},
+            {"database": "pubmed", "records_returned": 50, "total_count": 1452,
+             "records_not_retrieved": 1402}]
+    bad = {"search": {"databases": srcs}}
+    good = {"search": {"databases": srcs, "retrieval_remainder": {
+        "state": "PROVED", "total": 1402,
+        "by_source": {"ctgov": 0, "pubmed": 1402}}}}
+    silent = {"search": {"databases": [
         {"database": "ctgov", "records_returned": 56, "total_count": 56,
          "records_not_retrieved": 0},
-        {"database": "pubmed", "records_returned": 50, "total_count": 1452,
-         "records_not_retrieved": 1402}]},
-        "k_cascade": {"k_unscreened_remainder": 0}}
-    good = {"search": {"databases": [
-        {"database": "ctgov", "records_returned": 56, "total_count": 56,
-         "records_not_retrieved": 0},
-        {"database": "pubmed", "records_returned": 1452, "total_count": 1452,
-         "records_not_retrieved": 0}]},
-        "k_cascade": {"k_unscreened_remainder": 0}}
-    return check(bad)[0], check(good)[0]
+        {"database": "pubmed", "records_not_retrieved": "NOT_RECORDED"}],
+        "retrieval_remainder": {"state": "PROVED", "total": 0, "by_source": {}}}}
+    return check(bad)[0], check(good)[0], check(silent)[0]
 
 
 def load_baseline():
@@ -173,12 +195,21 @@ def load_baseline():
 
 
 def main(argv):
-    pos, neg = controls()
+    pos, neg, silent = controls()
     require_controls(
         "gate_remainder_is_per_source",
-        ("synthetic object, 1402 unexamined and an aggregate of 0", pos, "REFUSED"),
-        ("synthetic object, every source records 0 and the aggregate is 0", neg, "REFUSED"),
+        ("1402 unretrieved and NO retrieval remainder block", pos, "REFUSED"),
+        ("the same sources WITH a correct PROVED block", neg, "REFUSED"),
     )
+    # THE THIRD CONTROL, and it catches what neither of the first two can: a total
+    # published over a source that never said what it returned.
+    if silent != "REFUSED":
+        raise SystemExit(
+            "REFUSED: a numeric total published over a NOT_RECORDED source came back "
+            "%r, not REFUSED. An absence must not become a proven zero, and this gate "
+            "cannot currently tell. NO COUNT IS PRINTED." % silent)
+    print("CONTROL (third) gate_remainder_is_per_source: numeric total over a "
+          "NOT_RECORDED source -> %r, expected 'REFUSED'" % silent)
 
     pm = json.loads(PAGE_MAP.read_text(encoding="utf-8"))
     offenders, proved, no_agg, seen = [], [], [], 0

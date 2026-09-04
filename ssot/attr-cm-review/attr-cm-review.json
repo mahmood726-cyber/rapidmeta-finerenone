@@ -1005,10 +1005,22 @@
     "records_returned": 55,
     "total_reported": 55,
     "recall_on_included_set": "2/2",
-    "why_intervention_only": "No condition filter. ATTR amyloidosis is registered under cardiomyopathy, polyneuropathy, and bare 'amyloidosis' interchangeably, and the two preceding topics both lost included trials to a condition term one word narrower than the registry's own. The population limb is applied at SCREENING, from conditionsModule, where it can be read per trial rather than guessed once."
+    "why_intervention_only": "No condition filter. ATTR amyloidosis is registered under cardiomyopathy, polyneuropathy, and bare 'amyloidosis' interchangeably, and the two preceding topics both lost included trials to a condition term one word narrower than the registry's own. The population limb is applied at SCREENING, from conditionsModule, where it can be read per trial rather than guessed once.",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (55) minus records_returned (55). Both are this object's own recorded numbers."
    }
   ],
-  "pagination_verified": "records_returned == total_reported (55/55); no page boundary."
+  "pagination_verified": "records_returned == total_reported (55/55); no page boundary.",
+  "retrieval_remainder": {
+   "state": "PROVED",
+   "total": 0,
+   "by_source": {
+    "ClinicalTrials.gov API v2 -- intervention, all brands and codes": 0
+   },
+   "_scope": "Records a SEARCH returned and this object never retrieved. It is NOT the screening remainder: k_cascade.k_unscreened_remainder counts candidates that ENTERED the cascade and went unscreened, and both are published because they answer different questions.",
+   "_not": "This is not a completeness claim. It says how many records were returned and not retrieved -- nothing about whether the query was well aimed, nor whether the retrieved records were the right ones.",
+   "_why_not_provable": null
+  }
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed search above.",

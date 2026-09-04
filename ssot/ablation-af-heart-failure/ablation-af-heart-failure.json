@@ -762,7 +762,9 @@
     "records_returned": 67,
     "total_reported": 67,
     "recall_on_included_set": "2/2",
-    "why_chosen": "The SMALLEST surfaced set achieving full recall. A wider query that finds nothing new costs reviewer time and buys nothing -- stated as a rule rather than as a preference, and the wider query is recorded below so the choice is inspectable."
+    "why_chosen": "The SMALLEST surfaced set achieving full recall. A wider query that finds nothing new costs reviewer time and buys nothing -- stated as a rule rather than as a preference, and the wider query is recorded below so the choice is inspectable.",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (67) minus records_returned (67). Both are this object's own recorded numbers."
    },
    {
     "database": "ClinicalTrials.gov API v2 -- WIDER CONDITION TERM, RECORDED AND NOT CHOSEN",
@@ -773,7 +775,9 @@
     "records_returned": 74,
     "total_reported": 74,
     "recall_on_included_set": "2/2",
-    "what_it_establishes": "SEVEN MORE RECORDS AND NOT ONE MORE INCLUDED TRIAL. The condition term 'heart failure' alone did not cost this review anything -- CHECKED rather than assumed, because on two other topics in this corpus a condition term one word too narrow silently lost included trials (sglt2-hf lost DELIVER; iv-iron-hf lost AFFIRM-AHF and HEART-FID). A recall risk that is measured and found absent is a different statement from one that was never looked for."
+    "what_it_establishes": "SEVEN MORE RECORDS AND NOT ONE MORE INCLUDED TRIAL. The condition term 'heart failure' alone did not cost this review anything -- CHECKED rather than assumed, because on two other topics in this corpus a condition term one word too narrow silently lost included trials (sglt2-hf lost DELIVER; iv-iron-hf lost AFFIRM-AHF and HEART-FID). A recall risk that is measured and found absent is a different statement from one that was never looked for.",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (74) minus records_returned (74). Both are this object's own recorded numbers."
    }
   ],
   "no_phase_filter_and_that_is_deliberate": "This topic's search carries NO phase filter. The historical ablation query carried phase=[PHASE3,PHASE4] and recalled ONE of the three trials in the sibling review, because CABANA and RAFT-AF are registered `phases: [\"NA\"]`. NA IS NOT A PHASE: a filter that ENUMERATES phases silently drops every registrant who declined to declare one. RAFT-AF is one of THIS review's two included trials, so the filter would have cost half its evidence base. See PAGE-STANDARD P23 and evidence/2026-08-19-batch1/phase_filter_recall_sweep.json.",
@@ -781,6 +785,17 @@
   "pubmed": {
    "state": "NOT EXECUTED FOR THIS TOPIC",
    "why": "RECORDED AS AN ABSENCE RATHER THAN OMITTED. This review's included set is keyed on REGISTRATION IDs and both trials were reached through the registry, so a PubMed search would not have changed the included set. It would have changed the COMPLETENESS CLAIM: a trial published but never registered, or registered under terms this query does not match, would be missed here and no count on this page would look wrong. That is a real and stated limit on this search."
+  },
+  "retrieval_remainder": {
+   "state": "PROVED",
+   "total": 0,
+   "by_source": {
+    "ClinicalTrials.gov API v2 -- CHOSEN QUERY": 0,
+    "ClinicalTrials.gov API v2 -- WIDER CONDITION TERM, RECORDED AND NOT CHOSEN": 0
+   },
+   "_scope": "Records a SEARCH returned and this object never retrieved. It is NOT the screening remainder: k_cascade.k_unscreened_remainder counts candidates that ENTERED the cascade and went unscreened, and both are published because they answer different questions.",
+   "_not": "This is not a completeness claim. It says how many records were returned and not retrieved -- nothing about whether the query was well aimed, nor whether the retrieved records were the right ones.",
+   "_why_not_provable": null
   }
  },
  "prisma_flow": {
