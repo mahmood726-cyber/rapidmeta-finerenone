@@ -201,6 +201,33 @@ ARM_C_NEGATIVES = [
 ]
 
 
+# A LINE NUMBER IS NOT AN IDENTITY.
+#
+# This ratchet was keyed on `path:LINE`, so editing anything ABOVE a render site renamed
+# it. On 2026-09-04 two unrelated commits -- a recovery loop in build_app_v2 and a
+# registration helper in build_tabbed -- moved 14 of 15 frozen sites, and the gate reported
+# 14 RETIRED and 14 NEW. Not one site had changed.
+#
+#     A POSITION-KEYED RATCHET REPORTS EVERY EDIT ABOVE IT AS A DEFECT BELOW IT, AND THE
+#     FIX FOR A BARE SITE -- ADDING THE REGISTRATION -- MOVES EVERY SITE UNDER IT. THE
+#     CHECK PUNISHED ITS OWN REMEDY.
+#
+# The failure is worse than noise. 14 spurious NEW keys drown a real one, and 14 spurious
+# RETIRED invite exactly the wrong maintenance: deleting frozen keys for defects that are
+# still there. This is the same class as gate14's `block[:70]` and it is why that one is
+# re-anchored with a ledger rather than trusted.
+#
+# The key is now the file, the name fields, and the CONTENT of the emitted fragment. Moving
+# a site does not rename it; changing what it renders does, which is correct -- a rewritten
+# fragment is a different claim and deserves re-examination. Identical fragments in one file
+# are disambiguated by an occurrence index, so a duplicated defect still counts twice.
+def bare_site_key(rel, fields, snippet, seen):
+    sig = re.sub(r"\s+", " ", snippet).strip()[:60]
+    base = "%s  fields=%s  <<%s>>" % (rel, sorted(fields & NAME_FIELDS), sig)
+    seen[base] += 1
+    return base if seen[base] == 1 else "%s  #%d" % (base, seen[base])
+
+
 def arm_a(gate, repo):
     kinds = collections.Counter()
     bare = []
@@ -219,18 +246,23 @@ def arm_a(gate, repo):
         # DEDUPE BY (file, line). `ast.walk` yields every nested BinOp of one f-string
         # chain, so a single `<tr>` reported 20 times and the count was of AST nodes, not
         # render sites. A count of the wrong unit is the commonest error in this repository.
+        #
+        # The LONGEST text at a line is the outermost fragment of that chain -- the whole
+        # `<tr>`, not one `<td>` of it -- and it is what the content key is built from.
         best = {}
         for lineno, fields, snippet in sites:
-            prev = best.get(lineno, set())
-            best[lineno] = prev | fields
+            pf, pt = best.get(lineno, (set(), ""))
+            best[lineno] = (pf | fields, snippet if len(snippet) > len(pt) else pt)
+        seen = collections.Counter()
         for lineno in sorted(best):
-            fields = best[lineno]
+            fields, snippet = best[lineno]
             kinds["render site naming a trial"] += 1
             if fields & REG_FIELDS:
                 kinds["  with a registration in the same fragment"] += 1
             else:
                 kinds["  with NO registration in the same fragment"] += 1
-                bare.append("%s:%d  fields=%s" % (rel, lineno, sorted(fields & NAME_FIELDS)))
+                key = bare_site_key(rel, fields, snippet, seen)
+                bare.append(key)
     return bare, kinds
 
 
