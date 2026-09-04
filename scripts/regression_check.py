@@ -618,8 +618,8 @@ for _marker, _sig in (("arni_hf_protocol", "wrong_protocol_link"),):
 #
 # On Windows a leading-slash path has no drive, so it resolves against the CURRENT one. The
 # comment here used to assert that "/tmp resolves to F:/claude-temp", which is true of the
-# shell and false of Python: from a clone on E: it is E:	mp, which does not exist, and the
-# write raised FileNotFoundError. C:	mp and F:	mp both happen to exist, so every clone on
+# shell and false of Python: from a clone on E: it is E:\tmp, which does not exist, and
+# the write raised FileNotFoundError. C:\tmp and F:\tmp both exist, so every clone on
 # those drives wrote successfully and the defect stayed invisible.
 #
 #     THE CRASH LANDED ABOVE THE GATE'S OWN VERDICT AND ABOVE ITS OWN SELF-TEST.
