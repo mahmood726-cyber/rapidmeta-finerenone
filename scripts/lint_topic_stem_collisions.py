@@ -170,8 +170,30 @@ def selftest():
         print("SELFTEST planted collision -> REFUSED, and the offender is named")
 
     # The other direction: the unplanted source must NOT refuse against its own baseline.
+    #
+    # THIS CONTROL PRE-EXISTS. It was written with the lint and has always run. It is NAMED
+    # here and its rate PRINTED; NO BEHAVIOUR CHANGED. Recorded that way because gate2
+    # flagged this file for having "no known-negative control" while this paired control was
+    # already passing -- gate2 matches on the TOKENS `KNOWN_NEGATIVE` / `control(`, and this
+    # file simply never used the word.
+    #
+    #     A GATE THAT MATCHES ON A NAME RATHER THAN A PROPERTY WILL PASS ANYTHING WEARING
+    #     THE NAME AND FAIL EVERYTHING THAT ISN'T.
+    #
+    # So the finding that sent me here was FALSE, and the green that follows is a rename,
+    # not a fix. A future reader should not read it as one.
+    #
+    # The control is good for the reason it was always good: it is the case this lint is
+    # most likely to get wrong. 335 collisions are already baselined, so a lint that refused
+    # its own unmodified source would block every commit in the repository -- the exact
+    # failure its docstring cites as the reason this is a lint and not a gate.
+    KNOWN_NEGATIVE = "the unmodified source, against its own baseline, must NOT refuse"
     code2, _ = report(src, load_baseline())
-    if code2 != 0:
+    fp = 1 if code2 != 0 else 0
+    print("SELFTEST known-negative control: %d/1 matched "
+          "(measured false-positive rate %.1f%%)" % (fp, 100.0 * fp))
+    print("SELFTEST   %s" % KNOWN_NEGATIVE)
+    if fp:
         print("SELFTEST FAIL: the unmodified source refuses against its own baseline, so "
               "the lint would block every commit and could not be trusted to mean anything.")
         ok = False
