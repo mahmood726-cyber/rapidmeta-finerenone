@@ -140,6 +140,15 @@ def _pool_from_outcome(oid, res, outcome_def, omissions):
         "headline_outcome": res.get("estimand_id") or oid,
         "panel_rows": panel_rows,
         "entries": entries,
+        # CHK018 must tell a real mixed POOL from separately-reported strata of an
+        # outcome the object declares non-poolable. Carry both signals it needs:
+        # the object's own poolable flag, and whether any combined estimate is
+        # actually displayed. Without these the export presented malaria's
+        # exploratory_recurrent_rate (poolable False, no combined figure per its
+        # Cochrane gate_dissent) as a pool, and CHK018 flagged HR+IRR that nothing
+        # combines into a shown number.
+        "poolable": res.get("poolable"),
+        "displayed_pooled_estimate": pooled.get("point"),
     }
     # declared_class is REQUIRED by the cross-agent detector and must never be
     # invented: its absence is the defect that detector exists to catch.
