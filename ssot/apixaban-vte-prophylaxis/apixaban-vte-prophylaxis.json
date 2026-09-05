@@ -544,7 +544,7 @@
       "registry": "ClinicalTrials.gov",
       "source_url": "https://clinicaltrials.gov/study/NCT00457002",
       "read_utc": "2026-09-03",
-      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "provenance": {"tier": "NOT_YET_RECORDED", "source_prose": "REGISTRY -- ClinicalTrials.gov posted results", "migrated_2026_09_05": "Migrated from a legacy provenance string to the tier schema. The prose names a source but the structured tier was never recorded; per provenance_tier.validate a tier must not be inferred from the words in the string, so this is NOT_YET_RECORDED with the prose preserved rather than promoted to REGISTRY_POSTED_RESULT without its required registry/accessed_utc/table/row_identifier."},
       "as_posted": {
        "apixaban_events": 15,
        "apixaban_n": 3184,
@@ -583,7 +583,7 @@
       "registry": "ClinicalTrials.gov",
       "source_url": "https://clinicaltrials.gov/study/NCT00423319",
       "read_utc": "2026-09-03",
-      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "provenance": {"tier": "NOT_YET_RECORDED", "source_prose": "REGISTRY -- ClinicalTrials.gov posted results", "migrated_2026_09_05": "Migrated from a legacy provenance string to the tier schema. The prose names a source but the structured tier was never recorded; per provenance_tier.validate a tier must not be inferred from the words in the string, so this is NOT_YET_RECORDED with the prose preserved rather than promoted to REGISTRY_POSTED_RESULT without its required registry/accessed_utc/table/row_identifier."},
       "as_posted": {
        "apixaban_events": 22,
        "apixaban_n": 2673,
@@ -622,7 +622,7 @@
       "registry": "ClinicalTrials.gov",
       "source_url": "https://clinicaltrials.gov/study/NCT00371683",
       "read_utc": "2026-09-03",
-      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "provenance": {"tier": "NOT_YET_RECORDED", "source_prose": "REGISTRY -- ClinicalTrials.gov posted results", "migrated_2026_09_05": "Migrated from a legacy provenance string to the tier schema. The prose names a source but the structured tier was never recorded; per provenance_tier.validate a tier must not be inferred from the words in the string, so this is NOT_YET_RECORDED with the prose preserved rather than promoted to REGISTRY_POSTED_RESULT without its required registry/accessed_utc/table/row_identifier."},
       "as_posted": {
        "apixaban_events": 11,
        "apixaban_n": 1596,
@@ -661,7 +661,7 @@
       "registry": "ClinicalTrials.gov",
       "source_url": "https://clinicaltrials.gov/study/NCT00452530",
       "read_utc": "2026-09-03",
-      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "provenance": {"tier": "NOT_YET_RECORDED", "source_prose": "REGISTRY -- ClinicalTrials.gov posted results", "migrated_2026_09_05": "Migrated from a legacy provenance string to the tier schema. The prose names a source but the structured tier was never recorded; per provenance_tier.validate a tier must not be inferred from the words in the string, so this is NOT_YET_RECORDED with the prose preserved rather than promoted to REGISTRY_POSTED_RESULT without its required registry/accessed_utc/table/row_identifier."},
       "as_posted": {
        "apixaban_events": 9,
        "apixaban_n": 1501,
@@ -1255,7 +1255,22 @@
     "primaryPurpose": "PREVENTION",
     "reason": "eligible with results, but no VTE or bleeding outcome at any rank",
     "subject_ref": "sha256:9b12590c72a5a630c3d1983e5d3d78287539cf548719b49c3493e8e9efcbeda9",
-    "judgement_ref": "sha256:6dac9e38855ebd6041c0c8f188bc65e748a302264e8fab68970492171ea95264"
+    "judgement_ref": "sha256:6dac9e38855ebd6041c0c8f188bc65e748a302264e8fab68970492171ea95264",
+    "flagged_not_acted_on_2026_09_04": {
+     "state": "CLAIMED -- COULD NOT BE ESTABLISHED EITHER WAY, AND SO NOT ACTED ON",
+     "the_row_says": "eligible with results, but no VTE or bleeding outcome at any rank",
+     "what_the_registry_says": {
+      "source": "ClinicalTrials.gov API v2, read 2026-09-04",
+      "primaryOutcomes[0].measure": "Number of Participants With Strokes",
+      "primaryOutcomes[1].measure": "Number of Participants With Thromboembolytic Events",
+      "primaryOutcomes[1].description": "Efficacy will be measured by the freedom from thromboembolytic events during the study period. Events relating to thromboembolytic events will be adjudicated using pre-determined definitions by independent committee members that remain blinded to the patient's treatment arm.",
+      "secondaryOutcomes[0].measure": "Units of Blood Given After Initiation of Anticoagulation Medication"
+     },
+     "why_it_is_only_flagged": "'Thromboembolytic Events' -- the registrant's spelling of thromboembolic -- is a thromboembolic-event outcome, and 'Units of Blood Given After Initiation of Anticoagulation' is a transfusion measure that stands close to a bleeding outcome without being one. Whether either is a VTE or a bleeding outcome IN THIS REVIEW'S SENSE cannot be settled from the registry text: the record does not say whether the thromboembolic events are venous or arterial, and this is a surgical anticoagulation population where both are plausible. SO THE ROW IS NEITHER CONFIRMED NOR CORRECTED. It is marked, with what would settle it.",
+     "what_would_settle_it": "the trial's protocol or its posted results, naming the event definitions used for the thromboembolic primary",
+     "found_by": "the 2026-09-04 title-without-description sweep",
+     "not_covered_by_the_test": "scripts/test_screen_reason_vs_registry_description.py reports this topic as NOT CHECKED rather than passing, because adding a probe here would make an unresolved row read as a resolved one."
+    }
    },
    {
     "nct": "NCT02912234",
