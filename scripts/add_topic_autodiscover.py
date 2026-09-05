@@ -26,7 +26,27 @@ OUT = HERE / "outputs" / "new_topics"
 OUT.mkdir(parents=True, exist_ok=True)
 # AACT snapshot dir: set AACT_DIR to your local AACT snapshot (e.g.
 # .../AACT/2026-04-12). Falls back to ~/AACT. No hardcoded drive.
-AACT = Path(os.environ.get("AACT_DIR") or (Path.home() / "AACT"))
+def _resolve_aact_dir():
+    """See scripts/registry_adapter.py::_resolve_aact_root -- the same guard,
+    from the other side.
+
+    Until 2026-09-04 this module read AACT_DIR (default ~/AACT) while
+    registry_adapter.py read AACT_ROOT (default F:/AACT-storage/AACT). One
+    dataset, two keys, two defaults, and no way for either run to notice it had
+    indexed a different snapshot from its sibling. Both keys are now honoured
+    and a genuine disagreement is refused rather than silently resolved.
+    """
+    root = os.environ.get("AACT_ROOT")
+    dir_ = os.environ.get("AACT_DIR")
+    if root and dir_ and Path(root).resolve() != Path(dir_).resolve():
+        raise SystemExit(
+            "REFUSED: AACT_ROOT and AACT_DIR are both set and name different "
+            "directories.\n  AACT_ROOT = %s\n  AACT_DIR  = %s\n"
+            "These are two names for one dataset. Unset one." % (root, dir_))
+    return Path(dir_ or root or (Path.home() / "AACT"))
+
+
+AACT = _resolve_aact_dir()
 
 # Topic specs (drug + disease patterns; NCTs auto-discovered from AACT)
 # Format: (stem, display name, drug_patterns, condition_patterns, [phase_min=2])
@@ -5256,6 +5276,31 @@ TOPICS = [
 
 print(f"Total topics to test: {len(TOPICS)}")
 
+# ─── AACT preflight (2026-09-04) ───────────────────────────────────────────────
+# Every trial this module can ever discover comes from three flat files. If one
+# is missing the module already died, but with a bare FileNotFoundError naming a
+# path and not a cause -- and an exit code is not a cause. Worse, a TRUNCATED
+# file does not fail at all: the index is simply smaller, fewer topics match,
+# and the run reports a legitimate-looking smaller number. That is the shape we
+# keep getting caught by, so the sizes are recorded here and the refusal says
+# what to do, mirroring registry_adapter.py:201 ("ABSENT -- set AACT_ROOT rather
+# than concluding we have no registry").
+_AACT_REQUIRED = ("interventions.txt", "conditions.txt", "studies.txt")
+_missing = [n for n in _AACT_REQUIRED if not (AACT / n).is_file()]
+if _missing:
+    raise SystemExit(
+        "REFUSED: the AACT snapshot is unreadable, so NO trial can be "
+        "discovered and this run would report zero matches for every topic.\n"
+        "  looked in : %s\n"
+        "  missing   : %s\n"
+        "Set AACT_DIR to a snapshot directory rather than concluding we have "
+        "no registry. An absent snapshot is NOT_RUN, never a result of 0."
+        % (AACT, ", ".join(_missing))
+    )
+print("AACT snapshot: %s" % AACT)
+for _n in _AACT_REQUIRED:
+    print("  %-20s %15s bytes" % (_n, f"{(AACT / _n).stat().st_size:,}"))
+
 # ─── Auto-discover NCTs from AACT ───
 print("Indexing AACT interventions.txt by drug pattern...")
 intv_by_nct = defaultdict(list)
@@ -5285,8 +5330,27 @@ print(f"  NCTs with conditions: {len(cond_by_nct):,}")
 # the FIRST `max_per_topic` matches in arbitrary interventions.txt file order
 # and then break-ed, with NO ranking, NO study-type filter, and a raw-substring
 # gate. Against 39 pivotal trials of 13 published meta-analyses it captured
-# only 3%. Three composed layers lift it to 90% (see
-# rapidmeta-staging/PUBLISHED_META_GROUNDTRUTH.md):
+# only 3%. Three composed layers lift it to 82% AT THE CAP DEPLOYED HERE
+# (see C:/Projects/rapidmeta-staging/PUBLISHED_META_GROUNDTRUTH.md, §2):
+#
+#   3% (1/39) deployed  ->  46% (18/39) Fix A  ->  64% (25/39) Fix B @cap12
+#                       ->  82% (32/39) @cap20  ->  87% (34/39) @cap30
+#
+# CORRECTED 2026-09-04. This comment previously said 90%, and so does
+# registry_adapter.py:68. THE GROUND-TRUTH DOCUMENT CONTAINS NO 90%: two files
+# cited it for a number it does not hold. The deployed cap is 20, so the figure
+# these modules are entitled to quote is 82%.
+#
+# AND THE FIGURE MEASURES ONLY THE CANDIDATE-UNIVERSE STAGE. The document says
+# so itself: "Fixes A-C address only the candidate-universe stage, which is
+# where 100% of the misses in this benchmark occur ... even a captured candidate
+# must still pass D_pmid_topic_match / E_two_arms / F_primary_outcome_known."
+# A corpus trace on 2026-09-04 measured 321 of 407 held trials (79%) dying AFTER
+# that stage, at the poolability gate. So 82% is capture into the CANDIDATE SET,
+# never into a pool, and it must not be quoted as a recall figure for the review.
+#
+# Benchmark ran against AACT snapshot 2026-04-12; the current snapshot is
+# 2026-08-30, so the figure is also unrefreshed.
 #   Fix A  interventional filter + enrollment ranking
 #   Fix B  synonym / normalization-aware matching at the substring gate
 #   Fix C  pivotal-aware ranking (late-phase + posted-results tier, then size)
@@ -5295,6 +5359,13 @@ study_type_by_nct = {}
 enroll_by_nct = {}
 phase_by_nct = {}
 results_posted_by_nct = {}
+# The snapshot's DATA date, measured from the content rather than read off the
+# folder name. Borrowed from registry_adapter.py's SNAPSHOT_DATA_DATE, whose
+# note is the right one: "A folder name is a label; the data is the fact, and
+# the label always overstates it in the ghost direction." A topic can only be
+# as current as this date, so it is printed with every run and belongs in any
+# claim about how complete an enumeration is.
+_aact_data_date = ""
 with open(AACT / "studies.txt", "r", encoding="utf-8", errors="replace") as f:
     reader = csv.DictReader(f, delimiter="|")
     for row in reader:
@@ -5307,7 +5378,13 @@ with open(AACT / "studies.txt", "r", encoding="utf-8", errors="replace") as f:
         phase_by_nct[nct] = (row.get("phase") or "").strip().lower()
         results_posted_by_nct[nct] = bool(
             (row.get("results_first_posted_date") or "").strip())
+        _qc = (row.get("last_update_submitted_qc_date") or "").strip()
+        if _qc > _aact_data_date:
+            _aact_data_date = _qc
 print(f"  NCTs with study metadata: {len(study_type_by_nct):,}")
+print("  snapshot data current to: %s  (MEASURED as max("
+      "last_update_submitted_qc_date), not the folder name)"
+      % (_aact_data_date or "UNKNOWN -- column absent from this snapshot"))
 
 # ── Fix B: synonym tables + normalization-aware matching ──────────────────
 # PRODUCTION should source drug synonyms from RxNorm/ChEMBL cross-refs and
@@ -5322,6 +5399,28 @@ DRUG_SYNS = {
 }
 COND_SYNS = {
     "hiv": ["human immunodeficiency virus"],
+    # Carried from scripts/registry_adapter.py on 2026-09-04. They were added
+    # there on 2026-09-02 because the APIXABAN_VTE positive controls FAILED, and
+    # were never carried here -- so for two days the module that discovers topics
+    # for the WHOLE corpus still could not make the match the control was written
+    # to catch. registry_adapter has only ever run on three topics; this module
+    # runs on all of them, so the defect lived where it cost the most.
+    #
+    # AMPLIFY (NCT00643201) and AMPLIFY-EXT (NCT00633893) -- the two pivotal
+    # apixaban VTE trials -- are registered under the condition "Venous
+    # Thrombosis". Token-subset matching cannot bridge that:
+    # {venous, thromboembolism} is not a subset of {venous, thrombosis}.
+    # Without these, an apixaban VTE topic reports its other trials and looks
+    # entirely healthy while missing the two that matter most.
+    #
+    # The helper functions (_norm, _expand_syns, _match_blob) ARE byte-identical
+    # between the two modules -- verified 2026-09-04, 653 B each. The copy that
+    # drifted was the DATA, not the code, which is why the "lifted verbatim"
+    # comment in registry_adapter.py stayed true and stopped being sufficient.
+    # A test now pins the two tables together: tests/test_matcher_tables_in_step.py
+    "venous thromboembolism": ["venous thrombosis", "venous thrombo embolism"],
+    "deep vein thrombosis": ["deep venous thrombosis"],
+    "pulmonary embolism": ["pulmonary thromboembolism"],
 }
 # Fix C: phases treated as "late" (pivotal-capable). AACT stores no spaces.
 LATE_PHASES = frozenset({"phase3", "phase4", "phase2/phase3"})
@@ -5463,8 +5562,56 @@ def _pivotal_score(nct):
     return score
 
 
-# For each topic, find candidate NCTs (consolidated Fix A + B + C + cap 20)
-def find_ncts(drug_patterns, condition_patterns, max_per_topic=20):
+# Every truncation this run performed, so the cap stops being invisible. Read
+# after the discovery loop; see the note inside find_ncts for why.
+CAP_TRUNCATIONS = []
+
+# THE CAP IS A SETTING, NOT A CONSTANT OF NATURE (2026-09-04).
+# It lives here as a NAMED default and is overridable PER TOPIC (5th element of a
+# TOPICS entry: an int, or None for "no cap -- write the full eligible set").
+# The old positional default of 20 bound every topic identically, so a k=21
+# comparator (Galli 2025 GLP-1, JACC) was unreachable by ARITHMETIC, not by
+# search -- an eligible set of any size could never surface more than 20. Making
+# the cap a topic-level setting is what lets a topic raise its own ceiling.
+DEFAULT_MAX_PER_TOPIC = 20
+
+
+def _apply_cap(matches, max_per_topic, record):
+    """Apply the per-topic cap to an already-ranked, deterministic match list.
+
+    `matches` is assumed sorted (pivotal_score DESC, enrollment DESC, nct ASC).
+    Returns the kept NCTs. When the cap BITES it is recorded in `record` BY NAME
+    (eligible / kept / dropped / dropped_ncts / rule) and announced, so that
+    "this topic found 20" is distinguishable from "found 63, kept the top 20 by
+    size and phase" -- those are different claims about the evidence base and
+    only one of them used to be made.
+
+    max_per_topic is None  -> no cap: the full eligible set is returned and
+    NOTHING is recorded, because nothing was excluded.
+    max_per_topic >= len(matches) -> also a no-op, records nothing: a cap
+    silently equal to the eligible count is indistinguishable from no cap, so we
+    do not manufacture a phantom truncation for it.
+
+    This does not change WHICH trials are returned relative to the old inline
+    cap; it only makes the drop countable and makes the cap a passed setting."""
+    if max_per_topic is None or len(matches) <= max_per_topic:
+        return matches
+    dropped = matches[max_per_topic:]
+    record.append({
+        "eligible": len(matches),
+        "kept": max_per_topic,
+        "dropped": len(dropped),
+        "dropped_ncts": dropped,
+        "rule": ("sorted by pivotal_score DESC (late-phase +2, results-posted +1), "
+                 "then enrollment DESC, then nct_id ASC; the tail was cut"),
+    })
+    print("  CAP: %d eligible, kept %d, DROPPED %d by rank (first 5: %s)"
+          % (len(matches), max_per_topic, len(dropped), dropped[:5]))
+    return matches[:max_per_topic]
+
+
+# For each topic, find candidate NCTs (consolidated Fix A + B + C + per-topic cap)
+def find_ncts(drug_patterns, condition_patterns, max_per_topic=DEFAULT_MAX_PER_TOPIC):
     """Return the top `max_per_topic` candidate NCTs whose interventions match a
     drug pattern AND whose conditions match a condition pattern (synonym- and
     normalization-aware, Fix B), dropping explicitly non-interventional studies
@@ -5497,25 +5644,96 @@ def find_ncts(drug_patterns, condition_patterns, max_per_topic=20):
         # base and belongs in the record, not in a discarded local.
         print("  identity gate rejected %d candidate(s); first 5: %s"
               % (len(rejected_for_identity), rejected_for_identity[:5]))
-    return matches[:max_per_topic]
+    # THE CAP IS A SELECTION DECISION AND WAS MAKING IT SILENTLY (2026-09-04).
+    #
+    # registry_adapter.py's ELIGIBILITY block declares, of results-posted:
+    #   "This field RANKS candidates; it never excludes one."
+    # and of truncation:
+    #   "NONE. The full eligible set is written to the ledger. Any cap applied
+    #    downstream must be recorded there, BY NAME."
+    #
+    # Neither held here. The sort key is (-pivotal_score, -enrollment, nct) and
+    # pivotal_score is +2 late-phase, +1 results-posted -- so with a hard cap,
+    # RANKING IS EXCLUSION, and a field declared never to exclude was excluding.
+    # A trial that loses a rank contest it was never told it entered is dropped
+    # for a reason no reader can see.
+    #
+    # This does not change WHICH trials are returned. It makes the drop
+    # countable, so that "this topic found 20" can be distinguished from "this
+    # topic found 63 and we kept the 20 that rank highest on size and phase" --
+    # which are different claims about the evidence base, and only one of them
+    # was being made.
+    # The cap is applied by a pure, testable helper (see _apply_cap above).
+    # None => no cap; a cap at or above the eligible count records nothing.
+    return _apply_cap(matches, max_per_topic, CAP_TRUNCATIONS)
 
+
+# DUPLICATE TOPICS ARE A REAL CONDITION AND WERE UNDETECTED (2026-09-04).
+# Measured on this table: 2,229 tuples resolve to 1,890 distinct stems and 2,066
+# distinct names -- so ~339 stems and ~163 names are declared more than once,
+# including "Dapagliflozin in CKD" and "Apixaban in cancer-associated VTE".
+# Two declarations of one topic produce two artefacts answering one question,
+# and a reader who finds one has no way to know the other exists. This does not
+# stop the run -- deciding which duplicate wins is a judgement, not a lint --
+# but it must not be silent.
+_seen_stems, _seen_names, _dupe_stems, _dupe_names = {}, {}, [], []
+for _t in TOPICS:
+    _stem, _name = _t[0], _t[1]
+    if _stem in _seen_stems:
+        _dupe_stems.append((_stem, _seen_stems[_stem], _name))
+    else:
+        _seen_stems[_stem] = _name
+    if _name in _seen_names:
+        _dupe_names.append((_name, _seen_names[_name], _stem))
+    else:
+        _seen_names[_name] = _stem
+if _dupe_stems or _dupe_names:
+    print("\n  DUPLICATE TOPIC DECLARATIONS -- %d repeated stem(s), %d repeated name(s)"
+          % (len(_dupe_stems), len(_dupe_names)))
+    for _s, _first, _again in _dupe_stems[:5]:
+        print("    stem %r declared twice: %r / %r" % (_s, _first, _again))
+    for _n, _first, _again in _dupe_names[:5]:
+        print("    name %r under stems %r and %r" % (_n, _first, _again))
+    print("    (first 5 of each; two declarations of one topic build two artefacts"
+          " answering one question)")
 
 topic_specs = []
 for t in TOPICS:
+    # 5th element, when present, is THIS topic's cap override: an int, or None
+    # for "no cap". Absent -> DEFAULT_MAX_PER_TOPIC. This is what makes the cap a
+    # topic-level setting rather than a positional default: a topic whose
+    # comparator holds k>20 raises its own ceiling here instead of being bound,
+    # by arithmetic, to 20.
     if len(t) == 4:
         stem, name, drugs, conds = t
+        cap = DEFAULT_MAX_PER_TOPIC
     else:
-        stem, name, drugs, conds, _ = t
+        stem, name, drugs, conds, cap = t
     drugs = [d.lower() for d in drugs]
     conds = [c.lower() for c in conds]
-    ncts = find_ncts(drugs, conds)
-    topic_specs.append({"stem": stem, "name": name, "ncts": ncts,
+    ncts = find_ncts(drugs, conds, max_per_topic=cap)
+    topic_specs.append({"stem": stem, "name": name, "ncts": ncts, "cap": cap,
                          "drug_patterns": drugs, "condition_patterns": conds})
 
 print(f"\nNCT discovery summary:")
 n_with_ncts = sum(1 for t in topic_specs if t["ncts"])
 print(f"  Topics with ≥1 NCT discovered: {n_with_ncts}/{len(topic_specs)}")
 print(f"  Total candidate NCTs: {sum(len(t['ncts']) for t in topic_specs)}")
+# THE HEADLINE COUNT ABOVE IS POST-CAP. Without this it reads as a measure of
+# the evidence base, when it is a measure of the evidence base AND the cap.
+if CAP_TRUNCATIONS:
+    _elig = sum(c["eligible"] for c in CAP_TRUNCATIONS)
+    _drop = sum(c["dropped"] for c in CAP_TRUNCATIONS)
+    print(f"  CAP BOUND ON {len(CAP_TRUNCATIONS)}/{len(topic_specs)} topics: "
+          f"{_elig:,} eligible, {_drop:,} DROPPED by rank, "
+          f"{_elig - _drop:,} kept")
+    print("    The drop is RANKED, not random: late-phase and results-posted "
+          "trials are kept first, so the tail lost is systematically the small, "
+          "early-phase, results-unposted studies. A size-ranked cap cannot close "
+          "a k gap against a published meta-analysis -- it discards precisely "
+          "the trials that comparator has and we do not.")
+else:
+    print("  CAP BOUND ON 0 topics (no topic exceeded the cap this run)")
 
 # ─── Load remaining AACT tables ───
 all_ncts = sorted({nct for t in topic_specs for nct in t["ncts"]})
