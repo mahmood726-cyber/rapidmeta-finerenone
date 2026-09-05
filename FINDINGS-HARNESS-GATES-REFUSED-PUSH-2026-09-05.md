@@ -1,9 +1,18 @@
 # Five harness gates refused a push, 2026-09-05. Eight findings on two served objects.
 
-STATUS AT 2026-09-05 22:30, UPDATED IN PLACE. Findings 1-6 and 8 are FIXED and each was
-verified by re-running the gate that raised it, not by assertion. Finding 7 is BLOCKED on
-the repo owner. A ninth defect of the same class as finding 6 was found on a third object
-(incretin-hfpef-review) by the corpus sweep below and is also fixed.
+STATUS AT 2026-09-05 22:40, UPDATED IN PLACE. SIX of the eight are FIXED WITH THEIR GATE
+PASSING (1, 2, 3, 4, 5, 6), each verified by re-running the gate that raised it rather
+than by assertion. A ninth defect of the same class as finding 6 was found on a third
+object (incretin-hfpef-review) by the corpus sweep below and is also fixed and passing.
+Finding 8 is CORRECTED IN CONTENT BUT ITS GATE STILL REFUSES. Finding 7 is BLOCKED.
+
+CONTENT CORRECTED AND GATE PASSING ARE DIFFERENT STATES AND THIS FILE KEEPS THEM APART.
+Conflating them is how a page comes to claim more than it has earned. An earlier version
+of this header said "1-6 and 8 are FIXED" while its own table two lines below said finding
+8's gate still fails, and the commit that carried it (5da8296c2) says "seven of eight" in
+its subject for the same reason. Both are recorded here rather than rewritten: the count
+that is true is SIX fixed with gates passing, plus incretin, plus one corrected-but-
+blocked, plus one blocked.
 
   1 NNT withdrawn ................................. derived_recompute_gate PASSES
   2 leave-one-out block withdrawn ................. derived_recompute_gate PASSES
@@ -248,3 +257,84 @@ corpus failure rate, it is a gate that could only speak about a single object.
 resolvable refusal, 132 declare no derivation. Those are not passes. Until an object
 records the field a gate reads, that gate is silent about it, and silence has been
 indistinguishable from health.
+
+---
+
+## FINDING 9, AND IT REVERSED UNDER TEST
+
+`refusal_reads_outcome_groups_gate` was still refusing after finding 8's correction. Eleven
+residual hits were classified individually rather than dismissed as false positives -- four
+were quoted retractions in `_superseded_*` keys, five were the correction text itself, and
+**two were a live claim nobody had addressed**: `risk_of_bias.by_outcome.ldlc_pct_change_wk12
+.NCT02458287.domains.D5_selection_of_the_reported_result.reason`, asserting
+
+> "THE ARM PAIR RECORDED ON THIS OBJECT IS NOT A REGISTERED CONTRAST: 'Bococizumab 150mg'
+> against 'Bococizumab 75mg placebo'"
+
+**THE REGISTRY SETTLES IT AND THE CLAIM IS FALSE.** NCT02458287's posted PRIMARY analysis:
+
+    title      ...LDL-C Level for Bococizumab 150 mg Dose Group and Matched Placebo
+    OG000      Placebo Matched to Bococizumab 150 mg
+    OG001      Bococizumab 150 mg
+    analysis   groupIds ['OG000','OG001'], LS Mean Difference -63.4, CI [-72.0, -54.7]
+
+`-63.4` matches this object's stored SPIRE-AI value to the digit. The stored contrast is the
+trial's REGISTERED PRIMARY, read from the posted analyses block exactly as its `derivation`
+says. The 75 mg comparison is a SEPARATE SECONDARY outcome at `-43.0` -- had the object used
+the 75 mg placebo the stored figure would have been `-43.0`. **No published number moves and
+the pooled -55.24 stands.**
+
+So the gate caught a FACTUAL ERROR, not an unevidenced claim. That is a stronger result than
+"the refusal named no table", which is what it was asked to detect.
+
+## A GATE WHOSE PREMISE IS CONFIRMED BY THE DATA IT GOVERNS
+
+The same registry record proves the gate's founding rule, empirically rather than by
+argument:
+
+    PRIMARY   (150 mg):  OG000 = Placebo Matched to Bococizumab 150 mg
+    SECONDARY (75 mg) :  OG000 = Placebo Matched to Bococizumab 75 mg
+
+**`OG000` denotes two different arms in two different outcomes of the same trial.** A
+trial-level arm table therefore CANNOT say which two arms belong to one outcome -- as a
+matter of fact about how registries are structured, not as a convention this project
+adopted. Only the outcome-specific group table can.
+
+**A gate whose premise is confirmed by the data it governs is a different object from one
+that merely has not fired wrongly yet.** That is what a measured precision looks like, and
+this corpus has recorded that no gate has one.
+
+## THE 100-CHARACTER HYPOTHESIS, REJECTED BEFORE IT WAS ACTED ON
+
+Finding 9 exposed a second defect: this object's stored `outcome_definition` for SPIRE-AI is
+an exact PREFIX of the registry title, cutting the 54 characters
+` for Bococizumab 150 mg Dose Group and Matched Placebo` -- the only text that names the
+comparator, and therefore the only text that settles arm identity. With it retained the
+false claim could not have been written.
+
+The stored value is **exactly 100 characters**, which looks like a limit. Measured across
+the corpus, it is not:
+
+    stored outcome_definition values, corpus-wide : 196
+    values exactly 100 characters                 :   2
+    values longer than 100 characters             :  84
+    longest value                                 : 627
+
+**THERE IS NO LENGTH RULE.** A repair aimed at a 100-character limit would have fixed the one
+case already known and nothing else -- **and it would have looked like it worked, because the
+only case anyone would check is the one that prompted it.** The mechanism has to be
+established before the fix; a fix aimed at the wrong mechanism is indistinguishable from a
+fix that succeeded.
+
+A second measurement, and it is deliberately reported TWO-SIDED:
+
+    stored definitions carrying a "for <group>" comparator clause : 0 of 196
+
+That is consistent with a capture layer that strips such clauses AND with a corpus whose
+registry titles never carried them. **Stating only the first would assert the conclusion the
+test exists to reach.** The discriminating test is whether stored values are exact PREFIXES
+of real registry titles, run over the 190 of 196 that resolve to a registration (6 do not
+and are excluded, stated rather than hidden), across 118 distinct registrations and 44
+objects. If that count comes back at or near zero, the honest reading is that the capture is
+faithful and SPIRE-AI is isolated -- and that result is to be reported as plainly as an
+alarming one would have been.
