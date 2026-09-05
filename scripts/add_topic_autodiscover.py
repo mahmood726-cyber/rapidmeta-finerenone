@@ -51,6 +51,22 @@ AACT = _resolve_aact_dir()
 # Topic specs (drug + disease patterns; NCTs auto-discovered from AACT)
 # Format: (stem, display name, drug_patterns, condition_patterns, [phase_min=2])
 TOPICS = [
+    # ── Galli 2025 JACC benchmark: GLP-1 RAs and cardiovascular outcomes ──
+    # A single-axis question: defined by the DRUG and the OUTCOME, not by a
+    # population (Galli's stated eligibility names no condition; their 21 trials
+    # span DM, obesity, HFrEF/HFpEF, CKD, ACS, PAD). condition_patterns is
+    # therefore deliberately broad -- a narrow list would silently reimpose a
+    # population criterion neither they nor we have declared. cap=None (5th
+    # element): Galli's per-outcome k runs to 19 and the eligible set is far
+    # larger (869 registered phase 3/4 trials of these eight agents, measured
+    # 2026-09-04), so any cap would bind and a size-ranked truncation cannot
+    # close a k gap. CAP_TRUNCATIONS stays armed for every other topic.
+    ("GLP1_RA_CV_OUTCOMES", "GLP-1 receptor agonists and cardiovascular outcomes",
+     ["semaglutide", "liraglutide", "dulaglutide", "exenatide", "lixisenatide",
+      "albiglutide", "efpeglenatide", "tirzepatide"],
+     ["diabetes", "obesity", "heart failure", "chronic kidney", "cardiovascular",
+      "coronary", "peripheral arterial"],
+     None),
     # Cardiology — newer drugs / endpoint variations
     ("DAPAGLIFLOZIN_CKD_AUTO", "Dapagliflozin in CKD",
      ["dapagliflozin"], ["chronic kidney"]),
@@ -5396,6 +5412,30 @@ DRUG_SYNS = {
     "baricitinib":  ["ly3009104", "incb028050"],
     "upadacitinib": ["abt-494"],
     "filgotinib":   ["glpg0634"],
+    # GLP-1 receptor agonists (Galli 2025 JACC benchmark). Brand + development
+    # names. A missing synonym is the failure mode that cost AMPLIFY/AMPLIFY-EXT.
+    # EARNED by the both-ways control (2026-09-05): must-match the eleven big CV
+    # outcome trials (11/11), must-reject the DPP-4 and SGLT2 CVOTs (5/5). Two
+    # candidate synonyms were tested and DROPPED because the control showed what
+    # they drag in -- exendin-4 (8 GLP-1-receptor PET imaging studies) and
+    # avexitide (exendin(9-39)-derived, not lixisenatide, 0 hits). See the notes
+    # on the exenatide and lixisenatide rows.
+    "semaglutide":   ["ozempic", "rybelsus", "wegovy", "nn9535", "nn9924", "nn-9535"],
+    "liraglutide":   ["victoza", "saxenda", "nn2211", "nn-2211"],
+    "dulaglutide":   ["trulicity", "ly2189265", "ly-2189265"],
+    "exenatide":     ["byetta", "bydureon", "exenatide extended-release",
+                      "exenatide er", "ay-39077"],
+    # exendin-4 REMOVED 2026-09-05: the both-ways control showed it drags in 8
+    # GLP-1-receptor PET *imaging*/tracer studies (e.g. "GLP1-receptor Imaging",
+    # "Visualizing Beta Cells"), not therapeutic RA trials. EXSCEL still matches
+    # via "exenatide once weekly", so no real trial is lost.
+    "lixisenatide":  ["adlyxin", "lyxumia", "zp10", "ave0010", "ave-0010"],
+    # avexitide REMOVED 2026-09-05: it is exendin(9-39)-derived, a different
+    # molecule from lixisenatide, and the control showed it adds 0 NCTs. A wrong
+    # synonym that happens to be inert is still wrong; dropped for correctness.
+    "albiglutide":   ["tanzeum", "eperzan", "gsk716155"],
+    "efpeglenatide": ["hm11260c", "hm-11260c", "lapsexd4"],
+    "tirzepatide":   ["mounjaro", "zepbound", "ly3298176", "ly-3298176"],
 }
 COND_SYNS = {
     "hiv": ["human immunodeficiency virus"],
