@@ -2971,8 +2971,24 @@ def _fit_to_budget(secs, obj):
             break
         for s in list(secs):
             if s.key == key and s.key not in _ESSENTIAL and not _is_display(s):
-                secs.remove(s)
-                removed.append("section %s" % s.key)
+                # A NAMED ABSENCE IS NOT DROPPED FOR LENGTH. Step 5 below was given this
+                # fix; step 4 runs FIRST and was not, so refusal-carrying sections in
+                # _DROP_ORDER (keywords, disagreements, reporting_guidelines, not_written)
+                # were removed here and their disclosures never reached "Not reported in
+                # this record". Measured on malaria 2026-09-05: the Keywords refusal
+                # ("inventing them would be indexing this review under terms nobody chose")
+                # was emitted by the projector and reached no reader. A refusal-only section
+                # costs 0 words (see _words), so removing it frees nothing while deleting a
+                # disclosure. Keep any section that carries a refusal so it survives to the
+                # consolidation (a bodiless section prints no heading -- build_tabbed
+                # _has_body); spend the budget only by stripping its droppable PROSE.
+                if s.refusals:
+                    if s.paras:
+                        removed.append("prose of section %s (refusals kept)" % s.key)
+                        s.paras = []
+                else:
+                    secs.remove(s)
+                    removed.append("section %s" % s.key)
 
     # 5. Still over? Drop remaining non-essential sections in reverse document order --
     #    the back matter a reader reaches last.
