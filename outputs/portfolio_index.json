@@ -1857,7 +1857,7 @@
  "projection": {
   "projected_utc": "2026-08-19",
   "projected_by": "scripts/project_dashboard_index.py",
-  "objects_fingerprint": "cb9a0d5fac441095a80f9a5a0a692aea119769a7dc86e30ff41c12061d07f555",
+  "objects_fingerprint": "1ca873c96f2a96057ae1c90ae19bb4bde8e38287ef58d07cd06045533524ee01",
   "what_the_fingerprint_is_over": "every page in ssot/PAGE_MAP.json, its derived SSOT state and the reason attached to it. Keyed on CONTENT, so touching a file does not invalidate it and changing a withdrawal does. scripts/dashboard_projection_gate.py recomputes it and refuses when it no longer matches -- staleness detected by a command, not by somebody noticing.",
   "by_ssot_state": {
    "LIVE": 19,
@@ -1876,12 +1876,12 @@
    "Pairwise": 19
   },
   "previously_stored": {
-   "n_total": 960,
-   "n_pairwise": 847,
-   "n_nma": 113,
-   "n_with_r_validation": 731,
-   "n_validated_provenance": 711,
-   "n_stats_pending": 249
+   "n_total": 19,
+   "n_pairwise": 19,
+   "n_nma": 0,
+   "n_with_r_validation": 17,
+   "n_validated_provenance": 9,
+   "n_stats_pending": 10
   },
   "why": "n_total read 960 beside 71 rows, of which 19 are LIVE. It rendered as 'Reviews shipped'. The stored counters were a second population that had stopped agreeing with the first, and nothing compared them. Deriving them here means they cannot disagree with their own rows again.",
   "what_this_does_NOT_claim": "n_total counts rows this file can show are LIVE. The 52 not-live rows are tombstones and are counted above, not deleted. A row left LIVE may still be stale by value -- see projection.what_this_does_NOT_check."

@@ -173,3 +173,164 @@ DOES.** A liveness probe requiring no repository access returned `OK GPT-5` in u
 minute on the same machine, the same hour, with the same binary. The cost is not the model;
 it is standing up a sandbox over the worktree. Before delegating, ask whether the task needs
 the repository. If it does, the round trip may exceed the task.
+
+---
+
+## THE ROUND-TRIP GUARD'S SCOPE WAS THE DEFECT, NOT ITS LOGIC
+
+A byte-fidelity guard was built tonight after a JSON edit nearly rewrote 115,094 bytes to
+change nine lines, and it fired correctly twice more. **IT WAS NEVER EXTENDED BEYOND JSON.**
+
+Editing the two harness gates through Python heredocs used text-mode `open(p, 'w')`, which
+on Windows silently translates `\n` to `\r\n`. Both gates became whole-file rewrites:
+
+    registration_chronology_gate.py   825 added lines,  158 of them real
+    refusal_reads_outcome_groups_gate.py  698 added lines, 111 of them real
+
+Caught before the commit only because the added-line count did not match what had been
+written. **A GATE DIFF NOBODY CAN READ IS A GATE CHANGE NOBODY REVIEWED** -- and this would
+have landed looking like a rewrite of two safety checks, on the night two safety checks were
+changed. Restored with binary-mode I/O; the diff then read 158/5 and 111/0, identical to the
+ignore-whitespace figures.
+
+**A FORMAT RULE HELD FOR ONE FILE TYPE IS NOT A FORMAT RULE.** The guard's logic was right
+the whole time; its SCOPE was the defect. Read bytes, write bytes, and verify a no-op
+round-trip is byte-identical before editing ANY text file -- .py, .md, .txt, .html, not only
+.json. On Windows the failure is silent and invisible in the editor.
+
+## AN INSTRUMENT THAT CANNOT EXCLUDE ITS OWN ACTIVITY WILL REPORT ITSELF AS A FINDING
+
+Three times on 2026-09-05, one shape:
+
+1. A hook scan reported three new `pre-push` hooks. They were the shells running the scan;
+   its own filter string contained the words it searched for.
+2. A truncation sweep printed a "dropped text" column naming the 75 mg outcome. That was a
+   property of `min(longer, key=len)` picking the shorter of two candidate titles, not
+   evidence about the object -- an output column that looks like a finding and is a property
+   of the sort order.
+3. Harness notices saying a gate file "changed on disk" were read as evidence of a
+   concurrent lane. They were reports of this lane's own heredoc writes, and a mixed-
+   authorship warning was raised on that basis and then retracted: `INVERTED AND DISCLOSED`
+   is in HEAD at line 370, original design from 78cf9d4e1, and every uncommitted hunk in
+   both gates was this lane's.
+
+**Before an instrument reports a finding, it must be able to exclude its own activity from
+the population it is measuring.** Case 3 was raised in good faith and was still wrong -- and
+raising it stopped a push on a false premise rather than pushing through an uncertainty,
+which is the correct direction to be wrong in.
+
+---
+
+## TEN UNEARNED SUCCESS REPORTS IN ONE DAY, AND THE TENTH WAS THE PUSH
+
+Every one returned `exit code 0` for an operation that did not happen:
+
+     1  a commit refused by .githooks/pre-commit-staging
+     2  a commit whose pathspec matched no tracked file
+     3-7 five pre-push hooks stranded in sandbox/setup, wrappers alive, work never done
+     8  a push refused by five harness gates
+     9  a delegated Codex job that never reached the model at all
+    10  THE PUSH OF 2026-09-06 00:12, refused by check_page_format.py
+
+The tenth is the one that matters most, because it is the operation everyone would most
+want to trust. The command returned 0; the last line of its log read
+`error: failed to push some refs`; and `ls-remote` showed the branch ref had not moved.
+
+    THE PUSH IS NOT DONE WHEN THE COMMAND RETURNS. IT IS DONE WHEN ls-remote SHOWS THE
+    REF MOVED. THE MERGE IS NOT DONE WHEN main MOVES. IT IS DONE WHEN THE SERVED BYTES
+    CARRY THE CHANGE. Two probes, both on the artefact, neither on a status.
+
+---
+
+## A GATE ACQUIRES REACH BEYOND THE FAILURE IT WAS WRITTEN FOR
+
+Four gates in this repository show one behaviour, and it is invisible until something
+legitimate trips it.
+
+    .githooks/pre-commit-staging      refused out/ and figs/ -- tracked source directories
+                                      outside its declared set. Its OWN HEADER records this
+                                      happening three times to itself: gates/ added
+                                      2026-09-02, tests/ and outputs/ added 2026-09-04, each
+                                      after blocking ordinary work.
+    refusal_reads_outcome_groups      flagged the machinery of retraction: quoted
+                                      withdrawals read as live claims.
+    registration_chronology           same defect, disabling its own `not claims` guard from
+                                      the inside, so its stated remedy was unreachable.
+    SSOT NET-DELETION CHECK           refused a one-key removal from PAGE_MAP.json, a
+                                      ROUTING TABLE. Its premise -- "an SSOT object is an
+                                      ACCUMULATING record ... registry reads, withdrawal
+                                      reasons, sources, risk-of-bias verdicts" -- is simply
+                                      not true of a filename-to-path map.
+
+**A GATE WRITTEN AGAINST A REAL FAILURE ACQUIRES REACH BEYOND THAT FAILURE, AND THE EXCESS
+REACH IS INVISIBLE UNTIL SOMETHING LEGITIMATE TRIPS IT.** In every case the gate's premise
+was sound and its population was wrong. None of them was a false alarm in the ordinary
+sense: each correctly reported what it saw.
+
+Two consequences worth separating:
+
+  * The excess reach is only ever discovered by a legitimate action being blocked, so it is
+    found at the worst moment -- when someone is trying to land correct work, under time
+    pressure, and the cheapest response is to reach for an override.
+  * A gate's SCOPE therefore needs the same evidence its LOGIC does. Three of these four
+    were scoped by enumerating a set of directories or fields; none was scoped by measuring
+    the population it would actually meet.
+
+## OVERRIDE VERSUS PRESCRIBED PATH, AND THE TEST THAT SEPARATES THEM
+
+`SSOT_ALLOW_NET_DELETION` was used once, on 2026-09-06, to unmap MALARIA_VACCINES_SSOT.html.
+That is NOT the same act as suppressing a check, and the distinction is worth stating
+because both look like environment variables:
+
+    DOES THE MECHANISM RECORD THE ACT, OR HIDE IT?
+
+`SSOT_ALLOW_NET_DELETION` requires a written reason and preserves it -- the gate's own words
+are "If this is deliberate, re-run with a reason on the record." It is the prescribed path
+for a deliberate deletion, and using it for the purpose it was built for, with a true
+reason, is compliance. Contrast `RM_ALLOW_MANUSCRIPT_SHRINK`, which suppresses a loss check:
+that one required its premise to be separately disproven -- 10 of 10 refusals present in the
+built bytes, zero numeric loss -- BEFORE it could honestly be used.
+
+## ELEVEN UNEARNED SUCCESS REPORTS
+
+The count is now eleven. The eleventh: a commit refused by the SSOT NET-DELETION CHECK
+returned `exit code 0`, HEAD unchanged, both paths absent from HEAD. Two consecutive
+operations in one hour -- a push and a commit -- each refused by a gate and each reporting
+success.
+
+## A LOG IS NOT A LESSON
+
+`.githooks/pre-commit-staging` is the only place in this repository where a gate recorded
+its own scope being wrong -- and it recorded it THREE TIMES, each faithfully, each with its
+reasoning:
+
+    gates/   added 2026-09-02  "a guard whose ORDINARY use requires its own escape hatch
+                                teaches the hatch"
+    tests/   added 2026-09-04  "works against the thing this repo most needs more of"
+    outputs/ added 2026-09-04  "a count whose denominator cannot be committed beside it is
+                                a proxy nobody can re-check"
+
+    ⭐ IT IS THE ONLY PLACE WHERE A GATE RECORDED ITS OWN SCOPE BEING WRONG THREE TIMES,
+      AND IT STILL DID NOT GENERALISE THE LESSON TO THE FOURTH.
+
+On 2026-09-05 it refused `out/` and `figs/` -- the fourth instance of one cause, arriving as
+a surprise to a system that had already written that cause down three times.
+
+**NOBODY WAS CARELESS AND NO INFORMATION WAS MISSING.** Three incidents were logged
+accurately with their reasoning intact. What never happened was someone READING the three
+together and extracting the pattern -- that this guard's declared set lags the repository's
+real source directories, and will keep doing so.
+
+    A RECORD NEEDS A PERIODIC READING, NOT ONLY FAITHFUL WRITING. Writing an incident down
+    prevents nothing by itself; it only makes the prevention POSSIBLE for whoever reads
+    across the entries. Three entries in one file, unread as a set, cost a fourth incident
+    on the night the repository could least afford one.
+
+The same shape appears in the reach measurement, and it is the same distinction the gates
+were making about themselves:
+
+    A GATE'S DECLARED SET IS A SCOPE. THE FILES IT WILL ACTUALLY BE HANDED ARE A CORPUS.
+
+`6, 62, 52, 1, 2 of 155` is what five gates could see. `85 of 155` is what the corpus holds
+that none of them can. We spent a night measuring scopes rather than corpora, and the gates
+were doing it to themselves.
