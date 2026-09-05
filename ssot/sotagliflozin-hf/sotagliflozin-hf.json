@@ -1719,21 +1719,35 @@
     "source_url": "https://clinicaltrials.gov/study/NCT05562063",
     "identifier_note": "The registry record whose official title reads SOTA-P-CARDIA Trial: A Randomized Trial of Sotagliflozin in HFpEF Patients Without Diabetes. An earlier version of this row carried a DIFFERENT accession, which had been written from recall rather than looked up and which belongs to an unrelated drug-interaction study in healthy volunteers. A gate leg resolved the identifier and caught it. A resolvable link to the wrong study is worse than no link, because it survives every check that only asks whether a link resolves.",
     "criteria_failed": [
-     "outcome_not_this_review's"
+     "scope_not_this_review's"
     ],
     "not_poolable_even_if_eligible": [],
     "reason": "A sotagliflozin trial, and it is in this log rather than absent because a reader looking for the drug's trials will look for it. It is NOT part of the pivotal programme this object is scoped to: its registry record describes an investigator-sponsored later-phase mechanistic study in heart failure with preserved ejection fraction WITHOUT diabetes, with imaging and functional endpoints and an enrolment two orders of magnitude below either pivotal trial. An earlier version of this row called it part of the same programme, which a gate leg correctly read as false of the record. Its endpoints are cardiac and metabolic measures rather than the event composites this object holds, so it contributes to none of the three estimands. It is NOT excluded for reporting the wrong outcome in the sense section 3.2.4 warns against -- it reports no estimate of any of these three quantities at all, which is a different thing from reporting them and being ignored.",
     "quantity_it_reports": "cardiac and metabolic endpoints; no estimate of any composite this object holds",
     "why_that_quantity_is_never_stored_as_a_hazard_ratio": "It is not stored anywhere in this object in any form. This row exists so that the absence is visible and dated rather than silent.",
-    "record_limitation": "This row is written from the registry record and from the trial's place in the programme. Its results were not read for this object and no value from it is claimed, which is stated here rather than left for a reader to infer from the empty quantity field."
+    "record_limitation": "This row is written from the registry record and from the trial's place in the programme. Its results were not read for this object and no value from it is claimed, which is stated here rather than left for a reader to infer from the empty quantity field.",
+    "criteria_failed_corrected_2026_09_04": {
+     "was": [
+      "outcome_not_this_review's"
+     ],
+     "now": [
+      "scope_not_this_review's"
+     ],
+     "why": "NOT a case for ELIGIBLE_OUTCOME_UNAVAILABLE, and the row's own prose already said so: 'It is NOT excluded for reporting the wrong outcome in the sense section 3.2.4 warns against.' This object's eligibility turns on a phase 3 randomised trial of sotagliflozin against placebo IN THE PIVOTAL CARDIOVASCULAR OUTCOME PROGRAMME, and states in terms that it 'does NOT turn on which analysis a trial reported'. This trial is an investigator-sponsored mechanistic study outside that programme. The ground is SCOPE, which is a population/design limb, and the axis label was the only thing wrong. It stays excluded.",
+     "corrected_utc": "2026-09-04"
+    }
    }
   ],
   "excluded": [
    {
-    "reason": "SOTA-P-CARDIA -- outcome_not_this_review's",
+    "reason": "SOTA-P-CARDIA -- scope_not_this_review's",
     "detail": "A sotagliflozin trial, and it is in this log rather than absent because a reader looking for the drug's trials will look for it. It is NOT part of the pivotal programme this object is scoped to: its registry record describes an investigator-sponsored later-phase mechanistic study in heart failure with preserved ejection fraction WITHOUT diabetes, with imaging and functional endpoints and an enrolment two orders of magnitude below either pivotal trial. An earlier version of this row called it part of the same programme, which a gate leg correctly read as false of the record. Its endpoints are cardiac and metabolic measures rather than the event composites this object holds, so it contributes to none of the three estimands. It is NOT excluded for reporting the wrong outcome in the sense section 3.2.4 warns against -- it reports no estimate of any of these three quantities at all, which is a different thing from reporting them and being ignored.",
     "source_tier": "registry",
-    "source_url": "https://clinicaltrials.gov/study/NCT05562063"
+    "source_url": "https://clinicaltrials.gov/study/NCT05562063",
+    "superseded_2026_09_04": {
+     "was": "SOTA-P-CARDIA -- outcome_not_this_review's",
+     "why": "Axis corrected from outcome to scope; see screening.records[0]. The verdict is unchanged."
+    }
    }
   ]
  },

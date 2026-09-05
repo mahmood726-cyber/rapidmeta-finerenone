@@ -132,12 +132,40 @@ IVI_CASCADE = {
         "Was 29; all 29 screened on 2026-08-19 (scripts/screen_ivi_remainder.py, dispositions "
         "on the object at screening_of_remainder.iv_iron_2026_08_19, each keyed to the "
         "criterion it turns on and the registry field that settles it)."),
+    # CORRECTED 2026-09-04. THIS BLOCK WAS AN ARMED REVERT, NOT MERELY A STALE COPY.
+    # `build_to_standard.build()` merges as {**obj["k_cascade"], **spec["k_cascade"]}, so THIS
+    # dict wins over the object's. It held EXCLUDED 13 / ELIGIBLE_NOT_POOLABLE 6 while the
+    # object and the served page held 14 / 5, and it held the key
+    # `notable_eligible_not_poolable` where the object holds `notable_excluded_on_outcome`.
+    # MEASURED by simulating the merge: rebuilding iv-iron-hf would have reverted the served
+    # reading of FAIR-HF and dropped the object's reasoned text -- exactly the hazard
+    # ssot/do_not_rebuild.py documents ("A REBUILD CAN REVERT A SERVED FIX"). The counts below
+    # were set to agree with the object's own 29-row array, recounted at 2026-09-04 ~13:12Z.
+    #
+    # AND THEN THE ARRAY MOVED AGAIN, AT 2026-09-04 13:17Z, WHILE THIS FIX WAS BEING WRITTEN.
+    # Another writer relabelled 8 outcome-ground rows from EXCLUDED to
+    # ELIGIBLE_OUTCOME_UNAVAILABLE, citing Handbook 6.5 s3.2.4 against making eligibility
+    # depend on which outcomes a study reported, recomputed
+    # `screening_of_remainder.iv_iron_2026_08_19.tally` to match -- and did NOT touch the
+    # counts below or the object's `k_cascade.remainder_dispositions`, which both still read
+    # EXCLUDED 14 / ELIGIBLE_NOT_POOLABLE 5 against an array that now recounts to EXCLUDED 6 /
+    # ELIGIBLE_OUTCOME_UNAVAILABLE 8 / ELIGIBLE_NOT_POOLABLE 5 / ELIGIBLE_NO_RESULTS_YET 10.
+    #
+    # THE SAME DEFECT, IN THE SAME OBJECT, BY A DIFFERENT HAND, INSIDE AN HOUR. These numbers
+    # are DELIBERATELY LEFT AT 14/5/10 rather than chased: they match the object's k_cascade as
+    # it currently stands, the relabelling pass is still in flight, and `what_this_says` below
+    # ("FIFTEEN OF THE TWENTY-NINE ARE ELIGIBLE. Fourteen fail a stated criterion.") is prose
+    # whose rewrite under the new labels is an editorial decision, not an arithmetic one --
+    # under them 23 of 29 are eligible and 6 fail a criterion. WHOEVER FINISHES THE
+    # RELABELLING OWNS BOTH. scripts/lint_stored_counts_match_arrays.py FAILS on this pair
+    # today (exit 1), by design: the disagreement is meant to be loud until someone decides it,
+    # not silently patched by the next process to walk past.
     "remainder_dispositions": {
-        "EXCLUDED": 13,
-        "ELIGIBLE_NOT_POOLABLE": 6,
+        "EXCLUDED": 14,
+        "ELIGIBLE_NOT_POOLABLE": 5,
         "ELIGIBLE_NO_RESULTS_YET": 10,
         "what_this_says": (
-            "SIXTEEN OF THE TWENTY-NINE ARE ELIGIBLE. Only 13 fail a stated criterion. The "
+            "FIFTEEN OF THE TWENTY-NINE ARE ELIGIBLE. Fourteen fail a stated criterion. The "
             "evidence base is not limited by eligibility -- it is limited by ESTIMAND MATCH "
             "and by trials that have not reported. Reporting all 29 as 'excluded' would have "
             "said the opposite, and would have been the withholding class again: eligible "
@@ -147,14 +175,35 @@ IVI_CASCADE = {
             "hospitalisation for worsening heart failure -- THE SAME ESTIMAND AS THIS OBJECT'S "
             "HEADLINE POOL -- and will be the single largest contributor when it reports. "
             "INFERRCT (NCT05759078, n=1000) is the second."),
-        "notable_eligible_not_poolable": (
+        "notable_excluded_on_outcome": (
             "FAIR-HF (NCT00520780, n=456) is the trial that established ferric carboxymaltose "
-            "in heart failure. It meets P/I/C and its primary -- patient global assessment "
-            "plus NYHA class -- is a registered functional primary a regulator relied on, so "
-            "it PASSES the outcome criterion. It is not poolable because that is an ordinal "
-            "patient-reported scale matching none of this object's six estimands. ELIGIBLE AND "
-            "NOT POOLED is the correct reading; recording a landmark trial as 'excluded' would "
-            "misstate why it is absent."),
+            "in heart failure, but this object excludes it on OUTCOME. It meets P/I/C, and it "
+            "reports a six-minute walk result, but its registered primaries are Patient Global "
+            "Assessment and NYHA functional class and it designates no clinical-event "
+            "endpoint. Its staged abstract prints no extractable between-arm difference, "
+            "dispersion term or interval for walk distance, so there is no cell to extract for "
+            "this review's walk-distance estimand."),
+        "notable_eligible_not_poolable_RETRACTED_2026_09_04": (
+            "RETRACTED, KEPT RATHER THAN DELETED, AND NOT IN FORCE. This module and "
+            "scripts/screen_ivi_remainder.py both asserted that FAIR-HF is ELIGIBLE AND NOT "
+            "POOLED and that this was the correct reading. It was never the served reading: "
+            "IV_IRON_HF_REVIEW.html prints 'This review's decision: excluded' for FAIR-HF and "
+            "the aggregate line 'EXCLUDED 14, ELIGIBLE NOT POOLABLE 5', and the object's "
+            "screening.records[0] carries the same disposition with a source tier, a source "
+            "URL, the two axes recorded separately, and its own gate-leg correction history. "
+            "The retracted claim turned on treating patient global assessment plus NYHA class "
+            "as a regulator-relied functional primary that PASSES this review's outcome "
+            "criterion; the adopted reading is that FAIR-HF designates no clinical-event "
+            "endpoint and therefore fails it. RETRACTED TEXT VERBATIM: 'FAIR-HF (NCT00520780, "
+            "n=456) is the trial that established ferric carboxymaltose in heart failure. It "
+            "meets P/I/C and its primary -- patient global assessment plus NYHA class -- is a "
+            "registered functional primary a regulator relied on, so it PASSES the outcome "
+            "criterion. It is not poolable because that is an ordinal patient-reported scale "
+            "matching none of this object's six estimands. ELIGIBLE AND NOT POOLED is the "
+            "correct reading; recording a landmark trial as 'excluded' would misstate why it "
+            "is absent.' ONE POINT IN IT SURVIVES AND IS CARRIED BY THE ADOPTED TEXT: the "
+            "absence is narrow. FAIR-HF is not absent because it measured nothing this review "
+            "wants; it is absent because the staged source prints no extractable cell."),
     },
     "k3_corrected_from": (
         "The placebo-discriminator (ssot/topic_identity.locate, 2026-08-19) is load-bearing "

@@ -50,7 +50,36 @@ from pathlib import Path
 csv.field_size_limit(1 << 30)
 
 HERE = Path(__file__).resolve().parent.parent
-AACT_ROOT = Path(os.environ.get("AACT_ROOT", "F:/AACT-storage/AACT"))
+def _resolve_aact_root():
+    """One dataset, and until 2026-09-04 two environment variables naming it.
+
+    This module read AACT_ROOT (default F:/AACT-storage/AACT) while
+    scripts/add_topic_autodiscover.py read AACT_DIR (default ~/AACT). Same
+    tables, same purpose, different keys and different defaults -- so the two
+    matchers could silently index different snapshots and disagree about what
+    trials exist, with nothing anywhere to say so. That is the identical shape
+    as the COND_SYNS drift found the same day: one fact, two copies, an
+    equivalence nobody enforced.
+
+    Both keys are honoured so no existing invocation breaks. If both are set and
+    point somewhere different, that is refused rather than silently resolved --
+    a run that indexes a different snapshot from its sibling produces numbers
+    that cannot be compared, and picking a winner here would hide exactly the
+    condition worth knowing about.
+    """
+    root = os.environ.get("AACT_ROOT")
+    dir_ = os.environ.get("AACT_DIR")
+    if root and dir_ and Path(root).resolve() != Path(dir_).resolve():
+        raise SystemExit(
+            "REFUSED: AACT_ROOT and AACT_DIR are both set and name different "
+            "directories.\n  AACT_ROOT = %s\n  AACT_DIR  = %s\n"
+            "These are two names for one dataset. Indexing different snapshots "
+            "in sibling matchers makes their outputs incomparable without "
+            "saying so. Unset one." % (root, dir_))
+    return Path(root or dir_ or "F:/AACT-storage/AACT")
+
+
+AACT_ROOT = _resolve_aact_root()
 
 # Snapshot folder -> the date its DATA is actually current to, measured as
 # max(last_update_submitted_qc_date) in studies.txt. A folder name is a label;
@@ -64,8 +93,29 @@ SNAPSHOT_DATA_DATE = {
 
 # --- matching helpers, lifted verbatim from scripts/add_topic_autodiscover.py --
 # That module indexes AACT at import time and reassigns sys.stdout, so it cannot
-# be imported; these are copied rather than re-derived, so the matcher that was
-# validated at 90% recall against 13 published meta-analyses is the one running.
+# be imported; these are copied rather than re-derived.
+#
+# CORRECTED 2026-09-04, twice over. This comment used to conclude "...so the
+# matcher that was validated at 90% recall against 13 published meta-analyses is
+# the one running." Both halves were wrong:
+#
+#   1. THE NUMBER. The ground-truth document
+#      (C:/Projects/rapidmeta-staging/PUBLISHED_META_GROUNDTRUTH.md, §2) reports
+#      3% -> 46% -> 64% -> 82% at cap 20 -> 87% at cap 30. It contains no 90%.
+#      And its own closing note says the benchmark measures only the
+#      CANDIDATE-UNIVERSE stage; a corpus trace on 2026-09-04 found 79% of held
+#      trials dying downstream of it. It is not a recall figure for a review.
+#
+#   2. THE EQUIVALENCE. The helper FUNCTIONS were indeed byte-identical
+#      (_norm, _expand_syns, _match_blob -- 653 B each, verified). What had
+#      drifted was the DATA they read: COND_SYNS held 1 entry there and 4 here
+#      for two days, so the module that discovers all 2,229 topics could not
+#      bridge "venous thromboembolism" -> "venous thrombosis" while this one
+#      could. The comment stayed true about the code and stopped being
+#      sufficient, which is why nobody looked.
+#
+# tests/test_matcher_tables_in_step.py now fails when the tables drift. A
+# promise in a comment is a preference; a test is a rule.
 DRUG_SYNS = {
     "tofacitinib": ["cp-690,550", "cp 690,550", "cp690550"],
     "olaparib": ["azd2281", "azd 2281"],
@@ -201,11 +251,28 @@ def resolve_snapshot(root: Path, folder=None):
             "ABSENT -- set AACT_ROOT rather than concluding we have no registry "
             "snapshot." % root)
     if folder is None:
-        known = sorted(d.name for d in root.iterdir()
-                       if d.is_dir() and d.name in SNAPSHOT_DATA_DATE)
+        on_disk = sorted(d.name for d in root.iterdir() if d.is_dir())
+        known = [n for n in on_disk if n in SNAPSHOT_DATA_DATE]
         if not known:
             raise SystemExit("NOT_FOUND: no snapshot under %s has a measured "
                              "data date. Measure it first." % root)
+        # A SNAPSHOT PRESENT BUT UNMEASURED IS SKIPPED, AND WAS SKIPPED SILENTLY
+        # (fixed 2026-09-04). This function already refuses a folder you NAME
+        # that has no measured data date -- correctly, because a folder name is
+        # a label. But in auto-select it simply filtered such folders out and
+        # took the newest of what remained, so downloading a fresh snapshot and
+        # forgetting to measure it meant the run quietly used an OLDER one and
+        # said nothing. The failure mode is the worst available: a stale answer
+        # that looks current, with newer data sitting on disk beside it.
+        unmeasured = [n for n in on_disk if n not in SNAPSHOT_DATA_DATE]
+        if unmeasured:
+            print("  WARNING: %d snapshot folder(s) under %s have NO measured "
+                  "data date and were SKIPPED: %s"
+                  % (len(unmeasured), root, ", ".join(unmeasured)),
+                  file=sys.stderr, flush=True)
+            print("    A newer snapshot may be sitting unused. Measure "
+                  "max(last_update_submitted_qc_date) and add it to "
+                  "SNAPSHOT_DATA_DATE.", file=sys.stderr, flush=True)
         # supersession is by DATA date, not by folder name
         folder = max(known, key=lambda f: SNAPSHOT_DATA_DATE[f])
     if folder not in SNAPSHOT_DATA_DATE:

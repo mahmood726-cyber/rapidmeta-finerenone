@@ -1477,8 +1477,17 @@ def _standard_block(canon, e_):
         trial_rows = "".join(
             "<tr><td><code>%s</code></td><td><strong>%s</strong></td><td>%s</td>"
             "<td><small>%s</small></td></tr>"
+            # A RELABELLED ROW HAS NO FAILING LIMB, AND AN EMPTY CELL IS NOT A
+            # DIAGNOSIS. ELIGIBLE_OUTCOME_UNAVAILABLE means the trial met every
+            # eligibility limb; the axis it turns on is a CONTRIBUTION axis, and
+            # printing that word in the limb column is what keeps the row's own
+            # verdict from reading as a blank.
             % (_v(r.get("nct")), _v(r.get("verdict")),
-               _v(r.get("failing_limb") or ""), _v(r.get("reason"), limit=260))
+               _v(r.get("failing_limb")
+                  or (("%s (contribution, not eligibility)"
+                       % r["contribution_axis"]) if r.get("contribution_axis")
+                      else "")),
+               _v(r.get("reason"), limit=260))
             for r in (sc.get("rows") or []))
         sc_html += (
             "<h3>Screening of the remainder — %s screened, %s included, %s excluded, "

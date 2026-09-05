@@ -3105,7 +3105,8 @@
      "field_read": "conditionsModule.conditions",
      "reason": "EMPA-CON. Registered condition 'Acute Decompensated Heart Failure (ADHF)' -- same population ground as EMPATHY. Its primary is a four-step hierarchical win ratio, which s10.9 would bar from the pool in any case, so unlike EMPATHY nothing is lost by the population call."
     }
-   ]
+   ],
+   "field_read_provenance_2026_09_04": "scripts/screen_sglt2_bempedoic_remainder.py is a hard-coded literal list (SGLT2 = [...] and BEMPEDOIC = [...]). No line in it reads ClinicalTrials.gov, so every `field_read` value in this block was TYPED, not returned by a read. The reader's page renders it in a cell headed 'Field read'. Named here rather than rewritten; the same disclosure is carried in full at iv-iron-hf's screening_of_remainder.iv_iron_2026_08_19.field_read_provenance_2026_09_04. Corpus-wide, 85 of 2208 `field_read` values in ssot/*/*.json are of this kind and 2123 are returned by code that read something."
   },
   "sglt2_regate_2026_08_19": {
    "screened_utc": "2026-08-19",
@@ -3155,7 +3156,8 @@
    "and_one_that_was_already_screened": {
     "nct": "NCT04157751",
     "why_not_here": "EMPULSE also moved background -> experimental at c5b98b329, but it is already in this object's native screening.records, EXCLUDED on population and duration. It is counted in the remainder reconciliation and is not re-screened here. Checked rather than assumed -- three records moved and only two were new."
-   }
+   },
+   "field_read_provenance_2026_09_04": "scripts/screen_sglt2_bempedoic_remainder.py is a hard-coded literal list (SGLT2 = [...] and BEMPEDOIC = [...]). No line in it reads ClinicalTrials.gov, so every `field_read` value in this block was TYPED, not returned by a read. The reader's page renders it in a cell headed 'Field read'. Named here rather than rewritten; the same disclosure is carried in full at iv-iron-hf's screening_of_remainder.iv_iron_2026_08_19.field_read_provenance_2026_09_04. Corpus-wide, 85 of 2208 `field_read` values in ssot/*/*.json are of this kind and 2123 are returned by code that read something."
   }
  },
  "precondition_verdict_superseded": {

@@ -509,7 +509,20 @@
      "axis": "STATUS",
      "criterion": "NO RESULTS POSTED",
      "field_read": "hasResults / resultsSection",
-     "reason": "ELIGIBLE: AF ablation against a NO_INTERVENTION conventional arm in end-stage heart failure. COMPLETED at n=194 and CHECKED LIVE: hasResults=false, no resultsSection -- a completed trial that has posted nothing, which is a different state from one still running and is recorded as the same disposition for the same reason: there is nothing to extract. Its primary, 'Mortality or transplantation', is in any case not this review's composite -- named so the disposition does not rest on the posting alone."
+     "reason": "ELIGIBLE: AF ablation against a NO_INTERVENTION conventional arm in end-stage heart failure. COMPLETED at n=194 and CHECKED LIVE: hasResults=false, no resultsSection -- a completed trial that has posted nothing, which is a different state from one still running and is recorded as the same disposition for the same reason: there is nothing to extract. THE ESTIMAND CLAUSE IS CORRECTED 2026-09-04 AND NOW POINTS THE OTHER WAY. Its primary's TITLE is 'Mortality or transplantation'; its DESCRIPTION on the same registry record is 'composite of all-cause mortality, worsening of HF requiring a high urgent transplantation or implantation of a ventricular assist device'. This review's estimand is 'Time to first occurrence of death from any cause or a heart-failure event, as each trial's own registered primary composite' -- so all-cause mortality plus a worsening-heart-failure event IS this review's shape, and the worsening-HF limb is visible only in the description. THE DISPOSITION IS UNCHANGED AND ITS GROUND IS UNCHANGED: nothing is posted, so nothing can be extracted, and status settles it without help from the estimand. What changes is that the row no longer says the estimand is not ours when the record says it may well be -- this trial is now the CLOSEST reported-nothing trial in the remainder and should be read as owed rather than as disposed of. RETRACTED CLAUSE, VERBATIM, NOT IN FORCE: \"Its primary, 'Mortality or transplantation', is in any case not this review's composite -- named so the disposition does not rest on the posting alone.\" It was read off the outcome TITLE, which names two things where the description names three.",
+     "estimand_clause_corrected_2026_09_04": {
+      "was": "Its primary, 'Mortality or transplantation', is in any case not this review's composite -- named so the disposition does not rest on the posting alone.",
+      "why_that_was_wrong": "it read the outcome TITLE and stopped. The title names two things; the description names three, and the third -- worsening heart failure requiring urgent transplantation or a ventricular assist device -- is a heart-failure event, which is the second limb of this review's own composite.",
+      "why_it_mattered_even_though_nothing_changes": "the row itself says the clause exists 'so the disposition does not rest on the posting alone'. By its own account the clause is load-bearing. A load-bearing clause that is false does not become harmless because a second ground happens to hold.",
+      "class": "TITLE-WITHOUT-DESCRIPTION",
+      "disposition_effect": "NONE. Still ELIGIBLE_NO_RESULTS_YET on STATUS.",
+      "registry_measured_2026_09_04": {
+       "source": "ClinicalTrials.gov API v2, read 2026-09-04",
+       "url": "https://clinicaltrials.gov/study/NCT04649801",
+       "primaryOutcomes[0].measure": "Mortality or transplantation",
+       "primaryOutcomes[0].description": "composite of all-cause mortality, worsening of HF requiring a high urgent transplantation or implantation of a ventricular assist device"
+      }
+     }
     },
     {
      "nct": "NCT04664686",
@@ -663,7 +676,18 @@
      "field_read": "armsInterventionsModule.armGroups",
      "reason": "THE RANDOMISED CONTRAST IS A DRUG: tirzepatide plus lifestyle against lifestyle alone, after catheter ablation. Ablation is background in both arms."
     }
-   ]
+   ],
+   "title_without_description_sweep_2026_09_04": {
+    "what_was_checked": "every row in this block whose reason turns on the registered outcome was re-checked on 2026-09-04 against BOTH `measure` and `description` at every rank of its ClinicalTrials.gov v2 record.",
+    "rows_checked": 20,
+    "rows_corrected": 1,
+    "corrected": [
+     "NCT04649801"
+    ],
+    "no_disposition_changed": true,
+    "field_read_provenance": "scripts/screen_ablation_hf_remainder_2026_08_19.py is a hard-coded literal ROWS list. No line in it reads ClinicalTrials.gov, so every `field_read` value in this block was TYPED, not returned by a read -- including the rows whose text says 'CHECKED LIVE AGAINST THE REGISTRY', which records a human's claim about a check rather than a check this code performed. Named here rather than rewritten across 43 rows: the same disclosure is carried in full at iv-iron-hf's screening_of_remainder.iv_iron_2026_08_19.field_read_provenance_2026_09_04.",
+    "test": "scripts/test_screen_reason_vs_registry_description.py"
+   }
   }
  },
  "results": {

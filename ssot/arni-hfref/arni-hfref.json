@@ -3058,7 +3058,23 @@
      "outcome"
     ],
     "reason": "POPULATION: acute myocardial infarction with left-ventricular dysfunction or pulmonary congestion, not chronic heart failure with reduced ejection fraction. COMPARATOR: RAMIPRIL, not enalapril. OUTCOME: its composite counts INCIDENT heart failure -- a first presentation in people who did not have heart failure at randomisation -- which is not hospitalization for heart failure in an established heart failure population.",
-    "count_correction": "The brief this object was built from stated that this trial randomised 5661 rather than 5669. That is inverted. The registry posts 5669 randomised, as 2834 and 2835, and a full analysis set of 5661, as 2830 and 2831. Both numbers are real and they name different sets; the correction is recorded here because a wrong correction is harder to catch than a wrong number."
+    "count_correction": "The brief this object was built from stated that this trial randomised 5661 rather than 5669. That is inverted. The registry posts 5669 randomised, as 2834 and 2835, and a full analysis set of 5661, as 2830 and 2831. Both numbers are real and they name different sets; the correction is recorded here because a wrong correction is harder to catch than a wrong number.",
+    "registry_ranks_below_primary_2026_09_04": {
+     "why_recorded": "this row's OUTCOME clause is about the PRIMARY composite and is accurate about it. Read alone it can be taken to say PARADISE-MI never measures this review's quantity, and the record says otherwise at a lower rank. Recorded so the row is not read as more than it claims.",
+     "source": "ClinicalTrials.gov API v2, read 2026-09-04",
+     "primaryOutcomes[0].measure": "Number of Participants With First CEC (Clinical Endpoint Committee) Confirmed Primary Composite Endpoint",
+     "primaryOutcomes[0].description": "A confirmed composite endpoint includes cardiovascular (CV) death, heart failure (HF) hospitalization, or outpatient heart failure",
+     "secondaryOutcomes[0].measure": "Number of Participants With a Confirmed Composite of CV Death or HF Hospitalization",
+     "secondaryOutcomes[0].description": "A confirmed composite endpoint for this outcome measure includes cardiovascular death or heart failure hospitalization.",
+     "what_it_changes": "NOTHING. The disposition rests on POPULATION (post-myocardial-infarction, not chronic HFrEF) and COMPARATOR (ramipril, not enalapril), and this object records that any one axis is sufficient. The trial does register the narrower composite as a SECONDARY, so the honest statement is that it fails the frozen question on population and comparator, not that it never measures the quantity.",
+     "how_it_was_found": "the 2026-09-04 title-without-description sweep. It was a FALSE POSITIVE of that sweep's first probe, which knew 'cardiovascular death' but not 'CV Death' -- the title says it, abbreviated. The probe was corrected; this note is kept because the underlying point about the row survived it.",
+     "secondaryOutcomes[1].measure": "Number of Participants With a Confirmed Composite of HF Hospitalization or Outpatient HF",
+     "secondaryOutcomes[1].description": "A confirmed composite endpoint includes first occurrence of heart failure hospitalization or outpatient heart failure",
+     "secondaryOutcomes[3].measure": "Total Number of Confirmed Composite Endpoints",
+     "secondaryOutcomes[3].description": "A confirmed composite endpoint includes cardiovascular death, heart failure hospitalization, non-fatal spontaneous MI hospitalization, and non-fatal stroke hospitalization",
+     "secondaryOutcomes[4].measure": "All-cause Mortality for Full Analysis Set (FAS)",
+     "why_secondaryOutcomes[3]_is_listed": "its TITLE -- 'Total Number of Confirmed Composite Endpoints' -- names no event at all, and only its DESCRIPTION says which four. It is the one rank on this record that a title-only reader could not have seen, and it is written out here for that reason: this row DENIES on the outcome axis, and a denial is only checkable if the text that would refute it is on the page beside it."
+    }
    },
    {
     "trial": "PARAGLIDE-HF",
@@ -16437,5 +16453,60 @@
   "derived_from": "index section sp-cardiology",
   "extracted_utc": "2026-08-26",
   "_note": "Extracted from index.html before the prune rewrote it. Not a clinical judgement: it records where the index placed this topic."
+ },
+ "outcome_axis_gap_2026_09_04": {
+  "what_this_is": "A dated record of where the ELIGIBLE_OUTCOME_UNAVAILABLE decomposition was NOT applied in this object, and why. Counted, not asserted.",
+  "n_rows_excluded_on_the_outcome_axis": 132,
+  "n_relabelled": 0,
+  "why_none": "The outcome-axis exclusions here are TITLE/ABSTRACT bibliographic records, not trial-level eligibility dispositions. This review has not assessed them on population, intervention or comparator, so a verdict asserting they meet those criteria cannot be written from what this object holds. The honest move is to record the gap and its size.",
+  "registry_records_not_yet_reassessed": [
+   "NCT02554890",
+   "NCT02768298",
+   "NCT02787798",
+   "NCT02788656",
+   "NCT02874794",
+   "NCT02900378",
+   "NCT02916160",
+   "NCT02970669",
+   "NCT03190304",
+   "NCT03300427",
+   "NCT03717688",
+   "NCT03830814",
+   "NCT03917459",
+   "NCT04113109",
+   "NCT04397302",
+   "NCT04434170",
+   "NCT04491136",
+   "NCT04498780",
+   "NCT04587947",
+   "NCT04649229",
+   "NCT05348226",
+   "NCT06922253",
+   "NCT07088471",
+   "NCT07527767"
+  ],
+  "n_registry_records": 24,
+  "what_would_close_it": "Assess these 24 registrations on population, intervention and comparator against screening.eligibility. Each that passes all three becomes ELIGIBLE_OUTCOME_UNAVAILABLE; each that fails one stays excluded on the axis it fails. Neither outcome changes any pool.",
+  "not_relabelled": [
+   {
+    "row": "screening.records[1]",
+    "trial": "PARADISE-MI (NCT02924727)",
+    "kept_verdict": "excluded",
+    "why": "MIXED AXIS. Fails population (acute myocardial infarction, not chronic HFrEF) and comparator (ramipril, not enalapril) as well as outcome."
+   },
+   {
+    "row": "screening.corpus[*] (TiAb stage)",
+    "trial": "131 records",
+    "kept_verdict": "exclude",
+    "why": "NOT TRIAL-LEVEL DISPOSITIONS. These are title/abstract bibliographic records, and the great majority are sub-studies, association analyses and quality-of-life papers rather than independent trials. This review has assessed none of them on population, intervention or comparator, so no verdict asserting they meet those criteria can be written from what this object holds. 24 of them ARE registry records for standalone trials, and those are the countable, revisitable part of this gap: they are listed in `outcome_axis_gap_2026_09_04.registry_records_not_yet_reassessed` and a lane that assesses them on P/I/C could relabel them. THE GAP IS RECORDED RATHER THAN CLOSED BY ASSERTION."
+   },
+   {
+    "row": "screening.corpus (FullText, PMID 29431251)",
+    "trial": "PARADIGM-HF recurrent-events analysis",
+    "kept_verdict": "exclude",
+    "why": "NOT A SEPARATE TRIAL. A secondary analysis of a trial this review already includes. Relabelling it as an eligible trial would double-count the trial in the eligibility ledger."
+   }
+  ],
+  "pool_effect": "NONE. This block writes no row and touches no result."
  }
 }

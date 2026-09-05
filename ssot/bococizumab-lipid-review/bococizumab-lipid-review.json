@@ -76,9 +76,9 @@
   },
   "tally": {
    "EXCLUDED": 7,
-   "ELIGIBLE_NOT_POOLABLE": 3,
+   "ELIGIBLE_NOT_POOLABLE": 2,
    "NOT_ASSESSABLE": 1,
-   "ELIGIBLE_POOLABLE_NOT_INCLUDED": 5,
+   "ELIGIBLE_POOLABLE_NOT_INCLUDED": 6,
    "INCLUDED": 5,
    "ELIGIBLE_NO_RESULTS_YET": 1
   },
@@ -1168,9 +1168,9 @@
    },
    {
     "nct": "NCT02524106",
-    "disposition": "ELIGIBLE_NOT_POOLABLE",
+    "disposition": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
     "failing_limbs": [],
-    "why": "no LDL percent-change outcome at ANY of 2 registered ranks",
+    "why": "LDL percent-change outcome AT PRIMARY -- found in the primary outcome's `description`, which the detector never read",
     "evidence": {
      "brief_title": "Bococizumab HIV Evaluation (B-HIVE) Study",
      "conditions": [
@@ -1186,7 +1186,15 @@
      "status": "TERMINATED",
      "has_results": true,
      "n_ranks_read": 2,
-     "ldl_pct_change_at_ranks": [],
+     "ldl_pct_change_at_ranks": [
+      {
+       "rank": "PRIMARY",
+       "measure": "Change of LDL-C From Baseline to Week 12",
+       "description": "The primary endpoint for the study is the percent change from baseline in fasting LDL-C at week 12.",
+       "found_in": "description",
+       "invisible_to_the_stored_detector": true
+      }
+     ],
      "arm_role": "experimental",
      "arm_role_evidence": "arm 'Bococizumab' via intervention record",
      "arm_types": [
@@ -1204,6 +1212,28 @@
       "PLACEBO_COMPARATOR"
      ],
      "estimand": "no LDL percent-change outcome at ANY of 2 registered ranks"
+    },
+    "corrected_2026_09_04": {
+     "was_disposition": "ELIGIBLE_NOT_POOLABLE",
+     "was_why": "no LDL percent-change outcome at ANY of 2 registered ranks",
+     "why_that_was_false": "B-HIVE's registered PRIMARY is 'Change of LDL-C From Baseline to Week 12' and its `description` on the same record is 'The primary endpoint for the study is the percent change from baseline in fasting LDL-C at week 12.' That is EXACTLY the estimand this object names -- percent change from baseline in LDL-C at WEEK 12 -- so the row asserted the absence of the very thing the record states.",
+     "the_mechanism, exactly": "scripts/screen_bococizumab_2026_08_19.py builds its ranks from o.get('measure') ONLY and tests is_ldl_pct_change(measure) = an LDL term AND a change term, where the change terms are 'percent change', 'percentage change', 'change from baseline', '% change', 'percent reduction'. The TITLE reads 'Change OF LDL-C FROM BASELINE TO Week 12' -- 'change from baseline' is not contiguous in it -- so no change term matched and the row went to NOT-POOLABLE, the withholding direction. The DESCRIPTION contains 'percent change from baseline' verbatim and was never looked at.",
+     "the_comment_that_makes_it_sting": "the detector's own docstring reads 'STRUCTURAL: an LDL term plus a change term. Not the registered phrase (P33).' It fixed the phrase problem INSIDE the title and left the title as the only thing it reads. Two rows below, NCT01720537 is correctly NOT-POOLABLE at 14 ranks -- re-checked on 2026-09-04 against every title AND every description, no LDL percent-change anywhere -- so the surrounding rows are sound and this one was not.",
+     "class": "TITLE-WITHOUT-DESCRIPTION",
+     "found_by": "the 2026-09-04 corpus sweep prompted by the same defect in iv-iron-hf's FAIR-HFpEF row",
+     "registry_measured_2026_09_04": {
+      "source": "ClinicalTrials.gov API v2, read 2026-09-04",
+      "url": "https://clinicaltrials.gov/study/NCT02524106",
+      "primaryOutcomes[0].measure": "Change of LDL-C From Baseline to Week 12",
+      "primaryOutcomes[0].description": "The primary endpoint for the study is the percent change from baseline in fasting LDL-C at week 12.",
+      "secondaryOutcomes[0].measure": "Change in Lp(a) From Entry to Week 12",
+      "secondaryOutcomes[0].description": "The primary endpoint for the study is the percent change from baseline in fasting total Lp(a) at week 12."
+     }
+    },
+    "pooling_decision_2026_09_04": {
+     "state": "OPEN -- NOT TAKEN IN THIS ROW",
+     "why_open": "this row now says the trial COULD join the pool, and that is where it stops. Adding it changes k and therefore changes a served result, which is a separate decision. The disposition ELIGIBLE_POOLABLE_NOT_INCLUDED is exactly the 'flagged for review, never silently dropped' state this object already uses for five other rows.",
+     "what_the_decision_has_to_weigh": "B-HIVE is TERMINATED with an enrolment of 11, in a dyslipidaemia-with-HIV population. Its weight in any pool would be near zero and its population sits at the edge of this review's. That is an argument about how much it matters, NOT an argument that it measures something else -- and conflating the two is what the retracted row did."
     }
    },
    {
@@ -1299,6 +1329,28 @@
    "state": "OWED, AND RECORDED AS OWED RATHER THAN DESCRIBED",
    "what_is_owed": "independent duplicate screening by a second reader.",
    "what_was_NOT_done": "No second model family read this screen. An agreement rate over one reader is not an agreement rate."
+  },
+  "tally_superseded_2026_09_04": {
+   "was": {
+    "EXCLUDED": 7,
+    "ELIGIBLE_NOT_POOLABLE": 3,
+    "NOT_ASSESSABLE": 1,
+    "ELIGIBLE_POOLABLE_NOT_INCLUDED": 5,
+    "INCLUDED": 5,
+    "ELIGIBLE_NO_RESULTS_YET": 1
+   },
+   "why": "recounted after NCT02524106 moved from ELIGIBLE_NOT_POOLABLE to ELIGIBLE_POOLABLE_NOT_INCLUDED on the 2026-09-04 title-without-description correction."
+  },
+  "title_without_description_sweep_2026_09_04": {
+   "what_was_checked": "every row in this screening log whose `why` turns on the registered outcome was re-checked on 2026-09-04 against BOTH `measure` and `description` at every rank of its ClinicalTrials.gov v2 record.",
+   "rows_checked": 13,
+   "rows_corrected": 1,
+   "corrected": [
+    "NCT02524106"
+   ],
+   "rows_confirmed_by_their_own_descriptions": 12,
+   "the_detector_is_still_title_only": "scripts/screen_bococizumab_2026_08_19.py has been changed to read `description` as well as `measure`, but IT HAS NOT BEEN RE-RUN and this block was NOT regenerated. Re-running it requires the staged registry payloads and would rewrite 22 served rows. The one row the change would have caught has been corrected by hand and is marked as such; if any other row is wrong, this sweep did not find it and the corrected detector would.",
+   "test": "scripts/test_screen_reason_vs_registry_description.py"
   }
  },
  "screening_names_unresolved": [],

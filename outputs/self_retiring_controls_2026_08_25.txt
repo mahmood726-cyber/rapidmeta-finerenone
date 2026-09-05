@@ -1,7 +1,7 @@
-CHECKS DECLARING A CONTROL VIA require_controls: 106
+CHECKS DECLARING A CONTROL VIA require_controls: 129
 
-  control built from a SYNTHETIC input (durable)   : 98
-  control pointing at a LIVE corpus instance       : 8
+  control built from a SYNTHETIC input (durable)   : 120
+  control pointing at a LIVE corpus instance       : 9
 
 A LIVE control is the strongest evidence a check works on THIS corpus, and the
 most fragile: fix the instance and the control tests a case that no longer exists.
@@ -18,6 +18,8 @@ did, or quietly starts passing.
       control abstract-claims-a-search-the-object-says-never-ran "abstract-claims-a-search-the-object-says-never-ran", ("AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html AS COMMITTED AT
   scripts\audit_why_six_topics_have_no_page.py
       control audit_why_six_topics_have_no_page  "cab-prep-hiv-review's own NCTs are found in its own delivered page", bool(cab_ncts) and all(n in cab_html for
+  scripts\denominator_axis_gate.py
+      control denominator_axis_gate              "a synthetic page printing the ANALYSED total under the " "word 'randomised'", judge_page(pages["planted.html"
   scripts\lint_container_repr_on_a_page.py
       control lint_container_repr_on_a_page      "the GRADE cell as it was delivered on 2026-08-20", bool(REPR_IN_TEXT.search(rendered_text(fixture))), True
   scripts\lint_gate_can_fail.py

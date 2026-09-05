@@ -264,6 +264,45 @@ def _meta_bias(canon, na):
               "assessment is claimed")
 
 
+def _search_strategy(canon, na):
+    """Point at the Search tab ONLY when that tab has something to show.
+
+    MEASURED 2026-09-04, corpus-wide panel census: of 1,464 top-level HTML files
+    151 carry pn-* panels, and this row's pointer was UNCONDITIONAL on all 151.
+    Search tabs measured REAL on 7 and PARTIAL on 15, so 144 pages promised
+    "the executed strings, datetimes, filters and hit counts are on the Search
+    tab" while that tab said "Not held in this object." 166 of 493 cross-panel
+    pointers were broken and 144 of them were this one line.
+
+    A defect that repeats verbatim across independent data is a generator
+    defect, and this generator was a single unconditional tuple entry.
+
+    THE TEST IS DELIBERATELY THE ONE THE BANNER USES -- projectors.py:552 reads
+    `canon["search"]["strategy"]` to decide whether to print "No systematic
+    search was run". Reading a different field here is exactly how the two
+    surfaces came to disagree, so they now read the same one and cannot.
+
+    The distinction between a search that ran and a search whose YIELD was
+    recorded is kept rather than rounded away: 15 objects hold the executed
+    query and explicitly not its counts, and calling those "on the Search tab"
+    without qualification would be the same false promise in a smaller font.
+    """
+    s = canon.get("search") or {}
+    if not s.get("strategy"):
+        return na("this object records no search strategy, so no query, date or "
+                  "yield can be shown and nothing on the Search tab describes one")
+    has_yield = bool(s.get("counts") or s.get("records") or s.get("prisma")
+                     or s.get("yield") or s.get("sources_searched"))
+    if has_yield:
+        return ("The executed strings, datetimes, filters and hit counts are on "
+                "the <a href=\"#pn-search\">Search tab</a>")
+    return ("The executed strings and filters are on the "
+            "<a href=\"#pn-search\">Search tab</a>. Their yield is not recorded "
+            "on this object, so no hit count or dedup denominator is shown "
+            "&mdash; which is a limit of this record, not a claim that the "
+            "search returned nothing")
+
+
 def _certainty_method(canon, na):
     """GRADE only where a GRADE record exists, counted."""
     g = canon.get("grade") or {}
@@ -271,14 +310,14 @@ def _certainty_method(canon, na):
     if isinstance(by, dict) and by:
         appr = g.get("approach")
         return ("GRADE, recorded for %d outcome(s)%s. The ratings are on the "
-                "<a href=\"#report\">Certainty tab</a>."
+                "<a href=\"#pn-report\">Scientific Output tab</a>."
                 % (len(by), " (%s)" % appr if appr else ""))
     tbl = [b for b in ((canon.get("results") or {}).get("by_outcome") or {}).values()
            if isinstance(b, dict) and isinstance(b.get("grade"), dict)
            and b["grade"].get("certainty")]
     if tbl:
         return ("GRADE, recorded for %d outcome(s) in the results block. The ratings are on "
-                "the <a href=\"#report\">Certainty tab</a>." % len(tbl))
+                "the <a href=\"#pn-report\">Scientific Output tab</a>." % len(tbl))
     if ((canon.get("absent_from_source") or {}).get("grade")):
         return na("no GRADE record was recoverable from the page this object was extracted "
                   "from")
@@ -309,8 +348,11 @@ def protocol_card(canon, p):
         # pages, of which 143 were this one. Pointing at the panel makes the link resolve.
         # HONEST LIMIT: the tab shell is CSS-only and driven by radios, so a fragment cannot
         # SELECT the tab without script -- this fixes a dead link, not tab activation.
-        ("Search strategy", "The executed strings, datetimes, filters and hit "
-                            "counts are on the <a href=\"#pn-search\">Search tab</a>"),
+        #
+        # AND A RESOLVING LINK TO AN EMPTY PANEL IS STILL A FALSE PROMISE. That earlier fix
+        # made the anchor land; it did not ask whether anything was there when it landed.
+        # 2026-09-04: gated on the same field the banner reads. See _search_strategy.
+        ("Search strategy", _search_strategy(canon, na)),
         ("Study selection process", _selection_process(canon, p, na)),
         ("Number of screeners", _screener_count(canon, na)),
         ("Data extraction items", _extraction_items(canon, na)),
@@ -603,6 +645,7 @@ def screening_cards(canon, p):
                 % (NL, p(str(r.get("trial", ""))), ident, NL, decided, NL)
                 + ("  <p>%s</p>%s" % (p(r["reason"]), NL) if r.get("reason") else "")
                 + ("  <ul>%s</ul>%s" % (crit, NL) if crit else "")
+                + _outcome_unavailable_block(r, p)
                 + ("  <p><small><strong>What it actually reports:</strong> %s"
                    "</small></p>%s" % (p(r["quantity_it_reports"]), NL)
                    if r.get("quantity_it_reports") else "")
@@ -617,6 +660,61 @@ def screening_cards(canon, p):
                 + _evidence_basis(r.get("evidence_basis"), p)
                 + "</div>" + NL)
     return out
+
+
+def _outcome_unavailable_block(r, p):
+    """ELIGIBLE, AND WE HOLD NOTHING FOR THIS ENDPOINT -- decomposed on the page.
+
+    "Excluded" tells a reader the trial did not qualify, and closes the question.
+    ELIGIBLE_OUTCOME_UNAVAILABLE tells them it qualified and we have nothing from
+    it for this endpoint, which is checkable and invites them to go and find the
+    number. The decomposition is only worth making if the reader can SEE both
+    halves, so this prints which eligibility axes are met, HOW that is known, and
+    what the trial does report.
+
+    `eligibility_basis` is the part that must not be flattened. MEASURED means
+    another surface of the same object states P/I/C in terms. INFERRED means the
+    screen's convention -- name every failing axis it finds -- implies the other
+    axes passed. Those are different strengths of claim and the page says which
+    one it is rather than levelling them up to the stronger.
+    """
+    if not (r.get("contribution_axis") or r.get("eligibility_axes_met")):
+        return ""
+    bits = ""
+    # THE CARRIED-FORWARD REASON STILL SAYS "EXCLUDED", AND IT MUST. It is the
+    # review's own wording and it is not rewritten to match the new verdict --
+    # rewriting it would erase the fact that this row once said the trial did not
+    # qualify. But a reason reading "excluded on OUTCOME" under a verdict reading
+    # "eligible" is a contradiction to anyone who does not know a migration
+    # happened, so the retraction is printed BETWEEN them rather than left in a
+    # field nobody renders.
+    chg = next((v for k, v in r.items()
+                if k.startswith("verdict_changed_") and isinstance(v, dict)), None)
+    if chg:
+        bits += ("  <p class='warn'><small><strong>Relabelled &mdash; the reason "
+                 "above is carried forward verbatim and still uses the old word."
+                 "</strong> %s</small></p>%s" % (p(str(chg.get("why", ""))), NL))
+        if chg.get("pool_effect"):
+            bits += ("  <p><small><strong>Effect on the pooled estimate:</strong> "
+                     "%s</small></p>%s" % (p(str(chg["pool_effect"])), NL))
+    axes = r.get("eligibility_axes_met") or []
+    if axes:
+        bits += ("  <p><small><strong>Eligibility axes met:</strong> %s</small></p>%s"
+                 % (e(", ".join(str(a) for a in axes)), NL))
+    if r.get("contribution_axis"):
+        bits += ("  <p><small><strong>Contributes to this outcome:</strong> no "
+                 "&mdash; the %s axis decides CONTRIBUTION here, not eligibility."
+                 "</small></p>%s" % (e(str(r["contribution_axis"])).lower(), NL))
+    if r.get("eligibility_basis"):
+        bits += ("  <p><small><strong>How the eligibility is known:</strong> %s"
+                 "%s</small></p>%s"
+                 % (e(str(r["eligibility_basis"])),
+                    (" &mdash; " + p(r["eligibility_basis_evidence"]))
+                    if r.get("eligibility_basis_evidence") else "", NL))
+    if r.get("what_it_does_report"):
+        bits += ("  <p><small><strong>What it does report, and what is missing:"
+                 "</strong> %s</small></p>%s" % (p(r["what_it_does_report"]), NL))
+    return bits
 
 
 def _evidence_basis(eb, p):

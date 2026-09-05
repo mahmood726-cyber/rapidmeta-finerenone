@@ -78,19 +78,41 @@ def norm(s):
 
 
 def ranks(ps):
-    """[(rank, measure)] over EVERY registered rank -- the withholding question's domain."""
+    """[(rank, measure, description)] over EVERY registered rank.
+
+    CORRECTED 2026-09-04. THIS RETURNED (rank, measure) AND NOTHING ELSE, AND THAT COST A ROW.
+    B-HIVE (NCT02524106) registers its primary under the TITLE "Change of LDL-C From Baseline to
+    Week 12" -- an LDL term, but no contiguous change term, so `is_ldl_pct_change` said no. The
+    `description` on the same record reads "The primary endpoint for the study is the percent
+    change from baseline in fasting LDL-C at week 12", which is EXACTLY this object's estimand.
+    The row was stored as ELIGIBLE_NOT_POOLABLE on "no LDL percent-change outcome at ANY of 2
+    registered ranks" -- an assertion that the record itself contradicts, in the withholding
+    direction.
+
+        A REGISTERED OUTCOME IS THE TITLE **AND** THE DESCRIPTION. Reading one of them and
+        reporting an absence is reporting an absence you did not look for.
+
+    The docstring below used to say "STRUCTURAL ... not the registered phrase (P33)". That was
+    true and insufficient: it de-phrased the match INSIDE the title and left the title as the
+    only text it ever saw. Structural about the wrong string is still structural.
+    """
     om = ps.get("outcomesModule") or {}
     out = []
     for rank, key in (("PRIMARY", "primaryOutcomes"), ("SECONDARY", "secondaryOutcomes"),
                       ("OTHER", "otherOutcomes")):
         for o in (om.get(key) or []):
-            out.append((rank, o.get("measure") or ""))
+            out.append((rank, o.get("measure") or "", o.get("description") or ""))
     return out
 
 
-def is_ldl_pct_change(measure):
-    """STRUCTURAL: an LDL term plus a change term. Not the registered phrase (P33)."""
-    m = norm(measure)
+def is_ldl_pct_change(measure, description=""):
+    """STRUCTURAL: an LDL term plus a change term, over TITLE **AND** DESCRIPTION together.
+
+    Joined with a separator so a term cannot be manufactured across the boundary between the
+    two fields -- an LDL term in the title plus a change term in the description is a real hit,
+    but neither is allowed to complete a phrase that spans them.
+    """
+    m = norm(measure) + " || " + norm(description)
     return any(t in m for t in LDL_TERMS) and any(t in m for t in CHANGE_TERMS)
 
 
@@ -101,7 +123,7 @@ def screen(nct, study):
     dm = ps.get("designModule") or {}
     conds = [norm(c) for c in ((ps.get("conditionsModule") or {}).get("conditions") or [])]
     rk = ranks(ps)
-    hits = [(r, m) for (r, m) in rk if is_ldl_pct_change(m)]
+    hits = [(r, m, d) for (r, m, d) in rk if is_ldl_pct_change(m, d)]
     ev = {
         "brief_title": (ident.get("briefTitle") or "")[:120],
         "conditions": conds,
@@ -112,7 +134,12 @@ def screen(nct, study):
         "status": (ps.get("statusModule") or {}).get("overallStatus"),
         "has_results": bool(study.get("hasResults")),
         "n_ranks_read": len(rk),
-        "ldl_pct_change_at_ranks": [{"rank": r, "measure": m[:140]} for r, m in hits],
+        # `found_in` records WHICH field carried the match, so a reader can see at a glance
+        # whether a title-only detector would have found it. On B-HIVE it is "description".
+        "ldl_pct_change_at_ranks": [
+            {"rank": r, "measure": m[:140], "description": d[:240],
+             "found_in": ("title" if is_ldl_pct_change(m) else "description")}
+            for r, m, d in hits],
     }
 
     fails = []

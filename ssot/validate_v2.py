@@ -83,7 +83,26 @@ def _declared_outcome(canon, oid):
         % (oid, [o.get("id") for o in (canon.get("outcomes") or []) if isinstance(o, dict)]))
 
 
-def __init__(self):
+class Report:
+    # THIS __init__ WAS OUTSIDE THE CLASS (fixed 2026-09-04).
+    #
+    # It sat above `class Report:` as a module-level `def __init__(self)`,
+    # still carrying the 8-space body indentation of the method it used to be.
+    # Python accepted it silently -- a module-level function named __init__ is
+    # legal and simply never runs -- so Report had no initialiser at all and
+    # `self.blocks` was never created. EVERY object validated raised
+    # `AttributeError: 'Report' object has no attribute 'blocks'` at the first
+    # finding, on the line that records it.
+    #
+    # This file is 3,869 lines and holds 41 detectors. None of them could
+    # report. `validate_v2.py <any object>` exits 1 with a traceback, and has
+    # for long enough that nobody noticed -- which belongs beside the measured
+    # fact that 613 of 664 checks in this repo have no recorded failure ever.
+    # A validator that cannot report a finding is indistinguishable from a
+    # corpus with no findings, and the second reading is the flattering one.
+    #
+    # The dedent is the whole fix; no detector logic is touched.
+    def __init__(self):
         self.blocks: list[tuple[str, str]] = []
         self.passes: list[str] = []
         # A THIRD outcome, added for the cross-engine check. Some findings are
@@ -94,8 +113,6 @@ def __init__(self):
         # into blocks would stop a build for something nobody did wrong.
         self.notes: list[tuple[str, str]] = []
 
-
-class Report:
     def block(self, rule, msg):
         self.blocks.append((rule, msg))
 
@@ -3270,8 +3287,39 @@ def check_overassertion_class(canon, rep):
     Every rule in overassertion_rules.py was a defect a gate round found in a
     shipped object. They live in the build now, because a class the review has
     already taught us is a class the review should never have to teach twice.
+
+    EXCEPT THE MODULE IS NOT IN THE REPOSITORY (measured 2026-09-04).
+    `overassertion_rules.py` exists at no path under C:\\rmfw. This bare import
+    raised ModuleNotFoundError inside validate(), which propagated out of the
+    detector loop and killed the run -- so this one missing file took down all
+    41 detectors on all 160 objects, not merely its own.
+
+    That is the fourth artefact this week cited by name and present at no path,
+    after the HFrEF headline's source file, the NMA's "separate calibration
+    cell", and a comment promising "the negative control below". A docstring
+    saying rules "live in the build now" is not evidence that they do.
+
+    The rules are NOT reconstructed here. Inventing a check and calling it the
+    one that used to run would be worse than the gap: it would carry the old
+    name and a new, unreviewed meaning. Instead this reports NOT_RUN through
+    `rep.note`, which is the third outcome this file already built for exactly
+    this case -- "an independent engine that could not be reached" -- and which
+    is visible without blocking a build for something nobody did wrong.
+
+    A CHECK THAT CANNOT EXECUTE MUST NOT REPORT A PASS, and it must not take
+    the other forty down with it either.
     """
-    from overassertion_rules import check_overassertion
+    try:
+        from overassertion_rules import check_overassertion
+    except ImportError as exc:
+        rep.note("overassertion",
+                 "NOT_RUN -- the over-assertion rule library could not be "
+                 "imported (%s). This object was NOT checked for claims "
+                 "stronger than their evidence; that is an absent check, not a "
+                 "clean result. Restore overassertion_rules.py, or delete this "
+                 "detector and the docstring that says its rules live in the "
+                 "build." % exc)
+        return
     check_overassertion(canon, rep)
 
 
