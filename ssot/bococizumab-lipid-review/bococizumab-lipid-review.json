@@ -29,7 +29,14 @@
  "config": {
   "model": "random-effects",
   "method": "not pooled -- withdrawn",
-  "scale": "log"
+  "scale_withdrawn_2026_09_05": {
+   "state": "WITHDRAWN -- there is no review-level scale for this review.",
+   "withdrawn_utc": "2026-09-05T21:00:00Z",
+   "superseded_value": "log",
+   "reason": "config.scale was 'log' while the outcomes are pooled on different scales: ldlc_pct_change_wk12=natural; primary=log. A review-level default rendered as a method label states, for the outcomes that disagree with it, a computation that was not performed.",
+   "why_the_abstraction_and_not_the_value": "Setting it to 'natural' would have mislabelled the other outcome instead of this one. Scale is a property of a pooled outcome, not of a review: a percent-change endpoint is pooled on the natural scale and a ratio measure on the log scale, and both are correct. The per-outcome value already exists at results.by_outcome.<id>.pooled.scale and is the only authority.",
+   "read_scale_from": "results.by_outcome.<outcome_id>.pooled.scale"
+  }
  },
  "screening": {
   "search_note": "Executed 2026-08-19. 22 registrations surfaced and screened to a disposition; remainder ZERO.",
@@ -3139,103 +3146,117 @@
      "method": "leave-one-out, plus a comparison of between-study variance estimators",
      "authority": "Cochrane Handbook 6.5.1 s10.10.4.4 and s10.14.",
      "decision_under_test": "whether the replacement depends on any single trial or on the estimator.",
-     "analyses": [
-      {
-       "omitted": "SPIRE-LDL",
-       "k": 4,
-       "point": -55.4014,
-       "ci_low": -60.2305,
-       "ci_high": -50.5724,
-       "still_excludes_null": true
-      },
-      {
-       "omitted": "SPIRE-LL",
-       "k": 4,
-       "point": -56.4998,
-       "ci_low": -58.3147,
-       "ci_high": -54.6849,
-       "still_excludes_null": true
-      },
-      {
-       "omitted": "SPIRE-HR",
-       "k": 4,
-       "point": -55.1123,
-       "ci_low": -59.3697,
-       "ci_high": -50.8548,
-       "still_excludes_null": true
-      },
-      {
-       "omitted": "SPIRE-AI",
-       "k": 4,
-       "point": -54.6025,
-       "ci_low": -57.6713,
-       "ci_high": -51.5337,
-       "still_excludes_null": true
-      },
-      {
-       "omitted": "SPIRE-SI",
-       "k": 4,
-       "point": -55.7084,
-       "ci_low": -59.647,
-       "ci_high": -51.7698,
-       "still_excludes_null": true
-      }
-     ],
      "conclusion": "No single trial carries it: -54.60 to -56.50 across the five, every one excluding no effect.",
-     "between_study_variance_method_comparison": {
-      "methods": [
+     "analyses_withdrawn_2026_09_05": {
+      "state": "WITHDRAWN -- no leave-one-out analysis is displayed for this outcome.",
+      "withdrawn_utc": "2026-09-05T21:00:00Z",
+      "reason": "These 5 analyses each record k=4, which is leaving one out of FIVE. The current synthesis is k=6, where leaving one out gives 6 analyses of k=5. The block therefore describes a synthesis this outcome no longer reports.",
+      "which_synthesis": "The object itself establishes which synthesis these came from, so this is not an unknown: what_the_check_changed records old {k:5, n:4079, md:-55.4593, tau2:9.3148, i2:65.1} superseded by new {k:6, n:4449, md:-55.2406, tau2:5.8423, i2:56.8}, and pooled.previous_values[0] gives the reason and date -- 'SPIRE-FH joined; k=5 -> 6', superseded_on 2026-08-19. Both blocks below are the k=5 synthesis and were never regenerated when the sixth trial joined.",
+      "why_withdrawn_and_not_recomputed": "Recomputing a 6-trial leave-one-out here would require re-running the meta-analysis, which this change does not do. Publishing a reconstructed block would assert numbers nobody has verified. A withdrawn analysis with its reason is a better page than a confident wrong one.",
+      "superseded_values_verbatim": [
        {
-        "between_study_variance_estimator": "REML",
-        "interval_method": "Wald",
-        "point": -55.4593,
-        "ci_low": -58.844,
-        "ci_high": -52.0745,
-        "tau2": 9.3148
+        "omitted": "SPIRE-LDL",
+        "k": 4,
+        "point": -55.4014,
+        "ci_low": -60.2305,
+        "ci_high": -50.5724,
+        "still_excludes_null": true
        },
        {
-        "between_study_variance_estimator": "REML",
-        "interval_method": "HKSJ",
-        "point": -55.4593,
-        "ci_low": -60.6734,
-        "ci_high": -50.2452,
-        "tau2": 9.3148
+        "omitted": "SPIRE-LL",
+        "k": 4,
+        "point": -56.4998,
+        "ci_low": -58.3147,
+        "ci_high": -54.6849,
+        "still_excludes_null": true
        },
        {
-        "between_study_variance_estimator": "DL",
-        "interval_method": "Wald",
-        "point": -55.4283,
-        "ci_low": -58.6504,
-        "ci_high": -52.2061,
-        "tau2": 8.0392
+        "omitted": "SPIRE-HR",
+        "k": 4,
+        "point": -55.1123,
+        "ci_low": -59.3697,
+        "ci_high": -50.8548,
+        "still_excludes_null": true
        },
        {
-        "between_study_variance_estimator": "DL",
-        "interval_method": "HKSJ",
-        "point": -55.4283,
-        "ci_low": -60.5789,
-        "ci_high": -50.2776,
-        "tau2": 8.0392
+        "omitted": "SPIRE-AI",
+        "k": 4,
+        "point": -54.6025,
+        "ci_low": -57.6713,
+        "ci_high": -51.5337,
+        "still_excludes_null": true
        },
        {
-        "between_study_variance_estimator": "PM",
-        "interval_method": "Wald",
-        "point": -55.5332,
-        "ci_low": -59.3048,
-        "ci_high": -51.7616,
-        "tau2": 12.6641
-       },
-       {
-        "between_study_variance_estimator": "PM",
-        "interval_method": "HKSJ",
-        "point": -55.5332,
-        "ci_low": -60.876,
-        "ci_high": -50.1904,
-        "tau2": 12.6641
+        "omitted": "SPIRE-SI",
+        "k": 4,
+        "point": -55.7084,
+        "ci_low": -59.647,
+        "ci_high": -51.7698,
+        "still_excludes_null": true
        }
-      ],
-      "why": "This is a NEW analysis, so the estimator was chosen correctly from the start rather than inherited: REML, per the house rule below k=10.",
-      "verdict": "The point spans -55.43 to -55.53 across all six combinations -- three hundredths of a percentage point. The INTERVAL is what the method changes: Wald about -59 to -52, Hartung-Knapp about -61 to -50, and at k=5 with I-squared 65 per cent HARTUNG-KNAPP IS THE HONEST ONE. Every combination excludes no effect by an enormous margin.",
-      "estimator_kept": "REML with a Wald interval is the headline, with Hartung-Knapp shown beside it. Nothing here was inherited from the withdrawn analysis."
+      ]
+     },
+     "between_study_variance_method_comparison_withdrawn_2026_09_05": {
+      "state": "WITHDRAWN -- the estimator comparison panel is not displayed for this outcome.",
+      "withdrawn_utc": "2026-09-05T21:00:00Z",
+      "reason": "Every row carries the k=5 synthesis: REML point -55.4593 with tau2 9.3148, DL point -55.4283 with tau2 8.0392. The outcome's registered headline is -55.24 at k=6 with tau2 5.8423. The panel and the headline were not the same synthesis, so the panel could not support a statement about the result this review reports.",
+      "which_synthesis": "The object itself establishes which synthesis these came from, so this is not an unknown: what_the_check_changed records old {k:5, n:4079, md:-55.4593, tau2:9.3148, i2:65.1} superseded by new {k:6, n:4449, md:-55.2406, tau2:5.8423, i2:56.8}, and pooled.previous_values[0] gives the reason and date -- 'SPIRE-FH joined; k=5 -> 6', superseded_on 2026-08-19. Both blocks below are the k=5 synthesis and were never regenerated when the sixth trial joined.",
+      "the_headline_is_the_current_one": "-55.24 (-57.92, -52.56), k=6, is current and is NOT changed by this withdrawal. It was determinable from the object's own record rather than assumed, which is why the panel is withdrawn and the headline is kept, and not the other way round.",
+      "superseded_values_verbatim": {
+       "methods": [
+        {
+         "between_study_variance_estimator": "REML",
+         "interval_method": "Wald",
+         "point": -55.4593,
+         "ci_low": -58.844,
+         "ci_high": -52.0745,
+         "tau2": 9.3148
+        },
+        {
+         "between_study_variance_estimator": "REML",
+         "interval_method": "HKSJ",
+         "point": -55.4593,
+         "ci_low": -60.6734,
+         "ci_high": -50.2452,
+         "tau2": 9.3148
+        },
+        {
+         "between_study_variance_estimator": "DL",
+         "interval_method": "Wald",
+         "point": -55.4283,
+         "ci_low": -58.6504,
+         "ci_high": -52.2061,
+         "tau2": 8.0392
+        },
+        {
+         "between_study_variance_estimator": "DL",
+         "interval_method": "HKSJ",
+         "point": -55.4283,
+         "ci_low": -60.5789,
+         "ci_high": -50.2776,
+         "tau2": 8.0392
+        },
+        {
+         "between_study_variance_estimator": "PM",
+         "interval_method": "Wald",
+         "point": -55.5332,
+         "ci_low": -59.3048,
+         "ci_high": -51.7616,
+         "tau2": 12.6641
+        },
+        {
+         "between_study_variance_estimator": "PM",
+         "interval_method": "HKSJ",
+         "point": -55.5332,
+         "ci_low": -60.876,
+         "ci_high": -50.1904,
+         "tau2": 12.6641
+        }
+       ],
+       "why": "This is a NEW analysis, so the estimator was chosen correctly from the start rather than inherited: REML, per the house rule below k=10.",
+       "verdict": "The point spans -55.43 to -55.53 across all six combinations -- three hundredths of a percentage point. The INTERVAL is what the method changes: Wald about -59 to -52, Hartung-Knapp about -61 to -50, and at k=5 with I-squared 65 per cent HARTUNG-KNAPP IS THE HONEST ONE. Every combination excludes no effect by an enormous margin.",
+       "estimator_kept": "REML with a Wald interval is the headline, with Hartung-Knapp shown beside it. Nothing here was inherited from the withdrawn analysis."
+      }
      }
     },
     "single_study_ref": null,
@@ -3469,9 +3490,10 @@
     },
     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
     "POOL_FINDINGS_2026_08_20": {
-     "a_spire_ai_pairs_a_dose_with_the_other_doses_placebo": "SPIRE-AI registers FOUR arms in a dose-matched double-dummy -- bococizumab 150 mg, bococizumab 75 mg, and a matching placebo for each. THIS POOL'S SPIRE-AI ROW PAIRS THE 150 MG DOSE WITH THE 75 MG PLACEBO. Both are real registered arms and together they are not a registered contrast. Established from the registry's arm table; not corrected, because the stored value derives from these arms.",
+     "a_spire_ai_pairs_a_dose_with_the_other_doses_placebo": "CORRECTED 2026-09-05. BASIS CHANGED FROM THE TRIAL-LEVEL ARM TABLE TO THE OUTCOME-SPECIFIC RECORD, and the earlier conclusion is withdrawn.\nThe superseded refusal read, verbatim: 'SPIRE-AI registers FOUR arms in a dose-matched double-dummy -- bococizumab 150 mg, bococizumab 75 mg, and a matching placebo for each. THIS POOL'S SPIRE-AI ROW PAIRS THE 150 MG DOSE WITH THE 75 MG PLACEBO. Both are real registered arms and together they are not a registered contrast. Established from the registry's arm table.'\nThat basis cannot answer the question. A trial-level arm table lists every arm of the trial and cannot say which two arms belong to one outcome; only the outcome-specific record can.\nThe outcome-specific record is in this object already, at inputs.trials[3].registered_primaries[0] and inputs.trials[3].registration_other_outcome_counts[0].title, and reads verbatim: 'Percent Change From Baseline at Week 12 in Fasting Low Density Lipoprotein Cholesterol (LDL-C) Level for Bococizumab 150 mg Dose Group and Matched Placebo'.\nIT NAMES ITS OWN COMPARATOR. The week-12 LDL-C contrast for the 150 mg dose against its MATCHED placebo is therefore a registered contrast, and the claim that it is not is withdrawn.\nWHAT REMAINS OPEN, and is not asserted here: whether the stored SPIRE-AI value was in fact taken against the matched placebo or against the 75 mg placebo. The superseded refusal asserted the latter from a source that could not establish it. That is a question for a human reading the publication's arm labels, and it is left open rather than answered from the same table that was wrong before.",
      "b_spire_ai_registers_seven_primaries_and_one_is_pooled": "Six of SPIRE-AI's seven registered primary outcomes concern the PERCENTAGE OF INJECTIONS MEETING A SUCCESSFUL-ASSESSMENT DEFINITION on a participant assessment tool -- it is an auto-injector usability trial. The seventh is the LDL-C change pooled here. The selection is recorded nowhere.",
-     "c_spire_si_registers_three_arms_one_of_them_atorvastatin": "SPIRE-SI registers bococizumab, ATORVASTATIN and placebo. This object records two arms and does not record which was dropped."
+     "c_spire_si_registers_three_arms_one_of_them_atorvastatin": "SPIRE-SI registers bococizumab, ATORVASTATIN and placebo. This object records two arms and does not record which was dropped.",
+     "a_spire_ai_pairs_a_dose_with_the_other_doses_placebo_superseded_2026_09_05": "SPIRE-AI registers FOUR arms in a dose-matched double-dummy -- bococizumab 150 mg, bococizumab 75 mg, and a matching placebo for each. THIS POOL'S SPIRE-AI ROW PAIRS THE 150 MG DOSE WITH THE 75 MG PLACEBO. Both are real registered arms and together they are not a registered contrast. Established from the registry's arm table; not corrected, because the stored value derives from these arms."
     },
     "house_rule_interval_2026_08_20": {
      "estimator": "REML with Hartung-Knapp, t on k-1 = 5 degrees of freedom (t = 2.5706)",
@@ -3580,8 +3602,9 @@
    "date": "2026-08-20",
    "change": "risk of bias assessed per result for all six contributing results",
    "values_moved": "NONE",
-   "what_changed": "All six registrations read before judgement. D1 and D4 LOW, D2 and D3 NO_INFORMATION, D5 LOW for four trials and SOME_CONCERNS for SPIRE-AI and SPIRE-SI. SPIRE-AI's recorded arm pair is not a registered contrast.",
-   "why": "The risk-of-bias limb was previously discharged by a sentence about where somebody looked."
+   "what_changed": "All six registrations read before judgement. D1 and D4 LOW, D2 and D3 NO_INFORMATION, D5 LOW for four trials and SOME_CONCERNS for SPIRE-AI and SPIRE-SI. SPIRE-AI's week-12 LDL-C contrast IS registered: the outcome names its own comparator -- 'Percent Change From Baseline at Week 12 in Fasting Low Density Lipoprotein Cholesterol (LDL-C) Level for Bococizumab 150 mg Dose Group and Matched Placebo'. The earlier statement that it was not a registered contrast rested on the trial-level arm table and is withdrawn (2026-09-05).",
+   "why": "The risk-of-bias limb was previously discharged by a sentence about where somebody looked.",
+   "what_changed_superseded_2026_09_05": "All six registrations read before judgement. D1 and D4 LOW, D2 and D3 NO_INFORMATION, D5 LOW for four trials and SOME_CONCERNS for SPIRE-AI and SPIRE-SI. SPIRE-AI's recorded arm pair is not a registered contrast."
   },
   {
    "date": "2026-08-20",
@@ -4760,7 +4783,8 @@
         "the_registry_fact_it_turns_on": "registered_primary_count = 7",
         "why": "7 REGISTERED PRIMARY OUTCOMES, so a set exists to select from and this review pools one of them. Assessor 2 scored LOW -- and when asked for its basis it answered \"the assessed outcome was ONE OF TWO registered primary outcomes\", which is the selection situation itself. ITS REASON CONTRADICTS ITS OWN VERDICT.",
         "discriminator": "WHICH ASSESSOR'S REASON CITES A REGISTRY FACT. Both were asked; assessor 2's stated bases were collected in a second blind round rather than assumed. The count of registered primary outcomes is a field on the registration and is not a matter of judgement."
-       }
+       },
+       "basis_corrected_2026_09_05": "This domain's reason turns on arm identity and named no table it was resolved from. The outcome-specific record that answers it is inputs.trials[3].registered_primaries[0]: 'Percent Change From Baseline at Week 12 in Fasting Low Density Lipoprotein Cholesterol (LDL-C) Level for Bococizumab 150 mg Dose Group and Matched Placebo'. The contrast is registered and names its own comparator. The selective-reporting concern in the reason below stands on its own separate ground -- that SPIRE-AI registers seven primary outcomes and is an auto-injector usability trial with a lipid endpoint among them -- and that ground is unaffected by this correction. The judgement is therefore NOT changed here; only the basis is named."
       }
      },
      "overall": "SOME_CONCERNS",
@@ -4789,7 +4813,6 @@
    "shape_note": "A DICT, NOT A STRING. paper_projector does ceil.get('statement'), so a bare string here raises AttributeError and the ENTIRE MANUSCRIPT VANISHES -- 17,012 chars and 27 sections down to a 318-char projector-failed banner."
   },
   "D5_IS_NOT_A_TOPIC_LEVEL_JUDGEMENT": "Four of the six register a single primary and two arms with wording matching what is pooled: D5 LOW. SPIRE-AI registers SEVEN primaries and FOUR arms; SPIRE-SI registers THREE arms including an ACTIVE comparator: D5 SOME_CONCERNS. An assessment that scored all six alike would have been a topic-level judgement wearing six result-level labels.",
-  "IDENTITY_ESTABLISHED_FROM_THE_REGISTRY_ARM_TABLE": "SPIRE-AI registers FOUR arms in a dose-matched double-dummy: Bococizumab 150mg, Bococizumab 75mg, Bococizumab 150mg placebo, Bococizumab 75mg placebo. THIS OBJECT PAIRS 'Bococizumab 150mg' WITH 'Bococizumab 75mg placebo' -- both real registered arms, and NOT a registered contrast, because the 150 mg dose's comparator is the 150 mg placebo. Established from the registry's own arm table before any domain was judged, and NOT corrected: the stored MD -63.4 derives from these arms, so a correction moves a published number.",
   "supersedes": "'no risk-of-bias assessment was recoverable from the page this object was extracted from'.",
   "superseded_state_2026_08_20": {
    "_why_this_is_kept": "The prior value of `risk_of_bias` held 1 key(s) this assessment does not carry. Replacing a subtree wholesale DELETES them, and a net deletion from an SSOT object breaks a standing rule whether or not what replaced it is better. The prior state is the record of what this topic said before it was assessed.",
@@ -4876,7 +4899,9 @@
    "underivable_reported_as_a_data_gap": 6,
    "the_stored_judgements_are_unchanged": true,
    "control": "scripts/plant_rob2_algorithm_tables.py -- one case per published table row, plus four negative controls."
-  }
+  },
+  "IDENTITY_ESTABLISHED_FROM_THE_REGISTRY_ARM_TABLE_superseded_2026_09_05": "SPIRE-AI registers FOUR arms in a dose-matched double-dummy: Bococizumab 150mg, Bococizumab 75mg, Bococizumab 150mg placebo, Bococizumab 75mg placebo. THIS OBJECT PAIRS 'Bococizumab 150mg' WITH 'Bococizumab 75mg placebo' -- both real registered arms, and NOT a registered contrast, because the 150 mg dose's comparator is the 150 mg placebo. Established from the registry's own arm table before any domain was judged, and NOT corrected: the stored MD -63.4 derives from these arms, so a correction moves a published number.",
+  "IDENTITY_ESTABLISHED_FROM_THE_OUTCOME_SPECIFIC_RECORD_2026_09_05": "CORRECTED 2026-09-05, and it replaces the key named above, whose text is kept verbatim beside it. Arm identity for the pooled week-12 LDL-C result was previously established from a source that lists every arm of the trial and therefore cannot say which two arms belong to one outcome. The outcome-specific record answers it directly and is already in this object at inputs.trials[3].registered_primaries[0]: 'Percent Change From Baseline at Week 12 in Fasting Low Density Lipoprotein Cholesterol (LDL-C) Level for Bococizumab 150 mg Dose Group and Matched Placebo'. That title names the comparator as part of the outcome, so the week-12 LDL-C comparison of the 150 mg dose against its matched placebo is a registered comparison. WHAT IS NOT SETTLED, and is deliberately not asserted: whether the stored SPIRE-AI value was taken against the matched placebo or against the other dose's placebo. That needs a human reading the publication's arm labels; it is not answerable from the source that was wrong before."
  },
  "grade": {
   "approach": "GRADE",

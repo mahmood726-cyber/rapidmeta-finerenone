@@ -146,14 +146,6 @@
    "staged_as": "OA_PARALLEL_abstract.txt",
    "access_note": "QUOTED: the abstract carries the primary composite endpoint with its hazard ratio and interval."
   },
-  "OA_ANSWERHF2025": {
-   "layer": "Primary paper (abstract, open)",
-   "layer_rank": 4,
-   "name": "Madrini V et al. Sacubitril-valsartan vs enalapril in heart failure due to Chagas disease: primary results of the ANSWER-HF randomized trial. J Am Coll Cardiol 2025;87(10):1220-1232.",
-   "url": "https://pubmed.ncbi.nlm.nih.gov/41396086/",
-   "staged_as": "OA_ANSWERHF_abstract.txt",
-   "access_note": "QUOTED: staged for an EXCLUDED trial, deliberately. ANSWER-HF is the exclusion the measure rule leans on hardest -- right population, right comparator, wrong quantity -- so the row that excludes it has to be checkable at the layer that holds its numbers. An earlier version pointed that row at the registry, which posts no results for this trial at all."
-  },
   "REG_CTGOV": {
    "layer": "Registry with posted results",
    "layer_rank": 5,
@@ -217,6 +209,15 @@
    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/",
    "staged_as": "PM_SACVAL_ENAL_PMC10710849.txt",
    "access_note": "QUOTED: open access in PubMed Central. Its characteristics table lists every included study with arm sizes, which is what made the trial-list diff possible and is what surfaced PARALLEL-HF."
+  },
+  "OA_ANSWERHF2026": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Madrini V et al. Sacubitril-valsartan vs enalapril in heart failure due to Chagas disease: primary results of the ANSWER-HF randomized trial. J Am Coll Cardiol 2026;87(10):1220-1232.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/41396086/",
+   "staged_as": "OA_ANSWERHF_abstract.txt",
+   "access_note": "QUOTED: staged for an EXCLUDED trial, deliberately. ANSWER-HF is the exclusion the measure rule leans on hardest -- right population, right comparator, wrong quantity -- so the row that excludes it has to be checkable at the layer that holds its numbers. An earlier version pointed that row at the registry, which posts no results for this trial at all.",
+   "citation_year_corrected_2026_09_05": "Key renamed OA_ANSWERHF2025 -> OA_ANSWERHF2026 and the citation year corrected 2025 -> 2026. The 2026 issue year is what claims_corrected[9] already ruled on 2026-08-15: the citation year is the ISSUE year, 2026 (JACC vol 87 no 10, 17 March 2026); 2025 Nov 9 is the Epub date. The old key was referenced by nothing, and inputs.trials[3] already pointed at OA_ANSWERHF2026, which resolved to no source. No new source was invented: this is the same paper, PMID 41396086."
   }
  },
  "outcomes": [
@@ -2006,9 +2007,18 @@
       "Qp": 0.1603602012895
      },
      "prediction": {
-      "pi_low": 0.6861741689426,
-      "pi_high": 1.106968840552,
-      "convention": "t_{k-1}, Cochrane Handbook v6.5"
+      "pi_low": 0.5910992810978426,
+      "pi_high": 1.2850187843629994,
+      "convention": "t_{k-1}, Cochrane Handbook v6.5",
+      "recomputed_2026_09_05": {
+       "what_was_served": "0.6861741689 to 1.1069688406",
+       "what_is_served_now": "0.5910992811 to 1.2850187844",
+       "why": "The label said t_{k-1} and the numbers were a NORMAL quantile (1.959963985). The label is right -- Cochrane Handbook v6.5 specifies t_{k-1} -- so the NUMBER was wrong, not the label. Relabelling would have left a wrong interval standing under an honest name.",
+       "arithmetic": "mu=-0.1374989755, se=0.0792971439, tau2=0.0085970258403, sqrt(tau2+se^2)=0.1220043560, k=4, t_3=3.182446305",
+       "control": "The same mu/se/tau2 with z=1.959963985 reproduce the previously served interval exactly (0.6862 to 1.1070). That control was run before the number was changed, to prove the reconstruction rather than assume it.",
+       "the_served_interval_was_too_narrow_by": "62.4%",
+       "conclusion_unchanged": "Both intervals exclude 1. The direction is unchanged; the stated precision was not."
+      }
      },
      "tau2_ci": {
       "estimate": 0.008597076994522,
@@ -2578,13 +2588,22 @@
       }
      ],
      "nnt": {
-      "pooled_rd": -0.044191,
-      "rd_ci_low": -0.061519,
-      "rd_ci_high": -0.026863,
-      "nnt": 22.628984,
-      "nnt_low": 37.225795,
-      "nnt_high": 16.255105,
-      "undefined_because": {}
+      "undefined_because": {
+       "withdrawn_utc": "2026-09-05T21:00:00Z",
+       "state": "WITHDRAWN -- no NNT is displayed for this outcome.",
+       "reason_1_superseded_operand": "The stored operands were snapshots of a pooled risk difference that no longer exists. Stored pooled_rd was -0.044191; the authoritative count_panels.rd.point is -0.02305292779417. Stored rd_ci_high was -0.026863 while the authoritative rd.ci_high is 0.01674962480133 -- OPPOSITE IN SIGN.",
+       "reason_2_interval_spans_no_difference": "The authoritative risk-difference interval runs from -0.06285548038967 to 0.01674962480133 and therefore CROSSES ZERO. An NNT over an interval that includes no effect is not a quantity a reader can act on.",
+       "why_not_simply_recomputed": "Recomputing from the current operand would give NNT 43.4, replacing a wrong confident number with a different confident number over an interval that spans no difference. The page declines instead."
+      },
+      "superseded_values_2026_09_05": {
+       "note": "What was SERVED before this withdrawal, kept verbatim. Do not display.",
+       "pooled_rd": -0.044191,
+       "rd_ci_low": -0.061519,
+       "rd_ci_high": -0.026863,
+       "nnt": 22.628984,
+       "nnt_low": 37.225795,
+       "nnt_high": 16.255105
+      }
      },
      "nnt_curve": [
       {
@@ -3102,7 +3121,15 @@
      "measure"
     ],
     "reason": "This is the hardest exclusion in the table and the only one that passes the population and the comparator: 190 patients with heart failure with reduced ejection fraction due to Chagas cardiomyopathy, randomised double-blind against ENALAPRIL. It fails on the MEASURE. Its primary endpoint is the change in left-ventricular ejection fraction at six months, and its only composite analysis of cardiovascular death and heart failure hospitalization is inside a hierarchical endpoint analysed by WIN RATIO, reported as 1.80 with a 95% interval of 1.27 to 2.63. No time-to-first hazard ratio for the composite is separately reported. The registry record is consistent with all of this and posts no results of its own, which is why this row is sourced to the publication.",
-    "the_rule_this_applies": "A trial with the right population and the right comparator enters this pool only if it separately reports the quantity the question fixes. A win ratio is not a hazard ratio: it is a count of pairwise wins over an ordered hierarchy, it has no interpretation as a ratio of hazards, and pooling it with hazard ratios would average two different questions. Six months of follow-up in 190 patients would also contribute very few events. The trial is shown here, with its quantity, rather than deleted -- if a hazard ratio for this composite is published later, this entry is where the recovery starts."
+    "the_rule_this_applies": "A trial with the right population and the right comparator enters this pool only if it separately reports the quantity the question fixes. A win ratio is not a hazard ratio: it is a count of pairwise wins over an ordered hierarchy, it has no interpretation as a ratio of hazards, and pooling it with hazard ratios would average two different questions. Six months of follow-up in 190 patients would also contribute very few events. The trial is shown here, with its quantity, rather than deleted -- if a hazard ratio for this composite is published later, this entry is where the recovery starts.",
+    "superseded_2026_09_05": {
+     "status": "WITHDRAWN -- this exclusion no longer stands. The trial is IN the pool.",
+     "withdrawn_utc": "2026-09-05T21:00:00Z",
+     "why": "The exclusion rests on outcome-based eligibility: NCT04853758 registers no outcome that is a first-event union of cardiovascular death and heart failure hospitalisation. That fact is true and is retained verbatim in the fields above. It is not a ground for exclusion. Cochrane Handbook 3.2.4: outcome reporting should rarely determine eligibility -- admitting a trial on whether its own investigators registered an endpoint makes our inclusion depend on their reporting choices.",
+     "the_object_had_already_ruled": "claims_corrected[8], corrected_utc 2026-08-14T00:00:00Z, records: False on both counts. Table 2 of the JACC full text reports the composite as 12/95 vs 8/95, HR 1.83 (0.72-4.67), P=0.205 ... The trial is eligible and stays in the pool. That correction was recorded 22 days before this withdrawal and was never applied to this record, so the object asserted the exclusion and the pooling at once for 22 days.",
+     "what_it_changes_numerically": "NOTHING. ANSWER-HF was already in inputs.trials and in all three count panels (rr, or, rd) at k=4. Withdrawing the exclusion does not move k, the pooled estimate, tau2, I2 or Q. It stops the object asserting two contradictory things about one trial.",
+     "where_the_concern_went": "The selective-reporting risk is real and has moved to risk_of_bias.by_outcome.cvdeath_or_hfh_first.answer-hf.domains.D5, which is where an unregistered secondary endpoint belongs. It is a risk-of-bias matter, not an eligibility one."
+    }
    },
    {
     "trial": "PIONEER-HF",
@@ -13741,8 +13768,10 @@
    "verdict": "established",
    "margin_vs_registration": "+51 min 31 s to the attempt, +54 min 52 s to the first successful execution",
    "margin_vs_strengthened": "+13 min 22 s to the attempt, +16 min 43 s to the first successful execution",
-   "reason": "The protocol commit precedes the first executed query on both readings of 'first query'. The 12:19:18Z attempt is reported even though it returned nothing, because reporting only the successful execution would move the first-query time three minutes later and make the claim look better than it is. A PROSPERO record cannot offer this test at all, because a PROSPERO entry can be edited and its history is not public in the same way. But both timestamps here are ours. Git author and committer dates are set by whoever makes the commit, and no commit in this repository is signed; the databases returned hit counts, not times, and no HTTP Date header was captured. The ordering is therefore auditable and internally consistent, and it is not independently proven -- that requires a transparency-log entry at each end, whose inclusion time is set by a third party rather than by us."
-  }
+   "reason": "THIS REVIEW WAS RETROSPECTIVELY FORMALISED. Disclosed 2026-09-05, using the corpus's recognised wording rather than a new phrasing, because registration_chronology_gate matches disclosure literally and a fresh phrasing is invisible to it by design. The prospectiveness claim previously made here is WITHDRAWN; the wording it replaces is kept verbatim in the sibling key ending _superseded_2026_09_05. registration_chronology_gate found that 9 of 9 DATED screening decisions predate the earliest executed query (search.databases[0].executed_utc 2026-08-12T12:22:39), earliest decision 2026-08-09T23:59:59, and that 10 content timestamps predate the claimed protocol commit (2026-08-12T11:27:47). The chronology as recorded is inverted. Two cautions are kept with it: only 9 of 449 screening records carry a date at all, and 2026-08-09T23:59:59 is a midnight sentinel rather than an observed time, so the recorded order may not be evidence of the real order. The honest statement is that this protocol was retrospectively formalised and that the chronology cannot currently be established in either direction -- NOT that the work was demonstrably done before the protocol.",
+   "reason_superseded_2026_09_05": "The protocol commit precedes the first executed query on both readings of 'first query'. The 12:19:18Z attempt is reported even though it returned nothing, because reporting only the successful execution would move the first-query time three minutes later and make the claim look better than it is. A PROSPERO record cannot offer this test at all, because a PROSPERO entry can be edited and its history is not public in the same way. But both timestamps here are ours. Git author and committer dates are set by whoever makes the commit, and no commit in this repository is signed; the databases returned hit counts, not times, and no HTTP Date header was captured. The ordering is therefore auditable and internally consistent, and it is not independently proven -- that requires a transparency-log entry at each end, whose inclusion time is set by a third party rather than by us."
+  },
+  "chronology_gate_note_2026_09_05": "registration_chronology_gate still FAILS this object after the prospectiveness claim was withdrawn and the inversion disclosed, and it will continue to. Two of its three rules -- SEARCH_PRECEDES_SCREENING and CONTENT_PREDATES_REGISTRATION -- compare timestamps and never consult the disclosure, so they FAIL unconditionally while the recorded order is inverted. Its third rule scans json.dumps(obj) as one string, so the superseded claims kept verbatim beside their withdrawals still read to it as live claims. NOTHING WAS DELETED TO SATISFY IT: the timestamps are the facts and the superseded wording is kept by house rule. The gate's own remedy text is therefore unreachable for this object, which is a finding about the gate and is recorded as one rather than worked around."
  },
  "protocol": {
   "amendment_history": [
@@ -15013,7 +15042,8 @@
   "methods_prose": [
    {
     "heading": "Protocol and registration",
-    "text": "The protocol was registered before any query was executed, as a timestamped commit in a public repository, and is reachable at a SHA-pinned permalink that cannot be rewritten without changing the hash. The interval between registration and the first executed query was [[ordering_margin]], and the ordering is re-tested at every build rather than asserted once. Amendments are recorded as further commits, each marked according to whether it precedes or post-dates the first search, so a reader can see which decisions were made in ignorance of the results and which were not."
+    "text": "THIS REVIEW WAS RETROSPECTIVELY FORMALISED. Disclosed 2026-09-05, using the corpus's recognised wording rather than a new phrasing, because registration_chronology_gate matches disclosure literally and a fresh phrasing is invisible to it by design. The prospectiveness claim previously made here is WITHDRAWN; the wording it replaces is kept verbatim in the sibling key ending _superseded_2026_09_05. registration_chronology_gate found that 9 of 9 DATED screening decisions predate the earliest executed query (search.databases[0].executed_utc 2026-08-12T12:22:39), earliest decision 2026-08-09T23:59:59, and that 10 content timestamps predate the claimed protocol commit (2026-08-12T11:27:47). The chronology as recorded is inverted. Two cautions are kept with it: only 9 of 449 screening records carry a date at all, and 2026-08-09T23:59:59 is a midnight sentinel rather than an observed time, so the recorded order may not be evidence of the real order. The honest statement is that this protocol was retrospectively formalised and that the chronology cannot currently be established in either direction -- NOT that the work was demonstrably done before the protocol.",
+    "text_superseded_2026_09_05": "The protocol was registered before any query was executed, as a timestamped commit in a public repository, and is reachable at a SHA-pinned permalink that cannot be rewritten without changing the hash. The interval between registration and the first executed query was [[ordering_margin]], and the ordering is re-tested at every build rather than asserted once. Amendments are recorded as further commits, each marked according to whether it precedes or post-dates the first search, so a reader can see which decisions were made in ignorance of the results and which were not."
    },
    {
     "heading": "Eligibility criteria",
@@ -15109,7 +15139,8 @@
    },
    {
     "heading": "Strengths",
-    "text": "The protocol was registered before the first query with a machine-checkable ordering test. Every screened record is published with its disposition. Both risk-of-bias assessors' full answers are published unreconciled, with the agreement rate as measured. Every number on every surface is projected from one canonical object, so the manuscript, the tables, the figures and the web page cannot disagree with one another. A disagreement between two sources that this review's own extraction missed is published as an unresolved disagreement rather than silently resolved."
+    "text": "THIS REVIEW WAS RETROSPECTIVELY FORMALISED. Disclosed 2026-09-05, using the corpus's recognised wording rather than a new phrasing, because registration_chronology_gate matches disclosure literally and a fresh phrasing is invisible to it by design. The prospectiveness claim previously made here is WITHDRAWN; the wording it replaces is kept verbatim in the sibling key ending _superseded_2026_09_05. registration_chronology_gate found that 9 of 9 DATED screening decisions predate the earliest executed query (search.databases[0].executed_utc 2026-08-12T12:22:39), earliest decision 2026-08-09T23:59:59, and that 10 content timestamps predate the claimed protocol commit (2026-08-12T11:27:47). The chronology as recorded is inverted. Two cautions are kept with it: only 9 of 449 screening records carry a date at all, and 2026-08-09T23:59:59 is a midnight sentinel rather than an observed time, so the recorded order may not be evidence of the real order. The honest statement is that this protocol was retrospectively formalised and that the chronology cannot currently be established in either direction -- NOT that the work was demonstrably done before the protocol.",
+    "text_superseded_2026_09_05": "The protocol was registered before the first query with a machine-checkable ordering test. Every screened record is published with its disposition. Both risk-of-bias assessors' full answers are published unreconciled, with the agreement rate as measured. Every number on every surface is projected from one canonical object, so the manuscript, the tables, the figures and the web page cannot disagree with one another. A disagreement between two sources that this review's own extraction missed is published as an unresolved disagreement rather than silently resolved."
    }
   ],
   "limitations": [
@@ -15218,7 +15249,7 @@
    "route": "deposited with a DOI and cited in the Data Availability Statement",
    "deposit_doi": null
   },
-  "registration_note_for_editor": "This review's protocol was registered as a timestamped, SHA-pinned public commit rather than in PROSPERO. The commit precedes the first executed query by a recorded margin and the ordering is machine-checkable at every build, which is stronger evidence of prospective registration than a registry entry provides. It is NOT, however, the token the journal asks for, and the difference is stated here rather than presented as equivalent. Mahmood should decide whether to also register in PROSPERO.",
+  "registration_note_for_editor": "THIS REVIEW WAS RETROSPECTIVELY FORMALISED. Disclosed 2026-09-05, using the corpus's recognised wording rather than a new phrasing, because registration_chronology_gate matches disclosure literally and a fresh phrasing is invisible to it by design. The prospectiveness claim previously made here is WITHDRAWN; the wording it replaces is kept verbatim in the sibling key ending _superseded_2026_09_05. registration_chronology_gate found that 9 of 9 DATED screening decisions predate the earliest executed query (search.databases[0].executed_utc 2026-08-12T12:22:39), earliest decision 2026-08-09T23:59:59, and that 10 content timestamps predate the claimed protocol commit (2026-08-12T11:27:47). The chronology as recorded is inverted. Two cautions are kept with it: only 9 of 449 screening records carry a date at all, and 2026-08-09T23:59:59 is a midnight sentinel rather than an observed time, so the recorded order may not be evidence of the real order. The honest statement is that this protocol was retrospectively formalised and that the chronology cannot currently be established in either direction -- NOT that the work was demonstrably done before the protocol.",
   "licences": {
    "_why_two": "The software and the data are different objects and carry different licences. Stating one and letting a reader infer the other is the common error here.",
    "code": {
@@ -15286,7 +15317,8 @@
      "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
     }
    ]
-  }
+  },
+  "registration_note_for_editor_superseded_2026_09_05": "This review's protocol was registered as a timestamped, SHA-pinned public commit rather than in PROSPERO. The commit precedes the first executed query by a recorded margin and the ordering is machine-checkable at every build, which is stronger evidence of prospective registration than a registry entry provides. It is NOT, however, the token the journal asks for, and the difference is stated here rather than presented as equivalent. Mahmood should decide whether to also register in PROSPERO."
  },
  "secondary_pools": {
   "_status": "COMPUTED 2026-08-14 at k=4, secondary and exploratory. NOT the registered estimand.",
@@ -16003,6 +16035,28 @@
      "registered_primary_outcome": "Hierarchical Composite Endpoint Composed of Time to Cardiovascular (CV) Death, Time to First Heart Failure (HF) Hospitalization, and Relative Change in NT-proBNP From Baseline to Week 12; Percentage of Participants Who Died From Cardiovascular Causes; Percentage of Participants With First Hospitalization for Worsening Heart Failure; Change From Baseline to Week 12 in NT-proBNP Levels",
      "registered_sites": "Argentina, Brazil, Colombia, Mexico",
      "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
+    },
+    "answer-hf": {
+     "pooled_result": "the composite of cardiovascular death or first hospitalisation for heart failure, as a time-to-first-event hazard ratio",
+     "nct": "NCT04853758",
+     "added_2026_09_05": "This trial was pooled with NO risk-of-bias entry at all. The dual-assessor panel ran while the trial stood excluded, so neither assessor ever saw it. Verdicts are NOT filled in here: an assessment that never ran must not be recorded as a judgement.",
+     "domains": {
+      "D5": {
+       "domain": "D5 bias in selection of the reported result",
+       "assessor_1_openai": "NOT_ASSESSED",
+       "assessor_2_google": "NOT_ASSESSED",
+       "agreed": "NOT_ASSESSED -- no assessor saw this trial",
+       "evidence_recorded_2026_09_05": "The pooled result is an UNREGISTERED secondary endpoint. Quoted verbatim from this object's inputs.trials[3].by_outcome.cvdeath_or_hfh_first.outcome_definition: NOT REGISTERED. NCT04853758 registers no outcome measure -- primary, secondary or other -- that is a first-event union of cardiovascular death and heart failure hospitalisation. The registration's two primary outcomes are change in LVEF and a hierarchical Win Ratio; the pooled 12/95 vs 8/95 comes from Table 2 of the JACC full text.",
+       "why_this_is_D5_and_not_eligibility": "An endpoint reported but not registered carries selective-reporting risk, which RoB 2 domain 5 exists to weigh. Excluding the trial for it instead makes eligibility depend on the investigators' reporting choices -- Handbook 3.2.4.",
+       "what_a_fix_must_decide": "Whether a human assessor rates this SOME CONCERNS or HIGH. Left unrated rather than guessed."
+      }
+     },
+     "overall": {
+      "assessor_1_openai": "NOT_ASSESSED",
+      "assessor_2_google": "NOT_ASSESSED",
+      "agreed": "NOT_ASSESSED",
+      "note": "D1-D4 were never assessed for this trial either."
+     }
     }
    }
   },

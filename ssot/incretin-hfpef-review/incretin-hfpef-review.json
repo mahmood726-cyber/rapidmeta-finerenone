@@ -29,7 +29,15 @@
  "config": {
   "model": "random-effects",
   "method": "not pooled -- withdrawn",
-  "scale": "log"
+  "scale_withdrawn_2026_09_05": {
+   "state": "WITHDRAWN -- there is no review-level scale for this review.",
+   "withdrawn_utc": "2026-09-05T21:00:00Z",
+   "superseded_value": "log",
+   "reason": "config.scale was 'log' while the outcomes are pooled on different scales: kccq_css_change=linear; primary=log. A review-level default rendered as a method label states, for the outcomes that disagree with it, a computation that was not performed.",
+   "why_the_abstraction_and_not_the_value": "Setting it to the other value would have mislabelled the remaining outcome instead. Scale is a property of a pooled outcome, not of a review. The per-outcome value already exists and is the only authority.",
+   "read_scale_from": "results.by_outcome.<outcome_id>.pooled.scale",
+   "same_defect_as": "bococizumab-lipid-review config.scale, withdrawn in the same change. Two objects, one wrong abstraction."
+  }
  },
  "screening": {
   "search_note": "not recorded on the page this object was built from",
