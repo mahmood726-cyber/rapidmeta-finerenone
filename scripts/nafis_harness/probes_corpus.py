@@ -1041,7 +1041,13 @@ def _multi_surface(p: Mapping[str, Any]) -> Result:
                                            "surface that carries the claim",
                          surfaces=vals)
     return make_pass(cid, inst,
-                     observed=f"claim identical on {sorted(present)}: {next(iter(distinct))}",
+                     # Deterministic: this branch is reached only when the surfaces AGREE
+                     # (len(distinct) <= 1), so the single shared value is taken from the
+                     # alphabetically-first surface rather than next(iter(set)) -- which the
+                     # reproducibility lint flags as order-dependent even though it is
+                     # single-valued here. Same content, stable across runs.
+                     observed=f"claim identical on {sorted(present)}: "
+                              f"{vals[sorted(vals)[0]] if vals else None}",
                      locator=str(p.get("claim_id")),
                      opposite_would_be="one surface carrying a different value or a "
                                        "different status from another")
