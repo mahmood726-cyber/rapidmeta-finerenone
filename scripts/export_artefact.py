@@ -92,6 +92,19 @@ def _pool_from_outcome(oid, res, outcome_def, omissions):
         omissions.append("%s: no per_trial rows -> no pool payload" % oid)
         return None
 
+    # THE OBJECT REFUSED THIS POOL, SO DO NOT MANUFACTURE ONE. When results declare
+    # poolable:False (malaria exploratory_recurrent_rate: an HR and an IRR with no
+    # valid conversion, refused on Cochrane grounds in gate_dissent), emitting a
+    # pool-shaped object made CHK018 fire on a mixed-measure pool the store had
+    # explicitly declined -- and CHK018 was RIGHT, because the pool existed in the
+    # artefact. The store is more careful than this layer (one instance of the
+    # 88/108 refusals measured overridden downstream). A non-poolable outcome is
+    # ABSENT from pools, not present-and-empty. CHK018 is left untouched.
+    if res.get("poolable") is False:
+        omissions.append("%s: object declares poolable=False -> no pool emitted; its "
+                         "entries are separately-reported strata, not a pool" % oid)
+        return None
+
     entries, rows = [], []
     for t in per:
         est = t.get("log_point")
@@ -140,15 +153,6 @@ def _pool_from_outcome(oid, res, outcome_def, omissions):
         "headline_outcome": res.get("estimand_id") or oid,
         "panel_rows": panel_rows,
         "entries": entries,
-        # CHK018 must tell a real mixed POOL from separately-reported strata of an
-        # outcome the object declares non-poolable. Carry both signals it needs:
-        # the object's own poolable flag, and whether any combined estimate is
-        # actually displayed. Without these the export presented malaria's
-        # exploratory_recurrent_rate (poolable False, no combined figure per its
-        # Cochrane gate_dissent) as a pool, and CHK018 flagged HR+IRR that nothing
-        # combines into a shown number.
-        "poolable": res.get("poolable"),
-        "displayed_pooled_estimate": pooled.get("point"),
     }
     # declared_class is REQUIRED by the cross-agent detector and must never be
     # invented: its absence is the defect that detector exists to catch.

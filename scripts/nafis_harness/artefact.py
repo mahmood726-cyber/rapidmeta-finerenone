@@ -175,14 +175,7 @@ def payloads_for(artefact: Mapping[str, Any]) -> list[tuple[str, dict]]:
                    for e in entries):
                 out.append(("CHK018_MIXED_POOLING",
                             {"pool_id": pid, "entries": entries,
-                             "composite_endpoint": pool.get("composite_endpoint"),
-                             # CHK018 needs these to tell a real mixed POOL from
-                             # separately-reported strata of an outcome the object
-                             # declares non-poolable. The adapter used to drop them, so
-                             # the check never saw them; malaria's exploratory_recurrent_rate
-                             # (poolable False, no combined figure) then read as a mixed pool.
-                             "poolable": pool.get("poolable"),
-                             "displayed_pooled_estimate": pool.get("displayed_pooled_estimate")}))
+                             "composite_endpoint": pool.get("composite_endpoint")}))
             if all(e.get("intervention") for e in entries):
                 out.append(("CHK023_CROSS_AGENT_POOLING",
                             {"pool_id": pid, "entries": entries,

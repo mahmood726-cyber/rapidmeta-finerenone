@@ -453,20 +453,6 @@ def _mixed_pooling(p: Mapping[str, Any]) -> Result:
     entries = list(p.get("entries") or [])
     if len(entries) < 2:
         return make_invalid(cid, inst, "fewer than two entries; no pool to inspect")
-    # NOT A POOL: the object declares this outcome non-poolable AND displays no
-    # combined estimate, so these entries are separately-reported strata, never
-    # combined into a shown number. Mixed MEASURES across strata that are never
-    # pooled is not mixed POOLING. Guarded on BOTH conditions so a real pool that
-    # merely omits its displayed estimate is not let through -- MITRAL (poolable
-    # absent, a genuine HR+OR pool) still fires, because .get("poolable") is None,
-    # not False. Malaria's exploratory_recurrent_rate (poolable False, no combined
-    # figure per its Cochrane gate_dissent) is the case this admits; CHK020 covers
-    # the no-displayed-estimate regime.
-    if p.get("poolable") is False and p.get("displayed_pooled_estimate") is None:
-        return make_invalid(cid, inst,
-                            "object declares this outcome non-poolable and displays no "
-                            "combined estimate; entries are separately-reported strata, "
-                            "not a pool -- no mixed pooling to adjudicate")
     if any(not e.get("measure") or not e.get("direction_of_benefit")
            for e in entries):
         return make_invalid(cid, inst,
