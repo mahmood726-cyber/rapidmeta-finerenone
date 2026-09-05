@@ -304,6 +304,40 @@ adopted. Only the outcome-specific group table can.
 that merely has not fired wrongly yet.** That is what a measured precision looks like, and
 this corpus has recorded that no gate has one.
 
+## THE MIRROR: ONE GATE, TWO OBJECTS, OPPOSITE VERDICTS, BOTH RIGHT
+
+This corpus has recorded that **no gate here has a measured precision**.
+`refusal_reads_outcome_groups_gate` now has evidence, and it is two-sided.
+
+| | bococizumab-lipid-review | evolocumab-mixed-dyslipidemia |
+|---|---|---|
+| the flagged claim | "the arm pair ... IS NOT A REGISTERED CONTRAST" | "this object pairs Placebo Q2W with Evolocumab 420 mg QM" |
+| what the registry said | **FALSE** | **TRUE** |
+| posted analysis | `['OG000','OG001']`, OG000 = *Placebo Matched to Bococizumab 150 mg*, LS mean difference **-63.4** -- the object's stored value to the digit | every analysis across BERSON's 7 and Hua Tuo's 10 result outcomes pairs WITHIN a frequency; **no crossed analysis is posted anywhere** |
+| correct response | **withdraw** the claim, keep it verbatim, record the registry evidence | **name the table**; the refusal stands unchanged |
+
+**A GATE THAT ONLY REJECTS IS NOT A DISCRIMINATOR.** This one refused two objects on the same
+rule, and checking each against the registry produced opposite answers -- it caught a factual
+error on one and an unattributed but correct refusal on the other. Neither outcome was
+available from the gate's own output; both required the registry. That is discriminating
+power demonstrated in both directions on real data, which is a different object from a rule
+that has merely not fired wrongly yet.
+
+### Its premise is confirmed three times independently
+
+The rule is that a TRIAL-LEVEL arm table cannot say which two arms belong to one outcome, so
+only the outcome-specific group table can. Three registrations, read tonight:
+
+    NCT02458287  OG000 = Placebo Matched to Bococizumab 150 mg   (PRIMARY)
+                 OG000 = Placebo Matched to Bococizumab 75 mg    (SECONDARY -- same trial)
+    NCT02662569  OG001 = Placebo QM
+    NCT03433755  OG001 = Evolocumab 140 mg Q2W
+
+**The identifiers are per-outcome and are not comparable across outcomes OR across trials.**
+The same label denotes different arms within one trial and different arms between trials.
+The rule is not a convention this project adopted; it is a property of how the registry is
+structured, and no amount of care with a trial-level arm list could have avoided the error.
+
 ## THE 100-CHARACTER HYPOTHESIS, REJECTED BEFORE IT WAS ACTED ON
 
 Finding 9 exposed a second defect: this object's stored `outcome_definition` for SPIRE-AI is

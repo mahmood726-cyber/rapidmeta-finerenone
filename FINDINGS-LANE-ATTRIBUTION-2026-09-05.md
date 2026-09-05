@@ -104,3 +104,55 @@ both `outcome_definition`; 18 keys added, all under the restoration record; 0 ke
 
 A format assumption that holds for two files is not a format rule, and in a multi-lane
 worktree it is not even stable for one file over time.
+
+---
+
+## DELEGATION: A WRAPPER REPORTED SUCCESS FOR A JOB THAT NEVER STARTED
+
+Two Codex jobs were delegated on 2026-09-05 -- a corpus-wide reach measurement and an
+arm-identity investigation. Measured outcome:
+
+    wall clock          ~40 minutes each, ~80 minutes total
+    descendant CPU      227s (evolocumab) + 245s and counting (reach)
+    model tokens        ZERO. Neither job ever reached the model.
+    artefacts on disk   ZERO of 2
+    reported exit code  0
+
+The evolocumab job's real ending, from its log:
+
+    execution error: Io(Custom { kind: Other, error: "windows sandbox:
+      orchestrator_helper_exit_nonzero: setup helper exited with status Some(143)" })
+    [exited with code 0]
+
+Status 143 is SIGTERM: the delegating timeout killed a setup helper that was still
+initialising after 40 minutes. Every CPU-second went to
+`codex-windows-sandbox-setup.exe` walking a large worktree.
+
+**THE LESSON IS NOT THAT THE VENDOR IS UNRELIABLE. IT IS THAT THE WRAPPER REPORTED EXIT 0
+FOR A JOB THAT NEVER STARTED** -- the same failure shape as every other unearned success
+caught tonight: a staging refusal that returned 0, an untracked-pathspec miss that returned
+0, a push refused by five gates that returned 0. A status code is not a result, and here it
+was not even evidence that the work began.
+
+Three signals disagreed throughout, and only one was right:
+
+    wrapper CPU     flat at ~6s for 40 minutes  -> would have read DEAD
+    log growth      frozen after 90 seconds     -> would have read STALLED
+    descendant CPU  12 -> 48 -> 245, climbing   -> BUSY, and busy on setup, not on the task
+
+**Killing on either of the first two would have destroyed live work; trusting either would
+have wasted the budget.** Only walking to the leaf distinguished them.
+
+### The practical rule for the next handoff
+
+The same arm-identity question that was delegated and never started was then answered
+DIRECTLY in **two registry reads**, using tooling already loaded in this session and 118
+registrations already cached on disk. Earlier the same evening, the SPIRE-AI arm-identity
+question -- which two people had characterised as an unsettleable conflict between two
+recorded facts -- took **one** read.
+
+**DELEGATION IS CHEAP FOR WORK THAT DOES NOT NEED THIS TREE AND EXPENSIVE FOR WORK THAT
+DOES.** A liveness probe requiring no repository access returned `OK GPT-5` in under a
+minute on the same machine, the same hour, with the same binary. The cost is not the model;
+it is standing up a sandbox over the worktree. Before delegating, ask whether the task needs
+the repository. If it does, the round trip may exceed the task.
