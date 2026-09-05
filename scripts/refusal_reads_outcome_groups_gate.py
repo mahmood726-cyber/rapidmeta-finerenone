@@ -109,6 +109,68 @@ _MATCHED = re.compile(r"(?i)\b(and|versus|vs\.?|compared with|against)\s+"
                       r"(the\s+)?(matched|matching)?\s*placebo\b")
 
 
+# ===========================================================================================
+# FIELDS WHOSE DECLARED PURPOSE IS TO QUOTE SOMETHING NO LONGER ASSERTED
+# ===========================================================================================
+#
+# A CORRECTION THAT QUOTES WHAT IT WITHDRAWS IS INDISTINGUISHABLE, TO A STRING SCAN, FROM THE
+# THING IT WITHDRAWS. This gate walks every string in the object, so before 2026-09-05 it
+# flagged the machinery of retraction itself: on bococizumab, 6 of 10 residual hits were
+# quoted retractions and 1 was a withdrawal record holding the exact sentence it retires.
+# The corpus REQUIRES a retraction to keep the withdrawn text verbatim beside the key that
+# retires it, so the gate was penalising the disclosure discipline it exists to serve, and
+# every future correction made an object look worse.
+#
+# ⭐ ENUMERATED BY DECLARED PURPOSE, NOT MATCHED BY SUFFIX. A rule keyed on `_superseded*`
+# would have missed `the_withdrawn_sentence`, which carries no such suffix and exists solely
+# to hold retracted text -- and the field after that would have been found the same way this
+# one was: by a false positive nobody could explain. THIS LIST IS THE AUTHORITY. A new field
+# that quotes a retracted claim must be added here, and a reader of this gate can see exactly
+# what it stops looking at.
+_RETRACTION_FIELDS = {
+    "the_withdrawn_sentence":
+        "a withdrawal record's copy of the exact sentence it retires",
+    "superseded_values_verbatim":
+        "the values a withdrawal replaced, kept so a reader can see what changed",
+    "superseded_value":
+        "singular form of the same",
+    "was_stored_truncated":
+        "the truncated text a restoration replaced",
+    "original_record_kept_verbatim":
+        "an exclusion or refusal preserved beside its withdrawal",
+    "what_was_served":
+        "the value a page served before a recomputation",
+    "the_withdrawn_claim":
+        "reserved: the general form of the_withdrawn_sentence",
+}
+# The corpus's supersession CONVENTION is a second member of the same enumerated set, named
+# here rather than relied on as a pattern: `<key>_superseded_<YYYY_MM_DD>` holds the verbatim
+# prior value of `<key>`. It is listed explicitly so that removing it is a visible decision.
+_SUPERSEDED_STAMP = re.compile(r"_superseded(_\d{4}_\d{2}_\d{2})?$")
+
+
+def _field_of(path):
+    """The last DICT key in a walk path -- '.a.b[2].c' -> 'c'. List indices are not fields."""
+    tail = path.rsplit(".", 1)[-1]
+    return tail.split("[")[0]
+
+
+def quotes_a_retraction(path):
+    """True when this field's declared purpose is to hold text no longer asserted.
+
+    A claim inside such a field is not a claim the object makes. A claim in ANY OTHER field
+    is, and must still be judged -- that is the load-bearing half, proved by selftest.
+    """
+    f = _field_of(path)
+    if f in _RETRACTION_FIELDS or bool(_SUPERSEDED_STAMP.search(f)):
+        return True
+    # An enumerated name counts whether it IS the field or is its trailing component:
+    # `<claim_key>_the_withdrawn_sentence` declares the same purpose as the bare name, and a
+    # corpus that keys findings by name needs that form to keep one withdrawal beside each
+    # finding. The ENUMERATION still decides; an unenumerated name is never exempt.
+    return any(f.endswith("_" + name) for name in _RETRACTION_FIELDS)
+
+
 def as_list(value):
     """A list, or [] for anything that is not one.
 
@@ -201,6 +263,12 @@ def judge_object(path, repo):
     seen = set()
     for where, text in _walk_strings(obj):
         if not _ARM_CLAIM.search(text):
+            continue
+        # The object does not ASSERT what it quotes in order to retire it. See
+        # _RETRACTION_FIELDS: enumerated by declared purpose, and the exemption is
+        # deliberately narrow -- it turns on the FIELD, never on the text.
+        if quotes_a_retraction(where):
+            rec["retractions_skipped"] = rec.get("retractions_skipped", 0) + 1
             continue
         # one finding per distinct claim, not per copy of it
         key = re.sub(r"\s+", " ", text)[:120]
@@ -398,6 +466,13 @@ def _obj(claim, with_outcome_title=True, outcome_capture=True):
             "results": {"by_outcome": {"o1": {"POOL_FINDINGS": {"a": claim}}}}}
 
 
+def _obj_in_field(claim, field):
+    """The same object with the claim placed under a NAMED field, to test the exemption."""
+    o = _obj(claim)
+    o["results"]["by_outcome"]["o1"]["POOL_FINDINGS"] = {field: claim}
+    return o
+
+
 def selftest():
     import shutil
     import tempfile
@@ -469,6 +544,42 @@ def selftest():
                   _obj("NCT09999999's arm pair is not a registered contrast, "
                        "read from the outcome-specific group table."),
                   UNDET)
+
+        # ===================================================================================
+        # RETRACTION SCOPING, added 2026-09-05. THE FIXTURES ARE THE REAL HITS FROM
+        # bococizumab-lipid-review, not synthetic text, because the whole question is whether
+        # this gate can tell an assertion from a quotation of a retracted assertion.
+        #
+        # ⭐ THE FIRST CASE IS THE LOAD-BEARING ONE. A scoping fix proved only on the silent
+        # half is indistinguishable from deleting the rule. This case is the live claim that
+        # the registry DISPROVED on 2026-09-05 -- the one that would have been silenced had
+        # the eleven residual hits not been classified individually first.
+        # ===================================================================================
+        print("=== retraction scoping: it must still FIRE before it is allowed to be silent ===")
+
+        live = ("AND THE ARM PAIR RECORDED ON THIS OBJECT IS NOT A REGISTERED CONTRAST: "
+                "'Bococizumab 150mg' against 'Bococizumab 75mg placebo', where the "
+                "registry's dose-matched design pairs 150 mg with the 150 mg placebo.")
+
+        ok &= run("LOAD-BEARING: the live D5 claim the registry disproved, in a LIVE field "
+                  "-- must still FAIL", _obj_in_field(live, "reason"), FAIL)
+
+        ok &= run("LOAD-BEARING: an arm-identity refusal in an ordinary field is NOT exempt "
+                  "just because a retraction field exists elsewhere",
+                  _obj_in_field(live, "poolable_reason"), FAIL)
+
+        for fld in ("the_withdrawn_sentence", "superseded_values_verbatim",
+                    "original_record_kept_verbatim"):
+            ok &= run("SILENT: the same text under %r, whose declared purpose is to quote a "
+                      "retracted claim" % fld, _obj_in_field(live, fld), NA)
+
+        ok &= run("SILENT: the corpus supersession stamp, "
+                  "a_spire_ai_pairs_a_dose_superseded_2026_09_05",
+                  _obj_in_field(live, "a_spire_ai_pairs_a_dose_superseded_2026_09_05"), NA)
+
+        ok &= run("LOAD-BEARING: a field whose name merely CONTAINS 'superseded' but does "
+                  "not carry the stamp is NOT exempt",
+                  _obj_in_field(live, "superseded_reasoning_notes"), FAIL)
 
         ok &= run("an object with no arm-identity refusal is NOT_APPLICABLE",
                   {"inputs": {"trials": []},

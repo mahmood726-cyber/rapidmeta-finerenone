@@ -95,6 +95,89 @@ _DISCLOSED = (
     "registered after the search", "the protocol postdates",
 )
 
+# ===========================================================================================
+# THE DISCLOSURE THAT CLEARS AN INVERTED CHRONOLOGY, added 2026-09-05 by owner ruling
+# ===========================================================================================
+#
+# Until today, SEARCH_PRECEDES_SCREENING and CONTENT_PREDATES_REGISTRATION compared timestamps
+# and never consulted a disclosure, so they FAILED unconditionally while the recorded order
+# was inverted. This gate's own refusal text tells an author to "withdraw the claim, or
+# replace it with a retrospective-formalisation statement that discloses the chronology" --
+# AND DOING EXACTLY THAT DID NOT CLEAR IT. A gate whose stated remedy is unreachable teaches
+# authors to ignore its advice. The alternative was that nothing containing such an object
+# could ever be pushed, which is an expensive way to keep saying something already said in
+# the open.
+#
+# ⭐ THE ACCEPTED PHRASE MUST BE ONE AN HONEST OBJECT COULD NOT CARRY UNLESS ITS CHRONOLOGY
+# REALLY WERE INVERTED. The `_DISCLOSED` list above is NOT usable for this: "retrospective
+# registration" and "not prospectively registered" are things an object might truthfully say
+# while discussing OTHER studies, or about a registration it simply never made -- so
+# accepting any of them would hand the escape to objects that have not earned it. The
+# required sentence is SELF-REFERENTIAL and asserts the inversion of THIS review. An object
+# whose chronology is clean cannot carry it without stating a falsehood about itself.
+_DISCLOSURE_PHRASE = "this review was retrospectively formalised"
+_DISCLOSURE_ACCEPTED = (_DISCLOSURE_PHRASE, "this review was retrospectively formalized")
+
+# FIELDS WHOSE DECLARED PURPOSE IS TO QUOTE SOMETHING NO LONGER ASSERTED.
+# Enumerated by purpose, never matched by suffix alone: `the_withdrawn_sentence` carries no
+# `_superseded` and exists solely to hold retracted text, so a suffix rule would have left
+# the next such field to be found the same way -- by a false positive nobody could explain.
+# THIS LIST IS THE AUTHORITY; a new retraction field must be added here.
+# Kept deliberately identical to the set in refusal_reads_outcome_groups_gate.py. The two
+# gates are duplicated rather than sharing a module because a shared import would let one
+# gate's edit silently change the other's scope, and this repository has already paid for a
+# check whose reach moved without anyone deciding it.
+_RETRACTION_FIELDS = {
+    "the_withdrawn_sentence": "a withdrawal record's copy of the sentence it retires",
+    "superseded_values_verbatim": "values a withdrawal replaced, kept for the reader",
+    "superseded_value": "singular form of the same",
+    "was_stored_truncated": "the truncated text a restoration replaced",
+    "original_record_kept_verbatim": "a claim preserved beside its withdrawal",
+    "what_was_served": "the value a page served before a recomputation",
+    "the_withdrawn_claim": "reserved: the general form of the_withdrawn_sentence",
+}
+_SUPERSEDED_STAMP = re.compile(r"_superseded(_\d{4}_\d{2}_\d{2})?$")
+
+
+def _quotes_a_retraction(field):
+    """True when this FIELD's declared purpose is to hold text no longer asserted.
+
+    An enumerated name counts whether it IS the field or is its trailing component:
+    `the_withdrawn_sentence` and `<claim_key>_the_withdrawn_sentence` declare the same
+    purpose, and a corpus that keys findings by name needs the second form to keep one
+    withdrawal beside each finding. It is still the ENUMERATION that decides -- an
+    unenumerated name is never exempt however it is spelled.
+    """
+    f = field.split("[")[0]
+    if f in _RETRACTION_FIELDS or bool(_SUPERSEDED_STAMP.search(f)):
+        return True
+    return any(f.endswith("_" + name) for name in _RETRACTION_FIELDS)
+
+
+def chronology_disclosed(obj, page_text=None):
+    """Does the object DECLARE, of itself, that its chronology is inverted?
+
+    Deliberately literal, like every other match in this gate, and the required wording is
+    PRINTED in the refusal so an author never has to guess it -- the phrasing trap this
+    corpus hit twice on 2026-09-05, where a disclosure was rejected for word order.
+    """
+    blob = json.dumps(obj, ensure_ascii=False).lower() + " " + (page_text or "").lower()
+    return any(p in blob for p in _DISCLOSURE_ACCEPTED)
+
+
+def _disclosure_note(kind):
+    return ("The inversion is DISCLOSED: the object states %r of itself, so the recorded "
+            "order is published rather than hidden. %s is reported and not treated as a "
+            "block." % (_DISCLOSURE_PHRASE, kind))
+
+
+def _how_to_disclose():
+    return ("If the chronology really is inverted, disclose it: the object must state, of "
+            "itself, the exact sentence %r -- and show the dates. That sentence is required "
+            "verbatim because a gate that demands a phrase it does not print is a trap. If "
+            "the chronology is NOT inverted, this refusal is about the dates and the "
+            "disclosure must not be used to silence it." % (_DISCLOSURE_PHRASE,))
+
 _INLINE = ("a|abbr|b|bdi|bdo|big|cite|code|del|dfn|em|font|i|ins|kbd|label|mark|"
            "output|q|rp|rt|ruby|s|samp|small|span|strike|strong|sub|sup|time|tt|"
            "u|var|wbr")
@@ -234,7 +317,8 @@ def rule_search_precedes_screening(obj):
             "decision about a different corpus."
             % (len(early), len(dt), where0, first.isoformat(), undated, total,
                min(x[1] for x in early).isoformat(),
-               ("Trials: " + ", ".join(names)) if names else "No trial named"))]
+               ("Trials: " + ", ".join(names)) if names else "No trial named")
+            + " " + _how_to_disclose())]
     return [Finding("SEARCH_PRECEDES_SCREENING", where0, PASS,
                     "%d dated screening decision(s) (of %d record(s), %d "
                     "undated), all at or after the earliest executed query %s"
@@ -268,16 +352,41 @@ def rule_content_predates_registration(obj):
             "CONTENT_PREDATES_REGISTRATION", where, FAIL,
             "%d content timestamp(s) predate the registration time this object "
             "claims (%s). The earliest is %s = %s. A protocol cannot be "
-            "prospective to work the object itself records as already done."
-            % (len(early), reg.isoformat(), w0, t0.isoformat()))]
+            "prospective to work the object itself records as already done. %s"
+            % (len(early), reg.isoformat(), w0, t0.isoformat(), _how_to_disclose()))]
     return [Finding("CONTENT_PREDATES_REGISTRATION", where, PASS,
                     "%d content timestamp(s), none before the claimed "
                     "registration %s" % (len(content), reg.isoformat()))]
 
 
+def _live_strings(obj, path=""):
+    """Every string the object ASSERTS -- skipping fields that quote retracted text.
+
+    ⭐ A CLAIM QUOTED IN ORDER TO RETIRE IT IS NOT A CLAIM THE OBJECT MAKES. Before
+    2026-09-05 this scanned json.dumps(obj) whole, so a withdrawn prospectiveness claim kept
+    verbatim beside its withdrawal -- which this corpus REQUIRES a retraction to do -- still
+    counted as a live claim, and `not claims` below could never become true. An object could
+    therefore withdraw its claim, disclose the inversion, and still be refused forever. The
+    exempt set is enumerated by DECLARED PURPOSE in _RETRACTION_FIELDS, never matched by
+    suffix alone.
+    """
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if _quotes_a_retraction(str(k)):
+                continue
+            for r in _live_strings(v, "%s.%s" % (path, k)):
+                yield r
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            for r in _live_strings(v, "%s[%d]" % (path, i)):
+                yield r
+    elif isinstance(obj, str):
+        yield obj
+
+
 def claims_and_disclosures(obj, page_text):
     """Prospectiveness claims, and disclosures of the opposite, on both surfaces."""
-    blob = json.dumps(obj, ensure_ascii=False).lower()
+    blob = " ".join(_live_strings(obj)).lower()
     surfaces, disclosed = [], []
     for text, where in ((blob, "the object"),
                         ((page_text or "").lower(), "the page")):
@@ -286,7 +395,12 @@ def claims_and_disclosures(obj, page_text):
         for p in _PROSPECTIVE:
             if p in text:
                 surfaces.append((where, p))
-        for p in _DISCLOSED:
+        # ⭐ ONLY THE SELF-REFERENTIAL SENTENCE COUNTS AS A DISCLOSURE. The wider _DISCLOSED
+        # list is retained for reporting but is NOT accepted here: "retrospective
+        # registration" or "not prospectively registered" are things an honest object might
+        # truthfully say about other studies, or about a registration it never made, so
+        # accepting them would hand the escape to objects that have not earned it.
+        for p in _DISCLOSURE_ACCEPTED:
             if p in text:
                 disclosed.append((where, p))
     return surfaces, disclosed
@@ -516,6 +630,45 @@ def selftest():
 
         ok &= run("clean chronology: protocol, then search, then screening",
                   _obj(), PASS)
+
+        # ===================================================================================
+        # DISCLOSED INVERSION, added 2026-09-05 by owner ruling. BOTH DIRECTIONS, and the
+        # first is load-bearing: a disclosure that clears an UNDISCLOSED inversion would be
+        # indistinguishable from deleting the two timestamp rules.
+        # ===================================================================================
+        print("=== disclosed inversion: it must still FIRE undisclosed before it may be silent ===")
+
+        INVERTED = dict(search="2026-08-12T12:22:39Z",
+                        checked=("2026-08-09", "2026-08-10"),
+                        built="2026-08-09", reg="2026-08-12T11:27:47Z")
+
+        ok &= run("LOAD-BEARING: inverted chronology with NO disclosure still FAILS",
+                  _obj(**INVERTED), FAIL, "SEARCH_PRECEDES_SCREENING")
+
+        ok &= run("LOAD-BEARING: a NEAR-MISS disclosure does not clear it -- 'retrospective "
+                  "registration' is sayable by an honest object about other studies",
+                  _obj(note="This is a retrospective registration in the general sense.",
+                       **INVERTED), FAIL, "SEARCH_PRECEDES_SCREENING")
+
+        ok &= run("LOAD-BEARING: the corpus's older wording 'retrospectively formalised' "
+                  "alone does not clear it -- the sentence must be SELF-REFERENTIAL",
+                  _obj(note="Some reviews are retrospectively formalised.", **INVERTED),
+                  FAIL, "SEARCH_PRECEDES_SCREENING")
+
+        ok &= run("SILENT: the required self-referential sentence clears the inversion",
+                  _obj(note="THIS REVIEW WAS RETROSPECTIVELY FORMALISED. The search ran "
+                            "2026-08-12 and the earliest decision is dated 2026-08-09.",
+                       **INVERTED), PASS)
+
+        ok &= run("LOAD-BEARING: the disclosure does NOT license a prospectiveness claim "
+                  "alongside it",
+                  _obj(note="THIS REVIEW WAS RETROSPECTIVELY FORMALISED, and the protocol "
+                            "was registered before the search.", **INVERTED),
+                  FAIL, "PROSPECTIVE_CLAIM_NEEDS_A_CLEAN_CHRONOLOGY")
+
+        ok &= run("a CLEAN chronology carrying the disclosure is still PASS -- the "
+                  "disclosure is not required, only accepted",
+                  _obj(note="THIS REVIEW WAS RETROSPECTIVELY FORMALISED."), PASS)
 
         # ARNI, exactly: search 08-12, decisions 08-09 and 08-10, built 08-09.
         ok &= run("PLANT: nine decisions dated before the search (ARNI's dates)",
