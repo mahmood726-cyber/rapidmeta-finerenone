@@ -1,10 +1,22 @@
 # Five harness gates refused a push, 2026-09-05. Eight findings on two served objects.
 
-STATUS AT 2026-09-05 22:40, UPDATED IN PLACE. SIX of the eight are FIXED WITH THEIR GATE
+STATUS AT 2026-09-05 23:20, UPDATED IN PLACE. SIX of the eight are FIXED WITH THEIR GATE
 PASSING (1, 2, 3, 4, 5, 6), each verified by re-running the gate that raised it rather
 than by assertion. A ninth defect of the same class as finding 6 was found on a third
-object (incretin-hfpef-review) by the corpus sweep below and is also fixed and passing.
+object (incretin-hfpef-review) and is also fixed and passing. A tenth was found on a
+fourth object (evolocumab-mixed-dyslipidemia) and its refusals now name the outcome-
+specific group table, so that gate passes it too.
 Finding 8 is CORRECTED IN CONTENT BUT ITS GATE STILL REFUSES. Finding 7 is BLOCKED.
+
+CORPUS-WIDE, all five gates over 155 objects: THREE ARE CLEAN (derived_recompute,
+contradicting_surfaces, method_label -- 0 FAIL each). registration_chronology fails
+arni-hfref and refusal_reads_outcome_groups fails bococizumab; both await the owner's
+ruling and neither gate has been edited.
+
+AND THE NUMBER THAT MATTERS MOST IS NOT ANY OF THOSE: 85 OF 155 OBJECTS (54.8%) HAVE
+NEVER BEEN IN ANY GATE'S REACH. See the section below before reading any pass count in
+this file -- three clean gates is a statement about the 70 objects that are visible at
+all, not about the corpus.
 
 CONTENT CORRECTED AND GATE PASSING ARE DIFFERENT STATES AND THIS FILE KEEPS THEM APART.
 Conflating them is how a page comes to claim more than it has earned. An earlier version
@@ -304,6 +316,90 @@ adopted. Only the outcome-specific group table can.
 that merely has not fired wrongly yet.** That is what a measured precision looks like, and
 this corpus has recorded that no gate has one.
 
+## 85 OF 155 OBJECTS HAVE NEVER BEEN IN ANY GATE'S REACH
+
+Measured 2026-09-05 by re-running all five gates `--all` against the current tree. All five
+reached 155 of 155, `not_reached` empty on every one, and all five agree on the population.
+
+    NEVER JUDGED BY ANY OF THE FIVE GATES :  85 of 155   (54.8%)
+    judged by at least one gate           :  70 of 155   (45.2%)
+
+        judged by 0 of 5 gates :  85 objects
+        judged by 1 of 5 gates :  26
+        judged by 2 of 5 gates :  36
+        judged by 3 of 5 gates :   7
+        judged by 4 of 5 gates :   1
+        judged by 5 of 5 gates :   0
+
+**NO OBJECT IN THIS CORPUS IS VISIBLE TO ALL FIVE GATES. ONE IS VISIBLE TO FOUR. MORE THAN
+HALF ARE VISIBLE TO NONE.**
+
+### Read the complement first, because the components do not add up the way they look
+
+    sum of the per-gate judged counts : 123
+    union of the objects they judge   :  70
+
+The per-gate denominators are five overlapping views, not five slices. Anyone reading the
+table below before the number above will add 6 + 62 + 52 + 1 + 2 and get a coverage figure
+that does not exist.
+
+    derived_recompute_gate             judged   6 of 155
+    contradicting_surfaces_gate        judged  62 of 155
+    method_label_gate                  judged  52 of 155
+    registration_chronology_gate       judged   1 of 155
+    refusal_reads_outcome_groups_gate  judged   2 of 155
+
+### WHAT THIS NUMBER DOES NOT MEAN
+
+**It does not mean 85 objects are defective. It means NOTHING HAS LOOKED AT THEM.**
+
+All four defective objects found tonight were inside the visible 70, and TWO of them --
+`arni-hfref` and `bococizumab-lipid-review` -- entered a gate's scope only because two
+commits happened to make them "changed against origin/main". They were reached by accident.
+
+So the honest inference is not "the corpus is 54.8% broken". It is:
+
+> **WE HAVE NO EVIDENCE EITHER WAY ABOUT 54.8% OF IT, AND THE SAMPLE WE CAN SEE PRODUCED
+> FOUR FAILURES.**
+
+The gates are not wrong and the objects are not failing. **They are silent about each other,
+and silence has read as health.**
+
+### THE ROUTE OUT: every reason names a field, so this is a work list
+
+| gate | out of reach | reason, in the gate's own words |
+|---|---|---|
+| registration_chronology | 154 | **154** no dated chronology on this object |
+| refusal_reads_outcome_groups | 153 | **153** no refusal on this object turns on arm identity |
+| derived_recompute | 149 | **133** no declared derivation · **14** carries no `results.by_outcome` |
+| method_label | 103 | **88** no prediction interval stored · **14** no outcome records the scale it was pooled on |
+| contradicting_surfaces | 93 | **93** carries no screening block, so no exclusion decision exists to contradict |
+
+**THE CONSTRAINT THAT MAKES THIS A WORK LIST AND NOT A LOOPHOLE: populating a field to bring
+an object into scope MANUFACTURES judgeability rather than earning it.** A field must be
+filled because the object genuinely has that property -- a chronology that was really
+recorded, a derivation that was really declared, a scale a pool was really computed on --
+never to make a gate speak. An object dragged into reach by a field written for the gate's
+benefit is worse than one out of reach, because it converts "not looked at" into "looked at
+and passed".
+
+### A SEPARATE DEFECT FOUND ON THE WAY, NAMED AND UNINVESTIGATED
+
+**14 canonical objects carry no `results.by_outcome` at all** -- none of what this corpus
+exists to hold. The same 14 are exactly the objects recording no pooling scale (overlap 14
+of 14), which is consistent with their having no pooled result of any kind.
+
+    bamlanivimab-outp                  ertapenem-infect-auto-full-review   omecamtiv-hfref
+    bezlotoxumab-cdiff                 lefamulin-cap-auto-full-review      pcsk9-review
+    ceftolozane-taz-auto-full-review   lenacapavir-prep-review             sacubitril-valsartan-hf
+    cvncov-sarscov2                    mavacamten-ohcm                     sotatercept-pah-auto2
+    dabigatran-vte-review              omecamtiv-hf
+
+**THIS WAS NOT INVESTIGATED.** They may be stubs, placeholders, superseded objects, or a
+real loss. Nobody looked tonight, and this note exists so the silence is not later read as a
+clean bill. `sacubitril-valsartan-hf` and `pcsk9-review` sitting in that list beside the
+live `arni-hfref` is the kind of thing that should be checked before anything is concluded.
+
 ## THE MIRROR: ONE GATE, TWO OBJECTS, OPPOSITE VERDICTS, BOTH RIGHT
 
 This corpus has recorded that **no gate here has a measured precision**.
@@ -372,3 +468,28 @@ and are excluded, stated rather than hidden), across 118 distinct registrations 
 objects. If that count comes back at or near zero, the honest reading is that the capture is
 faithful and SPIRE-AI is isolated -- and that result is to be reported as plainly as an
 alarming one would have been.
+
+---
+
+## WHERE EVERY TRUE ANSWER CAME FROM TONIGHT
+
+Recorded because the next person will be tempted by all three of the alternatives.
+
+Not one substantive answer today came from a status, a summary, or a wrapper. Every one came
+from the object itself:
+
+- **the leaf process** -- five stranded pre-push hooks looked alive at the wrapper and were
+  flat at 0.047 CPU-seconds with no gate child; two Codex jobs looked dead at the wrapper and
+  were climbing at the descendants. Busy and stuck are distinguishable only at the leaf.
+- **the built bytes** -- `git rev-parse HEAD:<path>` against `git hash-object`, which caught
+  a refused commit, an untracked-pathspec miss, a five-gate push refusal and a lock
+  collision, all of which reported `exit 0`.
+- **the registry record** -- `groupIds ['OG000','OG001']` and a value matching to the digit,
+  which disproved one arm-identity claim and confirmed two others. Two people had called the
+  first one unsettleable; it took one read.
+- **the parsed object** -- a before/after key diff, which permitted a text edit to a file no
+  serialiser could safely rewrite.
+
+**EIGHT TIMES TODAY A WRAPPER REPORTED SUCCESS THAT HAD NOT BEEN EARNED**, including one job
+that returned `exit code 0` having never started. A status code is not a result; on that
+occasion it was not even evidence that the work began.

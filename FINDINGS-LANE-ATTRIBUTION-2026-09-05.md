@@ -143,6 +143,23 @@ Three signals disagreed throughout, and only one was right:
 **Killing on either of the first two would have destroyed live work; trusting either would
 have wasted the budget.** Only walking to the leaf distinguished them.
 
+### THE NUMBER THAT DECIDES THE NEXT DELEGATION, AND NEITHER JOB'S SUMMARY CONTAINS IT
+
+    two jobs, wall clock          ~80 minutes
+    two jobs, descendant CPU      ~470 CPU-seconds
+    MODEL TOKENS PRODUCED         ZERO
+
+**Not zero output -- zero TOKENS.** Both jobs spent their entire budgets in sandbox setup
+and neither ever reached the model. A job that produced a wrong answer would at least have
+consumed the resource it was delegated for; these consumed 80 minutes of the resource they
+were delegated to AVOID.
+
+**THAT FIGURE IS OBTAINABLE FROM NEITHER JOB'S SUMMARY.** Both would have shown a clean
+exit; one reported `exit code 0` on an explicit sandbox execution error. The cost had to be
+assembled by hand from the descendant-process walk and the log tail -- the same two places
+every true answer came from tonight. **If the decision to delegate again rests on a job's
+own report of itself, it rests on the one artefact that cannot show this failure.**
+
 ### The practical rule for the next handoff
 
 The same arm-identity question that was delegated and never started was then answered
