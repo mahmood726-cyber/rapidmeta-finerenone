@@ -1,0 +1,48 @@
+{
+ "protocol_id": "iv_iron_hf_retrospective_v1",
+ "review_stem": "iv-iron-hf",
+ "authored_utc": "2026-09-06T00:00:00+00:00",
+ "prospective": false,
+ "provenance": "RETROSPECTIVE FORMALISATION -- authored 2026-09-06, after screening. It records the criteria the review's object states it applied, in the object's CORRECTED form (the 2026-09-04 restatement). It is NOT a pre-registration and claims no prospectiveness. A frozen v1.0 markdown protocol (iv_iron_hf_protocol_v1.0) also exists and is what the served page currently renders; this protocol is grounded in the OBJECT instead, and the two disagree -- see carries_forward and the diff report.",
+ "source_object": "ssot/iv-iron-hf/iv-iron-hf.json",
+ "grounded_in": "screening.eligibility (verbatim, the 2026-09-04 corrected form), read 2026-09-06.",
+ "carries_forward": {
+  "correction_id": "eligibility_superseded_2026_09_04",
+  "what": "The object RETRACTED the outcome clause from its eligibility criterion, citing Cochrane Handbook 6.5 section 3.2.4 (eligibility must not depend on which outcomes a study reported, as that admits selective-outcome-reporting bias). The original eligibility sentence is preserved verbatim on the object under eligibility_superseded_2026_09_04.",
+  "must_not_be_dropped": "A rebuild of this review MUST NOT reintroduce an outcome as an eligibility criterion. The frozen v1.0 markdown protocol lists 'Outcome (primary): CV death or HF hospitalization composite' as a PICO field; carrying that into eligibility would revert the object's own retraction.",
+  "must_not_be_narrowed": "The object's population is 'heart failure'; the served v1.0 protocol says 'HFrEF'. HFrEF is NARROWER than the review applied. This protocol keeps the object's wording and flags the discrepancy rather than silently adopting either."
+ },
+ "eligibility": {
+  "population": {
+   "rule_id": "P1",
+   "criterion": "Adults with heart failure and iron deficiency.",
+   "threshold": "Iron deficiency as ferritin <100 ng/mL, or 100-299 ng/mL with TSAT <20%.",
+   "guideline": "ESC Heart Failure guideline, iron-deficiency definition",
+   "guideline_version": "2021",
+   "provenance": "Population and 'iron deficiency' READ from screening.eligibility; the numeric ferritin/TSAT threshold is the ESC 2021 iron-deficiency definition, recorded with its version so a later guideline change is trackable. The object states 'heart failure', NOT 'HFrEF' -- the v1.0 markdown's 'HFrEF' is narrower and is not adopted here."
+  },
+  "intervention": {
+   "rule_id": "I1",
+   "criterion": "INTRAVENOUS iron, as ferric carboxymaltose or ferric derisomaltose. The intravenous route is load-bearing.",
+   "provenance": "READ from screening.eligibility"
+  },
+  "comparator": {
+   "rule_id": "C1",
+   "criterion": "Placebo OR usual care. The 'usual care' half is load-bearing, not generous: one contributing trial randomised against usual care, so a placebo-only criterion would wrongly exclude it.",
+   "provenance": "READ from screening.eligibility"
+  },
+  "design": {
+   "rule_id": "D1",
+   "criterion": "Randomised controlled trial. Route (intravenous) is treated by the object as a distinct eligibility axis alongside P/I/C and is captured in the intervention criterion.",
+   "provenance": "DERIVED (RCT) from review structure; route READ from screening.eligibility"
+  }
+ },
+ "outcomes_reporting": {
+  "note": "Outcomes are a REPORTING field, not eligibility -- this is the whole point of the 2026-09-04 correction. A trial meeting population/intervention/comparator/route that has no extractable cell for an endpoint is recorded ELIGIBLE_OUTCOME_UNAVAILABLE, never excluded.",
+  "outcomes": [
+   {"name": "A designated clinical-event endpoint, or a registered functional primary a regulator relies on",
+    "role": "contribution to a given outcome (NOT eligibility)",
+    "verbatim_from_object": "The outcome criterion is that the trial designates a CLINICAL-EVENT endpoint, or a registered functional primary that a regulator relies on."}
+  ]
+ }
+}

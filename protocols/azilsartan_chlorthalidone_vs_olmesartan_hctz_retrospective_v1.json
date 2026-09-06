@@ -1,0 +1,42 @@
+{
+ "protocol_id": "azilsartan_chlorthalidone_vs_olmesartan_hctz_retrospective_v1",
+ "review_stem": "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+ "authored_utc": "2026-09-06T00:00:00+00:00",
+ "prospective": false,
+ "provenance": "RETROSPECTIVE FORMALISATION -- authored 2026-09-06, after this review's screening had already occurred. It records the criteria the review's object states it applied; it is NOT a pre-registration and claims no prospectiveness. The object itself already says its criteria are 'DERIVED POST HOC and say so', so this protocol formalises an admittedly post-hoc screen, it does not manufacture an a-priori one.",
+ "source_object": "ssot/azilsartan-chlorthalidone-vs-olmesartan-hctz/azilsartan-chlorthalidone-vs-olmesartan-hctz.json",
+ "grounded_in": "screening.eligibility (verbatim), read 2026-09-06. Every eligibility criterion below is READ from that field, not inferred, except design, whose provenance is marked DERIVED in its own criterion text.",
+ "eligibility": {
+  "population": {
+   "rule_id": "P1",
+   "criterion": "Adults with essential or primary hypertension, read from the coded conditions field. Where that field names a study objective rather than a disease (NCT01309828 declares conditions:['Safety']) the limb is NOT_ASSESSABLE and the verdict falls back to the registered trial title, stating on its face which it rests on.",
+   "threshold": null,
+   "guideline": null,
+   "guideline_version": null,
+   "provenance": "READ from screening.eligibility"
+  },
+  "intervention": {
+   "rule_id": "I1",
+   "criterion": "Azilsartan medoxomil TOGETHER WITH chlorthalidone in the same arm. Azilsartan monotherapy is a different intervention, and azilsartan with amlodipine is another; neither qualifies.",
+   "provenance": "READ from screening.eligibility"
+  },
+  "comparator": {
+   "rule_id": "C1",
+   "criterion": "Olmesartan medoxomil TOGETHER WITH hydrochlorothiazide.",
+   "provenance": "READ from screening.eligibility"
+  },
+  "design": {
+   "rule_id": "D1",
+   "criterion": "Randomised controlled trial, parallel-group. DERIVED, not read: the object's eligibility text does not name a design; this is inferred from the review being a pooled comparison of two trials that share both randomised arms. Marked derived so it is not mistaken for a stated criterion.",
+   "provenance": "DERIVED from review structure -- NOT stated in the object"
+  }
+ },
+ "outcomes_reporting": {
+  "note": "Outcomes are a REPORTING field, not an eligibility field. The object states this itself: the estimand 'governs POOLABILITY and not eligibility'. A trial meeting P/I/C/D that does not report this estimand is eligible-and-unreported, never ineligible.",
+  "outcomes": [
+   {"name": "Change from baseline in clinic systolic blood pressure",
+    "role": "estimand / poolability",
+    "verbatim_from_object": "change from baseline in clinic systolic blood pressure, detected structurally at every rank"}
+  ]
+ }
+}
