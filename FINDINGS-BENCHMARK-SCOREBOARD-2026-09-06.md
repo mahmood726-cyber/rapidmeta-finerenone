@@ -76,6 +76,23 @@ The extractor and scoreboard write only to `evidence/acquisition/`. No `*_REVIEW
 consumes them, so no served number changed. If this extraction is later wired into a served page,
 any number it changes is a finding to report first.
 
+## Did the same mistake already reach a served page? Scanned — no.
+
+The rate-vs-proportion catch is worth generalising: **a number's scale does not tell you its
+unit, and a plausible-looking magnitude is the most dangerous kind of wrong** — `3.9` reads as a
+percentage and is an incidence rate, the same family as reading `denoms.counts` for 48 wrong
+integers. So `scripts/scan_rate_as_proportion.py` checks whether any *already stored* value came
+in through a rule that could confuse a rate for a proportion, across all **155 objects**. It
+carries a self-test that plants one of each defect and asserts it is caught — a zero is reported
+only because the instrument is proven able to find a positive.
+
+Result: **0** pools that pool or relabel a rate ratio (RATE_RATIO/IRR) as a risk ratio (RR/OR) —
+the direct defect; **0** arm-level values with events > N or a proportion > 1; **1** softer case,
+`malaria-vaccines / exploratory_recurrent_rate`, which pools an HR with an IRR and is labelled
+exploratory (reported, not merged into the count). The corpus does not carry the stored-data form
+of this mistake — objects take effects from the printed ratio, not from a `pct × N` arithmetic,
+so the path that would make it does not run.
+
 ### The disagreement set (the finding, not the delta)
 
 - **all-cause death** — ours 10 of their 18. Could not populate 7: ELIXA, FIGHT, LEADER,
