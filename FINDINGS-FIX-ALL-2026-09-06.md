@@ -165,6 +165,65 @@ The fix is not to edit the page — it is to build EXTRACT so the object can car
 HR 0.80, re-synthesise to k=4 0.774, and let RENDER follow. `reproduce_review.py` is the test that
 this happened, and today it correctly says it has not.
 
+## Codex is usable after all -- the block was a missing flag, not the environment
+
+This morning Codex was declared unusable here after five diagnosed failure modes. With full access
+granted, a sixth surfaced and it was the actual blocker: **"Not inside a trusted directory and
+--skip-git-repo-check was not specified."** Codex refuses to run in a non-git scratch dir without
+that flag. The working invocation, verified by BOTH model tokens AND artefact:
+
+```
+cd <scratch>; codex exec --skip-git-repo-check --sandbox workspace-write "<task>" < /dev/null
+```
+
+Probe returned `tokens used 22,587`, named its model ("Codex, GPT-5 family" -- openai, independent
+of Claude=anthropic, good decorrelation), and wrote `probe_out.txt`. Six checkers were then built by
+Codex in parallel scratch dirs and EACH cleared its own fixture here before being trusted
+(boilerplate-by-k, absolute-effect, composite-decomposition, self-reference-overlap, harms-presence,
+num/denom-consistency -- 6/6 selftests green on my run, positive fires + negative controls silent).
+
+## SGLT2 k=4 is blocked on ONE paywalled number, and the brief's DELIVER value is a mis-attribution
+
+The overnight target set SGLT2_HF to k=4 HR 0.774 by adding DELIVER at "0.80 (0.71-0.91)". Verified
+against three sources we can read (PubMed): the value is not DELIVER's individual harmonised
+two-component, and that individual value is not in any open-access source.
+
+- **DELIVER primary** (NEJM, DOI 10.1056/NEJMoa2206286): the 3-component primary (CV death or
+  worsening HF, where worsening HF INCLUDES urgent visits) is 0.82 (0.73-0.92); "worsening HF"
+  alone is 0.79 (0.69-0.91) -- **includes urgent visits**, so NOT the two-component; CV death alone
+  0.88 (0.74-1.05). The two-component (CV death or first HF HOSPITALISATION, excluding urgent) is
+  **not a reported DELIVER outcome** (confirmed by web search of the secondary-analysis literature).
+- **Vaduganathan 5-trial** (Lancet, DOI 10.1016/S0140-6736(22)01429-5): DELIVER+EMPEROR-Preserved
+  two-component POOL = 0.80 (0.73-0.87); five-trial pool = 0.77 (0.72-0.82). The "0.80" the reviewer
+  attributed to DELIVER is the **DELIVER+EMPEROR-Preserved two-trial pool**. Adding it as a single
+  trial would **double-count EMPEROR-Preserved** -- a defect, not a fix.
+- **Jhund DAPA-HF+DELIVER patient-level pool** (Nat Med, DOI 10.1038/s41591-022-01971-4, full text):
+  the two-component (EMPEROR-endpoint) POOL = 0.78 (0.72-0.86). Still a pool, not DELIVER alone.
+
+So the object's k=3 caution was right on the merits: **"a k=3 pool we can fully vouch for beats a
+k=4 with one input we cannot."** DELIVER's individual harmonised two-component exists only in the
+Vaduganathan/Jhund supplementary per-trial tables (paywalled webappendix), which is exactly the
+`owed_retrieval` the object already records. Per the standing stop-rule -- do not change a served
+clinical number in a direction unverifiable from a source we own -- DELIVER is NOT added tonight. The
+reviewer was right that DELIVER belongs and wrong about the value: an external reviewer can be right
+about the finding and wrong about the number.
+
+**Consequence for the protocol:** the v2 protocol registered at ac95196c cites a "known answer k=4
+0.774" that rests on this mis-attribution. That benchmark citation is corrected -- the fully-vouched
+primary is the k=3 pool; k=4 is a declared pending amendment with the named owed source; the
+external five-trial 0.77 is context, not a same-trial-set benchmark.
+
+## EMPAGLIFLOZIN_HF reproduces its target EXACTLY -- but its only benchmark is a self-reference
+
+The k=2 pool of EMPEROR-Reduced (0.75, 0.65-0.86) and EMPEROR-Preserved (0.79, 0.69-0.90) -- both
+the trials' REGISTERED PRIMARY two-component, fully verifiable -- is HR **0.7708 (0.700-0.849)**,
+matching the brief's target to 4 dp. Its natural external, EMPEROR-Pooled, pools the SAME two trials
+(Jaccard 1.0): cited as "independent validation" it would be the self_reference the brief forbids.
+It is a legitimate same-trials IPD consistency check only if disclosed as same-trials. This is the
+general trap: a meta of exactly the trials in a named pooled analysis always has that analysis as a
+same-set comparator. A genuine external needs a DIFFERENT/broader set -- which is precisely why
+SGLT2's k=4-vs-Vaduganathan-5-trial was chosen as #1.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,
