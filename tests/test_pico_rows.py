@@ -37,8 +37,16 @@ def _checks():
         check("%s maps to a full P/I/C" % app,
               pic and set(pic) == {"population", "intervention", "comparator"})
 
-    # exactly six confirmed mappings
-    check("exactly 6 confirmed protocol mappings", len(p2._PICO_PROTOCOL) == 6)
+    # the 12 second-pass wires (population-confirmed) are all present
+    for app in ("attr-cm-review", "colchicine-cvd-review", "doac-af-review",
+                "doac-cancer-vte-review", "intensive-bp-review", "mavacamten-hcm-review",
+                "mitral-funcmr-review", "pcsk9-review", "pcsk9-inhibitors-cv-review",
+                "rivaroxaban-vasc-review", "sglt2-ckd-review",
+                "inclisiran-lipid-kidney-auto-full-review"):
+        pic = p2.load_protocol_pico(app)
+        check("%s wired to a full P/I/C" % app,
+              pic and set(pic) == {"population", "intervention", "comparator"})
+    check("18 confirmed protocol mappings (6 + 12)", len(p2._PICO_PROTOCOL) == 18)
 
     # --- adjudication exclusions, on the record ---
     check("arni-hfref is NOT mapped (program protocol broader than the HFrEF review)",
@@ -56,10 +64,24 @@ def _checks():
           all("data-pico" not in v for _, v in pairs))
 
     none_pairs = p2.pico_pairs("some-unmapped-app")
-    check("an unmapped review gets a machine-readable null+state, not a placeholder",
-          all("data-pico='null'" in v and "NO_PROTOCOL_MAPPED" in v for _, v in none_pairs))
+    check("a review with NO protocol gets a machine-readable null with state NO_PROTOCOL",
+          all("data-pico='null'" in v and "NO_PROTOCOL" in v for _, v in none_pairs))
     check("the null+state is NOT the legacy 'not recorded on the page' placeholder",
           all("not recorded on the page" not in v for _, v in none_pairs))
+
+    # the two facts are distinguishable: "no protocol" vs "a protocol exists but mismatches"
+    fin = p2.pico_pairs("finerenone-review")
+    check("finerenone-review renders POPULATION_MISMATCH with its reason (HF vs CKD)",
+          all("PROTOCOL_POPULATION_MISMATCH" in v and "HEART FAILURE" in v for _, v in fin))
+    apx = p2.pico_pairs("apixaban-vte-treatment")
+    check("a single-drug-vs-NMA case renders PROTOCOL_IS_A_NETWORK",
+          all("PROTOCOL_IS_A_NETWORK" in v for _, v in apx))
+    abl = p2.pico_pairs("ablation-af-review")
+    check("ablation-af-review is WITHHELD as NEEDS_REVIEW, not wired",
+          "ablation-af-review" not in p2._PICO_PROTOCOL
+          and all("NEEDS_REVIEW" in v for _, v in abl))
+    check("arni-hfref is neither wired nor in the refused map (page left untouched)",
+          "arni-hfref" not in p2._PICO_PROTOCOL and "arni-hfref" not in p2._PICO_REFUSED)
 
     # --- load_protocol_pico is all-or-nothing (never a half-populated PICO) ---
     check("load_protocol_pico returns None for an unmapped app", p2.load_protocol_pico("nope") is None)

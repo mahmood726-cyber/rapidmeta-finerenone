@@ -356,6 +356,19 @@ _PICO_PROTOCOL = {
                                                  #   protocol adds the ferritin threshold the
                                                  #   review states only as "iron deficiency"
     "sglt2-hf": "sglt2_hf",                       # HF across the EF spectrum -- matches
+    # --- added 2026-09-06, second pass over the object-backed set, each population-confirmed ---
+    "attr-cm-review": "attr_cm",                   # transthyretin amyloid cardiomyopathy
+    "colchicine-cvd-review": "colchicine_cvd",     # chronic coronary / recent ACS / stroke-TIA
+    "doac-af-review": "doac_af",                   # non-valvular AF (covers DOAC_AF + DOAC_AF_NMA)
+    "doac-cancer-vte-review": "doac_cancer_vte",   # active cancer + acute VTE
+    "intensive-bp-review": "intensive_bp",         # hypertension at high CV risk
+    "mavacamten-hcm-review": "mavacamten_hcm",     # symptomatic obstructive HCM
+    "mitral-funcmr-review": "mitral_funcmr",       # HFrEF/HFmrEF + functional MR
+    "pcsk9-review": "pcsk9",                        # ASCVD on max statin
+    "pcsk9-inhibitors-cv-review": "pcsk9",          # ASCVD on max statin (CV outcomes)
+    "rivaroxaban-vasc-review": "rivaroxaban_vasc",  # chronic coronary/PAD/HF
+    "sglt2-ckd-review": "sglt2_ckd",                # CKD eGFR 25-75 +/- diabetes
+    "inclisiran-lipid-kidney-auto-full-review": "inclisiran_pcsk9",  # ASCVD/HeFH elevated LDL
     # DELIBERATELY NOT MAPPED, with the reason on the record:
     #   arni-hfref -> arni_hf is REFUSED. The arni_hf protocol is program-level ("HFrEF,
     #     HFpEF, or post-MI"); the arni-hfref review is HFrEF-only (PARADIGM-HF vs enalapril).
@@ -366,6 +379,50 @@ _PICO_PROTOCOL = {
 
 _PICO_KEYS = (("population", "Population"), ("intervention", "Intervention"),
               ("comparator", "Comparator"))
+
+# A protocol EXISTS but does not describe THIS review -- a different fact from "no protocol
+# exists", and a reader should be able to tell them apart. Each entry renders its reason in the
+# null cell instead of the generic "no protocol" text. Adjudicated on the science 2026-09-06.
+# arni-hfref is NOT here: it is protected/do-not-rebuild and its rows are hand-authored to its
+# own HFrEF scope, so its page is left untouched entirely.
+_PICO_REFUSED = {
+    "finerenone-review": ("PROTOCOL_POPULATION_MISMATCH",
+        "the finerenone v1.0 protocol covers type-2-diabetes chronic kidney disease; this "
+        "review is finerenone in HEART FAILURE (FINEARTS), a different population, so that "
+        "protocol is wired to finerenone-cv, not here"),
+    "attr-pn-review": ("PROTOCOL_POPULATION_MISMATCH",
+        "the only transthyretin-amyloid v1.0 protocol is for CARDIOMYOPATHY; this review is "
+        "amyloid POLYNEUROPATHY, a different disease"),
+    "sglt2-mace-cvot-review": ("PROTOCOL_POPULATION_MISMATCH",
+        "the SGLT2 v1.0 protocols cover heart failure and chronic kidney disease; this review "
+        "is the SGLT2 cardiovascular-outcome-trial (type-2-diabetes MACE) population, which "
+        "none of them describes"),
+    "ablation-af-review": ("NEEDS_REVIEW",
+        "an ablation-AF v1.0 protocol exists but its population is restricted to AF WITH heart "
+        "failure; this review appears to be general AF ablation, so rendering the protocol "
+        "population could state a criterion narrower than the review applied. Withheld pending "
+        "a closer look rather than risk an undetectable understatement"),
+    # single drug vs a NETWORK protocol: the NMA's intervention IS the network, not this drug,
+    # so its PICO does not describe a single-drug review.
+    "alirocumab-lipid": ("PROTOCOL_IS_A_NETWORK",
+        "pcsk9_lipid_nma is a network protocol whose intervention is the PCSK9 network, not "
+        "alirocumab alone"),
+    "bococizumab-lipid-review": ("PROTOCOL_IS_A_NETWORK",
+        "pcsk9_lipid_nma is a network protocol whose intervention is the PCSK9 network, not "
+        "bococizumab alone"),
+    "apixaban-vte-prophylaxis": ("PROTOCOL_IS_A_NETWORK",
+        "doac_vte_nma is a network protocol whose intervention is the DOAC network, not "
+        "apixaban VTE prophylaxis alone"),
+    "apixaban-vte-treatment": ("PROTOCOL_IS_A_NETWORK",
+        "doac_vte_nma is a network protocol whose intervention is the DOAC network, not "
+        "apixaban VTE treatment alone"),
+    "empagliflozin-hf-auto-full-review": ("PROTOCOL_IS_A_NETWORK",
+        "sglt2i_hf_nma is a network protocol whose intervention is the SGLT2 network, not "
+        "empagliflozin alone"),
+    "sotagliflozin-hf": ("PROTOCOL_IS_A_NETWORK",
+        "sglt2i_hf_nma is a network protocol whose intervention is the SGLT2 network, not "
+        "sotagliflozin alone"),
+}
 
 
 def _protocols_dir():
@@ -395,23 +452,26 @@ def load_protocol_pico(app_id):
     return out if len(out) == 3 else None
 
 
-def _pico_null_state():
-    """A row with no protocol behind it: a STATED null carrying a machine-readable state, not a
-    placeholder. `data-pico='null'` lets a check tell this apart from a real value; a check that
-    only asks whether the cell is non-empty would (wrongly) pass a placeholder, so the cell says
-    what it is."""
-    return ("<em data-pico='null' data-pico-state='NO_PROTOCOL_MAPPED'>Not shown &mdash; no "
-            "prospectively-frozen v1.0 protocol is mapped to this review by confirmed exact "
-            "stem, so an independent criterion is withheld rather than invented. "
-            "State: NO_PROTOCOL_MAPPED.</em>")
+def _pico_null_state(app_id):
+    """A row with no real value: a STATED null carrying a machine-readable state, never a
+    value-shaped placeholder. Two facts are kept distinct -- NO_PROTOCOL (none exists) vs a
+    reason from _PICO_REFUSED (a protocol exists but does not describe this review) -- because a
+    reader should be able to tell them apart. `data-pico='null'` lets a check distinguish any of
+    these from a real value."""
+    state, reason = _PICO_REFUSED.get(app_id, ("NO_PROTOCOL",
+        "no prospectively-frozen v1.0 protocol describes this review, so an independent "
+        "criterion is withheld rather than invented"))
+    return ("<em data-pico='null' data-pico-state='%s'>Not shown &mdash; %s. State: %s.</em>"
+            % (state, reason, state))
 
 
 def pico_pairs(app_id):
     """The three (label, value_html) PICO rows for the PROSPERO field-set table. Real values
-    where a protocol is CONFIRMED-mapped; a stated null+state otherwise. Shared by
-    protocol_card and the served-bytes inserter so both emit byte-identical rows."""
+    where a protocol is CONFIRMED-mapped; a stated null+state (with its distinguishing reason)
+    otherwise. Shared by protocol_card and the served-bytes inserter so both emit identical
+    rows."""
     pico = load_protocol_pico(app_id)
-    return [(label, e(pico[key]) if pico else _pico_null_state())
+    return [(label, e(pico[key]) if pico else _pico_null_state(app_id))
             for key, label in _PICO_KEYS]
 
 
