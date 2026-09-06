@@ -280,3 +280,24 @@ source object.
 - CTEPH_NMA — 3
 - ESOPHAGEAL_PERIOP_IO_NMA — 3
 - OBESITY_DUAL_TRIPLE_AGONIST — 3
+
+---
+
+## Methods note: a success probe whose pass condition is true before the work runs
+
+While landing this document a background push was checked with the condition `remote main ==
+local HEAD`. That condition was **already true before the commit ran** -- both sides sat at the
+previous commit -- so the probe reported "LANDED" for a commit that had not yet happened. It
+could not tell "succeeded" from "never ran".
+
+This is the same shape as an exit code read through a pipe: a pass signal that a *no-op*
+satisfies. A probe is only worth anything if its pass condition **could not have held before the
+work was done**.
+
+- **Wrong:** `remote == HEAD` (holds whenever nothing changed).
+- **Right:** assert a property the work *creates* -- the appended text present in `HEAD`'s own
+  version of the file (`git show HEAD:<file> | grep <new-text>`) AND the remote ref equal to
+  that same post-commit `HEAD`. Both can be true only after the commit was made and pushed.
+
+Recorded because the corrected form is reusable and the failure is easy to reintroduce: any
+check of the form "did X change to the value it already had" is vacuous.
