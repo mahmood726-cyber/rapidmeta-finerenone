@@ -58,7 +58,7 @@ COMPONENTS = {
     "SCREEN":     ("scripts/screen.py",             "generic every-outcome-rank screener"),
     "EXTRACT":    ("scripts/extract_effect_ci.py",  "generic effect+CI ingestion"),
     "SYNTHESISE": ("__builtin_reml__",              "REML pooler (in this module)"),
-    "RENDER":     ("scripts/generate_living_ma_v13.py", "page generator"),
+    "RENDER":     ("generate_living_ma_v13.py", "page generator (repo root)"),
 }
 
 def component_status():

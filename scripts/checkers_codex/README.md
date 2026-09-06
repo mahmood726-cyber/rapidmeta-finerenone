@@ -19,5 +19,8 @@ before any of these is trusted as a gate or added to the pre-push suite.
 | `self_reference_overlap_check.py` | an "external" benchmark that shares the meta's trial set (Jaccard ≥ 0.8) — the self_reference trap |
 | `harms_presence_check.py` | harms absent or only generic ("adverse events"), no specific named harm |
 | `num_denom_consistency_check.py` | event numerator > arm denominator, or a reported % inconsistent with events/n |
+| `grade_imprecision_ois_check.py` | a GRADE imprecision rating inconsistent with OIS / whether the CI crosses the null |
+| `executed_unresolved_check.py` | a trial left in EXECUTED_UNRESOLVED / no terminal state — a silent drop |
+| `exclusion_reason_verifiable_check.py` | an exclusion reason with no checkable evidence field, or contradicted by it |
 
 Run one: `python scripts/checkers_codex/<name>.py` (exits non-zero if its self-test fails).

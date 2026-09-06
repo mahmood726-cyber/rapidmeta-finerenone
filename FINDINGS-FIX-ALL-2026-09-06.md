@@ -224,6 +224,51 @@ general trap: a meta of exactly the trials in a named pooled analysis always has
 same-set comparator. A genuine external needs a DIFFERENT/broader set -- which is precisely why
 SGLT2's k=4-vs-Vaduganathan-5-trial was chosen as #1.
 
+## THE reproducibility root cause: the page and the object have SEPARATE data sources
+
+Building EMPAGLIFLOZIN to "perfect" surfaced the structural reason pages drift from their objects --
+the deeper cause behind "the store knowing is not the reader seeing":
+
+- **reproduce_review and the gates read the ssot object** (`ssot/<app>/<app>.json`).
+- **The served page is built by `generate_living_ma_v13.py`** (repo root), which reads its data from,
+  in order: a **staging profile** at `C:\Projects\rapidmeta-staging\profiles\<key>.json` (a DIFFERENT
+  repo, populated by a "parallel swarm") if present, else the generator's own **`APPS` cfg**. For
+  EMPAGLIFLOZIN no profile exists, so the page's heterogeneity narrative is computed from the cfg.
+- **These are separate sources of truth.** Fixing the ssot object's `heterogeneity_status` (Q 0.368949
+  -> 0.2785) cleared gate 38 but did NOT change the page, because the page is not built from that
+  object. A reader still meets the stale odds-ratio narrative.
+
+**Consequence for reproduce_review, stated honestly:** its RENDER axis returning REPRODUCES means only
+that *the headline pooled number appears on the page and recomputes from the object's inputs* -- it
+does NOT mean the whole page is consistent with the object. EMPAGLIFLOZIN RENDER-REPRODUCES on 0.7708
+while the page still serves a contradictory heterogeneity paragraph from a different source. This is a
+"reach is not coverage" limit in the reproduction tool itself, now recorded: a true render check must
+verify the page's SOURCE (profile/cfg) equals the object, not just that the number is present.
+
+**Why this is the most valuable finding of the EMPAGLIFLOZIN pass:** it locates the single remaining
+structural gap in the loop. Everything upstream -- protocol -> search -> screen -> extract ->
+synthesise -> object -> reproduce -- works end to end and is proven able to fail. The gap is that the
+RENDER stage draws from a parallel-swarm profile / generator cfg rather than the ssot object, so the
+object and the page can be individually correct and mutually inconsistent. Closing the loop fully
+means making the generator read the ssot object (single source of truth), or making reproduce_review's
+RENDER axis diff the object against the generator's actual source and FAIL on divergence.
+
+## EMPAGLIFLOZIN_HF against the four "perfect" conditions
+
+1. **reproduce_review REPRODUCES** -- YES on all three axes (RENDER 0.7708, PROTOCOL k=2 0.7708,
+   PIPELINE orchestrator 0.7708), each proven able to DIFFER. The loop is real. (Caveat: RENDER checks
+   the number, not full page consistency -- see the source-divergence finding above.)
+2. **Every validated gate passes** -- gate 38 now clears (was a real finding: stale OR heterogeneity
+   cited live; fixed in the object, gate control made synthetic so it cannot self-retire); gate 53
+   clean. Full validated-gate sweep still owed.
+3. **Every reviewer finding fixed** -- the gate-38 finding fixed in the OBJECT; the PAGE still serves
+   the stale narrative because it is built from a different source (the render-divergence gap).
+4. **External benchmark matches** -- no truly independent external exists (any empagliflozin-HF pool is
+   these two trials); EMPEROR-Pooled is a disclosed same-trials IPD cross-check, not independent.
+
+Status: object-perfect and loop-perfect; page-perfection is blocked on the render-source-divergence
+architecture gap, not on a value we cannot verify.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,
