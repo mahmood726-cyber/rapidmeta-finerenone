@@ -161,10 +161,20 @@ def axis_protocol(obj, proto, tol=5e-4):
     return ("REPRODUCES" if conforms else "DIFFERS"), diff
 
 def axis_pipeline(status):
-    gaps = [s for s in ("SEARCH", "SCREEN", "EXTRACT") if not status[s][0]]
-    if gaps:
-        return "CANNOT_RUN", gaps
-    return "REPRODUCES", []
+    # Autonomous reproduction needs BOTH: the stage components exist AND an orchestrator composes
+    # them into a run (SEARCH->SCREEN->EXTRACT->SYNTHESISE) for a given review. Component existence
+    # is necessary, not sufficient -- reporting REPRODUCES on existence alone would be a false pass
+    # (reach is not coverage). So this stays CANNOT_RUN until the orchestrator wires them and its
+    # output object matches the stored one.
+    missing = [s for s in ("SEARCH", "SCREEN", "EXTRACT") if not status[s][0]]
+    orchestrator = os.path.exists(os.path.join(ROOT, "scripts/run_review.py"))
+    if missing:
+        return "CANNOT_RUN", {"missing_components": missing}
+    if not orchestrator:
+        return "CANNOT_RUN", {"missing_components": [],
+                              "note": "SEARCH/SCREEN/EXTRACT components now EXIST but no orchestrator "
+                                      "(scripts/run_review.py) composes them into an autonomous run"}
+    return "REPRODUCES", {"missing_components": []}
 
 # ---- driver -----------------------------------------------------------------------------
 def reproduce(review_id):
@@ -189,8 +199,8 @@ def reproduce(review_id):
         rpt["PROTOCOL"] = {"verdict": pv, "detail": pdiff}
     else:
         rpt["PROTOCOL"] = {"verdict": "CANNOT_RUN", "detail": {"reason": "no registered protocol found"}}
-    plv, pgaps = axis_pipeline(status)
-    rpt["PIPELINE"] = {"verdict": plv, "gaps": pgaps}
+    plv, pdet = axis_pipeline(status)
+    rpt["PIPELINE"] = {"verdict": plv, "detail": pdet}
 
     # headline verdict = does the served review conform to its registered protocol?
     rpt["verdict"] = rpt["PROTOCOL"]["verdict"]
@@ -259,8 +269,12 @@ def _print_report(r):
             else:
                 print("    %s" % d.get("reason"))
         elif axis == "PIPELINE":
-            if a.get("gaps"):
-                print("    autonomous rebuild blocked -- missing generic components: %s" % ", ".join(a["gaps"]))
+            det = a.get("detail") or {}
+            miss = det.get("missing_components")
+            if miss:
+                print("    autonomous rebuild blocked -- missing generic components: %s" % ", ".join(miss))
+            elif det.get("note"):
+                print("    autonomous rebuild blocked -- %s" % det["note"])
     print("\n  >>> VERDICT (protocol-conformance): %s <<<" % r.get("verdict"))
     print("=" * 78)
 
