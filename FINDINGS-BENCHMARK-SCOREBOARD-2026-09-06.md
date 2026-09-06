@@ -93,6 +93,44 @@ exploratory (reported, not merged into the count). The corpus does not carry the
 of this mistake — objects take effects from the printed ratio, not from a `pct × N` arithmetic,
 so the path that would make it does not run.
 
+## Three things to survive this session
+
+### 1. The remaining Galli gap is a MEASURE limit, not an extraction limit
+
+This is a **different diagnosis** from the one the day started with, and it changes what work is
+worth doing. The efficacy trials we do not reach (most of MACE, CV death, MI, stroke, HF-hosp)
+report the outcome as an **incidence rate** or a **hazard ratio**; we pool **risk ratios**; the
+harness **refuses rather than coerces**, which is correct. So "our k is 3 vs their 15" is NOT an
+extraction failure and must not be read as one. **Do not rebuild the extractor to close this gap** —
+it is already doing the right thing by declining a measure it cannot honestly convert. The
+extractor's job on these is to refuse, and it does.
+
+### 2. Open decision (for Mahmood): pool on their scale, or not
+
+Matching Galli's k on the efficacy outcomes requires pooling on **their** scale — an IRR over
+person-time — rather than the risk ratio we pool now. This is a methods decision, recorded as a
+fork with both sides, NOT to be taken by drifting into it because it raises a number:
+
+- **For:** it would let us reach the trials that only report rates/HRs, closing the k gap on MACE,
+  CV death, MI, stroke, HF-hosp, and comparing like-for-like against Galli's IRRs.
+- **Against:** we would have to **derive person-time**, and the available derivation
+  (`person-time ≈ n × follow-up`) **biases toward the null under censoring** — it overstates
+  person-time for arms with more early events, shrinking the rate difference. An IRR built on
+  n×follow-up is not the IRR Galli computed from actual exposure, and the discrepancy is
+  systematic, not noise.
+- **Status:** UNDECIDED. Do not adopt IRR pooling to improve the scoreboard's k without an
+  explicit decision on how person-time is obtained. A number reached by drifting into a biased
+  denominator is worse than an honest k=3.
+
+### 3. The scan's zero is only worth its control
+
+`scan_rate_as_proportion.py` reported 0 rate-as-risk defects across 155 objects **only because its
+self-test first plants one of each defect (a pool mixing IRR+RR, an arm with events>N) and
+asserts both are caught** — a scan that can only return zero measures nothing. The one case it did
+surface, `malaria-vaccines / exploratory_recurrent_rate` (an HR pooled with an IRR), was
+**reported, not merged** — it is labelled exploratory on the object, and the scan flags it as the
+softer B class rather than silently folding it into the count.
+
 ### The disagreement set (the finding, not the delta)
 
 - **all-cause death** — ours 10 of their 18. Could not populate 7: ELIXA, FIGHT, LEADER,
