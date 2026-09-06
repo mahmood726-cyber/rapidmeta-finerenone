@@ -22,8 +22,17 @@ SOURCE_HIERARCHY = ("primary_publication", "supplement", "regulatory", "registry
 
 _DATABASE_NAMES = re.compile(r"clinicaltrials\.gov|ct\.gov|\bAACT\b|isrctn|chictr|"
                              r"registered (?:on|in) (?:a )?(?:trial )?registr", re.I)  # gate 51
-_OUTCOME_WORDS = re.compile(r"\boutcome|\bendpoint|\bmortality|\bMACE\b|hospitali[sz]|"
-                            r"reports?\b|primary result|response rate", re.I)
+# Outcome-as-ELIGIBILITY = the criterion makes admission DEPEND on the trial reporting/measuring an
+# outcome (the Cochrane-forbidden mechanism). It must NOT fire on the bare word 'outcome' in a
+# DESIGN descriptor -- 'cardiovascular outcome trial' is a trial TYPE, not a screen on an outcome.
+# (This false-refusal was caught by the SGLT2 loop's first pass; a schema that false-refuses is as
+# dangerous as one that false-passes, because it trains us to loosen a real refusal.)
+_OUTCOME_WORDS = re.compile(
+    r"(report|measur|provid|record|carr|yield|includ|present)\w*\s+(?:[a-z]+\s+){0,4}"
+    r"(outcome|endpoint|mortality|\bMACE\b|hospitali[sz]|primary result|response rate|hazard ratio|\bHR\b)"
+    r"|(outcome|endpoint|result|\bHR\b)\s+(?:is\s+|be\s+|were\s+|are\s+)?"
+    r"(available|reported|present|extractable|measured|recorded)"
+    r"|exclud\w*\s+on\s+(?:the\s+)?outcome", re.I)
 
 
 def template(review_id):
@@ -145,6 +154,14 @@ def _selftest():
     chk("registry as primary source refused", bad(lambda b: b.__setitem__("primary_source_of_record", "registry")))
     chk("counts-only poolable refused", bad(lambda b: b.__setitem__("poolable_input_types", ["two_by_two_counts"])))
     chk("outcome-as-eligibility refused", bad(lambda b: b["eligibility"].__setitem__("population", "adults reporting MACE")))
+    chk("outcome-as-eligibility refused (excludes on outcome)", bad(lambda b: b["eligibility"].__setitem__("intervention", "the drug, excluded on outcome if the HR is not reported")))
+
+    # PERMITTED-INPUT fixtures: the schema must NOT refuse these (caught by the SGLT2 loop).
+    import copy
+    def permits(mut):
+        g = copy.deepcopy(good); mut(g); return validate(g)[0]
+    chk("'cardiovascular outcome trial' design PERMITTED", permits(lambda b: b["eligibility"].__setitem__("design", "randomised, double-blind, placebo-controlled cardiovascular outcome trial")))
+    chk("'reported an eligible dose' PERMITTED", permits(lambda b: b["eligibility"].__setitem__("population", "adults with an outcome-trial-eligible risk profile")))
     chk("database-scoped eligibility refused (gate 51)", bad(lambda b: b["eligibility"].__setitem__("population", "adults randomized in trials registered on ClinicalTrials.gov")))
     chk("continuity-correct double-zero refused", bad(lambda b: b["statistics"]["zero_cell_rule"].__setitem__("continuity_correct_double_zero", True)))
     chk("rob2 from registry refused", bad(lambda b: b["mandatory_outputs"].__setitem__("rob2_source", "registry_design")))
