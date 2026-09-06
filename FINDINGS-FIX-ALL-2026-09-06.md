@@ -74,6 +74,45 @@ and is rebuilt to it, with `reproduce_review.py` as the test that it was. Nine e
 found zero arithmetic errors and only inclusion/extraction/estimand/provenance defects, which is
 exactly the class a protocol-first, gate-checked loop makes structurally hard.
 
+## A review finds an instance; a gate finds the class — 5 → 91
+
+The `hasResults=false` defect (a fact about ClinicalTrials.gov mistaken for a fact about the trial)
+was found **five times** by external reviewers reading pages (ANSWER-HF, Mokadem, APROPOS, AVERT,
+and the class "fixed" once weeks ago). `gate53_hasresults_not_publication.py` — one detector,
+validated against three of those as controls — found it **91 times**. That 5 → 91 ratio is the
+argument for the whole re-scope: the deliverable is not 22 page repairs, it is the gates, because a
+review finds an instance and a gate finds the class. (Over-match caught first: a naive node-walk
+flagged 1356 by counting every nested NCT; the per-trial-record detector is 91, and the
+completed-vs-ongoing boundary is stated inline, not defended later.)
+
+## EVERY DEFECT WE HAVE FIXED TWICE WAS FIXED THE FIRST TIME AT THE WRONG LEVEL
+
+Three classes are now three-time repeats, and each recurred because the first fix was applied to a
+**row**, not to the **rule**: the registry-primary-only outcome parser (ODYSSEY LONG TERM →
+CHOICE I → PIONEER), the `hasResults` flag (ANSWER-HF → Mokadem/APROPOS/AVERT), and the stale-value
+class (ARNI operand → the half-migrations). The fix that sticks is a gate on the class plus a
+fixture drawn from the original instance, so a recurrence fails a test rather than waiting for the
+next reviewer. That is why gate 53 ships with AVERT/APROPOS/Mokadem as controls that fail if the
+class returns.
+
+## Gate 53's outcome is a THREE-state task, not a two-state relabel
+
+The 91 must not be bulk-relabelled `PUBLICATION_SEARCH_REQUIRED` — that is a task, not a verdict.
+Each trial resolves to `PUBLISHED_RESULTS_FOUND` / `SEARCHED_NONE_FOUND` / `NOT_YET_SEARCHED`, and a
+trial at `NOT_YET_SEARCHED` is an **open task on its review that must render as one** — otherwise a
+silent exclusion is replaced by a silent to-do, the same defect wearing a better label.
+
+## Codex cannot write files in this environment — delegation for artefacts is not viable here
+
+Four `codex exec` attempts returned exit 0 with **zero artefacts**. Root cause, finally isolated:
+the read-only sandbox rejects file writes ("workspace mounted read-only, approval disabled"), and
+`--sandbox workspace-write` **crashes the Windows sandbox setup helper**
+(`orchestrator_helper_exit_nonzero`, status 143). This matches the earlier measured lesson (two
+jobs, ~90 min, zero artefacts). Conclusion: Codex is confirmed live (real model tokens) but cannot
+produce file artefacts here; the central schema and every gate were therefore written in-tree. The
+artefact-not-exit-code check is what caught this each time — exit 0 four times, zero files four
+times.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,
