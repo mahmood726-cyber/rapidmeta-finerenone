@@ -225,3 +225,58 @@ foreign trial's data feeds a pooled estimate.
 | SEMAGLUTIDE_OBESITY | 4 | 4 |
 | SGLT2I_HF_NMA | 6 | 6 |
 | TIRZEPATIDE_OBESITY | 3 | 4 |
+
+---
+
+## Appendix (2026-09-06): the 135 unresolved identifiers are fabricated
+
+The contamination audit found 135 of the 1,595 cited NCTs did not resolve in the AACT
+2026-08-30 snapshot. Absence from a snapshot is not fabrication -- a real trial can be
+too new, withdrawn, or non-CT.gov -- so each was checked against **live**
+ClinicalTrials.gov.
+
+**Guarding the check against its own failure mode.** A per-id loop returned all `000`
+(connection refused) under CT.gov's rate limiting -- a status about the reporter, not
+the world. A `404` and a throttled nothing must not share a bucket. Two defences: the
+check uses the batch `filter.ids=` endpoint (one request per ~40 ids, so the throttle
+never triggers), and the split is three-way -- **confirmed-exists**, **confirmed-absent**,
+**no-answer** -- with no-answer reported as its own number, never folded into either.
+The method was validated with mixed real/fake controls: it returns the real NCTs
+(`NCT05901831`, `NCT01035255`) and omits the fabricated ones.
+
+**Result (n = 135):**
+
+| | count |
+|---|---|
+| confirmed EXISTS on live CT.gov (real, absent from our snapshot) | **0** |
+| confirmed ABSENT (404 -- not a real registration) | **135** |
+| NO ANSWER obtained (throttled/failed -- not a verdict) | **0** |
+
+So **all 135 are fabricated identifiers** -- well-formed `NCT########` numbers that do
+not exist -- carried across **55 distinct served pages** (of the 291).
+
+**Boundary check (does fabrication reach the vouched corpus?).** No. The 135 appear only
+in the 291 object-less pages, with one exception: **3** (`NCT05305249`, `NCT05971644`,
+`NCT06133752`) appear in `ssot/QUARANTINE_DECISIONS.md` -- a rejection log, where they are
+recorded *as fabricated*, i.e. the system catching them, not accepting them. **`protocols/`,
+`benchmarks/`, and all 55 object-backed review pages contain none.** Fabrication is
+contained debt within the retired batch, not a breach of the part of the corpus with a
+source object.
+
+**Most-affected pages (fabricated-id count):**
+
+- GERD_PCAB_NEW_NMA — 9
+- PEDIATRIC_HF_DAPA_NMA — 9
+- ROP_ANTI_VEGF_NMA — 9
+- VT_ABLATION_NEW_NMA — 9
+- HEP_D_BULEVIRTIDE_NMA — 6
+- INTRAVASCULAR_LITHOTRIPSY_NMA — 6
+- TB_BPaL_NEW_NMA — 6
+- DERMATOMYOSITIS_NMA — 5
+- AD_PEDIATRIC_BIOLOGIC_NMA — 4
+- MASTOCYTOSIS_NEW_NMA — 4
+- PEDIATRIC_OBESITY_GLP1_NMA — 4
+- CABG_VS_PCI_LEFT_MAIN_NMA — 3
+- CTEPH_NMA — 3
+- ESOPHAGEAL_PERIOP_IO_NMA — 3
+- OBESITY_DUAL_TRIPLE_AGONIST — 3
