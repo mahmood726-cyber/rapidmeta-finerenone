@@ -1,0 +1,92 @@
+{
+  "review_id": "empagliflozin_hf_auto_full_review",
+  "estimands": [
+    {
+      "outcome": "cardiovascular death or first hospitalisation for heart failure",
+      "timepoint": "time to first event (event-driven)",
+      "analysis_population": "ITT",
+      "missing_data_model": "time-to-first-event Cox on the randomised population; censoring at last assessment",
+      "analysis_variant": "ITT_IMPUTED",
+      "effect_measure": "log_HR"
+    }
+  ],
+  "source_hierarchy": [
+    "primary_publication",
+    "supplement",
+    "regulatory",
+    "registry"
+  ],
+  "primary_source_of_record": "primary_publication",
+  "poolable_input_types": [
+    "two_by_two_counts",
+    "effect_ci_measure"
+  ],
+  "harmonisation_rule": {
+    "on_differing_definitions": "declare_harmonised",
+    "harmonised_endpoint": "CV death or first HHF -- the REGISTERED PRIMARY of BOTH EMPEROR-Reduced and EMPEROR-Preserved, identical two-component definition (neither counts an urgent HF visit). Endpoints already coincide; no cross-definition harmonisation needed.",
+    "source": "both trial registrations (verbatim outcome titles stored per trial)"
+  },
+  "eligibility": {
+    "population": "adults with chronic heart failure (NYHA II-IV) and elevated natriuretic peptides, across the ejection-fraction spectrum",
+    "intervention": "empagliflozin 10 mg once daily",
+    "comparator": "placebo",
+    "comparator_kind": "placebo",
+    "design": "randomised, double-blind, placebo-controlled trial",
+    "reproduces_exclusions": true
+  },
+  "statistics": {
+    "tau2_estimator": "REML (fixed-effect inverse-variance at k=2; Q=0.28, tau2=0)",
+    "small_k_ci_rule": "k=2, tau2=0: fixed-effect inverse-variance z interval on the log scale",
+    "disclosure_clause": {
+      "answers_known_at_authoring": true,
+      "text": "AUTHORED 2026-09-06, RETROSPECTIVE. The correct k=2 pool of the two registered PRIMARY two-component HRs is HR 0.7708 (0.700-0.849). External cross-check: the published EMPEROR-Pooled patient-level IPD analysis covers the SAME two trials, a same-trials method cross-check NOT independent evidence; a truly independent external does not exist. Method chosen on methodological grounds, not to hit a target."
+    },
+    "zero_cell_rule": {
+      "double_zero_excluded_from_rr_or": true,
+      "continuity_correct_double_zero": false
+    }
+  },
+  "mandatory_outputs": {
+    "absolute_effect": {
+      "ARR": null,
+      "NNT": null,
+      "control_risk_source": null
+    },
+    "harms": [
+      "genital mycotic infection",
+      "volume depletion",
+      "diabetic ketoacidosis"
+    ],
+    "rob2_source": "manuscript"
+  },
+  "governance": {
+    "authored_utc": "2026-09-06T20:45:20+00:00",
+    "registering_commit_sha": null,
+    "retrospective": true,
+    "prospective": false,
+    "prospective_evidence": null,
+    "supersedes": null,
+    "supersedes_why": null,
+    "amendment_trail": [],
+    "method_declared_once": true,
+    "freeze_date": null,
+    "dated_content": []
+  },
+  "expected_primary": {
+    "k": 2,
+    "pooled_point": 0.7708,
+    "pooled_ci": [
+      0.7,
+      0.849
+    ],
+    "trials": [
+      "NCT03057977",
+      "NCT03057951"
+    ],
+    "external_crosscheck": {
+      "name": "EMPEROR-Pooled (same-trials IPD)",
+      "value": null,
+      "note": "value to verify; same trial set -> disclosed cross-check, not independent"
+    }
+  }
+}

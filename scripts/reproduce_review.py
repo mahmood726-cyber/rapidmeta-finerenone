@@ -73,8 +73,8 @@ def resolve_paths(review_id):
     slug = review_id.lower().replace("_", "-")
     obj = os.path.join(ROOT, "ssot", slug, slug + ".json")
     proto = sorted(glob.glob(os.path.join(ROOT, "protocols", review_id.lower() + "_*.json")))
-    page_candidates = [review_id.upper() + "_REVIEW.html", review_id.upper() + "_AUTO_FULL_REVIEW.html",
-                       slug + ".html"]
+    page_candidates = [review_id.upper() + ".html", review_id.upper() + "_REVIEW.html",
+                       review_id.upper() + "_AUTO_FULL_REVIEW.html", slug + ".html"]
     page = next((os.path.join(ROOT, c) for c in page_candidates if os.path.exists(os.path.join(ROOT, c))), None)
     return {"object": obj if os.path.exists(obj) else None,
             "protocol": proto[-1] if proto else None,
