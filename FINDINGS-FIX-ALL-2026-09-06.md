@@ -296,6 +296,65 @@ None reproduces on RENDER, because of the source-divergence gap. The honest stat
 the corpus tonight: the LOOP is proven and works end-to-end on the object, but the SERVED PAGE is not yet
 built from the reproduced object anywhere -- that is the single change that would make pages reproducible.
 
+## WORKED EXAMPLE: the discipline caught a silent disarming of the harness's own guard
+
+A parallel process rewrote `protocol_schema_v2.py` in the shared working tree (uncommitted, mtime
+21:24). It looked like an improvement -- a more elaborate typed structure. It had **no runnable
+selftest** (exited 0, printed nothing) and **zero refusals** (no reference to CAB-LA, inclisiran,
+bempedoic, PLATFORM, LEAP-China -- every one of the 13 proven refusal fixtures was gone). A schema
+with no refusals is not a schema; it validates everything. It would have silently disarmed the single
+most valuable artefact of the day while reading as a refactor.
+
+This is **"a fix that clears every failure is a loosened test"** firing in real time, on the very
+component whose whole purpose is to refuse. The tell was structural, not semantic: `python
+protocol_schema_v2.py` produced no ALL-PASS line, and a grep for the incident names returned zero.
+
+Resolution (per Mahmood): restored the 16/16 version (`git checkout HEAD --`), discarded the rewrite,
+and made the refusal count a **HARD INVARIANT** -- the 13 refusal fixtures + 2 permitted-input
+fixtures are now an explicit list, and the selftest asserts `refusals_fired >= 13` and `permits == 2`
+directly, so a shrunk refusal set fails the selftest before anything else. **A rewrite that removes
+behaviour is the hardest kind to spot, because the tests it deletes are the ones that would have
+caught it** -- which is exactly why every Codex/parallel artefact is a hypothesis until its self-test
+is run here and its guard-count checked.
+
+## TOMORROW DECISION (do not divert tonight): embedding the recompute in the HTML page
+
+Mahmood's idea: "can the harness also fit inside the html file and is this a good idea?" Assessment,
+recorded so it is not lost and not confused with reproducibility:
+
+**Worth doing, for a narrow real purpose.** Embedding the extracted inputs + the pooling code lets a
+reader recompute the diamond in their own browser, offline -- the one thing none of the 24 surveyed
+AI synthesis tools does -- and makes the page archive-proof. It also structurally KILLS two defect
+families rather than gating them: a panel computed at view time cannot go stale (empagliflozin's dead
+OR values; bococizumab's k=4 leave-one-out), and a sentence derived from the numbers beside it cannot
+contradict them (the eight "no heterogeneity" at I^2 56-80% pages).
+
+**Guardrail (the important part):** only the POOL stage can live in the HTML -- search/screen/extract
+need registries and publications. And every defect in 22 reviews was UPSTREAM of pooling (22 audits,
+zero arithmetic errors), so the embedded recompute makes visible the only stage that has never been
+wrong. That is the **self-benchmarking trap in a new form -- the page validating itself**: a reader
+who recomputes and gets the same number may conclude the review is sound when the failure was a trial
+excluded three stages earlier. So the page must state exactly what the recompute proves:
+> "this re-derives the pooled estimate from the extracted inputs; it does not verify that these are
+> the right inputs."
+
+**Second benefit:** embedding the source object in the page makes it self-describing -- the direct
+structural fix for the 291 pages with no object behind them.
+
+**`reproduce_review.py` from the protocol SHA remains what "reproducible" means. The in-page recompute
+is transparency of the last mile, not reproducibility of the review.** Tomorrow decision, not tonight.
+
+## STANDING RULE for tonight's five-meta run: synthetic fixture BEFORE fixing the page
+
+Every gate in tonight's catalogue took its control from a reviewer finding on a LIVE page. Fixing that
+page RETIRES the control (empagliflozin nearly did this to gate 38 -- fixing the real defect made the
+gate's positive control stop firing, so the gate reported a control FAILURE and looked like a
+regression). Never leave a defect live to keep a gate armed. Instead, for EACH validated gate, capture
+its firing signature as a SYNTHETIC fixture (a fabricated object carrying the defect signature) BEFORE
+correcting the page it came from. Synthetic is preferred over version-pinning: a pinned real object
+still ages (rename/restructure/regenerate makes it silently stop resolving and the gate goes quiet).
+Applied to gate 38 already; apply to every gate a meta controls as that meta is fixed.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,

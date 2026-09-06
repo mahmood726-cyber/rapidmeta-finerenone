@@ -144,30 +144,57 @@ def _selftest():
     okg, eg = validate(good)
     chk("a correct protocol validates", okg and not eg)
 
+    import copy
+
     def bad(mut):
-        import copy
         b = copy.deepcopy(good); mut(b); return not validate(b)[0]
 
-    chk("missing effect_measure refused", bad(lambda b: b["estimands"][0].__setitem__("effect_measure", None)))
-    chk("vague 'log effect scale' refused", bad(lambda b: b["estimands"][0].__setitem__("effect_measure", "log effect scale")))
-    chk("missing analysis_variant refused", bad(lambda b: b["estimands"][0].__setitem__("analysis_variant", None)))
-    chk("registry as primary source refused", bad(lambda b: b.__setitem__("primary_source_of_record", "registry")))
-    chk("counts-only poolable refused", bad(lambda b: b.__setitem__("poolable_input_types", ["two_by_two_counts"])))
-    chk("outcome-as-eligibility refused", bad(lambda b: b["eligibility"].__setitem__("population", "adults reporting MACE")))
-    chk("outcome-as-eligibility refused (excludes on outcome)", bad(lambda b: b["eligibility"].__setitem__("intervention", "the drug, excluded on outcome if the HR is not reported")))
-
-    # PERMITTED-INPUT fixtures: the schema must NOT refuse these (caught by the SGLT2 loop).
-    import copy
     def permits(mut):
         g = copy.deepcopy(good); mut(g); return validate(g)[0]
-    chk("'cardiovascular outcome trial' design PERMITTED", permits(lambda b: b["eligibility"].__setitem__("design", "randomised, double-blind, placebo-controlled cardiovascular outcome trial")))
-    chk("'reported an eligible dose' PERMITTED", permits(lambda b: b["eligibility"].__setitem__("population", "adults with an outcome-trial-eligible risk profile")))
-    chk("database-scoped eligibility refused (gate 51)", bad(lambda b: b["eligibility"].__setitem__("population", "adults randomized in trials registered on ClinicalTrials.gov")))
-    chk("continuity-correct double-zero refused", bad(lambda b: b["statistics"]["zero_cell_rule"].__setitem__("continuity_correct_double_zero", True)))
-    chk("rob2 from registry refused", bad(lambda b: b["mandatory_outputs"].__setitem__("rob2_source", "registry_design")))
-    chk("named harms required", bad(lambda b: b["mandatory_outputs"].__setitem__("harms", [])))
-    chk("backdated prospectiveness refused", bad(lambda b: b["governance"].update({"prospective": True, "prospective_evidence": None})))
-    chk("content after freeze refused", bad(lambda b: b["governance"].update({"freeze_date": "2026-04-19", "dated_content": ["2026-04-20"]})))
+
+    # ------------------------------------------------------------------------------------------
+    # THE REFUSAL SET IS A HARD INVARIANT. Each entry is a known-bad protocol drawn from a real
+    # defect; the schema's whole value is that it REFUSES them. A rewrite that shrinks this set
+    # silently disarms the guard while looking like an improvement -- exactly the "a fix that clears
+    # every failure is a loosened test" law. So the fixtures are an explicit list, the count is
+    # asserted directly, and any drop is a BLOCKING regression, not a diff to review.
+    # ------------------------------------------------------------------------------------------
+    REFUSAL_FIXTURES = [
+        ("missing effect_measure refused (CAB-LA HR-vs-RR)", lambda b: b["estimands"][0].__setitem__("effect_measure", None)),
+        ("vague 'log effect scale' refused", lambda b: b["estimands"][0].__setitem__("effect_measure", "log effect scale")),
+        ("missing analysis_variant refused (inclisiran)", lambda b: b["estimands"][0].__setitem__("analysis_variant", None)),
+        ("registry as primary source refused (bempedoic)", lambda b: b.__setitem__("primary_source_of_record", "registry")),
+        ("counts-only poolable refused (cangrelor)", lambda b: b.__setitem__("poolable_input_types", ["two_by_two_counts"])),
+        ("outcome-as-eligibility refused (reporting MACE)", lambda b: b["eligibility"].__setitem__("population", "adults reporting MACE")),
+        ("outcome-as-eligibility refused (excludes on outcome)", lambda b: b["eligibility"].__setitem__("intervention", "the drug, excluded on outcome if the HR is not reported")),
+        ("database-scoped eligibility refused (gate 51, LEAP-China)", lambda b: b["eligibility"].__setitem__("population", "adults randomized in trials registered on ClinicalTrials.gov")),
+        ("continuity-correct double-zero refused (CLEAR Tranquility)", lambda b: b["statistics"]["zero_cell_rule"].__setitem__("continuity_correct_double_zero", True)),
+        ("rob2 from registry refused", lambda b: b["mandatory_outputs"].__setitem__("rob2_source", "registry_design")),
+        ("named harms required (not 'adverse events')", lambda b: b["mandatory_outputs"].__setitem__("harms", [])),
+        ("backdated prospectiveness refused", lambda b: b["governance"].update({"prospective": True, "prospective_evidence": None})),
+        ("content after freeze refused (bempedoic v1.1)", lambda b: b["governance"].update({"freeze_date": "2026-04-19", "dated_content": ["2026-04-20"]})),
+    ]
+    PERMIT_FIXTURES = [
+        ("'cardiovascular outcome trial' design PERMITTED", lambda b: b["eligibility"].__setitem__("design", "randomised, double-blind, placebo-controlled cardiovascular outcome trial")),
+        ("'outcome-trial-eligible risk profile' population PERMITTED", lambda b: b["eligibility"].__setitem__("population", "adults with an outcome-trial-eligible risk profile")),
+    ]
+    REQUIRED_REFUSALS = 13
+    REQUIRED_PERMITS = 2
+
+    refusals_fired = 0
+    for name, mut in REFUSAL_FIXTURES:
+        r = bad(mut); refusals_fired += 1 if r else 0
+        chk(name, r)
+    permits_ok = 0
+    for name, mut in PERMIT_FIXTURES:
+        p = permits(mut); permits_ok += 1 if p else 0
+        chk(name, p)
+
+    # HARD INVARIANT -- assert the counts directly. A shrunk refusal set fails HERE, loudly.
+    chk("INVARIANT: refusal set intact (>= %d refusals fire) -- schema not disarmed" % REQUIRED_REFUSALS,
+        refusals_fired >= REQUIRED_REFUSALS and len(REFUSAL_FIXTURES) >= REQUIRED_REFUSALS)
+    chk("INVARIANT: %d permitted-input fixtures pass (no over-refusal)" % REQUIRED_PERMITS,
+        permits_ok >= REQUIRED_PERMITS)
     return ok, rows
 
 
