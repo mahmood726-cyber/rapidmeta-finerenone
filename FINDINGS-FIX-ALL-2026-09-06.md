@@ -113,6 +113,58 @@ produce file artefacts here; the central schema and every gate were therefore wr
 artefact-not-exit-code check is what caught this each time — exit 0 four times, zero files four
 times.
 
+## ROOT CAUSE of the largest defect family: there is no shared screener to fix
+
+The gap inventory the SGLT2 loop produced contains one line that explains the whole week:
+
+> **No generic screener — only ~30 bespoke per-review scripts.**
+
+The screening defects recurred **because there is no shared screener to fix**. Every "fix" landed
+in one of thirty scripts (`screen_apixaban_*.py`, `screen_sglt2_*.py`, ...), so the next review
+inherited the bug untouched. The three-time repeats — the primary-outcome parser (ODYSSEY→CHOICE→
+PIONEER), the `hasResults` flag (ANSWER-HF→Mokadem/APROPOS/AVERT), the registry-over-publication
+hierarchy — were **not carelessness. They were structurally guaranteed by a per-review
+architecture.** "We fixed the instance and not the class" was true because the class had no single
+home to be fixed in. This is the argument for the generic every-outcome-rank screener: not that it
+is tidier, but that it is the only structure in which a screening fix can be applied once.
+
+**EXTRACT is per-review too — same diagnosis.** `ls scripts/` shows `extract_apixaban_treatment_
+2026_08_19.py`, `extract_pericarditis_from_publications_2026_08_19.py`, and siblings; there is **no
+generic `extract.py`/`extractor.py`.** So the estimand-variant failures (inclisiran observed-case
+vs ITT-imputed) and the population-mixing failures have the **same structural cause** as the
+screening ones: an extraction rule fixed on one review's script cannot reach the next review's. This
+changes the priority — the effect+CI extractor is not only the SGLT2/DELIVER unblock, it is the
+single home the estimand-variant class has been missing. Two whole defect families, one root.
+
+## reproduce_review.py — the milestone, and its verdict on SGLT2
+
+`scripts/reproduce_review.py` re-runs a review from its registered protocol and diffs the served
+bytes on three axes (a page can pass one and fail another):
+
+- **RENDER** — served headline == engine's pooling of the object's own stored inputs.
+- **PROTOCOL** — served result == the answer the registered protocol specifies.
+- **PIPELINE** — the inputs can be regenerated autonomously SEARCH→SCREEN→EXTRACT.
+
+Each axis returns `REPRODUCES` / `DIFFERS (with diff)` / `CANNOT_RUN (naming the missing
+component)`. **It is proven able to return a negative** — `--selftest` perturbs one trial input and
+asserts the RENDER axis flips to `DIFFERS`, asserts a value absent from the served bytes fails, and
+asserts a protocol expecting a different k/value `DIFFERS`. A reproduction check that has never
+returned a negative has not been shown capable of one.
+
+**Verdict on SGLT2_HF** (registered at SHA `ac95196c`):
+
+| axis | verdict | why |
+|---|---|---|
+| RENDER | **REPRODUCES** | served 0.7636 recomputes exactly from the 3 stored trial effects (and 3-component 0.7835 from 2). The rendering is faithful to the object. |
+| PROTOCOL | **DIFFERS** | protocol expects **k=4, 0.774**; object has **k=3, 0.7636**; delta **−0.0104**. The served review does not conform to its own registered protocol — it drops DELIVER. |
+| PIPELINE | **CANNOT_RUN** | autonomous rebuild blocked — no generic SCREEN, no generic EXTRACT. |
+
+The RENDER/PROTOCOL split is the value: the page is not *corrupt* (it faithfully shows its object),
+it is *non-conformant* (its object was built without DELIVER, against a protocol that includes it).
+The fix is not to edit the page — it is to build EXTRACT so the object can carry DELIVER's published
+HR 0.80, re-synthesise to k=4 0.774, and let RENDER follow. `reproduce_review.py` is the test that
+this happened, and today it correctly says it has not.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,
