@@ -1,0 +1,87 @@
+# "Fix all fully" — execution log and the laws it surfaced
+
+**Date:** 2026-09-06. Executing the seven parked decisions, ordered by harm to a reader. Report
+after each item lands; disclosure/correction only, no regeneration, no bypass.
+
+## Three laws recorded before the work continued
+
+### 1. THE STORE KNOWING IS NOT THE READER SEEING — a correction that does not reach the rendering has not been made
+
+Items 2 and 3 are the same law from opposite ends:
+
+- **ARNI NNT.** The store had *withdrawn* the number needed to treat (the risk-difference interval
+  crosses zero → NNT undefined; the stale operand was moved to `superseded_values_2026_09_05`).
+  The served page still displayed `22.6 (16.3 to 37.2)` — a static paragraph the withdrawal never
+  reached.
+- **Rosuvastatin title.** The store recorded that "adults with stroke" is wrong ("stroke" is
+  HOPE-3's counted *outcome*, leaked from its registry `conditions` array, not its *population*)
+  and withdrew the label on 2026-08-21. The served page still served it as the title and `<h1>`.
+
+Both are a value that is **correct in one place and wrong where a reader meets it**. A store record
+of a correction is a note to ourselves; until the rendered surface changes, the reader still acts
+on the wrong number. So a fix is not done when the object says so — it is done when the served
+bytes say so, verified on the served bytes.
+
+### 2. RECOMPUTING A VALUE IS NOT THE SAME AS ESTABLISHING THAT THE VALUE EXISTS
+
+When this defect was first relayed, the summary said "22.6 recomputes to 43.4." That was wrong: no
+NNT is defined at all, because the risk-difference interval crosses zero (−0.063 to +0.017). A
+recomputed 43.4 would have been a **second wrong number with better arithmetic** — the same
+mistake one operand-refresh later. The gate that *refused to show a value* was righter than the
+fix proposed for it. Before recomputing a derived quantity, establish that the quantity is
+defined; an interval that includes no effect does not have an NNT to recompute.
+
+### 3. HAZARD (do not change the gate): the pre-push check prices a broad change at N× a deep one
+
+The pre-push regression gate (`scripts/regression_check.py`) walks **every page the push touches**
+in a headless browser — a 12-second settle window per page, serial. So marking 288 pages (item 1),
+a broad-but-shallow disclosure change, costs ~70–90 minutes, the same per-page price as a deep
+single-page fix paid 288 times. This is a **structural bias in the guard**: it makes the class of
+change we most want to be cheap — disclosure across many pages — the most expensive, and it is the
+reason a broad safety mark feels costly. Recorded as a hazard, not fixed: the gate's per-page
+browser check is correct for what it verifies; the bias is inherent to walking touched pages, and
+"cheapen it by skipping pages" is how a guard becomes inert. The right response is to expect the
+wall-clock cost of broad marks, not to weaken the gate.
+
+## A clean zero from an unvalidated instrument is the most dangerous result — worked example
+
+Gate 9's first scan (does a page assert "no heterogeneity" while its own I² is high?) returned
+**0 pages**. That zero was false. The pages write the statistic as **"I-squared 56.8%"**, and the
+regex matched only "I²"/"I2" — so it could not see any of them, and returned a number that read
+as corpus health. The defect it was meant to find was on **8 pages**, two of them the reviewers'
+own fixtures (bococizumab 56.8%, inclisiran 74.1%).
+
+It was caught only because the scan was run against cases KNOWN to be positive before its own
+answer was trusted. The lesson, stated as a rule:
+
+> **A SCAN'S ZERO IS WORTH EXACTLY WHAT ITS CONTROL IS WORTH, AND THE CONTROL MUST BE A CASE
+> KNOWN TO BE POSITIVE.** An unvalidated zero is more dangerous than a wrong non-zero, because a
+> non-zero gets investigated and a zero gets filed as health.
+
+The mirror case, handled the same way: gate 23's first scan returned **151 of 167** — held back,
+not reported, because a number that high is far likelier to be an over-matching parser than a
+corpus that broken. Reporting it would have cost more credibility than it bought. Both directions
+of the rule: a suspicious zero and a suspicious near-total both mean *validate the instrument
+against a known case before the number leaves the room.*
+
+## Why the protocol-first policy closes the standing review-quality findings
+
+Recorded because it is the reason the policy is worth its cost (per Mahmood): post-hoc eligibility
+narrowing, criteria that do not reproduce their own exclusions (SGLT2_HF/SOLOIST-WHF,
+IV_IRON/FAIR-HF), outcome-based eligibility, the 16 objects with no screening decision, and the 30
+reviews with no protocol — every one dissolves if a review begins from a committed protocol SHA
+and is rebuilt to it, with `reproduce_review.py` as the test that it was. Nine external reviews
+found zero arithmetic errors and only inclusion/extraction/estimand/provenance defects, which is
+exactly the class a protocol-first, gate-checked loop makes structurally hard.
+
+## Item log
+
+- **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,
+  instrument reconciled against the audit (severe 100 / needs-review 16 exact). Push runs the
+  ~90-min gate.
+- **2. ARNI NNT** — served page corrected to render the refusal (RD interval crosses zero), stale
+  `22.6` removed; object already fixed at root.
+- **3. Rosuvastatin title** — title/`<h1>` corrected to "adults without established cardiovascular
+  disease"; object `title` fixed at root.
+- **4–7** — index false claims; the 30 protocol-less reviews; the IRR pre-declared sensitivity;
+  the six AE-organ outcomes. (In progress.)
