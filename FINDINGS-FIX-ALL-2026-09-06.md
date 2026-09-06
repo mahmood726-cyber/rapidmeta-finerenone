@@ -355,6 +355,48 @@ correcting the page it came from. Synthetic is preferred over version-pinning: a
 still ages (rename/restructure/regenerate makes it silently stop resolving and the gate goes quiet).
 Applied to gate 38 already; apply to every gate a meta controls as that meta is fixed.
 
+## HEADLINE ARCHITECTURAL GAP: SGLT2_HF_REVIEW.html is NOT generated from its object
+
+This is the important output of the SGLT2 run, not a blocker. `SGLT2_HF_REVIEW.html` is a 3.9MB
+hand-maintained single-file app with the pooled estimate baked into **14 places** and no object→page
+generator. That is *why full byte reproduction cannot be met* — not because the pipeline failed
+(reproduce_review's PROTOCOL and PIPELINE axes both REPRODUCE on the k=4 object), but because **no page
+generator exists for it**. A page whose numbers are typed in 14 places, not generated once from the
+object, is the architectural CAUSE of the stale-panel and two-live-values defect families gated all
+night (empagliflozin's dead OR values; the eight "no heterogeneity" at I² 56–80%).
+
+**The generic page generator is the FOURTH missing component**, alongside the screener, the extractor
+and the reproducer — and it is the one that would make "reproducible" true end to end. Until it exists,
+correcting such a page means either 14 in-place edits (14 chances to create the very half-migration
+defect we gate against — empagliflozin IS what that looks like) or a single generated disclosure
+banner. Route 2 (the banner) was taken, correctly.
+
+## SGLT2_HF — 4 of 5 conditions met; the 5th blocked by the named gap and DISCLOSED on the live page
+
+LIVE at https://mahmood726-cyber.github.io/rapidmeta-finerenone/SGLT2_HF_REVIEW.html, verified by
+fetching the marker `SGLT2_K4_CORRECTION_2026_09_06` (exists only in the banner) and confirming the
+served page is byte-identical (3,921,121 bytes) to the built page.
+
+1. **reproduce_review** — PROTOCOL REPRODUCES (object k=4 0.7738 vs protocol 0.774) and PIPELINE
+   REPRODUCES (orchestrator autonomously rebuilds k=4 0.7738), both proven able to DIFFER. RENDER
+   (full page byte reproduction) does NOT reproduce — the ONE blocked axis, blocked by the missing
+   page generator, and that blocker is stated in the banner itself. → the 5th, honestly blocked.
+2. **Gates** — every validated pre-push gate PASSES. The harness caught FOUR real issues in the k=4
+   work (variantless effects, stale r_output, untiered DELIVER provenance, a negative-guard) and each
+   was fixed properly, none waived. ✓
+3. **Reviewer findings** — fixed in the object (DELIVER added k=4; false benchmark replaced; stale
+   states superseded; component decomposition added; amendment recorded) and DISCLOSED on the page via
+   the generated banner. ✓
+4. **External benchmark** — Vaduganathan five-trial 0.77 (0.72–0.82), a genuine superset (adds
+   SOLOIST-WHF), NOT a self_reference. In the object and the banner. ✓
+5. **Live** — deployed to `main` by cherry-picking ONLY the page (git plumbing, not a merge of
+   harness-fixes), verified by fetched bytes. ✓
+
+DELIVER's HR 0.80 (0.71–0.91) was NOT accepted on trust: it is the Vaduganathan supplement value,
+disclosed at its JOURNAL_SUPPLEMENT provenance tier, and CORROBORATED by de-pooling Jhund's DAPA-HF+
+DELIVER pool (0.78) against DAPA-HF (0.75) → ≈0.81. The benchmark was fetched from a source we own,
+not adopted from the reviewer's figure.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,
