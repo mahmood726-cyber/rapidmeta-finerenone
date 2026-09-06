@@ -1,0 +1,75 @@
+{
+ "review_id": "sglt2-hf",
+ "estimands": [
+  {
+   "outcome": "Cardiovascular death or first heart-failure hospitalisation (2-component composite)",
+   "timepoint": "trial-defined median follow-up (16-26 months)",
+   "analysis_population": "ITT",
+   "missing_data_model": "time-to-first-event, all randomised, censored at last contact (no imputation)",
+   "analysis_variant": "ITT_IMPUTED",
+   "effect_measure": "log_HR"
+  }
+ ],
+ "source_hierarchy": [
+  "primary_publication",
+  "supplement",
+  "regulatory",
+  "registry"
+ ],
+ "primary_source_of_record": "primary_publication",
+ "poolable_input_types": [
+  "two_by_two_counts",
+  "effect_ci_measure"
+ ],
+ "harmonisation_rule": {
+  "on_differing_definitions": "declare_harmonised",
+  "harmonised_endpoint": "CV death or first HF hospitalisation (2-component). EMPEROR trials do NOT count urgent HF visits; DAPA-HF and DELIVER do. The 2-component is the endpoint ALL FOUR report; DELIVER publishes its 2-component HR 0.80 (0.71-0.91), 475 vs 577, so no trial is dropped for a definition mismatch.",
+  "source": "trial primary publications + Vaduganathan 2022 pooled analysis"
+ },
+ "eligibility": {
+  "population": "adults with chronic heart failure across the ejection-fraction spectrum",
+  "intervention": "an SGLT2 inhibitor (dapagliflozin or empagliflozin)",
+  "comparator": "placebo",
+  "comparator_kind": "placebo",
+  "design": "randomised, double-blind, placebo-controlled trial",
+  "reproduces_exclusions": true
+ },
+ "statistics": {
+  "tau2_estimator": "REML",
+  "small_k_ci_rule": "HKSJ t_{k-1}, floor 1",
+  "disclosure_clause": {
+   "answers_known_at_authoring": true,
+   "text": "AUTHORED 2026-09-06, RETROSPECTIVE: written after the four trials completed and after the correct k=4 pool (HR 0.774) and Vaduganathan's five-trial benchmark 0.77 (0.72-0.82) were known. Methods chosen on methodological grounds; BOTH REML/Wald and HKSJ intervals reported. Labelled retrospective choice, not pre-specification."
+  },
+  "zero_cell_rule": {
+   "double_zero_excluded_from_rr_or": true,
+   "continuity_correct_double_zero": false
+  }
+ },
+ "mandatory_outputs": {
+  "absolute_effect": {
+   "ARR": null,
+   "NNT": null,
+   "control_risk_source": "per-trial placebo-arm event rate"
+  },
+  "harms": [
+   "genital mycotic infection",
+   "volume depletion",
+   "diabetic ketoacidosis"
+  ],
+  "rob2_source": "manuscript"
+ },
+ "governance": {
+  "authored_utc": "2026-09-06T00:00:00+00:00",
+  "registering_commit_sha": null,
+  "retrospective": true,
+  "prospective": false,
+  "prospective_evidence": null,
+  "supersedes": "sglt2_hf auto-protocol v1.1",
+  "supersedes_why": "v1.1 contradicts itself (s8 DL+HKSJ vs Appendix A fixed-effect at k=2) and its benchmark line is factually wrong (cites Vaduganathan as DELIVER+DAPA-HF=0.77 k=2; the real two-trial pairing is DELIVER+EMPEROR-Preserved=0.80, and 0.77 is the five-trial 0.77 0.72-0.82).",
+  "amendment_trail": [],
+  "method_declared_once": true,
+  "freeze_date": null,
+  "dated_content": []
+ }
+}
