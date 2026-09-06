@@ -28,6 +28,7 @@ import io, os, sys, math, json
 from collections import defaultdict
 sys.path.insert(0, "scripts")
 import reproduce_benchmark as RB
+import titled_outcome_extract as TOE
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -35,11 +36,11 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTCOME_PLAN = {
     "all_cause_death":        ("wired", "reproduce_benchmark.extract_death (AE deaths / titled, HEART-FID checked)"),
     "serious_adverse_events": ("wired", "AE-module event_type='serious' totals (affected + at-risk per arm)"),
-    "cv_death":               ("blocked", "titled-outcome extraction across trials + its own denominator not yet wired"),
-    "mace":                   ("blocked", "titled composite extraction + denominator not yet wired"),
-    "nonfatal_mi":            ("blocked", "titled-outcome extraction + denominator not yet wired"),
-    "nonfatal_stroke":        ("blocked", "titled-outcome extraction + denominator not yet wired"),
-    "hf_hospitalisation":     ("blocked", "titled-outcome extraction + denominator not yet wired"),
+    "cv_death":               ("wired", "titled-outcome component class, arithmetic pct*N, denom class-title-first"),
+    "mace":                   ("wired", "titled composite outcome (3-point), not summed from components"),
+    "nonfatal_mi":            ("wired", "titled-outcome component class, arithmetic pct*N"),
+    "nonfatal_stroke":        ("wired", "titled-outcome component class, arithmetic pct*N"),
+    "hf_hospitalisation":     ("wired", "titled-outcome component class, arithmetic pct*N"),
     "neoplasm":               ("blocked", "AE-term (MedDRA organ-class) parsing not yet wired"),
     "infections":             ("blocked", "AE-term (MedDRA organ-class) parsing not yet wired"),
     "gi_disorders":           ("blocked", "AE-term (MedDRA organ-class) parsing not yet wired"),
@@ -128,6 +129,8 @@ def run(out_dir=None):
     if not aact:
         return {"state": "NOT_RUN", "why": "no AACT snapshot (set AACT_ROOT/AACT_DIR). Absent source is not a zero."}
     intv, rgroup, totals, om = RB.load_maps(aact, list(ncts.values()))
+    toe = TOE.load_tables(aact, list(ncts.values()))
+    EFFICACY = ("cv_death", "mace", "nonfatal_mi", "nonfatal_stroke", "hf_hospitalisation")
 
     resolvable = {n: c for n, c in ncts.items() if c}
     unresolved = [n for n, c in ncts.items() if not c]
@@ -154,6 +157,10 @@ def run(out_dir=None):
                         if trt and ctrl else None)
             elif outcome == "serious_adverse_events":
                 cell = extract_sae(nct, rgroup, totals); note = "AE serious totals"
+            elif outcome in EFFICACY:
+                res = TOE.extract_titled(nct, outcome, toe)
+                cell = res if "tE" in res else None
+                note = res.get("status", "ok") if cell is None else res.get("event_route", "ok")
             else:
                 cell = None; note = "no extractor"
             if cell:

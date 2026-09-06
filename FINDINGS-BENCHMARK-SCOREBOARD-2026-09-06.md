@@ -23,11 +23,11 @@ balanced arm follow-up, so the estimate column is indicative, not an identity �
 |---|---|---|---|---|
 | all-cause death | 18 | **10** | IRR 0.88 (crude 0.871) | RR 0.869 [0.812, 0.931] REML+HKSJ, τ²=0 |
 | serious AEs | 18 | **14** | IRR 0.91 (crude 0.926) | RR 0.945 [0.912, 0.980] |
-| cv death | 19 | 0 | IRR 0.87 | blocked: titled-outcome extraction + denominator |
-| MACE | 15 | 0 | IRR 0.87 | blocked: titled composite extraction + denominator |
-| HF hospitalisation | 14 | 0 | IRR 0.85 | blocked: titled-outcome extraction + denominator |
-| nonfatal MI | 13 | 0 | — | blocked: titled-outcome extraction + denominator |
-| nonfatal stroke | 12 | 0 | — | blocked: titled-outcome extraction + denominator |
+| MACE | 15 | **3** | IRR 0.87 (crude 0.889) | RR 0.854 [0.708, 1.031] |
+| nonfatal MI | 13 | **3** | — | RR 0.930 [0.721, 1.200] |
+| nonfatal stroke | 12 | **3** | — | RR 0.830 [0.598, 1.152] |
+| cv death | 19 | **2** | IRR 0.87 (crude 0.889) | RR 0.693 [0.055, 8.728] (k=2, wide) |
+| HF hospitalisation | 14 | **1** | IRR 0.85 | RR 0.884 [0.740, 1.055] (k=1, Wald) |
 | neoplasm | 14 | 0 | IRR 1.04 | blocked: AE-term (MedDRA) parsing |
 | infections | 14 | 0 | IRR 0.90 | blocked: AE-term (MedDRA) parsing |
 | GI disorders | 18 | 0 | IRR 1.63 | blocked: AE-term (MedDRA) parsing |
@@ -36,6 +36,45 @@ balanced arm follow-up, so the estimate column is indicative, not an identity �
 | gallbladder | 8 | 0 | IRR 1.26 | blocked: AE-term (MedDRA) parsing |
 
 **Anchors exact** on the death row (EXSCEL 507/584, PIONEER-6 23/45, REWIND 536/592).
+
+## Titled-outcome extraction (item 2) — the efficacy block moved
+
+`scripts/titled_outcome_extract.py` reads a trial's OWN posted efficacy outcome (not the AE
+module), with four rules encoded as code, each with a test on a known-hard case
+(`scripts/test_titled_outcome_extract.py`, **12/12**):
+
+1. **Denominator in the class title** (`(n=2629, 2616)`), positional to arms, overriding
+   `outcome_counts` (the randomised total) — the source of 48 prior wrong integers. Records which
+   field it read.
+2. **Arithmetic route** (events = posted % × analysis N) or direct count — no prose parser.
+3. **No AE substitution** for an efficacy outcome; cross-check and flag, never replace. Proven on
+   HEART-FID: titled 131/158 (RR 0.830) vs AE 354/367 (RR 0.965) — the extractor keeps the titled
+   value.
+4. **0/0 → NOT_DISCRIMINATING**, never folded into "could not determine".
+
+**A confidently-wrong integer was caught and fixed before it reached the table.** The first wired
+run read AMPLITUDE-O and HARMONY MACE as 5 events — because their MACE is posted as an **incidence
+rate** ("events per 100 participant-years"), and reading a rate as a count fabricates a number. A
+fifth rule now **refuses rate units** (they need person-time → an IRR, not a 2×2); both trials
+correctly dropped to NOT_FOUND, and MACE went from a false k=5 to an honest **k=3** (FLOW 212,
+PIONEER-6 61, SOUL 579 — all verified counts, internally consistent: PIONEER-6 CVd 15 + MI 37 +
+stroke 12 ≈ MACE 61).
+
+### Efficacy disagreement sets (which trials we have, which we don't)
+
+- **MACE** ours 3 of 15: FLOW, PIONEER-6, SOUL. The other 12 post MACE as a rate/HR (refused) or
+  under a title our matcher does not resolve.
+- **cv death** ours 2 of 19: LEADER (arithmetic 4.7%×4668), PIONEER-6. **nonfatal MI / stroke**
+  ours 3 each: LEADER, PIONEER-6, REWIND. **HF hosp** ours 1: LEADER.
+- The wall for the rest of the efficacy block is the same: these trials report the outcome as an
+  incidence rate or a hazard ratio, not as an extractable participant count. That is a **measure**
+  limit, not a matcher bug — and refusing it is the correct behaviour, not a gap to paper over.
+
+### No reader-facing change
+
+The extractor and scoreboard write only to `evidence/acquisition/`. No `*_REVIEW.html` generator
+consumes them, so no served number changed. If this extraction is later wired into a served page,
+any number it changes is a finding to report first.
 
 ### The disagreement set (the finding, not the delta)
 
