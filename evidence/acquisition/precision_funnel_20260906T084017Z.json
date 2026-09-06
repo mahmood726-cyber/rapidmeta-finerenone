@@ -1,0 +1,76 @@
+{
+ "target": "Galli 2025, 21 GLP-1 CV trials",
+ "executed_utc": "2026-09-06T08:40:17+00:00",
+ "base_query": "(semaglutide OR liraglutide OR dulaglutide OR exenatide OR albiglutide OR efpeglenatide OR lixisenatide OR \"glucagon-like peptide\") AND (cardiovascular OR MACE OR \"cardiovascular outcomes\") AND PUB_TYPE:\"Randomized Controlled Trial\"",
+ "state": "RAN_RESULTS",
+ "galli_nct_map": {
+  "ELIXA": null,
+  "Kyhl et al.": "NCT01435408",
+  "LEADER": "NCT01720446",
+  "FIGHT": "NCT01800968",
+  "Chen et al.": null,
+  "SUSTAIN-6": "NCT01720446",
+  "LIVE-Jorsal": null,
+  "Zhang et al.": "NCT01794143",
+  "EXSCEL": null,
+  "HARMONY OUTCOMES": null,
+  "PIONEER-6": "NCT01720446",
+  "REWIND": "NCT01394952",
+  "AMPLITUDE-O": null,
+  "STEP-HFpEF": "NCT04788511",
+  "SELECT": "NCT03574597",
+  "STEP-HFpEF DM": "NCT04788511",
+  "FLOW": "NCT03819153",
+  "GRADE": "NCT03948347",
+  "SUMMIT": "NCT04847557",
+  "SOUL": "NCT03914326",
+  "STRIDE": "NCT04560998"
+ },
+ "galli_ncts_resolved": 12,
+ "funnel": [
+  {
+   "step": "0_raw_records",
+   "rule_id": null,
+   "candidates": 2389,
+   "note": "records returned by the search (hitCount=2389, pulled=2389)"
+  },
+  {
+   "step": "1_dedup_to_trial_by_nct",
+   "rule_id": "D1_group_by_registration_id",
+   "candidates_in": 2389,
+   "trials_out": 665,
+   "records_without_nct": 1578,
+   "recall": "12/12",
+   "note": "records sharing an NCT collapse to one trial; 1578 records carry no NCT and cannot be trial-deduplicated (reported, not dropped)"
+  },
+  {
+   "step": "3_screen",
+   "rule_id": "S1_design_rct",
+   "rule": "at least one RCT-tagged record",
+   "candidates_in": 665,
+   "candidates_out": 665,
+   "dropped": 0,
+   "recall": "12/12",
+   "control_leader_passes": true
+  },
+  {
+   "step": "3_screen",
+   "rule_id": "S2_intervention_approved_glp1",
+   "rule": "an approved GLP-1 RA named in a title",
+   "candidates_in": 665,
+   "candidates_out": 164,
+   "dropped": 501,
+   "recall": "10/12",
+   "control_leader_passes": true
+  }
+ ],
+ "eligible_trials": 164,
+ "final_recall": "10/12",
+ "final_precision_note": "eligible 164 of 665 deduplicated trials",
+ "control_all_rules_pass_on_LEADER": true,
+ "not_screened": {
+  "comparator": "NOT_DECIDED_FROM_METADATA -- placebo/control not reliably readable from title; needs abstract or registry",
+  "population": "NOT_APPLIED -- deliberately broad (Galli spans DM2/HFrEF/HFpEF/obesity/PAD/CKD); narrowing would cut recall",
+  "outcome": "FORBIDDEN -- screening on the reported outcome is the Cochrane-forbidden mechanism and a live defect in this corpus"
+ }
+}
