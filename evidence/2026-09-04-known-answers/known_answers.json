@@ -1,0 +1,229 @@
+{
+ "schema": "known-answer-fixture/1",
+ "utc": "2026-09-04",
+ "what_this_is": "Ground truth we already hold, collected so that extraction claims can be SCORED rather than asserted. If an extractor cannot recover an answer we already have, it cannot be trusted on answers we do not. A recall figure quoted without a known-answer denominator is the same defect as '8 of 1,465'.",
+ "how_to_read_status": {
+  "MEASURED": "established here by reproduction or by reading the artefact; the route is stated and rerunnable",
+  "INFERRED": "consistent with everything checked, but one step rests on a source not read here",
+  "OPEN": "not established. An extractor that answers one of these CONFIDENTLY is telling us something about the extractor."
+ },
+ "how_to_read_polarity": {
+  "POSITIVE": "the recorded value is the right answer; an extractor should return it",
+  "NEGATIVE": "the recorded value is a known-WRONG answer that is exactly reproducible; an extractor that returns it has made the specific mistake this fixture exists to catch"
+ },
+ "denominator": "12 entries: 8 MEASURED, 0 INFERRED, 4 OPEN. 2 of the 12 are NEGATIVE fixtures. Counted from the entries by script, not asserted -- the first draft of this line said '7 MEASURED, 1 INFERRED, 4 OPEN, 4 NEGATIVE' and was wrong on three of its four numbers, which is the defect this whole set exists to prevent. This is not a sample of anything: it is what one day's verification happened to settle, listed by name.",
+
+ "entries": [
+  {
+   "id": "amplify-component-partition",
+   "topic": "apixaban-vte-treatment",
+   "polarity": "NEGATIVE",
+   "status": "MEASURED",
+   "field": "AMPLIFY (NCT00643201) primary composite and its three components, event counts",
+   "value": {
+    "composite_VTE_or_VTE_related_death": "59 / 71",
+    "nonfatal_DVT": "22 / 35",
+    "nonfatal_PE": "27 / 25",
+    "VTE_related_death": "12 / 16",
+    "components_sum": "61 / 76",
+    "denominators": "apixaban 2606-2609, enoxaparin+warfarin 2630-2635 (they differ per outcome)"
+   },
+   "document": "ClinicalTrials.gov API v2, NCT00643201, resultsSection.outcomeMeasuresModule outcomes [0], [5], [6], [7]",
+   "route": "the registry posts INCIDENCES, not counts. Each count is incidence x its own denominator: 0.0226 x 2609 = 58.96 -> 59; 0.0269 x 2635 = 70.88 -> 71; 0.0084 x 2608 = 21.91 -> 22; 0.0133 x 2633 = 35.02 -> 35; 0.0104 x 2606 = 27.10 -> 27; 0.0095 x 2632 = 25.00 -> 25; 0.0046 x 2608 = 12.00 -> 12; 0.0061 x 2630 = 16.04 -> 16. Fetched 2026-09-04.",
+   "why_it_is_a_negative_fixture": "A review claimed the partition is DVT 20/33, PE 27/23, VTE-death 12/15, which sums EXACTLY to the composite 59/71. The registry says 22/35, 27/25, 12/16, which sums to 61/76. THE WRONG PARTITION IS THE ONE THAT SUMS PERFECTLY. An extractor that reconstructs a composite from its components will produce 59/71 and look verified; the true components over-count by 2 in the apixaban arm and 5 in the comparator, biased toward the drug.",
+   "our_store_already_held_this": "ssot/apixaban-vte-treatment/apixaban-vte-treatment.json records 'AMPLIFY components summed against its posted composite' = '61 vs 59 and 76 vs 71', derived_by 'nonfatal DVT 22/35 + nonfatal PE 27/25 + VTE-related death 12/16'. The registry confirms our store and refutes the review.",
+   "trap_adjacent": "NCT00633893 is AMPLIFY-EXT (three arms, 840/813/829, extended treatment), NOT AMPLIFY. An extractor that resolves 'AMPLIFY' to that registration answers a different trial."
+  },
+
+  {
+   "id": "rotavirus-known-wrong-pairings",
+   "topic": "rotavirus-vaccine-africa-review",
+   "polarity": "NEGATIVE",
+   "status": "MEASURED",
+   "field": "two stored per-trial odds ratios that are exactly reproducible from a WRONG arm pairing",
+   "value": {
+    "NCT00362648": {"stored_OR": 0.6013272345968934, "reproduces_from": "79/2733 vs 129/2735", "recomputed": 0.6013272346},
+    "NCT02145000": {"stored_OR": 0.3469880409060176, "reproduces_from": "31/2207 vs 87/2206", "recomputed": 0.3469880409}
+   },
+   "document": "ssot/rotavirus-vaccine-africa-review/rotavirus-vaccine-africa-review.json, results.by_outcome.primary.per_trial",
+   "route": "OR = (e1/(n1-e1)) / (e0/(n0-e0)), computed 2026-09-04. Both agree with the stored value to 10 decimal places.",
+   "why_it_is_a_negative_fixture": "Exact reproduction proves the ARITHMETIC and says nothing about whether the arms were paired correctly. A value that reproduces to ten decimal places from the wrong inputs is the most convincing possible form of a wrong answer.",
+   "not_established": "This fixture does NOT record what the right pairing is. It records that these two values are reproducible and known-wrong."
+  },
+
+  {
+   "id": "apixaban-provenance-rows",
+   "topic": "apixaban-vte-prophylaxis / apixaban-vte-treatment",
+   "polarity": "POSITIVE",
+   "status": "MEASURED",
+   "field": "which posted registry row each stored major-bleeding estimate was read from",
+   "value": {
+    "NCT00457002": {"stored": "2.5259 (0.9813-6.5018)", "row": "Incidence of Major Bleeding During the Treatment Period in Treated Participants", "arithmetic": "15/3184 / 6/3217", "convention": "RR, events = round(rate% x n)"},
+    "NCT00423319": {"stored": "1.2158 (0.6537-2.2615)", "row": "Rate of Major Bleeding, CRNM, Major or CRNM, and Any Bleeding, class 'Major bleeding'", "arithmetic": "22/2673 / 18/2659", "convention": "RR, events = round(rate% x n)"},
+    "NCT00371683": {"stored": "0.4975 (0.2421-1.0225)", "row": "Event Rate for Participants With Major Bleeding..., class 'Major Bleeding (n=1596, 1588)'", "arithmetic": "11/1596 / 22/1588", "convention": "RR, events = round(rate% x n)"},
+    "NCT00452530": {"stored": "0.6459 (0.2804-1.4876)", "row": "Rate of Major Bleeding, CRNM, and Major Bleeding or CRNM, class 'Major bleeding (n=9, 14)'", "arithmetic": "9/1501 / 14/1508", "convention": "RR, counts read from the class title"},
+    "NCT03266783": {"stored": "0.1574 (0.0615-0.4028)", "row": "Number of Participants With Adjudicated Major Bleeding Events", "arithmetic": "5/1345 / 32/1355", "convention": "RR, posted value is the count"},
+    "NCT01780987": {"stored": "0.1950 (0.0097-3.9330)", "row": "Number of Participants With Adjudicated Major Bleeding Events [ISTH]", "arithmetic": "0/40 / 2/39", "convention": "RR with 0.5 added to EVENTS only, denominators untouched"},
+    "NCT02829957": {"stored": "0.7273 (0.0161-32.9244)", "row": "OPEN -- six posted rows reproduce it identically", "arithmetic": "0/11 / 0/8", "convention": "RR with 0.5 added to events only"}
+   },
+   "document": "evidence/2026-09-03-provenance-rows/ctgov_outcomes.json; out/provenance_row_identification_2026_09_03.json",
+   "route": "identification by reproduction -- every posted outcome measure enumerated with NO keyword filter, the stored estimate recomputed from each candidate row, and BOTH the point and the 95% interval required to reproduce. scripts/identify_source_row_by_reproduction_2026_09_03.py, runs offline from the committed cache.",
+   "documented_blind_spot": "NCT02829957 (RAMBLE, n=19) is AMBIGUOUS and stays that way: six posted rows are all 0/11 against 0/8 -- Major Hemorrhage, Venous Thromboembolism, Clinically Relevant Non-major Bleeding, Discontinued Planned Drug Administration, Held Drug for Menorrhagia, Crossed Over to Another Anticoagulant -- and every zero-versus-zero outcome yields the same continuity-corrected 8/11. IDENTIFICATION BY REPRODUCTION IS BLIND EXACTLY WHERE BOTH ARMS HAVE ZERO EVENTS. No enumeration resolves it and no larger corpus will.",
+   "why_this_entry_is_dual_purpose": "Six rows are a positive set an extractor should recover. The seventh is a question with no answer, and an extractor that names one row for it is overconfident by construction."
+  },
+
+  {
+   "id": "hfref-node-decomposition",
+   "topic": "HFREF_NMA_AUTO_FULL_REVIEW",
+   "polarity": "POSITIVE",
+   "status": "MEASURED",
+   "field": "what a single-trial add-on node in the network actually equals",
+   "value": {
+    "identity": "node RR vs placebo = (ACEI+BB+MRA node RR) x (that trial's own crude RR), exactly",
+    "+Vericiguat": {"node": 0.5082, "trial_crude_RR": 0.8565, "node_over_base": 0.8565},
+    "+Digitoxin": {"node": 0.5470, "trial_crude_RR": 0.9220, "node_over_base": 0.9220},
+    "+Omecamtiv": {"node": 0.5922, "trial_crude_RR": 0.9981, "node_over_base": 0.9981},
+    "+QLQX": {"node": 0.5005, "trial_crude_RR": 0.8435, "node_over_base": 0.8435},
+    "+SGLT2i": {"node": 0.5257, "direct_pooled_RR": "0.8832 (0.7917-0.9853) fixed-effect from 276/2373 vs 329/2371 and 249/1863 vs 266/1867", "node_over_base": 0.8860},
+    "base_ACEI+BB+MRA": 0.5933
+   },
+   "document": "HFREF_NMA_AUTO_FULL_REVIEW.html, embedded <script id=\"hfref-fit-data\">, cells[tier=PRIMARY].node_vs_placebo and trials[].arms",
+   "route": "arithmetic on the page's own stored counts, 2026-09-04",
+   "why_it_is_ground_truth": "It fixes what the number MEANS. The add-on node is the modelled effect of an inferred full package against historical placebo, and the drug's own contribution inside it is the trial's crude RR. An extractor that reports 0.5257 as 'the SGLT2 effect' has the arithmetic right and the estimand wrong."
+  },
+
+  {
+   "id": "hfref-served-interval-convention",
+   "topic": "HFREF_NMA_AUTO_FULL_REVIEW",
+   "polarity": "POSITIVE",
+   "status": "MEASURED",
+   "field": "the critical value behind every served node interval",
+   "value": {
+    "implied_crit_measured": "2.27537 +/- 0.0002 across seven nodes",
+    "identity": "t(15) x sqrt(1.1395924) = 2.275358",
+    "z": 1.959964,
+    "t_df15": 2.13145,
+    "t_df27_which_the_prose_states": 2.051831,
+    "correct_HKSJ_for_this_network": 3.2625
+   },
+   "document": "HFREF_NMA_AUTO_FULL_REVIEW.html served bytes; embedded object hksj={applied:true,q:1.1395923667,df:15,crit:2.1314495456}",
+   "route": "netmeta 3.6.1 REML refit under R 4.6.0 with tau2 forced to the stored 0.023236089546; all seven node points then reproduce to 0.00% and the implied crit is constant to 4 decimal places",
+   "open_sub_question": "q = 1.1395924 is NOT any Q/df this network produces: Q total 35.14399/15 = 2.3429, Q heterogeneity 33.23663/12 = 2.7697, Q inconsistency 1.90736/3 = 0.6358. To give q = 1.1396 at df 15 you need Q = 17.09. Where q came from is NOT_ASSESSABLE -- looked for, not found, not shown to be absent.",
+   "consequence": "Under a correctly computed HKSJ for this network all seven nodes include 1. The served intervals are about 30% narrower on the log scale."
+  },
+
+  {
+   "id": "hfref-victoria-sensitivity",
+   "topic": "HFREF_NMA_AUTO_FULL_REVIEW",
+   "polarity": "POSITIVE",
+   "status": "MEASURED",
+   "field": "effect of adding one eligible omitted trial (VICTORIA) to the network",
+   "value": {
+    "tau2": "0.022443284 -> 0.017673519 (-21.3%)",
+    "ACEI+BB+MRA_under_the_served_convention": "0.5924 (0.3500-1.0027) includes 1 -> 0.5866 (0.3622-0.9499) excludes 1",
+    "df": "15 -> 16"
+   },
+   "document": "netmeta refit from the page's own 30 stored contrasts plus VICTORIA as +Vericiguat vs ACEI+BB+MRA",
+   "route": "R 4.6.0 / netmeta 3.6.1, REML, reference.group Placebo; baseline control reproduces the stored points to 0.00-0.16%",
+   "input_status": "VICTORIA eligibility MEASURED (NCT02861534: 2020, n=5050, 2526/2524, vericiguat vs placebo, chronic HFrEF, all-cause mortality HR 0.95 (0.84-1.07) from posted registry results). The counts 512/534 are INFERRED-CONSISTENT ONLY -- not in the abstract, not in the registry, but implying 20.3% vs 21.2%, crude RR 0.958, consistent with the posted 16.0 vs 16.9 per 100 patient-years.",
+   "why_it_is_ground_truth": "The significance pattern is not stable to one eligible omission. Any extractor claim about which nodes are 'significant' on this page inherits that instability."
+  },
+
+  {
+   "id": "arni-leave-one-out-estimator",
+   "topic": "arni-hfref",
+   "polarity": "POSITIVE",
+   "status": "MEASURED",
+   "field": "which estimator produces each stored leave-one-out value, omitting ANSWER-HF",
+   "value": {
+    "REML": "0.8392 (0.7429-0.9480), I2 22.24%  <- the SOUND value; matches the declared estimator and the k=4 main fit",
+    "DL": "0.8333 (0.7473-0.9292), I2 14.95%  <- present in four NARRATIVE fields only, never in the analysis block",
+    "main_fit_k4_REML": "0.8715 (0.7461-1.0181), tau2 0.008597, I2 32.89%"
+   },
+   "document": "ssot/arni-hfref/arni-hfref.json; per-trial HRs paradigm-hf 0.80 (0.73-0.87), parachute-hf 0.91 (0.73-1.13), parallel-hf 1.09 (0.65-1.82), answer-hf 1.83 (0.72-4.67)",
+   "route": "metafor 5.0.1 under R 4.6.0, rma() with method REML and DL; all four stored leave-one-out analyses reproduce under REML with stored I2 matching to 2 decimal places",
+   "corpus_scope_measured": "NOT corpus-wide. 14 store objects carry a leave-one-out block with per-trial rows; 7 are k=2 where REML and DL coincide. Of the 5 informative ones, every value that reproduces at all reproduces under REML. None requires DL.",
+   "use_as_ground_truth": "0.8392 is the answer. 0.8333 must never be used as ground truth for this quantity -- but it is a good NEGATIVE probe, since an extractor reading the narrative fields rather than the analysis block will return it."
+  },
+
+  {
+   "id": "arni-answerhf-measure-type",
+   "topic": "arni-hfref",
+   "polarity": "POSITIVE",
+   "status": "MEASURED",
+   "field": "the measure type of ANSWER-HF's 1.83 (0.72-4.67)",
+   "value": "HAZARD RATIO",
+   "document": "JACC 2026;87(10):1220-1232, Table 2, headed 'Effect HR (95% CI)'; quoted verbatim on ARNI_HF_REVIEW.html as 'Cardiovascular death and heart failure hospitalization 12/95 (12.6) 8/95 (8.4) 1.83 (0.72-4.67) 0.205'",
+   "route": "read from the served page 2026-09-04; the tokens 'cannot identify', 'could not identify', 'unclear whether', 'HR, RR or OR' and 'measure type' occur ZERO times in the file",
+   "note": "A review asserted we still flag this as unidentifiable. We do not, and have not since 2026-08-18. The separate Domain-5 point -- that the composite is publication-reported and not a registered standalone endpoint -- is also already on the page."
+  },
+
+  {
+   "id": "tigecycline-study-306",
+   "topic": "tigecycline-ciai",
+   "polarity": "POSITIVE",
+   "status": "OPEN",
+   "field": "Study 3074A1-306 per-arm clinical cure counts",
+   "candidate_value": {"ME": "242/265 vs 232/258", "m_mITT": "279/322 vs 270/319"},
+   "document": "candidate routes: (a) the FDA label for tigecycline; (b) subtraction of Oliva 2005 from Babinchak 2005's pooled report",
+   "what_is_verified_here": "Only the arithmetic of route (b), and only for ME: 441-199 = 242, 512-247 = 265, 442-210 = 232, 513-255 = 258.",
+   "what_is_NOT_verified": [
+    "Babinchak 2005's pooled ME counts 441/512 and 442/513 -- NOT in our store, and our store records that report as paywalled",
+    "the FDA label route -- not fetched or read here",
+    "the m-mITT figures 279/322 and 270/319 -- the strings '279', '322' and '319' occur ZERO times in our tigecycline store",
+    "the premise test -- that the m-mITT residual reproduces figures Oliva prints in prose. Oliva's m-mITT figures are not in our store either, so the test cannot be run from what we hold."
+   ],
+   "what_IS_verified_in_our_store": "Oliva's ME counts, verbatim: 'For the ME group, clinical cure rates at TOC were 80.6% (199/247) for tigecycline versus 82.4% (210/255) for IMI/CIS'.",
+   "our_store_position_which_must_not_be_overwritten_silently": "ssot/tigecycline-ciai/tigecycline-ciai.json, eligible_but_not_contributing.studies[0].arithmetic_deliberately_not_done: 'Subtracting the held trial's evaluable counts from the pooled ones would produce a number for this trial. It is not done, because it assumes the pooled report reproduced the held trial's evaluable counts exactly, and that assumption cannot be checked against a report this build cannot read.'",
+   "why_it_stays_OPEN": "This is the candidate described as our strongest case -- known answer, two derivations, validated assumption. Two of those three could not be verified from what we hold. It becomes MEASURED the moment either the FDA label is read or Oliva's m-mITT prose is quoted; until then, promoting it would be exactly the unverifiable-assumption-dressed-as-arithmetic our own store refuses."
+  },
+
+  {
+   "id": "bococizumab-pool-vs-published",
+   "topic": "bococizumab-lipid-review",
+   "polarity": "POSITIVE",
+   "status": "OPEN",
+   "field": "our pooled LDL-C percent change at week 12 against the published value",
+   "our_value": "-55.24 (-57.92 to -52.56), k=6, REML",
+   "candidate_published_value": "-55.2 (-57.9 to -52.6), NEJM",
+   "document": "ssot/bococizumab-lipid-review/bococizumab-lipid-review.json results.by_outcome.ldlc_pct_change_wk12",
+   "what_is_verified_here": "our stored pool, read from the object",
+   "what_is_NOT_verified": "the published anchor. PubMed searched 2026-09-04; the abstracts retrieved report -56.0% vs +2.9% and a -59.0 percentage-point between-group difference (PMID 28304242) and -60.5% (PMID 29716940), neither of which is -55.2. The store's own published_comparison is state PENDING_EXTERNAL_RESOLUTION, blocked_on 'lane 2 registration-id resolution'.",
+   "why_it_stays_OPEN": "A whole-pool validation is only as good as its anchor, and the anchor is unread. NOT the same as saying the anchor is wrong."
+  },
+
+  {
+   "id": "sotagliflozin-pool-vs-published",
+   "topic": "sotagliflozin-hf",
+   "polarity": "POSITIVE",
+   "status": "OPEN",
+   "field": "our pooled total-occurrence composite against the published patient-level value",
+   "our_value": "0.7171 (0.6246 to 0.8234), k=2 (SOLOIST-WHF 0.67, SCORED 0.74)",
+   "candidate_published_value": "0.72 (0.63-0.82), patient-level pooled",
+   "document": "ssot/sotagliflozin-hf/sotagliflozin-hf.json results.by_outcome.hfcv_total",
+   "what_is_verified_here": "our stored pool, read from the object",
+   "what_is_NOT_verified": "the published anchor. The store's published_comparison names two reviews (PMID 39257196, PMID 37868384) and neither supplies this quantity; the tokens 'patient-level' and 'patient level' occur ZERO times in the store. PubMed query returned no matching record 2026-09-04.",
+   "why_it_stays_OPEN": "Same shape as bococizumab: our side is solid, the anchor is unread."
+  },
+
+  {
+   "id": "deliver-harmonised-two-component",
+   "topic": "sglt2-hf",
+   "polarity": "POSITIVE",
+   "status": "OPEN",
+   "field": "DELIVER's hazard ratio for the harmonised TWO-component composite (CV death or HF hospitalisation)",
+   "candidate_value": "0.80 (0.71-0.91), cited by a reviewer",
+   "what_our_store_holds": "DELIVER (NCT03619213) enters only the THREE-component pool threecomp_cvdeath_hhf_urgent at HR 0.82; the harmonised two-component pool harmonised_cvdeath_or_hhf is k=3 and contains NCT03036124, NCT03057977, NCT03057951 -- DELIVER is NOT in it",
+   "document": "ssot/sglt2-hf/sglt2-hf.json",
+   "what_is_NOT_verified": "the 0.80 (0.71-0.91) figure. A lane could not source it; the NEJM primary carries the three-component 0.82. Not sourced here either.",
+   "why_it_stays_OPEN": "This is the most useful OPEN entry in the set: the quantity is well specified, two parties disagree about whether it exists, and an extractor that returns 0.80 with a confident citation has told us something important about itself."
+  }
+ ],
+
+ "what_this_set_does_not_establish": [
+  "It is not a sample and carries no coverage claim. It is what one day's verification settled, listed by name.",
+  "A POSITIVE entry being recovered does not make an extractor correct in general -- it makes it not-wrong on twelve questions.",
+  "The NEGATIVE entries matter more than the POSITIVE ones for scoring: BOTH of the two are values that reproduce exactly from the wrong inputs, which is the failure mode arithmetic cannot catch. Two is thin, and more negatives are the highest-value thing to add next.",
+  "Nothing here scores an extractor. This is the answer key, not the exam."
+ ]
+}

@@ -1,0 +1,89 @@
+{
+  "topic": "MOMELOTINIB_MF_AUTO_2",
+  "executed_utc": "2026-09-03T20:06:40Z",
+  "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
+  "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
+  "database_fingerprint": {
+    "interventions.txt": {
+      "bytes": 217740084,
+      "mtime_utc": "2026-08-30T18:01:33Z"
+    },
+    "conditions.txt": {
+      "bytes": 69968244,
+      "mtime_utc": "2026-08-30T17:55:46Z"
+    },
+    "studies.txt": {
+      "bytes": 407498431,
+      "mtime_utc": "2026-08-30T18:12:46Z"
+    },
+    "design_groups.txt": {
+      "bytes": 238478968,
+      "mtime_utc": "2026-08-30T17:56:07Z"
+    },
+    "design_group_interventions.txt": {
+      "bytes": 56282730,
+      "mtime_utc": "2026-08-30T17:55:50Z"
+    }
+  },
+  "tool": "scripts/add_topic_autodiscover.py::find_ncts",
+  "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['momelotinib'] expanded through DRUG_SYNS; condition_patterns=['myelofibrosis'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "drug_patterns": [
+    "momelotinib"
+  ],
+  "condition_patterns": [
+    "myelofibrosis"
+  ],
+  "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
+  "pages": [
+    {
+      "page": 1,
+      "returned": 12,
+      "total_reported": 12,
+      "next_page_token": "NONE -- full-table scan, not a paged API"
+    }
+  ],
+  "records_returned_total": 12,
+  "total_reported": 12,
+  "distinct": 12,
+  "duplicates_across_pages": 0,
+  "nct_ids": [
+    "NCT01969838",
+    "NCT04173494",
+    "NCT02101268",
+    "NCT07498205",
+    "NCT02124746",
+    "NCT04176198",
+    "NCT01236638",
+    "NCT06517875",
+    "NCT01423058",
+    "NCT05980806",
+    "NCT07734077",
+    "NCT07104799"
+  ],
+  "enumeration": {
+    "retrieved": 7348,
+    "identity_rejected": 7324,
+    "identity_reasons": {
+      "no intervention matches the drug pattern": 7324
+    },
+    "dropped_condition": 11,
+    "dropped_study_type": 1,
+    "eligible": 12
+  },
+  "bound": {
+    "applied": 500,
+    "source": "default",
+    "bit": false,
+    "ingested": 12,
+    "discarded": 0,
+    "discarded_ncts": [],
+    "note": "the bound did not bite: every eligible candidate was ingested"
+  },
+  "screening": {
+    "state": "NOT_RUN",
+    "reason": "no candidate in this record has been dispositioned. This is a state, not a silence: zero screened is not zero excluded, and an omitted field would read as nothing to report.",
+    "included": null,
+    "excluded": null,
+    "undecidable": null
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "topic": "MONTELUKAST_RHIN_AUTO",
+  "executed_utc": "2026-09-03T20:06:40Z",
+  "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
+  "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
+  "database_fingerprint": {
+    "interventions.txt": {
+      "bytes": 217740084,
+      "mtime_utc": "2026-08-30T18:01:33Z"
+    },
+    "conditions.txt": {
+      "bytes": 69968244,
+      "mtime_utc": "2026-08-30T17:55:46Z"
+    },
+    "studies.txt": {
+      "bytes": 407498431,
+      "mtime_utc": "2026-08-30T18:12:46Z"
+    },
+    "design_groups.txt": {
+      "bytes": 238478968,
+      "mtime_utc": "2026-08-30T17:56:07Z"
+    },
+    "design_group_interventions.txt": {
+      "bytes": 56282730,
+      "mtime_utc": "2026-08-30T17:55:50Z"
+    }
+  },
+  "tool": "scripts/add_topic_autodiscover.py::find_ncts",
+  "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['montelukast'] expanded through DRUG_SYNS; condition_patterns=['rhinitis'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "drug_patterns": [
+    "montelukast"
+  ],
+  "condition_patterns": [
+    "rhinitis"
+  ],
+  "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
+  "pages": [
+    {
+      "page": 1,
+      "returned": 41,
+      "total_reported": 41,
+      "next_page_token": "NONE -- full-table scan, not a paged API"
+    }
+  ],
+  "records_returned_total": 41,
+  "total_reported": 41,
+  "distinct": 41,
+  "duplicates_across_pages": 0,
+  "nct_ids": [
+    "NCT00092118",
+    "NCT00979901",
+    "NCT00974571",
+    "NCT00972738",
+    "NCT00963469",
+    "NCT00963599",
+    "NCT00960141",
+    "NCT00295022",
+    "NCT00968149",
+    "NCT01857063",
+    "NCT00442559",
+    "NCT00119015",
+    "NCT01852812",
+    "NCT01673620",
+    "NCT00590772",
+    "NCT00127647",
+    "NCT00319995",
+    "NCT00092885",
+    "NCT03380975",
+    "NCT00423995",
+    "NCT00771160",
+    "NCT00488176",
+    "NCT00380705",
+    "NCT02551536",
+    "NCT00559546",
+    "NCT04957927",
+    "NCT05040828",
+    "NCT00092105",
+    "NCT04815187",
+    "NCT07532993",
+    "NCT00157937",
+    "NCT02565212",
+    "NCT00406094",
+    "NCT00446186",
+    "NCT01804400",
+    "NCT01007721",
+    "NCT04561687",
+    "NCT05381207",
+    "NCT02029313",
+    "NCT02658422",
+    "NCT05607446"
+  ],
+  "enumeration": {
+    "retrieved": 7348,
+    "identity_rejected": 7056,
+    "identity_reasons": {
+      "no intervention matches the drug pattern": 7029,
+      "matches only as a component of the combination 'inhaled corticosteriod/long-acting beta-agonist plus montelukast'": 1,
+      "matches only as a component of the combination 'combination of low ics and montelukast'": 1,
+      "matches only outside the experimental arm ('montelukast')": 14,
+      "matches only as a component of the combination 'budesonide + salmeterol + montelukast'": 1,
+      "matches only outside the experimental arm ('montelukast sodium')": 1,
+      "matches only as a component of the combination 'fluticasone propionate + montelukast'": 1,
+      "matches only as a component of the combination 'budesonide and montelukast'": 1,
+      "matches only as a component of the combination 'comparator: mk0524 + montelukast'": 1,
+      "matches only as a component of the combination 'montelukast plus prednisolone'": 1,
+      "matches only outside the experimental arm ('montelukast tablets 5 mg (4 mg for children 5 years of age)')": 1,
+      "matches only outside the experimental arm ('montelukast 10mg qd (pm)')": 1,
+      "matches only as a component of the combination 'montelukast and levocetirizine fdc'": 1,
+      "matches only as a component of the combination 'montelukast + levocetirizine'": 1,
+      "matches only as a component of the combination 'montelukast/ singulair'": 1
+    },
+    "dropped_condition": 251,
+    "dropped_study_type": 0,
+    "eligible": 41
+  },
+  "bound": {
+    "applied": 500,
+    "source": "default",
+    "bit": false,
+    "ingested": 41,
+    "discarded": 0,
+    "discarded_ncts": [],
+    "note": "the bound did not bite: every eligible candidate was ingested"
+  },
+  "screening": {
+    "state": "NOT_RUN",
+    "reason": "no candidate in this record has been dispositioned. This is a state, not a silence: zero screened is not zero excluded, and an omitted field would read as nothing to report.",
+    "included": null,
+    "excluded": null,
+    "undecidable": null
+  }
+}

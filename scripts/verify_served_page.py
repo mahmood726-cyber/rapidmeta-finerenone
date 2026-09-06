@@ -53,7 +53,63 @@ def tabs_in(html):
     return re.findall(r'<label for="rt-([a-z0-9_-]+)">([^<]+)</label>', body)
 
 
+# KNOWN_NEGATIVE FOR THE ONE TEXT-MATCHING PART OF THIS TOOL -- AND WHAT IT IS NOT.
+#
+# `tabs_in` is the only thing here that matches text and reports a count. Its false-positive
+# risk is counting something that LOOKS like a tab label but is not, which is why it strips
+# everything up to the first `</style>` before matching.
+#
+# NO CORPUS KNOWN-NEGATIVE IS AVAILABLE, AND THAT WAS MEASURED RATHER THAN ASSUMED: 120
+# delivered *_REVIEW.html pages were scanned for a `<label for="rt-...">` outside the tab nav
+# -- inside the style block, or after it in a code sample -- and ZERO carry one. A
+# "known-negative" drawn from this corpus would therefore be a page with nothing hard in it:
+#
+#     A KNOWN-NEGATIVE DRAWN FROM THE EASY MAJORITY MEASURES NOTHING.
+#
+# So it is PROVEN BY PLANT, following the precedent gate16 sets for its clause 4 -- "proven
+# by plant, not by a corpus positive, and that is recorded rather than implied". The plant is
+# PAIRED: a decoy that must NOT be counted and a real nav that MUST be, so the matcher is
+# shown to DISCRIMINATE rather than merely to return zero.
+#
+# THE HONEST LIMIT, STATED SO A GREEN IS NOT OVERREAD: this controls the MATCHER, not the
+# corpus, and says nothing about the sha comparison -- which is the point of this tool and
+# cannot be controlled offline at all, because it needs the network and a deployed page.
+# A PASS FROM --selftest IS NOT A VERIFIED SERVED PAGE.
+KNOWN_NEGATIVE = "planted decoy: <label for='rt-x'> inside <style> must not be counted"
+
+
+def selftest():
+    nav = '<label for="rt-paper">Paper</label><label for="rt-screen">Screen</label>'
+    decoy = ('<style>#rt-x{} label[for="rt-x"]{} '
+             '<label for="rt-x">Decoy</label></style>')
+    cases = [
+        ("must count a real nav", decoy + nav, ["paper", "screen"]),
+        ("must NOT count a label inside <style>", decoy, []),
+        ("must not be fooled by CSS alone",
+         '<style>label[for="rt-ghost"]{color:red}</style>', []),
+    ]
+    ok = True
+    for label, doc, want in cases:
+        got = [t for t, _ in tabs_in(doc)]
+        good = got == want
+        ok &= good
+        print("  selftest %-40s got=%-20s want=%-20s %s"
+              % (label, got, want, "OK" if good else "*** FAIL ***"))
+    if not ok:
+        print("SELFTEST FAILED -- tabs_in cannot tell a tab from a decoy, so its count is "
+              "not a measurement.")
+        return 1
+    print("  known-negative control: 0/1 planted decoys counted "
+          "(measured false-positive rate 0.0%)")
+    print("  CORPUS INSTANCES OF THIS HAZARD: 0 of 120 pages scanned -- the control is a "
+          "PLANT because the corpus offers no hard case, stated rather than implied.")
+    print("  THIS CONTROLS THE MATCHER, NOT THE SERVED-BYTES COMPARISON.")
+    return 0
+
+
 def main():
+    if "--selftest" in sys.argv:
+        return selftest()
     page = sys.argv[1] if len(sys.argv) > 1 else "AGYW_HIV_PREP_REVIEW.html"
     local_path = os.path.join(ROOT, page)
     if not os.path.exists(local_path):

@@ -1,0 +1,156 @@
+{
+  "topic": "EZETIMIBE_LIPID_AUTO",
+  "executed_utc": "2026-09-03T20:06:40Z",
+  "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
+  "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
+  "database_fingerprint": {
+    "interventions.txt": {
+      "bytes": 217740084,
+      "mtime_utc": "2026-08-30T18:01:33Z"
+    },
+    "conditions.txt": {
+      "bytes": 69968244,
+      "mtime_utc": "2026-08-30T17:55:46Z"
+    },
+    "studies.txt": {
+      "bytes": 407498431,
+      "mtime_utc": "2026-08-30T18:12:46Z"
+    },
+    "design_groups.txt": {
+      "bytes": 238478968,
+      "mtime_utc": "2026-08-30T17:56:07Z"
+    },
+    "design_group_interventions.txt": {
+      "bytes": 56282730,
+      "mtime_utc": "2026-08-30T17:55:50Z"
+    }
+  },
+  "tool": "scripts/add_topic_autodiscover.py::find_ncts",
+  "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['ezetimibe'] expanded through DRUG_SYNS; condition_patterns=['hyperlipidemia'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "drug_patterns": [
+    "ezetimibe"
+  ],
+  "condition_patterns": [
+    "hyperlipidemia"
+  ],
+  "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
+  "pages": [
+    {
+      "page": 1,
+      "returned": 18,
+      "total_reported": 18,
+      "next_page_token": "NONE -- full-table scan, not a paged API"
+    }
+  ],
+  "records_returned_total": 18,
+  "total_reported": 18,
+  "distinct": 18,
+  "duplicates_across_pages": 0,
+  "nct_ids": [
+    "NCT01763866",
+    "NCT01763827",
+    "NCT01984424",
+    "NCT03337308",
+    "NCT01763905",
+    "NCT00203476",
+    "NCT00093899",
+    "NCT06789432",
+    "NCT02451098",
+    "NCT00349284",
+    "NCT00195793",
+    "NCT00651560",
+    "NCT00843661",
+    "NCT00753883",
+    "NCT01375764",
+    "NCT00955227",
+    "NCT05681247",
+    "NCT02942602"
+  ],
+  "enumeration": {
+    "retrieved": 7348,
+    "identity_rejected": 7081,
+    "identity_reasons": {
+      "no intervention matches the drug pattern": 6981,
+      "matches only as a component of the combination 'ezetimibe with simvastatin'": 3,
+      "matches only as a component of the combination 'simvastatin/ezetimibe'": 2,
+      "matches only as a component of the combination 'ezetimibe/statin combination therarpy (ezetimibe plus rosuvastatin)'": 1,
+      "matches only outside the experimental arm ('10mg/10mg of ezetimibe/simvastatin (vytorin)')": 1,
+      "matches only outside the experimental arm ('ezetimibe')": 13,
+      "matches only as a component of the combination 'ezetimibe/simvastatin'": 7,
+      "matches only as a component of the combination 'ezetimibe/rosuvastatin'": 6,
+      "matches only as a component of the combination 'ezetimibe+simvastatin drug combination'": 1,
+      "matches only as a component of the combination 'bempedoic acid / ezetimibe'": 1,
+      "matches only outside the experimental arm ('1 tablet ezetrol(r) (ezetimibe), msd sharp & dohme gmbh, germany')": 2,
+      "matches only as a component of the combination 'rosuvastatin and ezetimibe'": 4,
+      "matches only as a component of the combination 'atorvastatin-ezetimibe'": 2,
+      "matches only as a component of the combination 'ezetimibe and placebo'": 1,
+      "matches only as a component of the combination 'fixed combination simvastatin/ezetimibe'": 1,
+      "matches only as a component of the combination 'pitavastatin/ezetimibe'": 1,
+      "matches only as a component of the combination 'statin + ezetimibe'": 2,
+      "matches only as a component of the combination 'rosuvastatin+ezetimibe'": 1,
+      "matches only outside the experimental arm ('ezetimibe 10mg')": 2,
+      "matches only as a component of the combination 'ezetimibe + simvastatin'": 4,
+      "matches only as a component of the combination 'ezetimibe + atorvastatin'": 3,
+      "matches only as a component of the combination 'rosuvastatin plus ezetimibe'": 1,
+      "matches only as a component of the combination 'ezetimibe and atorvastatin'": 2,
+      "matches only as a component of the combination 'atorvastatin plus ezetimibe'": 1,
+      "matches only as a component of the combination 'ezetimibe/rosuvastatin/candesartan/amlodipine'": 1,
+      "matches only as a component of the combination 'rosuvastatin/ezetimibe'": 1,
+      "matches only as a component of the combination 'low-dose rosuvastatin plus ezetimibe'": 1,
+      "matches only as a component of the combination 'bempedoic acid and/or its fixed dose combination with ezetimibe'": 1,
+      "matches only as a component of the combination 'aegr-733 and ezetimibe'": 1,
+      "matches only as a component of the combination 'combination of bempedoic acid and ezetimibe'": 1,
+      "matches only as a component of the combination 'raltegravir and ezetimibe'": 1,
+      "matches only as a component of the combination 'statins and ezetimibe'": 1,
+      "matches only outside the experimental arm ('statins, ezetimibe')": 1,
+      "matches only as a component of the combination 'simvastatin and ezetimibe'": 1,
+      "matches only as a component of the combination 'ezetimibe/fenofibrate (ezefeno) and moderate-intensity statin'": 1,
+      "matches only as a component of the combination 'statins (atorvastatin, rosuvastatin, simvastatin, or pravastatin), +/- ezetimibe, +/- pcsk9 inhibitor (alirocumab, evolocumab, inclisiran)'": 1,
+      "matches only as a component of the combination 'simvastatin 20 mg/ezetimibe'": 1,
+      "matches only outside the experimental arm ('ezetimibe 10mg tablet')": 1,
+      "matches only as a component of the combination 'ezetimibe/simvastatin 10/20 mg/day'": 1,
+      "matches only as a component of the combination 'ezetimibe and simvastatin'": 1,
+      "matches only as a component of the combination 'statin+ezetimibe'": 1,
+      "matches only as a component of the combination 'statin+ezetimibe/hybutimibe compound'": 1,
+      "matches only outside the experimental arm ('patients received rosuvastatin ezetimibe10/10mg')": 1,
+      "matches only as a component of the combination 'lipid-lowering therapy combination with pcsk9 inhibitors, bempedoic acid and ezetimibe'": 1,
+      "matches only as a component of the combination 'lapaquistat acetate and ezetimibe'": 1,
+      "matches only as a component of the combination 'ezetimibe/simvastatin 10/20 mg + placebo'": 1,
+      "matches only as a component of the combination 'ezetimibe/high-intensity statin combination therapy (ezetimibe 10mg plus atoravastatin 40mg)'": 1,
+      "matches only as a component of the combination 'combination of high-dose rosuvastatin and ezetimibe'": 1,
+      "matches only as a component of the combination 'ezetimibe-simvastatin'": 1,
+      "matches only as a component of the combination 'bempedoic acid and/or its fixed-dose combination with ezetimibe'": 1,
+      "matches only as a component of the combination 'ezetimibe/rosuvastatin 10/10mg'": 1,
+      "matches only as a component of the combination 'ezetimibe/simvastatin 10/40'": 1,
+      "matches only as a component of the combination 'ezetimibe/atorvastatin'": 1,
+      "matches only as a component of the combination 'ezetimibe/atorvastatin 10/5 mg'": 1,
+      "matches only as a component of the combination 'ezetimibe + rosuvastatin'": 1,
+      "matches only as a component of the combination 'fluvastatin plus ezetimibe'": 1,
+      "matches only as a component of the combination 'combination therapy of high-intensity dose rosuvastatin and ezetimibe'": 1,
+      "matches only as a component of the combination 'low-intensity statin plus ezetimibe'": 1,
+      "matches only as a component of the combination 'ezetimibe + statin (simvastatin, atorvastatin, or pravastatin)'": 1,
+      "matches only outside the experimental arm ('cholesterol-lowering medicine other than statin(e.g.,ezetimibe,colestimide)')": 1,
+      "matches only as a component of the combination 'ezetimibe/simvastatin 10/20 mg'": 1,
+      "matches only as a component of the combination 'rosuvastatin + ezetimibe'": 1
+    },
+    "dropped_condition": 247,
+    "dropped_study_type": 2,
+    "eligible": 18
+  },
+  "bound": {
+    "applied": 500,
+    "source": "default",
+    "bit": false,
+    "ingested": 18,
+    "discarded": 0,
+    "discarded_ncts": [],
+    "note": "the bound did not bite: every eligible candidate was ingested"
+  },
+  "screening": {
+    "state": "NOT_RUN",
+    "reason": "no candidate in this record has been dispositioned. This is a state, not a silence: zero screened is not zero excluded, and an omitted field would read as nothing to report.",
+    "included": null,
+    "excluded": null,
+    "undecidable": null
+  }
+}

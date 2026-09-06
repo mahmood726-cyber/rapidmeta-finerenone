@@ -10,11 +10,11 @@
 #   python scripts/lint_recurring_traps.py --selftest
 # A count without a measured precision is not a finding.
 
-"""Four traps that recurred WITH THE RULE ALREADY WRITTEN DOWN. Now checks in the path.
+r"""Four traps that recurred WITH THE RULE ALREADY WRITTEN DOWN. Now checks in the path.
 
     stdout double-wrap        5 occurrences, each time "it looked like a different situation"
     unanchored substring      9
-    control bytes in source   heredocs eat backslashes; `\\b` collapses to a literal 0x08
+    control bytes in source   heredocs eat backslashes; `\b` collapses to a literal 0x08
     except-swallows-import    an ImportError caught by `except Exception: continue`,
                               producing a CORPUS CONCLUSION from a module that never loaded
 

@@ -1,0 +1,83 @@
+{
+  "topic": "AVACINCAPTAD_GA_AUTO_2",
+  "executed_utc": "2026-09-03T20:06:40Z",
+  "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
+  "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
+  "database_fingerprint": {
+    "interventions.txt": {
+      "bytes": 217740084,
+      "mtime_utc": "2026-08-30T18:01:33Z"
+    },
+    "conditions.txt": {
+      "bytes": 69968244,
+      "mtime_utc": "2026-08-30T17:55:46Z"
+    },
+    "studies.txt": {
+      "bytes": 407498431,
+      "mtime_utc": "2026-08-30T18:12:46Z"
+    },
+    "design_groups.txt": {
+      "bytes": 238478968,
+      "mtime_utc": "2026-08-30T17:56:07Z"
+    },
+    "design_group_interventions.txt": {
+      "bytes": 56282730,
+      "mtime_utc": "2026-08-30T17:55:50Z"
+    }
+  },
+  "tool": "scripts/add_topic_autodiscover.py::find_ncts",
+  "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['avacincaptad'] expanded through DRUG_SYNS; condition_patterns=['geographic atrophy'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "drug_patterns": [
+    "avacincaptad"
+  ],
+  "condition_patterns": [
+    "geographic atrophy"
+  ],
+  "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
+  "pages": [
+    {
+      "page": 1,
+      "returned": 4,
+      "total_reported": 4,
+      "next_page_token": "NONE -- full-table scan, not a paged API"
+    }
+  ],
+  "records_returned_total": 4,
+  "total_reported": 4,
+  "distinct": 4,
+  "duplicates_across_pages": 0,
+  "nct_ids": [
+    "NCT04435366",
+    "NCT02686658",
+    "NCT05536297",
+    "NCT06970665"
+  ],
+  "enumeration": {
+    "retrieved": 7348,
+    "identity_rejected": 7337,
+    "identity_reasons": {
+      "no intervention matches the drug pattern": 7335,
+      "matches only outside the experimental arm ('avacincaptad')": 1,
+      "matches only outside the experimental arm ('avacincaptad pegol intravitreal solution')": 1
+    },
+    "dropped_condition": 6,
+    "dropped_study_type": 1,
+    "eligible": 4
+  },
+  "bound": {
+    "applied": 500,
+    "source": "default",
+    "bit": false,
+    "ingested": 4,
+    "discarded": 0,
+    "discarded_ncts": [],
+    "note": "the bound did not bite: every eligible candidate was ingested"
+  },
+  "screening": {
+    "state": "NOT_RUN",
+    "reason": "no candidate in this record has been dispositioned. This is a state, not a silence: zero screened is not zero excluded, and an omitted field would read as nothing to report.",
+    "included": null,
+    "excluded": null,
+    "undecidable": null
+  }
+}

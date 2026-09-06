@@ -290,6 +290,34 @@ def selftest():
         print("  %-48s -> %-8s want %-8s %s"
               % ("all four reached despite the first failing", reached, 4,
                  "correct" if good else "WRONG -- it stopped early"))
+
+        # KNOWN_NEGATIVE -- PRE-EXISTING. NAMED AND RATED HERE; NO BEHAVIOUR CHANGED.
+        #
+        # gate2 flagged this file for "no known-negative control" while this planted chain --
+        # red, green, vacuous, missing -- was already here and passing. It matches on the
+        # TOKENS `KNOWN_NEGATIVE` / `control(`, and this file never used the word.
+        #
+        # THE NEGATIVE, NAMED: scripts/always_green.py must be scored `ok`, never FAILED. A
+        # runner that reported a passing check as a failure would inject fabricated reds into
+        # the very chain whose purpose is deciding which reds are real -- and this file's own
+        # docstring records the cost of that confusion: "of 12 non-zero exits, 2 were harness
+        # error, 2 not assessable, 1 a control that could not load, 1 broken code, and only 6
+        # were real." HALF THE REDS IN THAT MEASUREMENT WERE NOT DEFECTS.
+        #
+        # The VACUOUS arm guards the opposite direction and is conceptually harder: a check
+        # that exits 0 having examined NOTHING must not be scored `ok`, because that is how a
+        # fresh-clone green is read as proof of everything. Both directions are asserted;
+        # only the first is a false-POSITIVE control, which is what gate2 asks for.
+        KNOWN_NEGATIVE = ("scripts/always_green.py -- a check that runs and is satisfied "
+                          "must be `ok`, never FAILED")
+        _neg_fp = 1 if got.get("scripts/always_green.py") != "ok" else 0
+        print("  KNOWN-NEGATIVE CONTROL: %d/1 matched (measured false-positive rate %.1f%%)"
+              % (_neg_fp, 100.0 * _neg_fp))
+        print("  %s" % KNOWN_NEGATIVE)
+        print("  Pre-existing; named here so it is visible, not added here.")
+        if _neg_fp:
+            ok = False
+            print("  CONTROL FAILED: a passing check was reported as a failure.")
     finally:
         import shutil
         shutil.rmtree(tmp, ignore_errors=True)

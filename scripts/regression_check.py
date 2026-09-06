@@ -607,12 +607,44 @@ for _marker, _sig in (("arni_hf_protocol", "wrong_protocol_link"),):
         print("    otherwise. Either the marker is stale or the check is.")
 
 # Save raw
-# PER-PROCESS, BECAUSE /tmp IS SHARED. On this machine `/tmp` resolves to F:/claude-temp,
-# which every agent lane writes into -- 31,531 loose files. This hook runs on EVERY push
-# from EVERY lane, so a fixed name means two concurrent pushes overwrite each other's
-# results and whoever opens the file afterwards reads the wrong run. Nothing reads it back,
-# so no verdict was ever wrong; a human comparing runs would simply have been misled.
-_raw = Path("/tmp/regression_results_%d.json" % os.getpid())
+# WRITTEN INSIDE THE REPOSITORY, NOT THE SHARED SCRATCH ROOT.
+#
+# This diagnostic used to be written to a leading-slash temp path, which on Windows has no
+# drive and so resolves against the CURRENT one. From a clone on a drive with no top-level
+# temp directory the write raised FileNotFoundError -- ABOVE this gate's verdict and above
+# its own planted control -- so the hook printed "Regression check FAILED (exit 1)" for a
+# run in which every blocking signal had already come back zero. A DIAGNOSTIC WRITE
+# DESTROYED THE VERDICT AND THE PROOF OF THE VERDICT.
+#
+# THE FIRST REPAIR WAS WORSE THAN THE DEFECT, AND IS THE REASON THIS COMMENT IS LONG.
+#
+# Replacing the literal with tempfile.gettempdir() fixed the crash and ALSO removed this
+# site from gate 9's view, because that lint matches SOURCE TEXT for the literal and cannot
+# see a path assembled at runtime. The ratchet then reported the frozen entry RETIRED. The
+# behaviour had not changed at all: the same generic name still went into the same shared
+# root, where every lane writes and any of them can collide with it.
+#
+#     A GREEN OBTAINED BY LEAVING A DETECTOR'S FIELD OF VIEW IS WORSE THAN THE RED IT
+#     REPLACED. THE RED WAS INFORMATION; THE GREEN IS NOT.
+#
+# That is the same class of defect as three others fixed in this repository on the same
+# day -- a check matching on surface form, satisfied by changing the form while the
+# property is untouched -- except committed by the lane clearing the gates rather than
+# found in someone else's code.
+#
+# So the property is fixed instead of the spelling. The file goes under this repository's
+# own outputs/ directory, beside settle_profile.json which is written the same way a few
+# lines below. That root is per-clone, so two lanes cannot collide; the pid suffix keeps
+# two concurrent pushes from ONE clone apart; and the artefact survives the run, which a
+# torn-down temporary directory would not -- it exists to be read by a human comparing
+# runs, and nothing reads it back programmatically.
+#
+# KNOWN, AND FOR GATE 9'S OWNER: that lint pattern-matches literal leading-slash temp
+# strings and CANNOT SEE A PATH ASSEMBLED AT RUNTIME FROM A VARIABLE. gate 9's own COVERAGE
+# line already declares that blind spot; this is a report from inside it. Any script can
+# leave the lint's view, with no intent, by the ordinary act of using tempfile.
+(ROOT / "outputs").mkdir(exist_ok=True)
+_raw = ROOT / "outputs" / ("regression_results_%d.json" % os.getpid())
 _raw.write_text(json.dumps({k: v for k, v in signals.items()}, default=str), encoding='utf-8')
 print()
 print("Raw JSON saved to %s" % _raw)

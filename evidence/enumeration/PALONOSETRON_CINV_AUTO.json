@@ -1,0 +1,152 @@
+{
+  "topic": "PALONOSETRON_CINV_AUTO",
+  "executed_utc": "2026-09-03T20:06:40Z",
+  "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
+  "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
+  "database_fingerprint": {
+    "interventions.txt": {
+      "bytes": 217740084,
+      "mtime_utc": "2026-08-30T18:01:33Z"
+    },
+    "conditions.txt": {
+      "bytes": 69968244,
+      "mtime_utc": "2026-08-30T17:55:46Z"
+    },
+    "studies.txt": {
+      "bytes": 407498431,
+      "mtime_utc": "2026-08-30T18:12:46Z"
+    },
+    "design_groups.txt": {
+      "bytes": 238478968,
+      "mtime_utc": "2026-08-30T17:56:07Z"
+    },
+    "design_group_interventions.txt": {
+      "bytes": 56282730,
+      "mtime_utc": "2026-08-30T17:55:50Z"
+    }
+  },
+  "tool": "scripts/add_topic_autodiscover.py::find_ncts",
+  "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['palonosetron'] expanded through DRUG_SYNS; condition_patterns=['nausea'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "drug_patterns": [
+    "palonosetron"
+  ],
+  "condition_patterns": [
+    "nausea"
+  ],
+  "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
+  "pages": [
+    {
+      "page": 1,
+      "returned": 59,
+      "total_reported": 59,
+      "next_page_token": "NONE -- full-table scan, not a paged API"
+    }
+  ],
+  "records_returned_total": 59,
+  "total_reported": 59,
+  "distinct": 59,
+  "duplicates_across_pages": 0,
+  "nct_ids": [
+    "NCT00475085",
+    "NCT01363479",
+    "NCT01395901",
+    "NCT01442376",
+    "NCT02557035",
+    "NCT04817189",
+    "NCT02116530",
+    "NCT00828295",
+    "NCT02484911",
+    "NCT00553059",
+    "NCT03040726",
+    "NCT02635828",
+    "NCT00359567",
+    "NCT05841849",
+    "NCT06554184",
+    "NCT06331520",
+    "NCT01481831",
+    "NCT05199818",
+    "NCT03674294",
+    "NCT07482891",
+    "NCT06043336",
+    "NCT01088022",
+    "NCT03586817",
+    "NCT05956899",
+    "NCT04576390",
+    "NCT02541019",
+    "NCT02941913",
+    "NCT06540885",
+    "NCT00684463",
+    "NCT04585412",
+    "NCT02625181",
+    "NCT00967499",
+    "NCT01031498",
+    "NCT02597907",
+    "NCT01370408",
+    "NCT03204279",
+    "NCT00381862",
+    "NCT00410488",
+    "NCT00343863",
+    "NCT04592198",
+    "NCT00903396",
+    "NCT00895245",
+    "NCT00982995",
+    "NCT05690802",
+    "NCT07709897",
+    "NCT00666783",
+    "NCT00503386",
+    "NCT01482468",
+    "NCT07692451",
+    "NCT01476280",
+    "NCT02388750",
+    "NCT06904235",
+    "NCT03933605",
+    "NCT01018758",
+    "NCT02290470",
+    "NCT02445872",
+    "NCT07726433",
+    "NCT02970643",
+    "NCT05315999"
+  ],
+  "enumeration": {
+    "retrieved": 7348,
+    "identity_rejected": 7251,
+    "identity_reasons": {
+      "no intervention matches the drug pattern": 7227,
+      "matches only outside the experimental arm ('fosaprepitant dimeglumine for injection；palonosetron hydrochloride injection；dexamethasone')": 2,
+      "matches only as a component of the combination 'aprepitant+palonosetron+dexamethasone'": 1,
+      "matches only outside the experimental arm ('palonosetron')": 4,
+      "matches only as a component of the combination 'netupitant/palonosetron'": 2,
+      "matches only as a component of the combination 'palonosetron and dexamethasone'": 2,
+      "matches only outside the experimental arm ('fosaprepitant for injection+palonosetron hydrochloride injection')": 1,
+      "matches only outside the experimental arm ('palonosetron, aprepitant, dexamethasone')": 1,
+      "matches only as a component of the combination 'palonosetron + aprepitant'": 1,
+      "matches only as a component of the combination 'palonosetron+dexamethasone'": 1,
+      "matches only outside the experimental arm ('palonosetron hydrochloride')": 1,
+      "matches only outside the experimental arm ('palonosetron only')": 1,
+      "matches only as a component of the combination 'fosnetupitant/ palonosetron'": 1,
+      "matches only outside the experimental arm ('flurbiprofen axetil 150mg,palonosetron 0.5mg,pentazocine 240mg.')": 1,
+      "matches only as a component of the combination 'netupitant and palonosetron'": 3,
+      "matches only as a component of the combination 'total intravenous anesthesia plus palonosetron'": 1,
+      "matches only as a component of the combination 'pro-netupitant/palonosetron'": 1
+    },
+    "dropped_condition": 36,
+    "dropped_study_type": 2,
+    "eligible": 59
+  },
+  "bound": {
+    "applied": 500,
+    "source": "default",
+    "bit": false,
+    "ingested": 59,
+    "discarded": 0,
+    "discarded_ncts": [],
+    "note": "the bound did not bite: every eligible candidate was ingested"
+  },
+  "screening": {
+    "state": "NOT_RUN",
+    "reason": "no candidate in this record has been dispositioned. This is a state, not a silence: zero screened is not zero excluded, and an omitted field would read as nothing to report.",
+    "included": null,
+    "excluded": null,
+    "undecidable": null
+  }
+}

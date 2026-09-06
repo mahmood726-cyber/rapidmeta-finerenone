@@ -561,22 +561,114 @@ def main(argv):
                     if k == "c4":
                         gate.saw("c4-fail")
 
-    # ---------------- controls, counted from the SAME traversal -------------
-    neg = "AGYW_HIV_PREP_REVIEW.html"
+    # ---------------- pinned c1 case, because the corpus one was REPAIRED ----
+    #
+    # A CONTROL ANCHORED TO A LIVE CORPUS DEFECT RETIRES ITSELF THE MOMENT THE DEFECT
+    # IS FIXED. On 2026-09-04 ALIROCUMAB_LIPID_AUTO_FULL_REVIEW was the LAST page in
+    # this corpus failing clause 1: its Contributing-trials table rendered 6 rows under
+    # a headline stating k=8, so two trials -- NCT02289963 and NCT02585778 -- were named
+    # nowhere near a registration. Repairing that truncation (02a056a31) satisfied c1
+    # and left this gate VACUOUS on its own motivating case: it went BROKEN and refused
+    # to print a count, which is the correct behaviour and is why the state was noticed.
+    #
+    # SO THE REPAIR SPENT THE CONTROL. Every repair silently disarms the detector that
+    # found it unless that detector's case is synthetic or pinned. This is the pinned
+    # form: the ACTUAL pre-repair bytes, not an approximation of them --
+    #
+    #     gates/GATE16_C1_PINNED.html        1,344,077 B, sha256 0e3b1046866754d6...
+    #     gates/GATE16_C1_PINNED_STORE.json  the store as it stood beside them
+    #     taken from b77214332dd634e510907ce09d1cac18b1d2deeb:ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html
+    #
+    # IT IS ASSESSED THROUGH THE SAME assess() AS EVERY OTHER PAGE and no clause was
+    # touched to accommodate it. It is NOT added to `results`, so it cannot enter the
+    # ratchet, the counts or the false-positive rate: it does one thing, which is to
+    # keep `c1-fail` reachable. Following clause 4's precedent, its provenance is stated
+    # on the page rather than implied -- but unlike clause 4 this arm is NOT downgraded
+    # to a note, because a clause with a real historical instance should keep having to
+    # prove it can fail. Weakening the control would need its owner; strengthening it
+    # does not.
+    pin_html = os.path.join(REPO, "gates", "GATE16_C1_PINNED.html")
+    pin_store = os.path.join(REPO, "gates", "GATE16_C1_PINNED_STORE.json")
+    if os.path.exists(pin_html) and os.path.exists(pin_store):
+        try:
+            with io.open(pin_html, encoding="utf-8", errors="replace") as fh:
+                _ph = fh.read()
+            with io.open(pin_store, encoding="utf-8") as fh:
+                _pc = json.load(fh)
+            _pcl, _pev = assess("GATE16_C1_PINNED.html", _ph, _pc)
+            if _pcl.get("c1") is False:
+                gate.saw("c1-fail")
+                gate.note("c1-fail was reached via the PINNED fixture, not the corpus: "
+                          "%s. The corpus instance was repaired on 2026-09-04 and this "
+                          "clause now has ZERO live instances." % _pev.get("c1", ""))
+            else:
+                gate.broken("the pinned c1 fixture no longer fails clause 1. A pinned "
+                            "control that stops firing has been altered or the clause "
+                            "has changed underneath it; either way this gate can no "
+                            "longer prove it detects what it claims to.")
+        except Exception as exc:
+            gate.broken("the pinned c1 fixture could not be read (%s), so clause 1 has "
+                        "no reachable positive case." % type(exc).__name__)
+    else:
+        gate.broken("the pinned c1 fixture is missing, so clause 1 has no reachable "
+                    "positive case and no count from this gate is trustworthy.")
+
+    # ---------------- known-negative: PINNED, for the same reason the positive is ----
+    #
+    # A MUST-NOT-FIRE CASE IS AS PERISHABLE AS A MUST-FIRE ONE, AND THE ONLY TIME TO
+    # CAPTURE IT IS WHILE THE PAGE STILL SATISFIES IT.
+    #
+    # This control was AGYW_HIV_PREP_REVIEW.html, live. That page is queued for repair --
+    # its Contributing-trials table renders 0 rows against a declared k=2, and gate14
+    # reports 7 unanchored-authority claims in its prose. Repairing it would have changed
+    # the bytes this gate measures its FALSE-POSITIVE RATE against, disarming gate16 FROM
+    # THE NEGATIVE SIDE -- the exact mirror of what happened on 2026-09-04, when repairing
+    # ALIROCUMAB removed this gate's last live POSITIVE case and it went BROKEN and refused
+    # to print a count. Same lesson, opposite direction, and the window to prevent it was
+    # open only while the page still passed.
+    #
+    # Pinned while it passed all four clauses (c1..c4 all True, verified before copying):
+    #     gates/GATE16_NEG_PINNED.html        1,966,499 B
+    #         sha256 197191b4d7cc93f6c29483cb5adbe2a80761d36ef5bd9a817d1120db27398fda
+    #     gates/GATE16_NEG_PINNED_STORE.json  the store as it stood beside it
+    #     taken from AGYW_HIV_PREP_REVIEW.html at cf73671cd8a9dc0e0a37f052b5448d40fb46d1b8
+    #
+    # ROT-GUARD, the same one the positive fixture carries: IF THE PINNED NEGATIVE EVER
+    # STARTS FIRING, that is `broken` -- it was altered, or a clause moved underneath it --
+    # and no count from this gate is trustworthy until someone looks. A pinned control
+    # without its own guard rots more slowly than a corpus-anchored one, which is worse,
+    # because nobody is watching by then.
+    neg = "GATE16_NEG_PINNED.html"
     fp = 0
     examples = []
-    if neg in results:
-        cl, ev = results[neg]
-        bad = [k for k, v in cl.items() if v is False]
-        if bad:
-            fp = 1
-            examples.append("%s flagged on %s -- %s"
-                            % (neg, ",".join(bad), "; ".join(ev[k] for k in bad)))
+    n_neg = 0
+    neg_html = os.path.join(REPO, "gates", "GATE16_NEG_PINNED.html")
+    neg_store = os.path.join(REPO, "gates", "GATE16_NEG_PINNED_STORE.json")
+    if os.path.exists(neg_html) and os.path.exists(neg_store):
+        try:
+            with io.open(neg_html, encoding="utf-8", errors="replace") as fh:
+                _nh = fh.read()
+            with io.open(neg_store, encoding="utf-8") as fh:
+                _nc = json.load(fh)
+            _ncl, _nev = assess(neg, _nh, _nc)
+            n_neg = 1
+            bad = [k for k, v in _ncl.items() if v is False]
+            if bad:
+                fp = 1
+                examples.append("%s flagged on %s -- %s"
+                                % (neg, ",".join(bad), "; ".join(_nev[k] for k in bad)))
+                gate.broken("the PINNED known-negative now fails clause(s) %s. It passed "
+                            "every clause when it was pinned, so either the fixture was "
+                            "altered or a clause moved underneath it. No count from this "
+                            "gate is trustworthy until that is resolved."
+                            % ",".join(bad))
+        except Exception as exc:
+            gate.broken("the pinned known-negative could not be read (%s), so the "
+                        "false-positive rate is UNMEASURED -- which is not a measured "
+                        "zero." % type(exc).__name__)
     else:
-        gate.broken("the known-negative control %s was not reached by the traversal, "
-                    "so the false-positive rate is unmeasured and no count is "
-                    "trustworthy." % neg)
-    n_neg = 1 if neg in results else 0
+        gate.broken("the pinned known-negative fixture is missing, so the false-positive "
+                    "rate is unmeasured and no count is trustworthy.")
     gate.control(n_neg, fp, examples)
 
     # ---------------- ratchet -----------------------------------------------

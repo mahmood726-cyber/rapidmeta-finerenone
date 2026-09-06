@@ -2163,7 +2163,9 @@
     "date_executed": "2026-08-19",
     "records_returned": 23,
     "total_reported": 23,
-    "DEFECT_FOUND": "This query did NOT surface NCT03619213 (DELIVER), which is one of this object's OWN INCLUDED TRIALS. DELIVER registers its condition as 'Heart Failure With Preserved Ejection Fraction' -- no 'chronic' -- while DAPA-HF registers 'Chronic Heart Failure With Reduced Ejection Fraction'. A condition term one word narrower than the registry's own wording dropped an included trial. Recorded rather than replaced: a search that missed something is evidence about the search."
+    "DEFECT_FOUND": "This query did NOT surface NCT03619213 (DELIVER), which is one of this object's OWN INCLUDED TRIALS. DELIVER registers its condition as 'Heart Failure With Preserved Ejection Fraction' -- no 'chronic' -- while DAPA-HF registers 'Chronic Heart Failure With Reduced Ejection Fraction'. A condition term one word narrower than the registry's own wording dropped an included trial. Recorded rather than replaced: a search that missed something is evidence about the search.",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (23) minus records_returned (23). Both are this object's own recorded numbers."
    },
    {
     "database": "ClinicalTrials.gov API v2 -- QUERY 2, BROADER, COVERS THE INCLUDED SET",
@@ -2181,7 +2183,9 @@
      "agrees_with_mcp": true
     },
     "covers_all_included": true,
-    "note": "All four included trials surfaced by this query and all four roled EXPERIMENTAL."
+    "note": "All four included trials surfaced by this query and all four roled EXPERIMENTAL.",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (56) minus records_returned (56). Both are this object's own recorded numbers."
    },
    {
     "database": "PubMed (NCBI E-utilities esearch)",
@@ -2193,7 +2197,21 @@
     "records_not_retrieved": 1402,
     "IMPORTANT": "50 of 1452 retrieved. The other 1402 are UNEXAMINED, not excluded. This search is recorded because it was executed and because the published-meta comparison will consume it, NOT because it contributed to the included set, which is keyed on registration ids."
    }
-  ]
+  ],
+  "retrieval_remainder": {
+   "state": "PROVED",
+   "total": 1402,
+   "by_source": {
+    "ClinicalTrials.gov API v2 -- QUERY 1, NARROWER, AND IT MISSED AN INCLUDED TRIAL": 0,
+    "ClinicalTrials.gov API v2 -- QUERY 2, BROADER, COVERS THE INCLUDED SET": 0,
+    "PubMed (NCBI E-utilities esearch)": 1402
+   },
+   "sources_not_executed": [],
+   "_scope": "Records a SEARCH returned and this object never retrieved. It is NOT the screening remainder: k_cascade.k_unscreened_remainder counts candidates that ENTERED the cascade and went unscreened, and both are published because they answer different questions.",
+   "_not": "This is not a completeness claim. It says how many records were returned and not retrieved -- nothing about whether the query was well aimed, nor whether the retrieved records were the right ones.",
+   "_why_not_provable": null,
+   "_executed_only": null
+  }
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed searches above.",

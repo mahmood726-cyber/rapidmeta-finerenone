@@ -87,7 +87,55 @@ def main():
                 unrecorded.append(rec)
 
     unrec_pooling = [r for r in unrecorded if r["pools"]]
+
+    # KNOWN-NEGATIVE, NAMED RATHER THAN DESCRIBED, RATE MEASURED NOT ASSERTED.
+    #
+    #     incretin-hfpef-review / kccq_css_change
+    #
+    # THIS IS THE OUTCOME THAT MOTIVATED THIS SWEEP. The docstring above records it as the
+    # block that "asserted sameness along an axis it did not record" -- estimand_established
+    # True with zero occurrences of any estimand vocabulary. It has since been repaired: it
+    # now carries `estimand_axis` on all three contributing rows, and it POOLS (k=3), so it
+    # is exactly the shape this sweep reports under C.
+    #
+    # It is therefore the case this check is MOST LIKELY TO GET WRONG. Any regression that
+    # stopped reading the structured `estimand_axis` block -- or went back to keying on a
+    # single spelling, the trap this file's own docstring warns about -- would put the
+    # ORIGINAL DEFECT back on the C list and the number would look like a real finding.
+    # A negative drawn from the easy majority cannot detect that; this one does.
+    #
+    # PERISHABLE AND SAID SO. This control is anchored to a LIVE corpus block, not a pinned
+    # fixture, so an edit to incretin-hfpef-review can retire it -- the failure that took
+    # gate16 down on 2026-09-04. It is not pinned here because a per-check 1 MB fixture does
+    # not scale across this suite; instead it FAILS CLOSED: if the block is no longer
+    # reachable the rate is UNMEASURED and the sweep refuses, rather than reporting a zero
+    # it did not measure. If this check is ever wired as a blocking gate, pin it first.
+    KNOWN_NEGATIVE = ("incretin-hfpef-review", "kccq_css_change")
+    NEG_TOPIC, NEG_OUTCOME = KNOWN_NEGATIVE
+    neg = [r for r in asserted
+           if r["topic"] == NEG_TOPIC and r["outcome"] == NEG_OUTCOME]
+    neg_reached = len(neg)
+    neg_fp = sum(1 for r in neg if r in unrecorded)
+
     print("OUTCOME BLOCKS IN THE CORPUS: %d" % total_outcomes)
+    print()
+    if not neg_reached:
+        print("KNOWN-NEGATIVE CONTROL: UNMEASURED -- %s/%s was not reached by this "
+              "traversal." % (NEG_TOPIC, NEG_OUTCOME))
+        print("   An unmeasured false-positive rate is NOT a measured zero, and this")
+        print("   control is corpus-anchored, so it can be retired by an edit. REFUSED.")
+        return 1
+    print("KNOWN-NEGATIVE CONTROL: %d/%d matched (measured false-positive rate %.1f%%)"
+          % (neg_fp, neg_reached, 100.0 * neg_fp / neg_reached))
+    print("   %s/%s -- the block that MOTIVATED this sweep, since repaired: it asserts"
+          % (NEG_TOPIC, NEG_OUTCOME))
+    print("   estimand_established, records the axis STRUCTURALLY on all 3 rows, and pools.")
+    print("   It must never appear under C. A regression to prose-only or single-spelling")
+    print("   detection would put the original defect back on that list.")
+    if neg_fp:
+        print("   CONTROL FAILED: the sweep flagged the case it must not. REFUSED; no count "
+              "below is trusted.")
+        return 1
     print()
     print("A  assert `estimand_established: True`            %4d" % len(asserted))
     print("B  of those, record the estimand STRUCTURALLY     %4d" % len(recorded_struct))

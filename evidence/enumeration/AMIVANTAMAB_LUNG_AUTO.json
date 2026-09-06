@@ -1,0 +1,107 @@
+{
+  "topic": "AMIVANTAMAB_LUNG_AUTO",
+  "executed_utc": "2026-09-03T20:06:40Z",
+  "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
+  "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
+  "database_fingerprint": {
+    "interventions.txt": {
+      "bytes": 217740084,
+      "mtime_utc": "2026-08-30T18:01:33Z"
+    },
+    "conditions.txt": {
+      "bytes": 69968244,
+      "mtime_utc": "2026-08-30T17:55:46Z"
+    },
+    "studies.txt": {
+      "bytes": 407498431,
+      "mtime_utc": "2026-08-30T18:12:46Z"
+    },
+    "design_groups.txt": {
+      "bytes": 238478968,
+      "mtime_utc": "2026-08-30T17:56:07Z"
+    },
+    "design_group_interventions.txt": {
+      "bytes": 56282730,
+      "mtime_utc": "2026-08-30T17:55:50Z"
+    }
+  },
+  "tool": "scripts/add_topic_autodiscover.py::find_ncts",
+  "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['amivantamab'] expanded through DRUG_SYNS; condition_patterns=['lung'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "drug_patterns": [
+    "amivantamab"
+  ],
+  "condition_patterns": [
+    "lung"
+  ],
+  "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
+  "pages": [
+    {
+      "page": 1,
+      "returned": 26,
+      "total_reported": 26,
+      "next_page_token": "NONE -- full-table scan, not a paged API"
+    }
+  ],
+  "records_returned_total": 26,
+  "total_reported": 26,
+  "distinct": 26,
+  "duplicates_across_pages": 0,
+  "nct_ids": [
+    "NCT04487080",
+    "NCT04988295",
+    "NCT05388669",
+    "NCT04538664",
+    "NCT05663866",
+    "NCT02609776",
+    "NCT04077463",
+    "NCT05498428",
+    "NCT06667076",
+    "NCT06120140",
+    "NCT06116682",
+    "NCT07507188",
+    "NCT05908734",
+    "NCT07586202",
+    "NCT05601973",
+    "NCT05801029",
+    "NCT07227025",
+    "NCT05488314",
+    "NCT05299125",
+    "NCT04965090",
+    "NCT07392658",
+    "NCT06784791",
+    "NCT05845671",
+    "NCT06532032",
+    "NCT05395052",
+    "NCT06083857"
+  ],
+  "enumeration": {
+    "retrieved": 7348,
+    "identity_rejected": 7307,
+    "identity_reasons": {
+      "no intervention matches the drug pattern": 7303,
+      "matches only as a component of the combination 'oric-114 dose 1 + amivantamab'": 1,
+      "matches only as a component of the combination 'amivantamab and recombinant human hyaluronidase'": 1,
+      "matches only as a component of the combination 'amivantamab + folfiri'": 1,
+      "matches only as a component of the combination 'amivantamab+ systemic/ intrathecal pemetrexed'": 1
+    },
+    "dropped_condition": 14,
+    "dropped_study_type": 1,
+    "eligible": 26
+  },
+  "bound": {
+    "applied": 500,
+    "source": "default",
+    "bit": false,
+    "ingested": 26,
+    "discarded": 0,
+    "discarded_ncts": [],
+    "note": "the bound did not bite: every eligible candidate was ingested"
+  },
+  "screening": {
+    "state": "NOT_RUN",
+    "reason": "no candidate in this record has been dispositioned. This is a state, not a silence: zero screened is not zero excluded, and an omitted field would read as nothing to report.",
+    "included": null,
+    "excluded": null,
+    "undecidable": null
+  }
+}

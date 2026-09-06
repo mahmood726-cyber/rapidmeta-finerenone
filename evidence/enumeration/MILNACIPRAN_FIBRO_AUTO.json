@@ -1,0 +1,101 @@
+{
+  "topic": "MILNACIPRAN_FIBRO_AUTO",
+  "executed_utc": "2026-09-03T20:06:40Z",
+  "state": "EXECUTED, WHOLE SNAPSHOT SCANNED, NO CURSOR TO EXHAUST",
+  "database": "AACT 2026-08-30 (local snapshot, full-table scan)",
+  "database_fingerprint": {
+    "interventions.txt": {
+      "bytes": 217740084,
+      "mtime_utc": "2026-08-30T18:01:33Z"
+    },
+    "conditions.txt": {
+      "bytes": 69968244,
+      "mtime_utc": "2026-08-30T17:55:46Z"
+    },
+    "studies.txt": {
+      "bytes": 407498431,
+      "mtime_utc": "2026-08-30T18:12:46Z"
+    },
+    "design_groups.txt": {
+      "bytes": 238478968,
+      "mtime_utc": "2026-08-30T17:56:07Z"
+    },
+    "design_group_interventions.txt": {
+      "bytes": 56282730,
+      "mtime_utc": "2026-08-30T17:55:50Z"
+    }
+  },
+  "tool": "scripts/add_topic_autodiscover.py::find_ncts",
+  "query_as_executed": "scan interventions.txt x conditions.txt x studies.txt; drug_patterns=['milnacipran'] expanded through DRUG_SYNS; condition_patterns=['fibromyalgia'] expanded through COND_SYNS; gates applied in order: trial_identity(_studies_subject: experimental-arm, non-combination) -> condition(_match_blob token_subset + COND_SYNS) -> study_type(not explicitly non-interventional)",
+  "drug_patterns": [
+    "milnacipran"
+  ],
+  "condition_patterns": [
+    "fibromyalgia"
+  ],
+  "sort_order": "-pivotal_score, then -enrollment, then nct_id ascending (total ordering)",
+  "pages": [
+    {
+      "page": 1,
+      "returned": 20,
+      "total_reported": 20,
+      "next_page_token": "NONE -- full-table scan, not a paged API"
+    }
+  ],
+  "records_returned_total": 20,
+  "total_reported": 20,
+  "distinct": 20,
+  "duplicates_across_pages": 0,
+  "nct_ids": [
+    "NCT00314249",
+    "NCT00797797",
+    "NCT01014585",
+    "NCT00618956",
+    "NCT01077375",
+    "NCT01108731",
+    "NCT01829243",
+    "NCT01173055",
+    "NCT01234675",
+    "NCT00793520",
+    "NCT00436033",
+    "NCT00098124",
+    "NCT00757731",
+    "NCT01125423",
+    "NCT01359826",
+    "NCT01328002",
+    "NCT01331109",
+    "NCT00757679",
+    "NCT05384210",
+    "NCT01294059"
+  ],
+  "enumeration": {
+    "retrieved": 7348,
+    "identity_rejected": 7295,
+    "identity_reasons": {
+      "no intervention matches the drug pattern": 7291,
+      "matches only as a component of the combination 'educational with milnacipran'": 1,
+      "matches only outside the experimental arm ('milnacipran')": 1,
+      "matches only as a component of the combination 'milnacipran and d-cycloserine'": 1,
+      "matches only as a component of the combination 'cbt and milnacipran'": 1
+    },
+    "dropped_condition": 33,
+    "dropped_study_type": 0,
+    "eligible": 20
+  },
+  "bound": {
+    "applied": 500,
+    "source": "default",
+    "bit": false,
+    "ingested": 20,
+    "discarded": 0,
+    "discarded_ncts": [],
+    "note": "the bound did not bite: every eligible candidate was ingested"
+  },
+  "screening": {
+    "state": "NOT_RUN",
+    "reason": "no candidate in this record has been dispositioned. This is a state, not a silence: zero screened is not zero excluded, and an omitted field would read as nothing to report.",
+    "included": null,
+    "excluded": null,
+    "undecidable": null
+  }
+}

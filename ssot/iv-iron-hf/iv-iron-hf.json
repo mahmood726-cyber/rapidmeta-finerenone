@@ -4307,6 +4307,8 @@
     "http_status": 200,
     "records_returned": 16,
     "total_reported": 16,
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (16) minus records_returned (16). Both are this object's own recorded numbers.",
     "DEFECT_FOUND": "This query surfaced only 3 of this object's 5 OWN INCLUDED TRIALS. It missed AFFIRM-AHF (NCT02937454), whose registered condition is 'Iron Deficiency; Heart Failure', and HEART-FID (NCT03037931), registered as 'Heart Failure; Iron-deficiency'. NEITHER CARRIES THE WORD 'CHRONIC'. This is the same defect shape that dropped DELIVER from the sglt2-hf query: a condition term one word narrower than the registry's own wording silently loses included trials. It is recorded rather than replaced, because a search's misses are the only available evidence about its recall."
    },
    {
@@ -4317,11 +4319,27 @@
     "http_status": 200,
     "records_returned": 47,
     "total_reported": 47,
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (47) minus records_returned (47). Both are this object's own recorded numbers.",
     "recall_on_included_set": "5/5"
    }
   ],
   "why_raw_and_not_the_mcp_client": "Arm TYPES exist only in the raw v2 payload; the flattened MCP payload drops them, and a role reader handed a flattened payload cannot tell 'no experimental arm' from 'the field is absent'. ssot/ctgov_transport.require_raw_v2() RAISES rather than returning a verdict for exactly this reason.",
-  "count_reconciliation_against_the_earlier_run": "An earlier execution tonight recorded k0=40 with roles 30/4/4/2. THIS run returns k0=47 with 34/6/5/2. THE DIFFERENCE IS THE QUERY, NOT THE REGISTRY: query 2 above adds the term 'intravenous iron' to the intervention list, which surfaces seven further interventional records. Both numbers are correct for their own query. The earlier figure is superseded HERE AND NAMED rather than silently overwritten, because a count that changes without an explanation is indistinguishable from a count that was wrong."
+  "count_reconciliation_against_the_earlier_run": "An earlier execution tonight recorded k0=40 with roles 30/4/4/2. THIS run returns k0=47 with 34/6/5/2. THE DIFFERENCE IS THE QUERY, NOT THE REGISTRY: query 2 above adds the term 'intravenous iron' to the intervention list, which surfaces seven further interventional records. Both numbers are correct for their own query. The earlier figure is superseded HERE AND NAMED rather than silently overwritten, because a count that changes without an explanation is indistinguishable from a count that was wrong.",
+  "retrieval_remainder": {
+   "state": "PROVED",
+   "total": 0,
+   "by_source": {
+    "ClinicalTrials.gov API v2 -- QUERY 1, NARROWER, AND IT MISSED TWO INCLUDED TRIALS": 0,
+    "ClinicalTrials.gov API v2 -- QUERY 2, BROADER, FULL RECALL ON THE INCLUDED SET": 0
+   },
+   "sources_not_executed": [],
+   "_scope": "Records a SEARCH returned and this object never retrieved. It is NOT the screening remainder: k_cascade.k_unscreened_remainder counts candidates that ENTERED the cascade and went unscreened, and both are published because they answer different questions.",
+   "_not": "This is not a completeness claim. It says how many records were returned and not retrieved -- nothing about whether the query was well aimed, nor whether the retrieved records were the right ones.",
+   "_why_not_provable": null,
+   "_executed_only": null,
+   "_merge_note_2026_09_06": "Grafted from main at merge: main proved retrieval_remainder=0 while this branch refined the screening labels; both are kept."
+  }
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed searches above.",

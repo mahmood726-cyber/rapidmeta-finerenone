@@ -5160,3 +5160,394 @@ exists. The ten largest by harm-named registered outcomes already read: `malaria
 control and the audit now reports **113** (synthetic 98 → 105). Measured with this lane's
 gate and tests **removed from the tree**, so the +7 is not ours. Not regenerated here:
 committing another lane's artefact mixes lanes.
+
+---
+
+## Class 99 — the enumeration lane, 2026-09-03/04
+
+Six entries. Every number below is MEASURED against AACT `2026-08-30` unless stated, and each
+names the command that re-derives it. Two of the six are corrections to claims **this lane
+itself made and reported with confidence**, which is why they are here rather than in a
+handover.
+
+### Class 99a — A FIX MEASURED ON THE WRONG POPULATION
+
+> ***THERE ARE TWO BUILD PATHS. `368 → 1,805` IS A PATH-A NUMBER. EVERY PAGE WE HAVE SPENT
+> THIS WEEK AUDITING — SGLT2_HF, TIGECYCLINE_CIAI, ARNI, THE HFrEF NMA — IS PATH B, BUILT BY
+> `build_tabbed.py` FROM A HAND-CURATED STORE OBJECT. RAISING THE CAP CANNOT MOVE THEM AND
+> NEVER COULD.***
+
+`ssot/PAGE_MAP.json` maps 163 pages to `ssot/<app_id>/<app_id>.json`, built by
+`ssot/build_tabbed.py <object.json> <out.html>`. `find_ncts` never runs for any of them.
+
+    grep "sglt2-hf" scripts/add_topic_autodiscover.py   ->  0
+
+That one line is the whole proof. The cap fix, the ledger, the 1,453 discarded candidates —
+all Path A. **A fix measured on the wrong population is the same error as coverage of the
+wrong surface**, and it was reported upward as "the path from 10 to 20" before anyone
+established there were two paths.
+
+**Rejected by:** nothing yet. There is no instrument that refuses a claim about "the corpus"
+which was measured on one of two disjoint build paths. That is the open half of this class.
+
+### Class 99b — A PATH WITH NO ENUMERATION ROUTE
+
+> ***A PATH-B TRIAL SET IS HAND-AUTHORED, OR SCRAPED BACK OUT OF A PAGE THAT ALREADY HAD IT.
+> THERE IS NO ROUTE BY WHICH SEARCHING THE WORLD PUTS A TRIAL ON A FLAGSHIP PAGE.***
+
+Measured over all 163 PAGE_MAP objects, 0 missing or unparseable:
+
+| | |
+|---|---|
+| objects **with** an executed search | **20** |
+| objects **without** one | **143** (87.7%) |
+| with `prisma_flow` / `k_cascade` | 19 / 19 |
+
+`build_mode`: `verdict-only` 72, `AUTHORED` 35, `CONVERTED` 22, `full` 14, absent 14, other 6.
+
+The only writer is `scripts/extract_to_ssot.py`, which converts an extractor object
+**produced by reading a page that already exists**. Its own docstring: *"It did not recover a
+protocol, a search, a screening log … because none of those are in the page it read"*, and
+*"NOT that the trial set is complete or correctly attributed."*
+
+This is the hand-typed-identifier finding **at the layer that serves readers**. Every
+enumeration improvement made this week runs on the path whose pages nobody has been reviewing.
+
+**Rejected by:** nothing. Scoping the work is the next task and is deliberately not started.
+
+### Class 99c — THE SELECTOR, NOT THE BOUND
+
+> ***`3 → 15` IS THE MATCHER. `15 → 44` IS THE BOUND.***
+
+Over all 14 `NOT_VIABLE` topics, gate D **decided** against live PubMed (198 PMIDs requested,
+198 returned, 0 of 4 batches failed):
+
+| | |
+|---|---|
+| VIABLE on the current head-8 (old cap, new matcher) | **5** |
+| VIABLE on the full pool (raised cap) | **5** |
+| VIABLE **only** because the cap was raised | **0** |
+
+Trials from those five topics — four numbers that were being quoted as one trajectory:
+
+| what | n |
+|---|---:|
+| passing trials as production recorded (`n_pass_all`) | **3** |
+| the delivered 8 re-audited against today's data | **4** |
+| the current ranked head-8 | **15** |
+| the full pool | **44** |
+
+`add_topic_autodiscover.py:5285` says the old matcher returned *"the FIRST `max_per_topic`
+matches in arbitrary interventions.txt file order"*. For `VENETOCLAX_CLL_AUTO` those eight
+were recent registrations with no posted results; all eight failed gate E and the topic was
+written off, while seven of them are still in the pool, ranked far down.
+
+**The load-bearing control, without which the diagnosis is circumstantial:**
+
+> ***VENETOCLAX's RE-AUDITED DELIVERED-8 IS STILL 0 TODAY.*** The eight it was judged on do
+> not pass now either. That rules out the registry having changed and leaves the selector as
+> the cause. Confirmed independently: those eight carry overall baseline rows in the April
+> snapshot (7 of 8) and the August one (8 of 8), so staleness is not it.
+
+**The cap cost candidates. The arbitrary file-order selection cost topics.**
+
+An earlier pass in this same lane reported **7 resurrections, 1 from the cap**. It could not
+decide gate D and said so — an upper bound doing its job. With abstracts fetched it is **5
+and 0**. Likewise "zero delivered-vs-head overlap" is a **VENETOCLAX and PALONOSETRON
+property, 2 of 14**, not corpus-wide, and was repeated as corpus-wide before being checked.
+
+**Rejected by:** `scripts/rerun_path_a_named_sample_2026_09_04.py`, which reads the viability
+bar out of the source rather than carrying a copy and refuses if it cannot find it.
+
+### Class 99d — A SILENCE CONTRIBUTES ZERO TO A SUM AND NOTHING TO A CLAIM
+
+> ***THE PUBLISHED `0` IS ASSEMBLED FROM TWO SILENCES AND ONE HONEST `1,402`. ABSENT AND `0`
+> ARE DIFFERENT CLAIMS, AND ONLY ONE OF THEM CAN BE CHECKED.***
+
+`ssot/sglt2-hf/sglt2-hf.json` records per source, honestly:
+
+    search.databases[0]  ClinicalTrials.gov q1   returned 23    total 23     not_retrieved ABSENT
+    search.databases[1]  ClinicalTrials.gov q2   returned 56    total 56     not_retrieved ABSENT
+    search.databases[2]  PubMed                  returned 50    total 1452   not_retrieved 1402
+
+and then publishes `k_cascade.k_unscreened_remainder: 0`, reconciling `56 identified = 49 + 1
++ 6 + 0` — ClinicalTrials only. `SGLT2_HF_REVIEW.html` renders *"unscreened remainder 0."* and
+contains `1452` once and `1402` **zero times**.
+
+The two ClinicalTrials rows have **no remainder field at all**. Their remainder genuinely *is*
+zero, and the object never says so. **This generalises past this gate: every aggregate we
+publish is a sum over fields that may be silent, and a silence adds zero to the sum while
+adding nothing to the claim.** It belongs beside the container-vs-contents law. The gate
+therefore demands the number be **present**, not merely correct.
+
+**Rejected by:** `scripts/gate_remainder_is_per_source_2026_09_04.py`, wired into
+`.githooks/pre-commit`. Controls both ways; empty population returns **exit 2
+NOT_ASSESSABLE**, never a pass; removing an app from the baseline is demonstrated to produce
+`[NEW]` and exit 1.
+
+### Class 99e — WHAT A READER FINDS IS A SAMPLE OF WHAT AN INSTRUMENT FINDS
+
+> ***THE ONE PAGE AN EXTERNAL REVIEWER HAPPENED TO LOOK AT WAS ONE OF SIX.***
+
+`0 PROVED / 19 REFUSED` of the 19 objects publishing an aggregate remainder:
+
+```
+SEVERE -- serves 0 while its own sources sum to unexamined records
+   sglt2-hf                   1,402   SGLT2_HF_REVIEW.html
+   apixaban-vte-prophylaxis     389   APIXABAN_VTE_PROPHYLAXIS_REVIEW.html
+   apixaban-vte-treatment       389   APIXABAN_VTE_TREATMENT_REVIEW.html
+   bempedoic-acid-review         59   BEMPEDOIC_ACID_REVIEW.html
+   bococizumab-lipid-review      59   (two pages)
+                              -----
+   total served as zero       2,357
+```
+
+Plus 13 in the milder form. A reviewer found 1,402 on one page; the gate found **2,357 across
+six**. **19 apps are baselined as OWED, not cleared** — repairing one means editing a store
+object that serves a page, which needs the before/after page protocol and is not a rename.
+
+**And the failure mode kept OUT of the tooling, deliberately.** The same gate leaves
+`reconciliation.gap_stated_plainly` untouched: it names all 45 of the 49 → 4 **screening**
+gap, trial by trial, and is exactly what a reader needs. *A gate conflating retrieval with
+screening would refuse the best-documented object in the corpus for being well documented.*
+That confusion was made three times in the reading tonight and never in the tooling; the
+reason is recorded here so it does not arrive there later.
+
+### Class 99f — A CHECK WHOSE SCOPE IS NEITHER YOUR COMMIT NOR THE TRUNK
+
+`.githooks/pre-push` computes `RANGE="$remote_sha..$local_sha"` and exits 0 at line 231 when
+that range holds no `*_REVIEW.html`. Measured:
+
+    git diff --name-only 3bc1364b..HEAD -- '*_REVIEW.html'   ->  (empty)
+    git diff --name-only b7721433..HEAD -- '*_REVIEW.html'   ->  HFREF_NMA_AUTO_FULL_REVIEW.html
+
+The remote was **ahead** of the lane's base, so the range spanned a sibling commit
+(`d38fe28c`) and the hook regression-checked a page this lane never touched and would have
+been **reverting**. One variable, producing both halves at once:
+
+> **Gated on another lane's work, and ungated on its own.** The seven-gate loop at line 430
+> sits BELOW the line-231 exit, so **eight of this lane's nine pushes never ran those seven
+> gates.** The hook's own header at lines 136–143 documents exactly this for an earlier set
+> and calls them *"installed, invoked, and inert."* Still true.
+
+**Not fixed here.** It is another lane's hook and the repair is a scoping decision, not an
+edit. The new gate in 99d was wired into **pre-commit instead**, which routes around the
+broken guard while leaving the guard for its owner.
+
+**Rejected by:** nothing. Routed to a fresh owner.
+
+### Class 99g — A LANE OPENED ON A FIGURE WHOSE PROVENANCE WAS NEVER ESTABLISHED
+
+The brief that started this lane gave `398 trials across 135 topics, 125 of 135 ingesting
+<= 5`. Measured over Path B at the end of it:
+
+| | brief | Path B measured |
+|---|---:|---:|
+| trials | 398 | **393** |
+| topics | 135 | **152** |
+| k <= 5 | 125 of 135 | **143 of 152** |
+
+> **The number that motivated the entire lane was a PATH-B figure, and the entire lane ran on
+> PATH A.** The cap, the ledger, the 1,453 discarded candidates and the 5 resurrected topics
+> are all Path A. Nobody checked which population the opening figure described, including the
+> people who quoted it — this lane among them, for a full night.
+
+This is 99a from the other end. 99a is *a fix measured on the wrong population*; this is *a
+brief written from the wrong population*. **Both were invisible for the same reason: the two
+paths have never been named anywhere, so nothing prompted anyone to ask which one a number
+came from.**
+
+**Rejected by:** nothing. The check that would close both is the same one: a claim about "the
+corpus" must name which build path it was measured on, and no instrument asks that.
+
+### Class 99h — AND THE SAME ERROR, ONE LAYER DOWN, IN THE RECOMMENDATION
+
+`PATH-B-ENUMERATION-SCOPE.md` as first written recommended stage 1 on the grounds that it
+*"fixes that class across 134 objects without adding a single trial"*. **It was acted on.**
+Measured immediately afterwards:
+
+| category | objects |
+|---|---:|
+| A publishes an aggregate remainder AND records sources | **17** |
+| C records sources but publishes no aggregate | **1** |
+| D neither — cannot have a remainder until a search is executed | **134** |
+| B publishes an aggregate with no sources | **0** |
+
+> **The 134 do not publish a false zero. They publish nothing at all.** The unproven-remainder
+> class lives entirely in the 17, and fixing the 134 is not *record a number* — it is *execute
+> 134 searches*, the expensive stage, recommended as the cheap one.
+
+The recommendation's DIRECTION survived — publishing an honest remainder is still cheaper and
+more valuable than raising `k`, and `early-rhythm-control-af` with `k=1` and a truthful 88 is
+still less misleading than `sglt2-hf` with `k=4` and a false 0. **Its POPULATION did not.**
+Corrected in place, with the superseded sentence quoted rather than deleted.
+
+    A RECOMMENDATION IS A COUNT WITH A VERB ATTACHED, and it inherits every denominator
+    defect this registry catalogues. This one named the largest number in view (134) rather
+    than the number the class actually covered (17).
+
+**Rejected by:** `scripts/gate_remainder_is_per_source_2026_09_04.py` distinguishes the four
+categories, so the mistake is now one command away from being caught. It was one command away
+before, too, and the command was not run before the recommendation was made.
+
+### LEAD — NAME THE TWO PATHS, BECAUSE NEITHER 99a NOR 99g SURVIVES IT
+
+99a and 99g are the same absence seen from two ends: *a fix measured on the wrong population*
+and *a brief written from the wrong one*. Both were invisible because **the two build paths
+have never been named anywhere**, so nothing prompted anyone to ask which one a number came
+from. The cheapest preventive fix available is therefore a documentation one, and it is done:
+`BUILD-PATHS.md`.
+
+> **Before quoting a number about "the corpus", say which path it was measured on. If you
+> cannot, you do not yet have the number.**
+
+**And naming them exposed a third population nobody has counted.** `PAGE_MAP` holds 163
+entries over 152 objects; `outputs/new_topics/` holds 66 tracked records; the delivered corpus
+is ~1,427 `*_REVIEW*.html` pages. **The remainder belongs to neither path and has never been
+enumerated** — `VENETOCLAX_CLL_REVIEW.html` is one instance, absent from `PAGE_MAP` with an
+`*_AUTO` sibling that is a different topic. Any statement of the form "the corpus has N pages"
+is a reach figure until that third population is counted.
+
+**Rejected by:** nothing yet. `BUILD-PATHS.md` is prose, and prose did not hold the
+`git add -A` rule either. The mechanical form would be a check that refuses a committed
+document asserting a corpus-wide count without naming its path.
+
+### Class 99i — A REPAIR THAT WOULD HAVE DESTROYED THE ONLY CORRECT INSTANCE
+
+The approved plan for the retrieval-remainder fix was to recompute
+`k_cascade.k_unscreened_remainder` as the sum of the per-source remainders. Applied, it would
+have written **0** over `early-rhythm-control-af`'s **88**.
+
+That 88 is the only correct aggregate remainder in the corpus. It counts trials read by ONE
+seat during a 352-trial adjudication, and it refuses to treat a single reading as a screen.
+
+> ***THE REPAIR WOULD HAVE DESTROYED THE ONE NUMBER THAT GOT IT RIGHT WHILE FIXING THE ONES
+> THAT DID NOT*** — and it was aimed, without anyone intending it, at the single object this
+> project holds up as the standard.
+
+**The plan was the reviewer's; the correction was the implementer's**, and it came from
+re-diagnosing mid-build rather than executing the approved design. What surfaced it was
+reading what `k_unscreened_remainder` MEANS on each object instead of what it equals:
+sglt2-hf's 0 is backed by *"all 32 screened"* and *"all 10 screened"*; early-rhythm-control-af's
+88 by trials one seat read. **Both are SCREENING remainders and both are correct.** The defect
+was never a wrong aggregate — it was a MISSING one, and no object in the corpus published how
+many records a search returned and nobody retrieved.
+
+The fix became purely additive and **the step that removed a published number was not
+performed at all.**
+
+**And the instrument had the same defect.** `gate_remainder_is_per_source_2026_09_04.py`
+shipped one commit earlier refusing sglt2-hf on the grounds that `k_unscreened_remainder` was
+wrong.
+
+> **A gate that accuses a correct field is the defect class this repository catalogues, and
+> mine did it in the commit that introduced it.**
+
+Corrected in place: it now checks `search.retrieval_remainder` and leaves every screening
+field alone.
+
+**Rejected by:** nothing general. The specific case is closed; the class — *a repair aimed at
+a population that includes the one instance already correct* — has no instrument. The cheap
+form would be: before a bulk correction, name the members of the target population that are
+already right, and require the correction to leave them unchanged.
+
+### Class 99j — TWO CONTROLS ARE A PROOF OF TWO POINTS, NOT A PROOF OF COVERAGE
+
+`gate_remainder_is_per_source` carried a positive control (**missing block → REFUSED**) and a
+negative control (**correct block → PROVED**). Both held. **Both hold on a gate that cannot
+see the actual defect**, which is a numeric total published over a source that never said what
+it returned — an absence silently becoming a proven zero.
+
+> ***A POSITIVE AND A NEGATIVE CONTROL CAN BOTH PASS WHILE A WHOLE FAILURE MODE GOES
+> UNDETECTED.*** The two controls sit at either end; the defect sits between them.
+
+A third control was constructed for exactly that case and required `REFUSED`. **Constructing
+it is what made the gate real.**
+
+**This generalises to every gate in this repository.** For each one, ask what a case looks
+like that sits BETWEEN its two controls, and whether the gate can see it. A gate with a
+positive and a negative control has been shown to work at two points and nowhere else.
+
+**Rejected by:** nothing. The mechanical form would be a check that refuses an instrument
+declaring exactly two controls where the property under test is not binary — but "not binary"
+is a judgement, so this may only ever be a habit. Recorded as a habit with its reason.
+
+### Class 99k — A DIVERGENCE OPENED ON PURPOSE, WRITTEN DOWN SO IT RESOLVES TO A DECISION
+
+Commit `553c1193` left 18 store objects holding a field their pages do not render.
+`SGLT2_HF_REVIEW.html` still says *"unscreened remainder 0."* and still contains `1402` zero
+times, while its object now holds `retrieval_remainder: {state: PROVED, total: 1402}`.
+
+**This is indistinguishable in shape from the `CODE-FIXED, CORPUS-STALE` class**, and a future
+sweep will report it. `STORE-PAGE-DIVERGENCE.md` names all 18, says why, gives the five-step
+protocol that closes it, and carries a command that prints `0` when it is closed — at which
+point the file is to be deleted.
+
+> **A divergence you have written down is a decision. The same divergence you have not is the
+> defect this project has spent a week cataloguing.**
+
+### LEAD — A LINT THAT RUNS ON THE REPO'S EXISTING SET AND NOT ON THE FILE BEING ADDED ARRIVES ONE COMMIT LATE
+
+**For whoever owns the lint chain. This is a WIRING question, not a rule question — the rule
+exists and the guards work.**
+
+`scripts/apply_retrieval_remainder_2026_09_04.py` was committed carrying a literal `0x08` in a
+regex: `r"\s*(\d+)<BACKSPACE>"`, because a shell heredoc consumed ``\b``. It matched nothing,
+silently, and fabricated **eight absences** — six declared non-executions and two rows of the
+best-documented search record in the corpus.
+
+`lint_control_chars` and `lint_escape_hazards` both catch exactly this. Both return **0**. And
+**neither had seen the file before it was committed** — they ran, they passed, and the file
+carrying the defect was in the commit they passed on.
+
+> **THE GUARDS WORKED AND WERE NOT POINTED AT THE NEW FILE.** A lint whose population is
+> "what is already tracked" cannot see the thing being added, which is the only thing in the
+> commit that changed.
+
+**AND IT HAPPENED AGAIN WHILE THIS ENTRY WAS BEING WRITTEN.** The sentence above,
+*"because a shell heredoc consumed `\b`"*, went into the file with a literal `0x08` in place
+of the two characters it names. `lint_control_chars` returned **1** and named it. The register
+already records a `0x08` sitting inside the paragraph documenting the FIRST instance; this is
+the second time the defect has been reproduced by the act of describing it.
+
+> **THE RULE IS NOT HARD TO STATE AND IT IS NOT HARD TO BELIEVE. IT IS HARD TO APPLY IN THE
+> ONE KEYSTROKE WHERE IT MATTERS, AND THAT IS WHY IT NEEDS A LINT AND NOT A PARAGRAPH.**
+
+Caught here only because the lint was run BY HAND on the file before committing it -- which is
+precisely the wiring gap this lead is about.
+
+Same family as `gate8` not seeing the JSON registry: an available mechanism that is not
+operative on the case at hand. The question to answer is whether the pre-commit lints read the
+STAGED set or the tracked set, and if the latter, whether that is deliberate.
+
+**Standing rule this keeps re-proving, which did NOT fail here — it was not applied:** never
+put a backslash escape through a shell heredoc; a regex goes into a file via `Write`. Cost so
+far: a false `0` against a pinned `146`, a `0x08` inside the paragraph documenting that one,
+and now eight fabricated silences.
+
+### LEAD — ONE OBJECT, MANY PAGES, AND OUR DENOMINATORS DO NOT ACCOUNT FOR IT
+
+Measured: `PAGE_MAP` holds **163 page entries over 152 distinct objects**; **11 objects serve
+2 pages each**, 11 extra pages.
+
+```
+azilsartan-chlorthalidone-vs-olmesartan-hctz   bococizumab-lipid-review   doac-af-review
+doravirine-hiv   edoxaban-vte   evolocumab-dyslipidemia-review   fondaparinux-vte
+hiv-prep-injectable-review   pcsk9-inhibitors-cv-review
+rotavirus-vaccine-africa-review   sotatercept-pah
+```
+
+Several pair an `*_AUTO_FULL_REVIEW` with a hand-authored `*_REVIEW` over ONE object — the
+configuration in which ALIROCUMAB's two surfaces were found already drifted apart, and the one
+the SOTAGLIFLOZIN tombstone exists to prevent.
+
+> **OBJECTS AND PAGES ARE DIFFERENT DENOMINATORS AND THIS PROJECT HAS MIXED THEM AT LEAST FOUR
+> TIMES IN A DAY** — including in `STORE-PAGE-DIVERGENCE.md`, which says "18 objects" while its
+> own self-check prints "20 pages", and both are correct about different things.
+
+**The question, to be measured ONCE and properly rather than discovered a fifth time:** how
+many objects serve more than one page, and does any published count in the corpus use objects
+where it should use pages, or the reverse? It bears on every `n of N` quoted this week,
+including `163` against the ~1,427 delivered `*_REVIEW*.html` files.
+
+**Rejected by:** nothing. Not chased here, deliberately.

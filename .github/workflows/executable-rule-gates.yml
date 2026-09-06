@@ -36,6 +36,29 @@ jobs:
       - name: The gates can still fail
         run: python gates/verify_gates_can_fail.py
 
+      # NAMED HERE **IN ADDITION TO** gates/WIRED_REPO_CHECKS.json, SO IT RUNS TWICE.
+      # The duplication is deliberate and is the cheaper of two wrongs.
+      #
+      # gate8 decides "has a caller" by reading the TEXT of the hooks and workflows
+      # (CALLER_SOURCES). run_repo_checks.py executes the JSON registry, so a script
+      # registered there is genuinely invoked on every push and gate8 still cannot see
+      # it: 24 of the 26 registered checks are ALSO sitting in UNCALLED_REPO_GATES.json.
+      # REGISTERING IS NOT WIRING.
+      #
+      # The elegant fix is to add gates/WIRED_REPO_CHECKS.json to gate8's CALLER_SOURCES,
+      # and gate8's own comment already names the inconsistency -- "ARM A READS THIS LIST;
+      # ARM B READS EVERY FILE IN .github/workflows/. That is an inconsistency inside one
+      # gate rather than a policy." IT IS DECLINED HERE ANYWAY: that change makes gate8
+      # see more callers, flag fewer gates and pass more easily, and A CHANGE THAT MAKES
+      # A CHECKER LAXER CANNOT BE SELF-AUTHORISED BY THE LANE THE CHECKER IS CURRENTLY
+      # BLOCKING. Logged for gate8's owner.
+      #
+      # Adding this script to UNCALLED_REPO_GATES.json would also have turned the gate
+      # green -- by filing the finding into a 160-entry debt register. That is the move
+      # this gate exists to prevent.
+      - name: Contributing-trials rows equal k
+        run: python scripts/gate_contributing_rows_equal_k.py
+
       # TREE-SCOPED, SO IT RUNS HERE AND NOT IN A PER-LANE HOOK. It walks every tracked
       # .py to answer "is this check invoked, by what, can it fail" -- and it judges THE
       # TREE, which is main property, not any one lane diff. Measured on the hook-wired

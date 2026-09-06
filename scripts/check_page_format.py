@@ -149,6 +149,42 @@ def main(argv):
             "!= %d candidates). A candidate fell through every named bucket, "
             "which is the silent drop this walk was rewritten to prevent."
             % (len(rows), len(tombstones), len(absent), len(pages)))
+    # KNOWN_NEGATIVE -- A TOMBSTONE, BECAUSE THAT IS THE CASE THIS CHECKER ALREADY GOT WRONG.
+    #
+    # `is_tombstone`'s own docstring records it: "The first run of this checker reported 14
+    # pages at 0/8 required tabs, which reads as 14 broken pages." They are ~2.8 KB retirement
+    # stubs. A tombstone therefore LOOKS EXACTLY LIKE THE WORST POSSIBLE DEFECT -- zero of
+    # eight required tabs -- while being entirely correct, which is the definition of the case
+    # most likely to be got wrong, and it is not hypothetical: it produced 14 fabricated
+    # failures once already.
+    #
+    # A KNOWN-NEGATIVE DRAWN FROM THE EASY MAJORITY WOULD MEASURE NOTHING: 148 of 149 pages
+    # carry 6/8 and any of them would pass under a broken implementation too. This one would
+    # not. It is in PAGE_MAP, so it is inside the population this checker actually judges --
+    # a control outside the traversal proves nothing about the traversal.
+    #
+    # FAILS CLOSED: if the row is absent from PAGE_MAP or from disk the rate is UNMEASURED and
+    # the checker refuses, because an unmeasured false-positive rate is not a measured zero.
+    # CORPUS-ANCHORED, therefore perishable -- if this tombstone is ever deleted or rebuilt,
+    # pin a copy rather than dropping the control.
+    KNOWN_NEGATIVE = "CVNCOV_SARSCOV2_AUTO_FULL_REVIEW.html"
+    neg_seen = KNOWN_NEGATIVE in tombstones
+    neg_fp = any(n == KNOWN_NEGATIVE for n, _, _, _, _ in rows)
+    print("KNOWN-NEGATIVE CONTROL: %s" % KNOWN_NEGATIVE)
+    if not neg_seen and not neg_fp:
+        print("   UNMEASURED -- not reached by this traversal. An unmeasured false-positive")
+        print("   rate is NOT a measured zero. REFUSED.")
+        return 1
+    print("   %d/1 matched (measured false-positive rate %.1f%%) -- a ~2.8 KB retirement"
+          % (1 if neg_fp else 0, 100.0 if neg_fp else 0.0))
+    print("   stub carrying 0 of %d required tabs. It must be counted as a TOMBSTONE, never"
+          % declared)
+    print("   as a short review page: scoring one against the review format is the error")
+    print("   that produced 14 fabricated failures on this checker's first run.")
+    if neg_fp:
+        print("   CONTROL FAILED: the tombstone was scored as a review page. REFUSED.")
+        return 1
+    print()
     print("PAGE MAP ENTRIES  : %d" % len(pages))
     print("  files found     : %d" % seen)
     print("  LISTED BUT ABSENT FROM DISK (counted, not dropped): %d" % len(absent))

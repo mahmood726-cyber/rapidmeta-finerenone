@@ -931,7 +931,7 @@
       "registry": "ClinicalTrials.gov",
       "source_url": "https://clinicaltrials.gov/study/NCT02829957",
       "read_utc": "2026-09-03",
-      "provenance": {"tier": "REGISTRY_POSTED_RESULT", "registry": "ClinicalTrials.gov", "accessed_utc": "2026-09-03", "table": "outcomeMeasures[].title (single-class)", "row_identifier": "NCT02829957 / Number of Participants With Major Hemorrhage / Apixaban vs Rivaroxaban", "source_prose": "REGISTRY -- ClinicalTrials.gov posted results", "count_is": "READ (see sibling count_provenance)", "migration": "schema migration 2026-09-05: legacy provenance string -> typed tier; asserts nothing new about the estimate"},
+      "provenance": {"tier": "REGISTRY_POSTED_RESULT", "registry": "ClinicalTrials.gov", "accessed_utc": "2026-09-03", "table": "outcomeMeasures[].title (single-class)", "row_identifier": "NCT02829957 / Number of Participants With Major Hemorrhage / Apixaban vs Rivaroxaban", "source_prose": "REGISTRY -- ClinicalTrials.gov posted results", "count_is": "READ (see sibling count_provenance)", "migration": "schema migration 2026-09-05: legacy provenance string -> typed tier; asserts nothing new about the estimate", "merge_verification_2026_09_06": "main marked this COULD_NOT_DETERMINE because six zero-event outcomes all reproduce the stored 0.7273, so effect-reproduction cannot identify the row -- correct for a zero-vs-zero result. But the value IS posted: AACT 2026-08-30 posts outcome 'Number of Participants With Major Hemorrhage' = 0 in each arm (OG000, OG001), matching as_posted 0/11 and 0/8. Identified by outcome TITLE, not by reproduction, so REGISTRY_POSTED_RESULT stands. Checked at merge on the owner's instruction."},
       "as_posted": {
        "apixaban_events": 0,
        "apixaban_n": 11,
@@ -1005,7 +1005,9 @@
     "http_status": 200,
     "records_returned": 82,
     "total_reported": 82,
-    "recall_on_included_set": "1/1"
+    "recall_on_included_set": "1/1",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (82) minus records_returned (82). Both are this object's own recorded numbers."
    },
    {
     "database": "ClinicalTrials.gov API v2 -- FIRST QUERY, RECORDED BECAUSE IT MISSED",
@@ -1016,7 +1018,9 @@
     "records_returned": 49,
     "total_reported": 49,
     "recall_on_included_set": "1/1 for THIS review, 1/2 for the parent",
-    "what_it_cost": "THE FIRST QUERY CARRIED phase=[PHASE3,PHASE4] AND RETURNED 49 RECORDS WITHOUT NCT02366871 -- one of the parent object's own two trials -- because it is registered PHASE2. Recorded rather than replaced. The corpus-wide cost of that filter is measured at evidence/2026-08-19-batch1/phase_filter_recall_sweep.json, where apixaban-vte is one of two topics that lost an included trial to it. P23."
+    "what_it_cost": "THE FIRST QUERY CARRIED phase=[PHASE3,PHASE4] AND RETURNED 49 RECORDS WITHOUT NCT02366871 -- one of the parent object's own two trials -- because it is registered PHASE2. Recorded rather than replaced. The corpus-wide cost of that filter is measured at evidence/2026-08-19-batch1/phase_filter_recall_sweep.json, where apixaban-vte is one of two topics that lost an included trial to it. P23.",
+    "records_not_retrieved": 0,
+    "records_not_retrieved_basis": "Derived: total_reported (49) minus records_returned (49). Both are this object's own recorded numbers."
    },
    {
     "database": "PubMed (NCBI E-utilities esearch)",
@@ -1027,10 +1031,26 @@
     "records_returned": 50,
     "total_reported": 439,
     "recall_on_included_set": "NOT MEASURED",
-    "what_is_unexamined": "439 records matched and 50 were retrieved. THE OTHER 389 ARE UNEXAMINED, NOT EXCLUDED, and recall against this review's included set was never measured on this database -- so P23 cannot hold on it and says so."
+    "what_is_unexamined": "439 records matched and 50 were retrieved. THE OTHER 389 ARE UNEXAMINED, NOT EXCLUDED, and recall against this review's included set was never measured on this database -- so P23 cannot hold on it and says so.",
+    "records_not_retrieved": 389,
+    "records_not_retrieved_basis": "Derived: total_reported (439) minus records_returned (50). Both are this object's own recorded numbers."
    }
   ],
-  "pagination_verified": "returned == totalCount on both registry queries, totalCount read from the FIRST page."
+  "pagination_verified": "returned == totalCount on both registry queries, totalCount read from the FIRST page.",
+  "retrieval_remainder": {
+   "state": "PROVED",
+   "total": 389,
+   "by_source": {
+    "ClinicalTrials.gov API v2": 0,
+    "ClinicalTrials.gov API v2 -- FIRST QUERY, RECORDED BECAUSE IT MISSED": 0,
+    "PubMed (NCBI E-utilities esearch)": 389
+   },
+   "sources_not_executed": [],
+   "_scope": "Records a SEARCH returned and this object never retrieved. It is NOT the screening remainder: k_cascade.k_unscreened_remainder counts candidates that ENTERED the cascade and went unscreened, and both are published because they answer different questions.",
+   "_not": "This is not a completeness claim. It says how many records were returned and not retrieved -- nothing about whether the query was well aimed, nor whether the retrieved records were the right ones.",
+   "_why_not_provable": null,
+   "_executed_only": null
+  }
  },
  "prisma_flow": {
   "_scope": "PRISMA 2020 flow, counted from the executed search above.",

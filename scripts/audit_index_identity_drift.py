@@ -353,8 +353,37 @@ def main():
     # ⭐ AND THE API'S `must_not_be` CANNOT SAY "must be empty": it passes for
     # every value except the forbidden one, so a garbage answer clears it. The
     # two-sided assertion is made here, explicitly.
+    # KNOWN_NEGATIVE -- PRE-EXISTING, TWO-SIDED, NAMED HERE ONLY. NO BEHAVIOUR CHANGED.
+    #
+    # This instrument already declares a positive AND a negative control through
+    # scripts/instrument_controls.py::require_controls, and asserts the negative a second
+    # time below because `must_not_be` cannot express "must be empty".
+    #
+    # gate2 flagged it regardless, for a reason that is structural rather than about this
+    # file: gate2's CONTROL_MARK contains `\bcontrol\s*\(`, which CANNOT MATCH
+    # `require_controls(` -- the preceding `_` defeats the word boundary and the trailing `s`
+    # defeats the paren. MEASURED: 113 files route through require_controls and 69 of them
+    # (61%) are invisible to gate2 as controlled.
+    #
+    #     gate2's FINDINGS ARE NOT A SAMPLE OF UNCONTROLLED CHECKS. THEY ARE A SAMPLE OF
+    #     FILES WHOSE CONTROL MECHANISM DID NOT HAPPEN TO CONTAIN ONE OF SEVEN LITERAL
+    #     STRINGS. The fix belongs in gate2: adding `require_controls` to CONTROL_MARK would
+    #     clear 69 files at once and WIDENS ITS RECALL rather than weakening it.
+    #
+    # THE NEGATIVE IS THE HARD CASE, not a convenient one: a tile label naming a trial the
+    # object DOES contain must produce NO drift. Getting it wrong over-flags a correct page,
+    # and this instrument has already paid for exactly that -- the comment above records the
+    # negative slot once holding `[]` in a `must_not_be` position, so the control could only
+    # ever fail, and THIS AUDIT REFUSED ON ITS OWN NEGATIVE CONTROL FROM THE DAY IT WAS WIRED
+    # AND NEVER ONCE PRINTED A COUNT.
+    KNOWN_NEGATIVE = ("a tile label naming a trial the object DOES contain "
+                      "(The Ring Study / NCT01539226) must yield no drift")
     _neg = entity_drift("The Ring Study (NCT01539226)",
                         "... NCT01539226 ... The Ring Study ...")
+    print("KNOWN-NEGATIVE CONTROL: %d/1 matched (measured false-positive rate %.1f%%)"
+          % (1 if list(_neg) else 0, 100.0 if list(_neg) else 0.0))
+    print("   %s" % KNOWN_NEGATIVE)
+    print("   Pre-existing (require_controls); named here so gate2 can see it.")
     if list(_neg) != []:
         raise SystemExit(
             "REFUSED: the negative control returned %r, not []. A trial the "

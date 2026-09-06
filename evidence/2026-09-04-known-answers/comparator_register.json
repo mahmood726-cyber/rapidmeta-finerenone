@@ -1,0 +1,164 @@
+{
+ "schema": "comparator-register/1",
+ "utc": "2026-09-04",
+ "one_register_two_uses": "A case where we know the right answer is a case where somebody published it. The same entry scores an EXTRACTOR (can it recover an answer we hold?) and scores US against the literature (does our estimate agree with a published synthesis, and on which axis?). This file is the second use; evidence/2026-09-04-known-answers/known_answers.json is the first, and entries cross-reference by topic.",
+
+ "THE_PREDICTION_WRITTEN_BEFORE_ANY_COMPARATOR_IS_FETCHED": {
+  "stated": "WE WILL MATCH ON ESTIMATES AND LOSE ON COMPLETENESS.",
+  "if_we_match_on_completeness_too": "a genuine surprise, worth more than a result we expected",
+  "if_we_lose_on_estimates": "the most important finding in the project's history",
+  "why_it_is_written_first": "Predicting first is what makes the answer informative. A prediction formed after reading the comparator is a description.",
+  "the_prior_as_MEASURED_not_as_briefed": {
+   "briefed_as": "our k is already measured lower in 22 of 27 cases",
+   "measured_today_by": "scripts/audit_our_k_against_theirs.py, run 2026-09-04, both its controls held",
+   "measured": {
+    "topics_carrying_a_published_comparison": 22,
+    "OURS_LOWER": 7,
+    "equal": 6,
+    "ours_higher": 0,
+    "their_count_NOT_STATED": 9
+   },
+   "correction": "22 is the DENOMINATOR -- the number of topics carrying a comparison -- not the number where ours is lower. Ours is lower in 7 of 22. There is no 27 anywhere in the instrument's output. The briefed figure appears to have read the denominator as the numerator, and pinning it unexamined would have pre-registered a wrong prior.",
+   "and_the_sharper_half": "Of the 7 where ours is lower, only ONE is a nameable gap (sglt2-mace-cvot-review, ours 2 v 3, PMID 31032602). The other 6 are COUNTED AND NOT IDENTIFIED. A count that exceeds ours is not the same as named trials we missed.",
+   "so_the_pinned_prediction_is": "On the axes below we expect: estimate AGREES in most entries; k LOWER in a minority and rarely with a nameable gap; included-set overlap UNRESOLVED more often than either agreeing or disagreeing, because most abstracts do not enumerate."
+  }
+ },
+
+ "inclusion_rule": {
+  "rule": "A comparator whose included studies cannot be enumerated cannot be scored against. It is recorded as UNRESOLVED-AT-ABSTRACT and is never counted as agreeing and never as disagreeing.",
+  "reused_from": "scripts/published_synthesis_screen.py, whose docstring states it as an instrument limitation up front: 'ABSTRACT-LEVEL SCREENING CANNOT ESTABLISH WHAT A SYNTHESIS POOLED ... Those are counted as UNRESOLVED-AT-ABSTRACT and stay unresolved; they are never counted as agreeing, and never as disagreeing.' Its outputs are the 22 ssot/*/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json files.",
+  "and_reinforced_by": "scripts/audit_our_k_against_theirs.py, which separates 'counted only' from 'IDENTIFIED' and states: 'A COUNT THAT EXCEEDS OURS IS NOT THE SAME AS NAMED TRIALS WE MISSED.'",
+  "provenance_correction": "I was told this rule is frozen at commit fe1f2fd, never amended. THAT COMMIT RESOLVES IN NEITHER CLONE -- `git cat-file -t fe1f2fd` returns 'Not a valid object name' in C:/rmhfref and in C:/rmwork/rmf, and no ref carries that prefix. So the rule is reused from the two instruments named above, which do carry it in force, and the citation is to them rather than to a commit I cannot verify. NOT a claim that no such commit exists somewhere; a claim that I could not resolve it and did not want to cite what I had not read."
+ },
+
+ "the_four_axes": {
+  "estimate": "does the point (and interval, where published) agree",
+  "k": "is the trial count comparable",
+  "included_set_overlap": "do the included sets overlap, and by how many trials -- BY NAME OR REGISTRATION, never by count",
+  "comparator_enumerable": "does the comparator publish an enumerable included-study list. HARD INCLUSION CRITERION: if NO, the entry cannot be scored on the other three and is UNRESOLVED-AT-ABSTRACT"
+ },
+
+ "PIN_BEFORE_YOU_LOOK": {
+  "rule": "Our estimate, our k and the SERVED PAGE'S sha256 are recorded, committed and pushed BEFORE any comparator is retrieved. Otherwise it is not a test, it is an opportunity to adjust.",
+  "pinned_utc": "2026-09-04",
+  "pinned_by": "fetching each page from https://mahmood726-cyber.github.io/rapidmeta-finerenone/ and hashing the bytes; our estimate and k read from the ssot object, not retyped",
+  "NO_COMPARATOR_HAS_BEEN_FETCHED_AS_OF_THIS_COMMIT": true
+ },
+
+ "arms": {
+  "ALREADY_SEEN": "The six topics below were handed to me WITH their comparator estimates already quoted in the brief. Their pin is therefore RETROSPECTIVE and they are NOT pre-registered tests. A match discovered after reading the comparator is worth nothing, and that applies to a match somebody else read for me. They enter the register as a documented baseline, not as evidence.",
+  "PRE_REGISTERED": "Empty as of this commit. It is the arm that will carry evidential weight: topics pinned here BEFORE anyone reads their comparator. Populating it is the next step and it must not reuse the six below."
+ },
+
+ "entries": [
+  {
+   "topic": "bococizumab-lipid-review",
+   "arm": "ALREADY_SEEN",
+   "pin_status": "RETROSPECTIVE",
+   "pin": {
+    "outcome": "ldlc_pct_change_wk12", "measure": "MD", "our_k": 6,
+    "our_estimate": "-55.24 (-57.92 to -52.56)", "estimator": "REML random-effects, inverse-variance",
+    "page": "BOCOCIZUMAB_LIPID_REVIEW.html", "served_bytes": 1680943,
+    "served_sha256": "d0117c6c53d997d5192a0da273913ace2b71f089983700abd4159f521f81edee"
+   },
+   "comparator_claimed_in_brief": "published NEJM pooled -55.2 (-57.9 to -52.6)",
+   "comparator_fetched": false,
+   "axes": {"estimate": null, "k": null, "included_set_overlap": null, "comparator_enumerable": null},
+   "known_answers_cross_ref": "bococizumab-pool-vs-published (status OPEN -- the anchor is unread; PubMed today returned -56.0% vs +2.9%, a -59.0 point difference and -60.5%, none of them -55.2, and the store's own published_comparison is PENDING_EXTERNAL_RESOLUTION)"
+  },
+  {
+   "topic": "sotagliflozin-hf",
+   "arm": "ALREADY_SEEN",
+   "pin_status": "RETROSPECTIVE",
+   "pin": {
+    "outcome": "hfcv_total", "measure": "HR", "our_k": 2,
+    "our_estimate": "0.7171 (0.6246 to 0.8234)", "estimator": "REML",
+    "page": "SOTAGLIFLOZIN_HF_REVIEW.html", "served_bytes": 3640156,
+    "served_sha256": "7bff28a16152f4e99282e6cdf0db3a6d3178f9a3a48dfc8a4d4cc437153cfe10"
+   },
+   "comparator_claimed_in_brief": "published patient-level 0.72 (0.63-0.82)",
+   "comparator_fetched": false,
+   "axes": {"estimate": null, "k": null, "included_set_overlap": null, "comparator_enumerable": null},
+   "known_answers_cross_ref": "sotagliflozin-pool-vs-published (status OPEN -- 'patient-level' occurs ZERO times in the store; the two reviews its published_comparison names do not supply this quantity)"
+  },
+  {
+   "topic": "cangrelor-pci-review",
+   "arm": "EXCLUDED_BY_CONSTRUCTION",
+   "pin_status": "RETROSPECTIVE",
+   "pin": {
+    "primary": "k=3, WITHDRAWN, pooled point is null",
+    "corrected_composite_3component": "k=2, 0.9646 (0.8132 to 1.1442)",
+    "page": "CANGRELOR_PCI_REVIEW.html", "served_bytes": 935150,
+    "served_sha256": "cf30a151d6795c2616853bf107afb9984380a3a30e2b9a571eb6510a09d10cea"
+   },
+   "comparator_claimed_in_brief": "our withdrawn 0.81 versus prespecified CHAMPION 0.8072 (0.7130-0.9138)",
+   "comparator_fetched": false,
+   "why_excluded": "A WITHDRAWN POOL HAS NO HEADLINE TO SCORE. The brief's entry compares a value we have withdrawn against a comparator, and an agreement between a retracted estimate and a published one is not a credit to us -- it is an argument for un-withdrawing, which is a separate decision with its own evidence. Also measured: the strings 0.8072, 0.7130 and 0.9138 occur ZERO times in our store, so the comparator value is not one we hold.",
+   "what_would_make_it_scoreable": "score the LIVE corrected_composite_3component against a comparator reporting that same three-component composite, or state explicitly that the withdrawal is under review"
+  },
+  {
+   "topic": "arni-hfref",
+   "arm": "ALREADY_SEEN",
+   "pin_status": "RETROSPECTIVE",
+   "pin": {
+    "outcome": "cvdeath_or_hfh_first", "measure": "HR", "our_k": 4,
+    "our_estimate": "0.87153524291 (0.74608292776 to 1.0180821077)", "estimator": "REML",
+    "page": "ARNI_HF_REVIEW.html", "served_bytes": 6100652,
+    "served_sha256": "dc32a0f3146a9571c46495d818aac820a0ee4617e583e71b0955d06685c0caba"
+   },
+   "comparator_claimed_in_brief": "reproduced exactly by an external reviewer",
+   "comparator_fetched": false,
+   "note": "This is not a published-synthesis comparison at all -- it is an external reviewer recomputing OUR pool from OUR inputs. That scores our ARITHMETIC, not our agreement with the literature, and the two must not be summed into one tally. Verified independently here 2026-09-04: metafor 5.0.1 rma REML over the four stored HRs returns 0.8715 (0.7461-1.0181), tau2 0.008597, I2 32.89%.",
+   "axes": {"estimate": "REPRODUCED (arithmetic, not literature)", "k": null, "included_set_overlap": null, "comparator_enumerable": null}
+  },
+  {
+   "topic": "alirocumab-lipid",
+   "arm": "ALREADY_SEEN",
+   "pin_status": "RETROSPECTIVE",
+   "pin": {
+    "outcome": "ldlc_pct_change (first stored outcome)", "measure": "MD", "our_k": 8,
+    "our_estimate": "-54.72 (-60.62 to -48.82)",
+    "page": "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html", "served_bytes": 1383358,
+    "served_sha256": "a4f713f929b282f02368111225f1f3ec7b1f5dab7e73093cd374a2198378f54f"
+   },
+   "comparator_claimed_in_brief": "a 12-RCT published meta at approximately -55.6",
+   "comparator_fetched": false,
+   "axes": {"estimate": null, "k": null, "included_set_overlap": null, "comparator_enumerable": null},
+   "note": "k 8 versus a claimed 12 is exactly the completeness axis the prediction is about, and it is the kind of case where 'counted, not identified' must be checked before any gap is named. The audit currently records alirocumab-lipid as 'their count NOT STATED'."
+  },
+  {
+   "topic": "tigecycline-ciai",
+   "arm": "ALREADY_SEEN",
+   "pin_status": "RETROSPECTIVE",
+   "pin": {
+    "outcome": "cure_toc_me", "measure": "RR", "our_k": 3,
+    "our_estimate": "0.9351 (0.8885 to 0.9842)", "estimator": "REML",
+    "page": "TIGECYCLINE_CIAI_SSOT.html", "served_bytes": 1675339,
+    "served_sha256": "d8ddce4acb129d505ced33169cc3843b46aff030f8b4b7de156985451e34a4db"
+   },
+   "comparator_claimed_in_brief": "reproduced to the digit before diverging on INPUTS",
+   "comparator_fetched": false,
+   "axes": {"estimate": null, "k": null, "included_set_overlap": null, "comparator_enumerable": null},
+   "note": "The audit records tigecycline-ciai as ours 3 versus theirs 15, counted only, NOT identified -- one of the six counted-not-identified cases. Agreement on the estimate alongside a 3-versus-15 count difference is the single clearest illustration of why one axis is not enough, and it is why this entry is worth pre-registering properly rather than reusing.",
+   "known_answers_cross_ref": "tigecycline-study-306 (status OPEN)"
+  }
+ ],
+
+ "OPEN_carried_forward": [
+  {
+   "id": "deliver-harmonised-two-component",
+   "question": "does DELIVER report a hazard ratio for the harmonised TWO-component composite (CV death or HF hospitalisation)",
+   "candidate": "0.80 (0.71-0.91), cited by a reviewer; a lane could not source it; the NEJM primary carries the three-component 0.82",
+   "our_position": "DELIVER (NCT03619213) enters only the three-component pool at 0.82; the harmonised two-component pool is k=3 and does not contain it",
+   "status": "OPEN",
+   "why_it_stays": "An extractor or a comparison that confidently resolves a question we have not is telling us something about the instrument, not the literature."
+  }
+ ],
+
+ "what_this_register_does_not_establish": [
+  "Nothing in the ALREADY_SEEN arm is evidence. Six retrospective pins are a baseline and a worked example of the schema, and they are labelled so.",
+  "No comparator has been fetched as of this commit. Every axis field is null by design, not by omission.",
+  "An agreement on the estimate axis says nothing about the included set, and the tigecycline entry is the standing proof: agreement to the digit alongside 3 versus 15.",
+  "The served sha256 pins WHAT WE SAID, not that it is right. Its only job is to make a later adjustment detectable."
+ ]
+}

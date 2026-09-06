@@ -17,6 +17,9 @@ import os, json, csv, re, sys, io, time, urllib.request, urllib.parse
 from pathlib import Path
 from collections import defaultdict
 import xml.etree.ElementTree as ET
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import enumeration_search_record
+import screening_states
 
 if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -56,17 +59,21 @@ TOPICS = [
     # population (Galli's stated eligibility names no condition; their 21 trials
     # span DM, obesity, HFrEF/HFpEF, CKD, ACS, PAD). condition_patterns is
     # therefore deliberately broad -- a narrow list would silently reimpose a
-    # population criterion neither they nor we have declared. cap=None (5th
-    # element): Galli's per-outcome k runs to 19 and the eligible set is far
-    # larger (869 registered phase 3/4 trials of these eight agents, measured
-    # 2026-09-04), so any cap would bind and a size-ranked truncation cannot
-    # close a k gap. CAP_TRUNCATIONS stays armed for every other topic.
+    # population criterion neither they nor we have declared. cap=5000 (5th
+    # element): an EXPLICIT ceiling above this topic's whole pool, not the global
+    # RM_MAX_PER_TOPIC default (500). Galli's per-outcome k runs to 19 and the
+    # eligible set is far larger (869 registered phase 3/4 trials of these eight
+    # agents, measured 2026-09-04), so the global 500 default WOULD bind -- and a
+    # size-ranked truncation cannot close a k gap: it discards precisely the small,
+    # results-unposted tail, which is not what a comparator MA is built from. 5000
+    # exceeds any plausible eligible count for eight drugs, so find_ncts's ledger
+    # records eligible == ingested (nothing discarded) rather than a silent cut.
     ("GLP1_RA_CV_OUTCOMES", "GLP-1 receptor agonists and cardiovascular outcomes",
      ["semaglutide", "liraglutide", "dulaglutide", "exenatide", "lixisenatide",
       "albiglutide", "efpeglenatide", "tirzepatide"],
      ["diabetes", "obesity", "heart failure", "chronic kidney", "cardiovascular",
       "coronary", "peripheral arterial"],
-     None),
+     5000),
     # Cardiology — newer drugs / endpoint variations
     ("DAPAGLIFLOZIN_CKD_AUTO", "Dapagliflozin in CKD",
      ["dapagliflozin"], ["chronic kidney"]),
@@ -5402,6 +5409,62 @@ print("  snapshot data current to: %s  (MEASURED as max("
       "last_update_submitted_qc_date), not the folder name)"
       % (_aact_data_date or "UNKNOWN -- column absent from this snapshot"))
 
+# -- THE INDEX THE IDENTITY GATE READS, WHICH WAS NEVER BUILT --------------
+# `_experimental_interventions` below reads `exp_intv_by_nct`. Until this commit that name
+# was referenced ONCE in this repository and assigned NOWHERE, so `find_ncts` raised
+#     NameError: name 'exp_intv_by_nct' is not defined
+# on the FIRST candidate it examined. The gate arrived in 8b41493b (2026-08-25); the index
+# it depends on did not arrive with it, and for nine days the autodiscovery path could not
+# return a single candidate for any topic.
+#
+#     NOTHING SAID SO, BECAUSE NOTHING RAN IT. An available mechanism is not an operative
+#     one, and a matcher that raises before it counts never produces a number to doubt.
+#
+# WHAT ABSENCE FROM THIS MAP MEANS, and it is deliberately the cautious reading. A trial is
+# absent when AACT gives it no EXPERIMENTAL arm -- either because it carries no arm roles at
+# all, or because it carries roles and none is experimental. `_experimental_interventions`
+# returns None for both, and `_studies_subject` then falls back to matching over ALL arms
+# with role_known False. Those two cases are already indistinguishable downstream (`exp` is
+# falsy either way and `len(exp) > 0` is False either way), so they are not separated here.
+# Reading absence as "the drug is not experimental" would silently drop real trials, which
+# is the larger and quieter failure.
+print("Indexing design_groups / design_group_interventions for EXPERIMENTAL arms...")
+_exp_group_ids = set()
+with open(AACT / "design_groups.txt", "r", encoding="utf-8", errors="replace") as f:
+    for row in csv.DictReader(f, delimiter="|"):
+        if (row.get("group_type") or "").strip().upper() == "EXPERIMENTAL":
+            gid = (row.get("id") or "").strip()
+            if gid:
+                _exp_group_ids.add(gid)
+print(f"  EXPERIMENTAL design groups: {len(_exp_group_ids):,}")
+
+_exp_intv_owner = {}
+with open(AACT / "design_group_interventions.txt", "r", encoding="utf-8",
+          errors="replace") as f:
+    for row in csv.DictReader(f, delimiter="|"):
+        if (row.get("design_group_id") or "").strip() in _exp_group_ids:
+            iid = (row.get("intervention_id") or "").strip()
+            nct = (row.get("nct_id") or "").strip().upper()
+            if iid and nct:
+                _exp_intv_owner[iid] = nct
+_exp_group_ids.clear()
+print(f"  interventions linked to an EXPERIMENTAL arm: {len(_exp_intv_owner):,}")
+
+_exp_accum = defaultdict(list)
+with open(AACT / "interventions.txt", "r", encoding="utf-8", errors="replace") as f:
+    for row in csv.DictReader(f, delimiter="|"):
+        _owner = _exp_intv_owner.get((row.get("id") or "").strip())
+        if _owner:
+            _nm = (row.get("name") or "").strip().lower()
+            if _nm:
+                _exp_accum[_owner].append(_nm)
+_exp_intv_owner.clear()
+# A plain dict, not a defaultdict: `_experimental_interventions` distinguishes a MISSING key
+# (role undetermined) from a present one, and a defaultdict would silently manufacture an
+# empty list for every NCT ever looked up, converting "unknown" into "known and empty".
+exp_intv_by_nct = dict(_exp_accum)
+print(f"  NCTs with >=1 EXPERIMENTAL intervention: {len(exp_intv_by_nct):,}")
+
 # ── Fix B: synonym tables + normalization-aware matching ──────────────────
 # PRODUCTION should source drug synonyms from RxNorm/ChEMBL cross-refs and
 # condition synonyms from MeSH entry terms — do NOT hand-maintain. This seed
@@ -5602,110 +5665,125 @@ def _pivotal_score(nct):
     return score
 
 
-# Every truncation this run performed, so the cap stops being invisible. Read
-# after the discovery loop; see the note inside find_ncts for why.
-CAP_TRUNCATIONS = []
-
-# THE CAP IS A SETTING, NOT A CONSTANT OF NATURE (2026-09-04).
-# It lives here as a NAMED default and is overridable PER TOPIC (5th element of a
-# TOPICS entry: an int, or None for "no cap -- write the full eligible set").
-# The old positional default of 20 bound every topic identically, so a k=21
-# comparator (Galli 2025 GLP-1, JACC) was unreachable by ARITHMETIC, not by
-# search -- an eligible set of any size could never surface more than 20. Making
-# the cap a topic-level setting is what lets a topic raise its own ceiling.
-DEFAULT_MAX_PER_TOPIC = 20
-
-
-def _apply_cap(matches, max_per_topic, record):
-    """Apply the per-topic cap to an already-ranked, deterministic match list.
-
-    `matches` is assumed sorted (pivotal_score DESC, enrollment DESC, nct ASC).
-    Returns the kept NCTs. When the cap BITES it is recorded in `record` BY NAME
-    (eligible / kept / dropped / dropped_ncts / rule) and announced, so that
-    "this topic found 20" is distinguishable from "found 63, kept the top 20 by
-    size and phase" -- those are different claims about the evidence base and
-    only one of them used to be made.
-
-    max_per_topic is None  -> no cap: the full eligible set is returned and
-    NOTHING is recorded, because nothing was excluded.
-    max_per_topic >= len(matches) -> also a no-op, records nothing: a cap
-    silently equal to the eligible count is indistinguishable from no cap, so we
-    do not manufacture a phantom truncation for it.
-
-    This does not change WHICH trials are returned relative to the old inline
-    cap; it only makes the drop countable and makes the cap a passed setting."""
-    if max_per_topic is None or len(matches) <= max_per_topic:
-        return matches
-    dropped = matches[max_per_topic:]
-    record.append({
-        "eligible": len(matches),
-        "kept": max_per_topic,
-        "dropped": len(dropped),
-        "dropped_ncts": dropped,
-        "rule": ("sorted by pivotal_score DESC (late-phase +2, results-posted +1), "
-                 "then enrollment DESC, then nct_id ASC; the tail was cut"),
-    })
-    print("  CAP: %d eligible, kept %d, DROPPED %d by rank (first 5: %s)"
-          % (len(matches), max_per_topic, len(dropped), dropped[:5]))
-    return matches[:max_per_topic]
+# THE BOUND IS NAMED, CONFIGURABLE, AND ITS COST HAS BEEN MEASURED.
+#
+# It used to be a bare default of 20, and the delivered corpus was built under an effective
+# 8. Measured over the 53 topics that have both a source definition and a delivered record
+# (AACT 2026-08-30, scripts/measure_cap_cost_by_topic_2026_09_03.py):
+#
+#     cap    8 -> 34 of 53 topics truncated, 1,453 already-eligible candidates cut
+#     cap   20 -> 10 of 53 topics truncated, 1,168 cut
+#     cap  100 ->  5 of 53 topics truncated,   657 cut
+#     cap  200 ->  2 of 53 topics truncated,   354 cut
+#     cap  500 ->  0 of 53 topics truncated,     0 cut
+#
+# 500 is chosen because it is the smallest round bound that truncated NOTHING in the
+# measured sample -- not because it feels safe. 53 is a sample of 1,893 stems, so a topic
+# with a larger pool certainly exists; when the bound bites, `ledger` records how many were
+# discarded and which ones. That is the whole point:
+#
+#     A CAP IS A LEGITIMATE OPERATIONAL CHOICE ONLY IF THE NUMBER IT DISCARDED IS RECORDED.
+#     Slicing a list whose length nothing ever read is not a choice, it is a loss.
+MAX_PER_TOPIC = int(os.environ.get("RM_MAX_PER_TOPIC", "500"))
 
 
-# For each topic, find candidate NCTs (consolidated Fix A + B + C + per-topic cap)
-def find_ncts(drug_patterns, condition_patterns, max_per_topic=DEFAULT_MAX_PER_TOPIC):
+def find_ncts(drug_patterns, condition_patterns, max_per_topic=None, ledger=None):
     """Return the top `max_per_topic` candidate NCTs whose interventions match a
     drug pattern AND whose conditions match a condition pattern (synonym- and
     normalization-aware, Fix B), dropping explicitly non-interventional studies
     (Fix A), ranked by pivotal_score then enrollment (Fix C). Deterministic:
     NCT id is the final tie-break."""
     matches = []
+    if max_per_topic is None:
+        max_per_topic = MAX_PER_TOPIC
+    examined = 0
+    identity_reasons = {}
     rejected_for_identity = []
+    dropped_condition = 0
+    dropped_study_type = 0
     for nct, intvs in intv_by_nct.items():
-        intv_blob = " | ".join(intvs)
+        examined += 1
         # TRIAL IDENTITY (2026-08-25). Was: a substring gate over ALL arms, which matched
         # a combination by its component and matched a trial where the drug is the control.
         _ok, _why = _studies_subject(nct, drug_patterns)
         if not _ok:
             rejected_for_identity.append((nct, _why))
+            identity_reasons[_why] = identity_reasons.get(_why, 0) + 1
             continue
         cond_blob = " | ".join(cond_by_nct.get(nct, []))
         # Fix B: condition synonym + token-subset (MeSH inversion) + hyphen norm.
         if not _match_blob(condition_patterns, cond_blob, token_subset=True,
                           synmap=COND_SYNS):
+            dropped_condition += 1
             continue
         # Fix A: drop explicit observational / expanded-access (keep blank/unknown).
         stype = study_type_by_nct.get(nct, "")
         if stype and not stype.startswith("interv"):
+            dropped_study_type += 1
             continue
         matches.append(nct)
     # Fix C then A: pivotal score first, enrollment within tier, NCT tie-break.
+    #
+    # NOT MERELY STABLE. The sort is TOTAL -- NCT id breaks every remaining tie -- so two
+    # runs over one snapshot agree because the order is DETERMINED, not because a dict
+    # happened to iterate the same way twice. Agreement between runs is not by itself
+    # evidence of correctness: a tie broken by hash order would look just as reproducible
+    # inside a single interpreter while ranking differently in the next one.
     matches.sort(key=lambda n: (-_pivotal_score(n), -enroll_by_nct.get(n, 0), n))
+
+    kept = matches[:max_per_topic]
+    discarded = matches[len(kept):]
+
+    # THE DENOMINATOR, RECORDED BEFORE THE SLICE IS SERVED.
+    #
+    # `len(matches)` sat one expression above this line for the whole life of this file and
+    # was never read. Downstream, n_total stored len(topic["ncts"]) -- the count AFTER the
+    # cut -- which reads like a denominator and is a reach figure. Every stage below now
+    # carries its input, its output, and a NAMED reason for the difference.
+    record = {
+        "retrieved": examined,
+        "identity_rejected": len(rejected_for_identity),
+        "identity_reasons": identity_reasons,
+        "dropped_condition": dropped_condition,
+        "dropped_study_type": dropped_study_type,
+        "eligible": len(matches),
+        "cap_applied": max_per_topic,
+        "cap_source": "RM_MAX_PER_TOPIC" if "RM_MAX_PER_TOPIC" in os.environ else "default",
+        "ingested": len(kept),
+        "discarded_by_cap": len(discarded),
+        "discarded_ncts": discarded,
+        "cap_bit": bool(discarded),
+    }
+    # FAIL CLOSED ON A LEDGER THAT DOES NOT RECONCILE. A record whose stages do not add up
+    # is worse than no record: it is a denominator carrying a provenance that cannot be
+    # true, and everything downstream would read it as measured.
+    _accounted = (record["identity_rejected"] + record["dropped_condition"]
+                  + record["dropped_study_type"] + record["eligible"])
+    if _accounted != examined:
+        raise AssertionError(
+            "enumeration ledger does not reconcile for %r: %d examined, %d accounted for "
+            "(identity %d + condition %d + study_type %d + eligible %d)"
+            % (drug_patterns, examined, _accounted, record["identity_rejected"],
+               record["dropped_condition"], record["dropped_study_type"],
+               record["eligible"]))
+    if record["ingested"] + record["discarded_by_cap"] != record["eligible"]:
+        raise AssertionError(
+            "cap accounting does not reconcile for %r: %d eligible, %d ingested, %d discarded"
+            % (drug_patterns, record["eligible"], record["ingested"],
+               record["discarded_by_cap"]))
+    if ledger is not None:
+        ledger.update(record)
+
     if rejected_for_identity:
         # NAMED, NOT SILENT. A trial dropped for identity is a decision about the evidence
         # base and belongs in the record, not in a discarded local.
         print("  identity gate rejected %d candidate(s); first 5: %s"
               % (len(rejected_for_identity), rejected_for_identity[:5]))
-    # THE CAP IS A SELECTION DECISION AND WAS MAKING IT SILENTLY (2026-09-04).
-    #
-    # registry_adapter.py's ELIGIBILITY block declares, of results-posted:
-    #   "This field RANKS candidates; it never excludes one."
-    # and of truncation:
-    #   "NONE. The full eligible set is written to the ledger. Any cap applied
-    #    downstream must be recorded there, BY NAME."
-    #
-    # Neither held here. The sort key is (-pivotal_score, -enrollment, nct) and
-    # pivotal_score is +2 late-phase, +1 results-posted -- so with a hard cap,
-    # RANKING IS EXCLUSION, and a field declared never to exclude was excluding.
-    # A trial that loses a rank contest it was never told it entered is dropped
-    # for a reason no reader can see.
-    #
-    # This does not change WHICH trials are returned. It makes the drop
-    # countable, so that "this topic found 20" can be distinguished from "this
-    # topic found 63 and we kept the 20 that rank highest on size and phase" --
-    # which are different claims about the evidence base, and only one of them
-    # was being made.
-    # The cap is applied by a pure, testable helper (see _apply_cap above).
-    # None => no cap; a cap at or above the eligible count records nothing.
-    return _apply_cap(matches, max_per_topic, CAP_TRUNCATIONS)
+    if discarded:
+        print("  CAP BIT: %d eligible, %d ingested, %d DISCARDED at cap %d"
+              % (record["eligible"], record["ingested"], record["discarded_by_cap"],
+                 max_per_topic))
+    return kept
 
 
 # DUPLICATE TOPICS ARE A REAL CONDITION AND WERE UNDETECTED (2026-09-04).
@@ -5738,22 +5816,43 @@ if _dupe_stems or _dupe_names:
           " answering one question)")
 
 topic_specs = []
+_search_records = []
 for t in TOPICS:
-    # 5th element, when present, is THIS topic's cap override: an int, or None
-    # for "no cap". Absent -> DEFAULT_MAX_PER_TOPIC. This is what makes the cap a
-    # topic-level setting rather than a positional default: a topic whose
-    # comparator holds k>20 raises its own ceiling here instead of being bound,
-    # by arithmetic, to 20.
+    # 5th element, when present, is THIS topic's cap override: an int passed
+    # straight to find_ncts. Absent (or None) -> find_ncts falls back to the
+    # global MAX_PER_TOPIC (RM_MAX_PER_TOPIC, default 500). This is what makes the
+    # cap a topic-level setting rather than one global positional default: a topic
+    # whose comparator holds more candidates than the global bound raises its own
+    # ceiling here (e.g. cap=2000) instead of being bound to it by arithmetic.
     if len(t) == 4:
         stem, name, drugs, conds = t
-        cap = DEFAULT_MAX_PER_TOPIC
+        cap = None
     else:
         stem, name, drugs, conds, cap = t
     drugs = [d.lower() for d in drugs]
     conds = [c.lower() for c in conds]
-    ncts = find_ncts(drugs, conds, max_per_topic=cap)
-    topic_specs.append({"stem": stem, "name": name, "ncts": ncts, "cap": cap,
-                         "drug_patterns": drugs, "condition_patterns": conds})
+    # The ledger is a fresh dict per topic and travels WITH the topic, so the denominator
+    # reaches the delivered record instead of dying inside the matcher.
+    enum_ledger = {}
+    ncts = find_ncts(drugs, conds, max_per_topic=cap, ledger=enum_ledger)
+    # THE SEARCH THAT RAN, WRITTEN DOWN. 124 delivered pages have an empty Search tab
+    # because no executed search was ever recorded for them -- from outside, that is
+    # indistinguishable from no search having happened. The record lists the whole ELIGIBLE
+    # pool, not the ingested head, so the bound is served beside the number it cut from.
+    _eligible_pool = ncts + list(enum_ledger.get("discarded_ncts", []))
+    _search_records.append(
+        enumeration_search_record.build(
+            topic=stem, drug_patterns=drugs, condition_patterns=conds,
+            ledger=enum_ledger,
+            snapshot=enumeration_search_record.snapshot_identity(AACT),
+            eligible_ncts=_eligible_pool))
+    topic_specs.append({"stem": stem, "name": name, "ncts": ncts,
+                         "drug_patterns": drugs, "condition_patterns": conds,
+                         "enumeration": enum_ledger})
+
+for _rec in _search_records:
+    enumeration_search_record.write(HERE / "evidence" / "enumeration", _rec)
+print(f"Executed-search records written: {len(_search_records)} -> evidence/enumeration/")
 
 print(f"\nNCT discovery summary:")
 n_with_ncts = sum(1 for t in topic_specs if t["ncts"])
@@ -5761,10 +5860,11 @@ print(f"  Topics with ≥1 NCT discovered: {n_with_ncts}/{len(topic_specs)}")
 print(f"  Total candidate NCTs: {sum(len(t['ncts']) for t in topic_specs)}")
 # THE HEADLINE COUNT ABOVE IS POST-CAP. Without this it reads as a measure of
 # the evidence base, when it is a measure of the evidence base AND the cap.
-if CAP_TRUNCATIONS:
-    _elig = sum(c["eligible"] for c in CAP_TRUNCATIONS)
-    _drop = sum(c["dropped"] for c in CAP_TRUNCATIONS)
-    print(f"  CAP BOUND ON {len(CAP_TRUNCATIONS)}/{len(topic_specs)} topics: "
+_capped = [t for t in topic_specs if t.get("enumeration", {}).get("cap_bit")]
+if _capped:
+    _elig = sum(t["enumeration"]["eligible"] for t in _capped)
+    _drop = sum(t["enumeration"]["discarded_by_cap"] for t in _capped)
+    print(f"  CAP BOUND ON {len(_capped)}/{len(topic_specs)} topics: "
           f"{_elig:,} eligible, {_drop:,} DROPPED by rank, "
           f"{_elig - _drop:,} kept")
     print("    The drop is RANKED, not random: late-phase and results-posted "
@@ -5911,14 +6011,40 @@ def audit_nct(nct, topic):
                   for o in outcomes.get(nct, [])
                   if (o.get("param_type") or "").upper() in ("COUNT_OF_PARTICIPANTS", "NUMBER", "COUNT")]
     extracted["aact_outcome_count_rows"] = om_counts[:10]
-    return {"gates": gates, "extracted": extracted}
+    # THE THIRD OUTCOME, RECORDED BESIDE THE BOOLEANS AND CHANGING NEITHER.
+    #
+    # `gates` stays exactly as it was and so does the VIABLE/NOT_VIABLE verdict, so no topic
+    # changes status here. What is added is the distinction the booleans cannot carry: a
+    # gate returns False both when the evidence disagrees and when the evidence was never
+    # there, and until now those were the same word in the record.
+    #
+    #     Measured over the 1,805-candidate pool of the 53 sampled topics: 1,259 of them
+    #     (69.8%) have NO posted baseline participant counts, so gate E was recording them
+    #     as not having two arms. 109 were genuinely excluded by counts that were posted.
+    #     Not posted, read as not so.
+    _cls = screening_states.classify(
+        nct=nct, topic=topic, aact_rows=s,
+        intvs=intv_by_nct.get(nct, []), conds=cond_by_nct.get(nct, []),
+        pmids=nct_pmids.get(nct, []), pubmed_meta=pubmed_meta,
+        baseline_rows=baseline.get(nct, []),
+        design_outcome_rows=design_outs.get(nct, []),
+        match_blob=_match_blob, drug_syns=DRUG_SYNS, cond_syns=COND_SYNS)
+    return {"gates": gates, "extracted": extracted,
+            "gate_states": {g: {"state": st, "reason": why}
+                            for g, (st, why) in _cls["states"].items()},
+            "disposition": _cls["disposition"], "disposition_reasons": _cls["reasons"]}
 
 
 viable_count = 0
 results = []
 for topic in topic_specs:
     if not topic["ncts"]: continue
-    topic_audit = {"topic": topic, "trials": [], "n_total": 0, "n_pass_all": 0}
+    # `n_total` is KEPT under its old name and old meaning -- the number of candidates
+    # actually audited -- because other readers depend on it. What changes is that it is no
+    # longer the only number here: `enumeration` carries the pool it was cut from, so
+    # n_total can no longer be mistaken for the denominator.
+    topic_audit = {"topic": topic, "trials": [], "n_total": 0, "n_pass_all": 0,
+                   "enumeration": topic.get("enumeration", {"state": "NOT_RECORDED"})}
     for nct in topic["ncts"]:
         r = audit_nct(nct, topic)
         topic_audit["trials"].append(r)
@@ -5927,6 +6053,19 @@ for topic in topic_specs:
             topic_audit["n_pass_all"] += 1
     # k>=2 gate for new reviews per Mahmood 2026-05-13: single-trial reviews
     # display fine but provide no pooling. Require ≥2 trials passing all gates.
+    # SCREENING, WITH A DENOMINATOR AND WITH UNDECIDABLE COUNTED SEPARATELY. `n_pass_all`
+    # answers "how many passed"; it has never been able to answer "out of how many, and how
+    # many of the rest were never assessable". Both are now on the record. The verdict below
+    # is deliberately unchanged -- this counts, it does not re-decide.
+    _disp = [t.get("disposition") for t in topic_audit["trials"] if t.get("disposition")]
+    topic_audit["screening"] = {
+        "denominator_audited": topic_audit["n_total"],
+        "eligible_pool": topic.get("enumeration", {}).get("eligible"),
+        "tally": screening_states.tally(_disp),
+        "note": ("denominator_audited is the number of candidates AUDITED, which is the "
+                 "ingested head; eligible_pool is what the bound cut it from. They differ "
+                 "whenever the bound bit, and the difference was never screened at all."),
+    }
     topic_audit["verdict"] = "VIABLE" if topic_audit["n_pass_all"] >= 2 else "NOT_VIABLE"
     topic_audit["pass_rate"] = topic_audit["n_pass_all"] / max(topic_audit["n_total"], 1)
     out_p = OUT / f"{topic['stem']}.json"

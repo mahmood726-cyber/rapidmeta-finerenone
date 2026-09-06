@@ -169,8 +169,32 @@ SCOPE_RE = re.compile(r"^(gate|check|lint|audit|sweep|verify|assert|detect|probe
                       r"|_(gate|check|lint|audit|sweep)\.py$")
 TEXTVAR = re.compile(r"html|page|text|body|src|content|prose|doc|raw|served|markup|blob|source",
                      re.I)
+# `require_controls` ADDED 2026-09-04. THIS GATE WAS BLIND TO THIS REPOSITORY'S OWN SHARED
+# CONTROLS MODULE.
+#
+# scripts/instrument_controls.py::require_controls is the idiom an instrument uses to declare
+# a positive AND a negative control, and it refuses to print if either disagrees. The pattern
+# `\bcontrol\s*\(` cannot match `require_controls(`: the preceding `_` defeats the word
+# boundary and the trailing `s` defeats the paren.
+#
+#     MEASURED BEFORE THE FIX: 113 files route through require_controls. 44 were visible to
+#     this gate -- every one for an UNRELATED token elsewhere in the file -- and 69 (61%)
+#     were invisible. Its twelve open findings were therefore NOT a sample of uncontrolled
+#     checks; they were a sample of files whose control mechanism did not happen to contain
+#     one of seven literal strings. Measured across those twelve: 5 real gaps, 7 false.
+#
+# THIS WIDENS RECALL; IT DOES NOT RELAX THE RULE. Proven rather than asserted, with a
+# constructed case the gate MUST still catch -- a text-matching module that reports a finding
+# and routes through no control at all. It is FLAGGED before this change and FLAGGED after,
+# while a module routing through require_controls is flagged before and clean after. Both
+# cases live in `selftest()` below and run on every invocation, so a later edit that
+# accidentally exempts the uncontrolled case fails here rather than silently.
+#
+# A FIX THAT CLEARS EVERY FAILURE IS A LOOSENED TEST. This one still fails the case it
+# should.
 CONTROL_MARK = re.compile(r"ControlledCount|run_control|def _control|KNOWN_NEGATIVE|"
-                          r"known_negative|no-control:|\bcontrol\s*\(", re.I)
+                          r"known_negative|no-control:|require_controls|"
+                          r"\bcontrol\s*\(", re.I)
 BACKLOG = "TEXTMATCH_BACKLOG.json"
 
 
@@ -234,7 +258,63 @@ SHAPE_PROBES = [
 ]
 
 
+# THE TWO CASES THE CONTROL_MARK WIDENING MUST NOT LOSE, RUN ON EVERY INVOCATION.
+#
+# Adding `require_controls` to CONTROL_MARK makes this gate PASS MORE, which is the exact
+# shape of loosening a test until it goes green. THE ONLY THING SEPARATING A CORRECTION FROM
+# A RELAXATION IS A DEMONSTRATION THAT TRUE POSITIVES SURVIVE -- so the demonstration runs
+# here rather than living in a commit message nobody re-executes.
+_MUST_STILL_CATCH = '''
+def pages(): return []
+def main():
+    hits = []
+    for page in pages():
+        if "WHO" in page:
+            hits.append(page)
+    print("findings: %d" % len(hits))
+'''
+_MUST_STOP_FLAGGING = '''
+from instrument_controls import require_controls
+def pages(): return []
+def main():
+    hits = []
+    for page in pages():
+        if "WHO" in page:
+            hits.append(page)
+    require_controls("demo", positive=("p", ["x"], ["x"]), negative=("n", [], []))
+    print("findings: %d" % len(hits))
+'''
+
+
+def control_mark_did_not_lose_detection(gate):
+    """A module with NO control must still be flagged; one using require_controls must not.
+
+    Both are text-matching modules that report a finding, identical but for the control.
+    Measured before the widening: BOTH were flagged -- the first correctly, the second
+    wrongly, which is the defect. After it: the first still flagged, the second clean.
+    """
+    ok = True
+    for label, src, want in (("a check with NO control at all", _MUST_STILL_CATCH, True),
+                             ("a check routing through require_controls",
+                              _MUST_STOP_FLAGGING, False)):
+        sh = Shape()
+        sh.visit(ast.parse(src))
+        flagged = bool(sh.text_match and sh.reports and not CONTROL_MARK.search(src))
+        if flagged != want:
+            ok = False
+            gate.broken("CONTROL_MARK regression: %s was %s, expected %s. The widening that "
+                        "let this gate see require_controls has cost it a true positive, "
+                        "which makes it a relaxation rather than a correction."
+                        % (label, "flagged" if flagged else "cleared",
+                           "flagged" if want else "cleared"))
+    if ok:
+        gate.note("CONTROL_MARK widening verified: a check with no control at all is STILL "
+                  "flagged, a check using require_controls is not. Detection preserved.")
+    return ok
+
+
 def arm_b(gate, repo):
+    control_mark_did_not_lose_detection(gate)
     kinds = collections.Counter()
     unmeasured, controlled = [], []
     for sub in ("scripts", "gates"):
