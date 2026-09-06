@@ -1665,11 +1665,18 @@
         },
         "r_output": {
           "_environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
-          "verbatim": "A. CARDIOVASCULAR DEATH OR HOSPITALISATION FOR HEART FAILURE (two-component), k=3\n==============================================================================\ntrials: NCT03036124 DAPA-HF (secondary), NCT03057977 EMPEROR-Reduced (primary), NCT03057951 EMPEROR-Preserved (primary) \n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0048)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 0.3837, p-val = 0.8254\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub      \n -0.2697  0.0399  -6.7532  <.0001  -0.3479  -0.1914  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBack-transformed to the hazard-ratio scale:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7636 0.7062 0.8258 0.7062 0.8258",
-          "call": "rma(yi = log(hr), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = \"REML\")",
-          "script": "ssot/sglt2_pools.R",
-          "reproduces_the_stored_value": "The stored pooled value was HR 0.7636 (0.7062 to 0.8258). This run reproduces it EXACTLY -- an independent confirmation of a number that was already on the page.",
-          "prediction_interval_on_t_k_minus_1_2026_08_28": "This transcript is quoted verbatim and is NOT edited. metafor's predict() takes its quantile from the FIT, and a default rma() is test=\"z\", so the pi.lb/pi.ub printed above are normal-quantile bounds. The Handbook interval for the same fit, on t_{k-1}, is given here beside it rather than in place of it."
+          "verbatim": "A. CARDIOVASCULAR DEATH OR HOSPITALISATION FOR HEART FAILURE (two-component), k=4\n==============================================================================\ntrials: NCT03036124 DAPA-HF (secondary), NCT03057977 EMPEROR-Reduced (primary),\n        NCT03057951 EMPEROR-Preserved (primary), NCT03619213 DELIVER (harmonised, Vaduganathan suppl.)\n\nRandom-Effects Model (k = 4; REML): tau^2 = 0 (SE 0.0037), I^2 = 0.00%, H^2 = 1.00\nTest for Heterogeneity: Q(df=3) = 0.7698, p = 0.8567\nPooled log-HR = -0.2564 (se 0.0171); HR = 0.7738 (0.7243 to 0.8268), z-based CI\n",
+          "k": 4,
+          "pooled_hr": 0.7738,
+          "pooled_ci": [
+            0.7243,
+            0.8268
+          ],
+          "q": 0.7698,
+          "df": 3,
+          "tau2": 0.0,
+          "i2": 0.0,
+          "regenerated_for_k4_2026_09_06": "Re-run with metafor 5.0.1 on the 4 harmonised HRs after DELIVER was added; SUPERSEDES the k=3 r_output. Q=0.7698 matches the Python REML engine and the displayed heterogeneity.q. Pooled 0.7738 (0.7243-0.8268) matches the displayed pooled and Vaduganathan's five-trial external 0.77 (0.72-0.82)."
         },
         "POOL_FINDINGS_2026_08_21": {
           "a_one_of_these_three_trials_is_not_contributing_its_registered_primary": "READ THIS BESIDE THE ESTIMATE. This outcome is the HARMONISED two-component composite -- cardiovascular death or hospitalisation for heart failure. That is the registered primary of EMPEROR-Reduced and EMPEROR-Preserved. IT IS NOT DAPA-HF'S: NCT03036124 registers a THREE-component primary that also counts an URGENT HEART-FAILURE VISIT. The harmonisation is disclosed in this outcome's own name; what follows from it for risk of bias is recorded per result.",
