@@ -1,0 +1,14 @@
+{
+  "_purpose": "SYNTHETIC control capturing SGLT2_HF_REVIEW.html's firing signature BEFORE the k=4 correction banner was added (2026-09-06). Any gate that controlled on SGLT2's real defect state can point HERE instead of the live page, so correcting the page cannot silently disarm it (the self-retiring-control law). Synthetic: no upstream to drift.",
+  "_captured_before_touching": "the k=4 correction banner add + cherry-pick to main",
+  "app_id": "__control_sglt2_halfmigration",
+  "results": {"by_outcome": {"harmonised_cvdeath_or_hhf": {
+    "measure": "HR", "k": 3,
+    "pooled": {"measure": "HR", "point": 0.7636, "ci_low": 0.7062, "ci_high": 0.8258},
+    "pooled_corrected_k4": {"measure": "HR", "point": 0.7738, "ci_low": 0.7243, "ci_high": 0.8268, "k": 4},
+    "prediction_interval": {"superseded_2026_08_28": {"high": 0.884}},
+    "heterogeneity_stale_served": "a page narrating k=3 0.7636 while the object holds k=4 0.774 is the two-live-values signature; the stale PI high 0.884 served live is the stale-panel signature.",
+    "signature": "HALF_MIGRATION: served k=3 0.7636 + corrected k=4 0.774 both present; superseded PI 0.884 served live."
+  }}},
+  "gates_this_covers": ["card_alignment_gate (WITHHELD/withheld-state; already git-pinned)", "dashboard_projection_gate (pooled_OR expectation; already synthetic)", "generator_stamp_gate (stamp presence; content-independent)", "gate_contributing_rows_equal_k (page tables; frozen for SGLT2)", "clone_contamination_gate (already synthetic payload)", "reproduce_review stale-served (0.884)"]
+}
