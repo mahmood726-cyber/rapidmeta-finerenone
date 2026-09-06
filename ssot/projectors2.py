@@ -6,7 +6,10 @@ round-end -- the discipline whose absence lost a day's work to one reset.
 Prose recovered from the .pyc where it existed; control flow written fresh.
 """
 import collections
+import glob
+import io
 import math
+import os
 import re
 
 from projectors import (NL, e, fmt, kv_card, fig, scatter_svg, rows_svg,
@@ -324,6 +327,92 @@ def _certainty_method(canon, na):
     return na("no GRADE record is held on this object, so no certainty assessment is claimed")
 
 
+# ---- P / I / C ROWS FROM THE FROZEN PROTOCOLS (2026-09-06) --------------------------------
+#
+# The PROSPERO field-set table carried "Review question (PICO)" and "Eligibility criteria" as
+# PROSE, and no discrete Population / Intervention / Comparator row. Twenty labels were in
+# circulation and none of those three was among them, so a reader -- or a machine -- could not
+# lift the population criterion as a testable field. That was a TEMPLATE gap, not an authoring
+# failure on each page: one row set, absent here, was absent on every page this projector
+# builds. The criteria are not missing. protocols/<stem>_v1.0_*.md (57 curated protocols
+# frozen 2026-04-19) each carry a PICO table with the real thresholds; the pages did not
+# render them.
+#
+# MATCH BY CONFIRMED EXACT STEM ONLY. Name similarity is NOT identity -- a prior pass matched
+# infant RSV to an adults->=60 protocol and an HFrEF network to an ulcerative-colitis protocol.
+# So the map below is hand-curated and adjudicated, never inferred from a string distance. A
+# review with no confirmed protocol renders a STATED null with a machine-readable state, not a
+# value-shaped placeholder that a "is this field populated?" check would wave through.
+_PICO_PROTOCOL = {
+    # object app_id -> frozen v1.0 protocol stem. CONFIRMED same-topic matches, each
+    # adjudicated on the POPULATION, not just the drug name, on 2026-09-06:
+    "bempedoic-acid-review": "bempedoic_acid",   # ASCVD / statin-intolerant -- matches
+    "cangrelor-pci-review": "cangrelor_pci",     # PCI patients -- matches
+    "finerenone-cv": "finerenone",               # T2D + CKD -- matches (NOT finerenone-review,
+                                                 #   which is finerenone in HEART FAILURE, a
+                                                 #   different indication with no v1.0 protocol)
+    "incretin-hfpef-review": "incretin_hfpef",   # HFpEF + obesity -- matches
+    "iv-iron-hf": "iv_iron_hf",                  # HFrEF + iron deficiency -- matches, and the
+                                                 #   protocol adds the ferritin threshold the
+                                                 #   review states only as "iron deficiency"
+    "sglt2-hf": "sglt2_hf",                       # HF across the EF spectrum -- matches
+    # DELIBERATELY NOT MAPPED, with the reason on the record:
+    #   arni-hfref -> arni_hf is REFUSED. The arni_hf protocol is program-level ("HFrEF,
+    #     HFpEF, or post-MI"); the arni-hfref review is HFrEF-only (PARADIGM-HF vs enalapril).
+    #     Rendering the program population on the slice review would overstate it. ARNI is also
+    #     an authored manuscript on the do-not-rebuild list; its rows, if wanted, are authored
+    #     by hand to the review's own HFrEF scope, not projected from a broader protocol.
+}
+
+_PICO_KEYS = (("population", "Population"), ("intervention", "Intervention"),
+              ("comparator", "Comparator"))
+
+
+def _protocols_dir():
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "protocols")
+
+
+def load_protocol_pico(app_id):
+    """{'population':.., 'intervention':.., 'comparator':..} for a CONFIRMED-mapped app_id,
+    read from its frozen v1.0 protocol's PICO table. None when the app_id is not mapped, the
+    file is absent, or any of the three rows cannot be read -- never a partial dict, because a
+    half-populated PICO row is exactly the value-shaped absence this change exists to refuse."""
+    stem = _PICO_PROTOCOL.get(app_id)
+    if not stem:
+        return None
+    hits = glob.glob(os.path.join(_protocols_dir(), stem + "_protocol_v1.0_*.md"))
+    if not hits:
+        return None
+    txt = io.open(hits[0], encoding="utf-8").read()
+    out = {}
+    for key, label in _PICO_KEYS:
+        m = re.search(r"\|\s*\*\*%s\*\*\s*\|\s*(.+?)\s*\|" % label, txt)
+        if m and m.group(1).strip():
+            out[key] = m.group(1).strip()
+    return out if len(out) == 3 else None
+
+
+def _pico_null_state():
+    """A row with no protocol behind it: a STATED null carrying a machine-readable state, not a
+    placeholder. `data-pico='null'` lets a check tell this apart from a real value; a check that
+    only asks whether the cell is non-empty would (wrongly) pass a placeholder, so the cell says
+    what it is."""
+    return ("<em data-pico='null' data-pico-state='NO_PROTOCOL_MAPPED'>Not shown &mdash; no "
+            "prospectively-frozen v1.0 protocol is mapped to this review by confirmed exact "
+            "stem, so an independent criterion is withheld rather than invented. "
+            "State: NO_PROTOCOL_MAPPED.</em>")
+
+
+def pico_pairs(app_id):
+    """The three (label, value_html) PICO rows for the PROSPERO field-set table. Real values
+    where a protocol is CONFIRMED-mapped; a stated null+state otherwise. Shared by
+    protocol_card and the served-bytes inserter so both emit byte-identical rows."""
+    pico = load_protocol_pico(app_id)
+    return [(label, e(pico[key]) if pico else _pico_null_state())
+            for key, label in _PICO_KEYS]
+
+
 def protocol_card(canon, p):
     """The registration pack, PROSPERO field set.
 
@@ -333,9 +422,14 @@ def protocol_card(canon, p):
     sc = canon.get("screening") or {}
     cfg = canon.get("config") or {}
     na = lambda why: "<em>Not recorded &mdash; %s</em>" % why
+    _pico = pico_pairs(canon.get("app_id"))  # [Population, Intervention, Comparator] pairs
     pairs = [
         ("Review title", p(canon["title"])),
         ("Review question (PICO)", p(canon["question"])),
+        # Discrete P / I / C rows from the frozen v1.0 protocol (confirmed exact stem), so the
+        # population / intervention / comparator are testable fields, not prose buried in the
+        # Eligibility cell. Unmapped reviews get a stated null+state here, never a placeholder.
+        _pico[0], _pico[1], _pico[2],
         ("Background / rationale", na(
             "this object holds no background field, and an introduction generated "
             "without one would be argument that no source in this review supports")),
