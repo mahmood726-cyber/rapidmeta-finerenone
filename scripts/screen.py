@@ -45,11 +45,25 @@ _OUTCOME_STOPWORDS = frozenset((
     "or", "of", "the", "a", "an", "to", "for", "and", "in", "on", "with", "first", "time",
     "event", "adjudicated", "composite", "endpoint", "outcome", "due", "from", "occurrence",
     "worsening", "unplanned", "subjects", "included", "number", "total",
+    "component", "components", "two", "three", "point",  # descriptors of a composite, not clinical content
 ))
 
 
+def _canon(t):
+    """Canonicalise British/American medical spelling so token-subset matching is spelling-blind.
+    hospitalisation==hospitalization was silently excluding DAPA-HF/EMPEROR when the estimand used the
+    British form -- the same class as the h[ae]moglobin lesson, here on -isation/-ization."""
+    t = t.replace("isation", "ization").replace("isension", "ization")
+    for a, b in (("haemo", "hemo"), ("oedema", "edema"), ("aemia", "emia"), ("aemic", "emic"),
+                 ("anaesth", "anesth"), ("oesoph", "esoph"), ("paediatr", "pediatr"),
+                 ("tumour", "tumor"), ("ischaemi", "ischemi")):
+        t = t.replace(a, b)
+    return t
+
+
 def _content_tokens(s):
-    return {t for t in re.findall(r"[a-z0-9]+", _norm(s)) if t not in _OUTCOME_STOPWORDS and len(t) > 1}
+    return {_canon(t) for t in re.findall(r"[a-z0-9]+", _norm(s))
+            if t not in _OUTCOME_STOPWORDS and len(t) > 1}
 
 
 def _outcome_matches(term, text):
