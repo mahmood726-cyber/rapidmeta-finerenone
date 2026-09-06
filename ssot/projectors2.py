@@ -381,7 +381,9 @@ def load_protocol_pico(app_id):
     stem = _PICO_PROTOCOL.get(app_id)
     if not stem:
         return None
-    hits = glob.glob(os.path.join(_protocols_dir(), stem + "_protocol_v1.0_*.md"))
+    # sorted(): glob order is filesystem-arbitrary, so a stem with two v1.0 files would pick
+    # nondeterministically. There is one per stem today; sorting makes that not matter.
+    hits = sorted(glob.glob(os.path.join(_protocols_dir(), stem + "_protocol_v1.0_*.md")))
     if not hits:
         return None
     txt = io.open(hits[0], encoding="utf-8").read()
