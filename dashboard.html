@@ -80,6 +80,8 @@ tbody td { padding: 6px 9px; vertical-align: middle; }
 .tag.nma { background: #312e81; color: #c4b5fd; }
 .tag.pairwise { background: #1e3a5f; color: #7dd3fc; }
 .tag.pending { background: #422006; color: #fdba74; font-weight: 400; }
+.tag.missing { background: #3f1d1d; color: #fca5a5; font-weight: 400; }
+.review-missing { color: #94a3b8; text-decoration: line-through; cursor: help; }
 .col-numeric, .col-or {
   text-align: right; font-family: 'JetBrains Mono', monospace; color: #cbd5e1;
 }
@@ -375,7 +377,7 @@ function renderRows(rows) {
     const date = (r.last_modified || '').split('T')[0] || '—';
 
     return '<tr>' +
-      '<td class="col-name"><a href="' + r.file + '" target="_blank">' + r.display_name + '</a>' + (r.stats_pending ? ' <span class="tag pending" title="App is live; trial provenance (PMID + registry) not yet verified, so no pooled estimate is shown.">provenance pending</span>' : '') + '</td>' +
+      '<td class="col-name"><span class="review-name" data-review-file="' + r.file + '">' + r.display_name + '</span>' + (r.stats_pending ? ' <span class="tag pending" title="App is live; trial provenance (PMID + registry) not yet verified, so no pooled estimate is shown.">provenance pending</span>' : '') + '</td>' +
       '<td><span class="tag ' + (r.type === 'NMA' ? 'nma' : 'pairwise') + '">' + r.type + (r.type === 'NMA' && r.n_treatments ? ' · ' + r.n_treatments + ' tx' : '') + '</span></td>' +
       '<td class="col-bucket">' + r.bucket + '</td>' +
       '<td class="col-numeric">' + (r.n_trials != null ? r.n_trials : '—') + '</td>' +
@@ -386,6 +388,41 @@ function renderRows(rows) {
       '<td class="col-date">' + date + '</td>' +
     '</tr>';
   }).join('');
+  verifyReviewLinks(body);
+}
+
+// NEVER EMIT AN HREF TO A FILE THAT IS NOT THERE. portfolio_index.json is a stale record --
+// it lists reviews that were once built and may since have been renamed or removed -- and its
+// rows are kept deliberately, as the record of what was claimed. So a review name is rendered
+// as a plain <span>, not a link; only after a HEAD confirms the file exists is it upgraded to
+// an <a href>. A file that 404s is DISCLOSED with its state ("not built"), never linked. An
+// index that shows a gap beats one that promises and 404s. Result cached per file so sorting
+// and filtering do not re-probe.
+var __reviewFileStatus = {};
+function verifyReviewLinks(scope) {
+  scope.querySelectorAll('span.review-name[data-review-file]').forEach(function (sp) {
+    var file = sp.getAttribute('data-review-file');
+    var apply = function (ok, status) {
+      if (ok) {
+        var a = document.createElement('a');
+        a.href = file; a.target = '_blank'; a.textContent = sp.textContent;
+        sp.replaceWith(a);
+      } else {
+        sp.classList.add('review-missing');
+        sp.title = 'No page is built at ' + file + ' (state: NOT_BUILT'
+          + (status ? ', HTTP ' + status : '') + '). It is listed in the portfolio index but '
+          + 'has no built review, so it is shown rather than linked to a 404.';
+        var tag = document.createElement('span');
+        tag.className = 'tag missing';
+        tag.textContent = 'not built';
+        sp.after(tag);
+      }
+    };
+    if (__reviewFileStatus[file] !== undefined) { apply(__reviewFileStatus[file]); return; }
+    fetch(file, { method: 'HEAD' })
+      .then(function (resp) { __reviewFileStatus[file] = resp.ok; apply(resp.ok, resp.status); })
+      .catch(function () { __reviewFileStatus[file] = false; apply(false, 0); });
+  });
 }
 
 function setSort(key) {
