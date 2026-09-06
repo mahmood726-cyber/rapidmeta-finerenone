@@ -108,8 +108,66 @@ def _outcomes_with_pool(obj):
             out.append((oid, eff, float(pooled["point"]), pooled.get("measure", "?")))
     return out
 
+_SUPERSEDED_KEY = re.compile(r"supersed|deprecat|legacy|withdrawn|_old\b|stale", re.I)
+_SUP_NUM = re.compile(r"\d+\.\d{3,}")
+
+
+# statistical constants that recur everywhere -- never distinctive enough to be a "dead value"
+_STAT_CONSTANTS = {"1.9600", "1.959964", "1.95996", "12.7062", "0.050", "0.025", "0.975"}
+
+
+def _object_values(obj, dead_side):
+    """Numbers under *superseded* keys (dead_side=True) or under all OTHER keys (dead_side=False)."""
+    vals = set()
+    def walk(x, dead):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                walk(v, dead or bool(_SUPERSEDED_KEY.search(str(k))))
+        elif isinstance(x, list):
+            for v in x:
+                walk(v, dead)
+        elif dead == dead_side:
+            vals.update(_SUP_NUM.findall(str(x)))
+    walk(obj, False)
+    return vals
+
+
+def _object_superseded_values(obj):
+    """Distinctively DEAD values: in a superseded field, NOT also a live object value, not a stat constant.
+
+    A value that is both superseded and live somewhere is not distinctively dead (e.g. a z/t constant,
+    or a CI bound reused). Only a value the object retired AND does not still use can be 'served live'."""
+    dead = _object_values(obj, True)
+    live = _object_values(obj, False)
+    return (dead - live) - _STAT_CONSTANTS
+
+
+def _superseded_served_live(obj, served_bytes):
+    """A dead value is served LIVE if it appears on the page NOT within ~80 chars of a superseded label.
+
+    This catches the object<->page source-divergence class: the object retired a value but the page
+    (built from a different source) still narrates it as current. A value shown only inside a clearly
+    'superseded'-labelled row is fine (legitimate disclosure); one in a live paragraph is not."""
+    if not served_bytes:
+        return []
+    live = []
+    for v in _object_superseded_values(obj):
+        if v not in served_bytes:
+            continue
+        labelled_everywhere = True
+        for m in re.finditer(re.escape(v), served_bytes):
+            window = served_bytes[max(0, m.start() - 80):m.end() + 80]
+            if not _SUPERSEDED_KEY.search(window):
+                labelled_everywhere = False
+                break
+        if not labelled_everywhere:
+            live.append(v)
+    return live
+
+
 def axis_render(obj, served_bytes, tol=5e-4):
-    """RENDER: engine(object's own per_trial) == object.pooled AND object.pooled shown in served bytes."""
+    """RENDER: engine(object's per_trial) == object.pooled, object.pooled is on the page, AND no dead
+    (superseded) object value is served LIVE on the page (the source-divergence / stale-narrative class)."""
     rows = []
     for oid, eff, stored, meas in _outcomes_with_pool(obj):
         rp = reml_pool(eff)[0]
@@ -121,8 +179,11 @@ def axis_render(obj, served_bytes, tol=5e-4):
                      "reproduces": engine_ok and shown})
     if not rows:
         return "CANNOT_RUN", rows, "no outcome carries both per-trial inputs and a pooled value"
-    verdict = "REPRODUCES" if all(r["reproduces"] for r in rows) else "DIFFERS"
-    return verdict, rows, None
+    stale = _superseded_served_live(obj, served_bytes)
+    ok = all(r["reproduces"] for r in rows) and not stale
+    note = None if not stale else ("superseded object value(s) served LIVE on the page (not labelled "
+                                   "superseded): %s -- object<->page source divergence" % ", ".join(sorted(stale)))
+    return ("REPRODUCES" if ok else "DIFFERS"), rows, note
 
 def _num_in_bytes(x, served_bytes):
     if served_bytes is None:
@@ -244,6 +305,18 @@ def selftest():
     # a value NOT shown on the page must also fail the render axis
     v_hidden, _, _ = axis_render(obj, "a page that never prints the number")
     chk("pooled value absent from served bytes -> DIFFERS", v_hidden == "DIFFERS")
+    # SUPERSEDED-SERVED-LIVE: a dead object value narrated live on the page -> DIFFERS
+    obj_sup = {"results": {"by_outcome": {"primary": {
+        "per_trial": [{"point": p, "ci_low": lo, "ci_high": hi} for p, lo, hi in eff],
+        "pooled": {"point": pooled, "measure": "HR"},
+        "heterogeneity_superseded_2026": {"q": 0.368949}}}}}
+    live_page = "the pool is %s. Heterogeneity Q = 0.368949 on 1 df, the trials agree." % pooled
+    v_live, _, note = axis_render(obj_sup, live_page)
+    chk("superseded value served LIVE on page -> DIFFERS", v_live == "DIFFERS" and "0.368949" in (note or ""))
+    labelled_page = "the pool is %s. Heterogeneity status superseded: Q = 0.368949 (dead)." % pooled
+    v_lab, _, _ = axis_render(obj_sup, labelled_page)
+    chk("superseded value shown only in a 'superseded'-labelled row -> REPRODUCES", v_lab == "REPRODUCES")
+
     # PROTOCOL axis: a protocol expecting a different k/value must DIFFER
     proto = {"expected_primary": {"k": 4, "pooled_point": 0.7738}}
     pv, _ = axis_protocol(obj, proto)
