@@ -1,0 +1,40 @@
+{
+ "executed_utc": "2026-09-06T09:02:34+00:00",
+ "search": {
+  "state": "RAN_RESULTS",
+  "denominator": {
+   "hit_count": 1874,
+   "records_pulled": 500,
+   "note": "hit_count is Europe PMC's total BEFORE our filters; records_pulled is what paging retrieved"
+  },
+  "query_as_executed": "((GLP-1 OR \"glucagon-like peptide\") AND cardiovascular) AND (PUB_TYPE:\"Meta-Analysis\" OR PUB_TYPE:\"systematic review\")",
+  "control": {
+   "known_positive": {
+    "pmid": "31422062"
+   },
+   "control_query": "(((GLP-1 OR \"glucagon-like peptide\") AND cardiovascular) AND (PUB_TYPE:\"Meta-Analysis\" OR PUB_TYPE:\"systematic review\")) AND EXT_ID:31422062 AND SRC:MED",
+   "found_in_results": true,
+   "verdict": "PROVEN_FIRES -- the known-positive passes this exact query"
+  },
+  "control_is": "Kristensen 2019 (PMID 31422062), a GLP-1 CV meta that must be present"
+ },
+ "harvest": {
+  "source": "prior_syntheses",
+  "operation": "harvest_references",
+  "tool": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC/PMC13351244/references?format=json&pageSize=1000",
+  "tier": "SYNTHESIS_REPORTED",
+  "meta_source": "PMC",
+  "meta_id": "PMC13351244",
+  "executed_utc": "2026-09-06T09:03:04+00:00",
+  "http_status": 503,
+  "state": "RAN_ERROR",
+  "state_detail": "HTTP 503",
+  "why_no_denominator": "/references did not return; RAN_ERROR is not 'the meta had no references'. Re-run when the endpoint recovers.",
+  "harvested_trials": null,
+  "harvested_from": {
+   "pmid": "42424036",
+   "pmcid": "PMC13351244",
+   "title": "Effect of glucagon-like peptide-1 receptor agonists on body weight and urinary albumin-to-"
+  }
+ }
+}
