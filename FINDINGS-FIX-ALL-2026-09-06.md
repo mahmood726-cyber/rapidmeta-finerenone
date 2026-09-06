@@ -269,6 +269,33 @@ RENDER axis diff the object against the generator's actual source and FAIL on di
 Status: object-perfect and loop-perfect; page-perfection is blocked on the render-source-divergence
 architecture gap, not on a value we cannot verify.
 
+## Reproducibility scorecard across the five brief metas (using reproduce_review)
+
+| meta | protocol registered | RENDER | PROTOCOL | PIPELINE |
+|---|---|---|---|---|
+| SGLT2_HF | yes (ac95196c) | DIFFERS -- stale 0.884 served live (candidate) | DIFFERS (k=3 object vs k=4 protocol; DELIVER blocked) | CANNOT_RUN (no evidence set) |
+| EMPAGLIFLOZIN_HF | yes (45cbe9bff) | DIFFERS -- stale OR-analysis numbers served live | REPRODUCES | REPRODUCES |
+| INCLISIRAN (lipid-kidney) | no | CANNOT_RUN | CANNOT_RUN | CANNOT_RUN |
+| ALIROCUMAB (lipid) | no | CANNOT_RUN | CANNOT_RUN | CANNOT_RUN |
+
+Three findings from the scorecard:
+1. **The stale-served / source-divergence class is CORPUS-WIDE**: both metas with a resolvable page fail
+   RENDER on a superseded value narrated live. This confirms the object<->page two-source problem is not
+   an EMPAGLIFLOZIN quirk -- it is the corpus's default state.
+2. **reproduce_review is RATIO-ONLY**: `_outcomes_with_pool` requires point/CI > 0 and `reml_pool` works on
+   the log scale, so INCLISIRAN and ALIROCUMAB (LDL % change, a DIFFERENCE measure with NEGATIVE values,
+   e.g. -50.54) return CANNOT_RUN. Their objects are fine (per_trial + pooled present); the TOOL cannot
+   read difference-scale outcomes yet. A natural-scale pooling path is the fix. Recorded as a coverage gap.
+3. **Naming is inconsistent across the corpus**: object slug vs page filename diverge (object `arni-hfref`
+   vs page `ARNI_HF_REVIEW.html`; object `alirocumab-lipid` vs page `ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html`).
+   A review whose id does not deterministically resolve to its object AND its page is a reproducibility
+   hazard in itself -- reproduce_review cannot even find both halves for ARNI.
+
+Only 2 of 5 target metas have a registered protocol; 1 of 5 (EMPAGLIFLOZIN) reproduces on PROTOCOL+PIPELINE.
+None reproduces on RENDER, because of the source-divergence gap. The honest state of "reproducibility" for
+the corpus tonight: the LOOP is proven and works end-to-end on the object, but the SERVED PAGE is not yet
+built from the reproduced object anywhere -- that is the single change that would make pages reproducible.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,

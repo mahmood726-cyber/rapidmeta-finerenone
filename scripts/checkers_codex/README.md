@@ -22,5 +22,8 @@ before any of these is trusted as a gate or added to the pre-push suite.
 | `grade_imprecision_ois_check.py` | a GRADE imprecision rating inconsistent with OIS / whether the CI crosses the null |
 | `executed_unresolved_check.py` | a trial left in EXECUTED_UNRESOLVED / no terminal state — a silent drop |
 | `exclusion_reason_verifiable_check.py` | an exclusion reason with no checkable evidence field, or contradicted by it |
+| `protocol_benchmark_citation_check.py` | a benchmark cited without PMID/DOI, or a same-trial-set analysis passed off as independent |
+| `one_pool_per_comparison_check.py` | two different pooled estimates for the same comparison+outcome |
+| `absence_not_negative_check.py` | a trial with no reported result silently treated as a null/negative |
 
 Run one: `python scripts/checkers_codex/<name>.py` (exits non-zero if its self-test fails).
