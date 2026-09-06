@@ -160,21 +160,36 @@ def axis_protocol(obj, proto, tol=5e-4):
             "delta_pooled": round(stored - val, 4)}
     return ("REPRODUCES" if conforms else "DIFFERS"), diff
 
-def axis_pipeline(status):
-    # Autonomous reproduction needs BOTH: the stage components exist AND an orchestrator composes
-    # them into a run (SEARCH->SCREEN->EXTRACT->SYNTHESISE) for a given review. Component existence
-    # is necessary, not sufficient -- reporting REPRODUCES on existence alone would be a false pass
-    # (reach is not coverage). So this stays CANNOT_RUN until the orchestrator wires them and its
-    # output object matches the stored one.
+def axis_pipeline(status, review_id, obj, tol=5e-4):
+    # Autonomous reproduction needs the components AND an orchestrator that composes them into a run,
+    # AND that run's output must MATCH the stored object. Existence is necessary, not sufficient --
+    # so this RUNS the orchestrator (subprocess, to avoid the circular import: run_review imports this
+    # module) and compares its autonomous pool to the stored primary. It returns REPRODUCES only on a
+    # real match, DIFFERS on a real mismatch, CANNOT_RUN when a component or the evidence set is absent.
     missing = [s for s in ("SEARCH", "SCREEN", "EXTRACT") if not status[s][0]]
-    orchestrator = os.path.exists(os.path.join(ROOT, "scripts/run_review.py"))
     if missing:
         return "CANNOT_RUN", {"missing_components": missing}
-    if not orchestrator:
-        return "CANNOT_RUN", {"missing_components": [],
-                              "note": "SEARCH/SCREEN/EXTRACT components now EXIST but no orchestrator "
-                                      "(scripts/run_review.py) composes them into an autonomous run"}
-    return "REPRODUCES", {"missing_components": []}
+    orch = os.path.join(ROOT, "scripts/run_review.py")
+    if not os.path.exists(orch):
+        return "CANNOT_RUN", {"note": "no orchestrator (scripts/run_review.py) composes the components"}
+    try:
+        p = subprocess.run([sys.executable, orch, review_id], capture_output=True, timeout=120, cwd=ROOT)
+        text = p.stdout.decode("utf-8", "replace")
+        result = json.loads(text[text.index("{"):text.rindex("}") + 1])
+    except Exception as e:
+        return "CANNOT_RUN", {"note": "orchestrator did not return a result: %s" % e}
+    if "error" in result:
+        return "CANNOT_RUN", {"note": result["error"]}
+    auto = result.get("pooled")
+    outs = _outcomes_with_pool(obj)
+    if not auto or not outs:
+        return "CANNOT_RUN", {"note": "no autonomous pool or no stored pool to compare"}
+    _, _, stored_pt, _ = max(outs, key=lambda r: len(r[1]))
+    match = abs(auto["point"] - stored_pt) < tol and auto.get("k") == max(len(r[1]) for r in outs)
+    return ("REPRODUCES" if match else "DIFFERS"), {
+        "autonomous": {"k": auto.get("k"), "pooled": auto["point"]},
+        "stored": {"pooled": round(stored_pt, 4)},
+        "delta": round(auto["point"] - stored_pt, 4)}
 
 # ---- driver -----------------------------------------------------------------------------
 def reproduce(review_id):
@@ -199,7 +214,7 @@ def reproduce(review_id):
         rpt["PROTOCOL"] = {"verdict": pv, "detail": pdiff}
     else:
         rpt["PROTOCOL"] = {"verdict": "CANNOT_RUN", "detail": {"reason": "no registered protocol found"}}
-    plv, pdet = axis_pipeline(status)
+    plv, pdet = axis_pipeline(status, review_id, obj)
     rpt["PIPELINE"] = {"verdict": plv, "detail": pdet}
 
     # headline verdict = does the served review conform to its registered protocol?
@@ -275,6 +290,10 @@ def _print_report(r):
                 print("    autonomous rebuild blocked -- missing generic components: %s" % ", ".join(miss))
             elif det.get("note"):
                 print("    autonomous rebuild blocked -- %s" % det["note"])
+            elif "autonomous" in det:
+                au = det["autonomous"]
+                print("    orchestrator SCREEN->EXTRACT->SYNTHESISE ran: k=%s pooled=%s  (stored %s, delta %s)"
+                      % (au["k"], au["pooled"], det["stored"]["pooled"], det["delta"]))
     print("\n  >>> VERDICT (protocol-conformance): %s <<<" % r.get("verdict"))
     print("=" * 78)
 

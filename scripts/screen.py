@@ -40,6 +40,49 @@ def _any_contains(haystacks, needle):
     return any(n in _norm(h) for h in haystacks)
 
 
+# words that carry no discriminating meaning when matching an outcome title
+_OUTCOME_STOPWORDS = frozenset((
+    "or", "of", "the", "a", "an", "to", "for", "and", "in", "on", "with", "first", "time",
+    "event", "adjudicated", "composite", "endpoint", "outcome", "due", "from", "occurrence",
+    "worsening", "unplanned", "subjects", "included", "number", "total",
+))
+
+
+def _content_tokens(s):
+    return {t for t in re.findall(r"[a-z0-9]+", _norm(s)) if t not in _OUTCOME_STOPWORDS and len(t) > 1}
+
+
+def _outcome_matches(term, text):
+    """A term matches a text if it is a substring OR all its content tokens appear in the text.
+
+    Token-subset handles real registry titles that interleave words -- e.g. the term 'cardiovascular
+    death or first hospitalisation for heart failure' matches 'Time to the First Event of Adjudicated
+    Cardiovascular Death or Adjudicated Hospitalisation for Heart Failure', which no substring match
+    would catch. Synonym handling ('HHF' == 'hospitalisation for heart failure') is left to the
+    protocol's outcome_synonyms rather than hard-coded here."""
+    if _norm(term) in _norm(text):
+        return True
+    tt = _content_tokens(term)
+    return bool(tt) and tt.issubset(_content_tokens(text))
+
+
+_DOSE_WORDS = frozenset((
+    "mg", "ml", "mcg", "ug", "g", "kg", "iu", "daily", "once", "twice", "dose", "doses", "oral",
+    "orally", "tablet", "tablets", "capsule", "capsules", "day", "week", "weekly", "injection",
+    "subcutaneous", "iv", "po", "qd", "bid", "matching", "placebo", "arm", "group", "10", "mg/day",
+))
+
+
+def _drug_tokens(s):
+    return _content_tokens(s) - _DOSE_WORDS
+
+
+def _intervention_matches(want, trial_intvs):
+    """True if the wanted intervention shares a non-dose (drug) token with any trial intervention."""
+    wt = _drug_tokens(want)
+    return bool(wt) and any(wt & _drug_tokens(i) for i in trial_intvs)
+
+
 def _outcome_at_any_rank(trial, outcome_terms):
     """True if the estimand outcome appears at ANY outcome rank (primary OR secondary OR other)."""
     outs = trial.get("outcomes") or []
@@ -50,8 +93,9 @@ def _outcome_at_any_rank(trial, outcome_terms):
         else:
             texts.append(str(o))
     for term in outcome_terms:
-        if _any_contains(texts, term):
-            return True, [t for t in texts if _norm(term) in _norm(t)][:1]
+        for t in texts:
+            if _outcome_matches(term, t):
+                return True, [t]
     return False, []
 
 
@@ -89,15 +133,17 @@ def screen_trial(trial, protocol):
         return out(EXCLUDE, "R-DESIGN", "design is %r, protocol requires a randomised design"
                    % (trial.get("design") or trial.get("study_type")), {"trial_design": trial_design})
 
-    # R-INTERVENTION: the eligible intervention/drug must be present.
+    # R-INTERVENTION: the eligible DRUG must be present. Match on a shared drug token, not a substring
+    # of the full spec: protocol 'empagliflozin 10 mg once daily' vs trial 'Empagliflozin' share the
+    # drug token 'empagliflozin'; dose/formulation words ('mg','daily') must not drive the match.
     want_intv = elig.get("intervention") or ""
     intv_names = trial.get("interventions") or []
     if isinstance(intv_names, str):
         intv_names = [intv_names]
     intv_terms = [want_intv] + (protocol.get("intervention_synonyms") or [])
-    if want_intv and not any(_any_contains(intv_names, t) for t in intv_terms if t):
-        return out(EXCLUDE, "R-INTERVENTION", "eligible intervention %r not among trial interventions"
-                   % want_intv, {"trial_interventions": intv_names})
+    if want_intv and not any(_intervention_matches(t, intv_names) for t in intv_terms if t):
+        return out(EXCLUDE, "R-INTERVENTION", "eligible intervention %r shares no drug token with the "
+                   "trial interventions" % want_intv, {"trial_interventions": intv_names})
 
     # R-OUTCOME-ANYRANK: the estimand outcome must appear at SOME rank -- but do NOT require PRIMARY.
     if outcome_terms:
@@ -190,6 +236,24 @@ def _selftest():
     # every decision must carry a rule_id and evidence (auditability)
     chk("every decision carries a rule_id", all("rule_id" in screen_trial(t, proto)
         for t in (amplify, avert, obs, noout, wrongdrug)))
+
+    # REGISTRY-TITLE token-subset match: a real registered outcome title interleaves words
+    # ('Adjudicated', 'First Event of') that break substring matching -- token-subset must still match.
+    hf_proto = {"eligibility": {"design": "randomised controlled trial", "intervention": "empagliflozin",
+                                "population": "adults with heart failure"},
+                "estimands": [{"outcome": "cardiovascular death or hospitalisation for heart failure"}]}
+    emperor = {"nct": "NCT03057977", "design": "Randomized, double-blind, placebo-controlled",
+               "interventions": ["Empagliflozin", "Placebo"], "hasResults": True,
+               "outcomes": [{"measure": "Time to the First Event of Adjudicated Cardiovascular (CV) "
+                             "Death or Adjudicated Hospitalisation for Heart Failure (HHF)"}]}
+    d = screen_trial(emperor, hf_proto)
+    chk("registry title 'Adjudicated CV Death or Adjudicated HHF' matches estimand (token-subset)",
+        d["decision"] == INCLUDE)
+    # a title missing a content token (no 'death') must NOT spuriously match
+    hfhosp = dict(emperor, outcomes=[{"measure": "Time to first hospitalisation for heart failure"}])
+    d = screen_trial(hfhosp, hf_proto)
+    chk("title missing a content token ('death') does NOT match -> EXCLUDE",
+        d["decision"] == EXCLUDE and d["rule_id"] == "R-OUTCOME-ANYRANK")
     return ok, rows
 
 
