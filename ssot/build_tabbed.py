@@ -2386,6 +2386,13 @@ if __name__ == "__main__":
         raise SystemExit(
             "BUILD REFUSED: the integrity layer raised while checking this page (%s: %s). A "
             "suite that errors has not passed." % (type(_e).__name__, _e))
+    # NULL+STATE, NOT A VALUE-SHAPED STRING. Convert every full-cell absence sentinel
+    # ("not recorded on the page this object was extracted/built from") to a machine-readable
+    # <em data-absent=...>, so one pass clears every rendering of every field at once and a
+    # field cannot clear in one table and survive in another. See ssot/sentinel_render.py.
+    # Before the correction-survives check so that check reads the bytes actually written.
+    import sentinel_render as _sr
+    _html = _sr.convert_sentinels(_html)
     # THE LAST THING BEFORE THE WRITE, deliberately. Every earlier check reads the
     # object; this one reads the BYTES ABOUT TO BE PUBLISHED, which is the only
     # place a dropped correction is visible.
