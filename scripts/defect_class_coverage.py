@@ -81,7 +81,7 @@ MATRIX = [
  ("database-scoped eligibility", "NEITHER", "none", "", "schema eligibility.database_scope + a gate on it"),
  ("mutable registry field (later != wrong)", "NEITHER", "none", "", "record a content hash + retrieval date on every registry-sourced value"),
  ("protocol timing wording (retrospective honest)", "PREVENTED", "schema", "disclosure_clause", ""),
- ("correction stored in page not object", "NEITHER", "none", "", "a gate: a claim a CLAIM_WITHDRAWN field retracts must not appear in a rendered field"),
+ ("correction stored in page not object", "DETECTED", "gate", "gate_correction_not_in_rendered_field.py", "the corrections-edit-the-rendered-field discipline would move to PREVENTED"),
  ("completeness test measures only what was enumerated", "DETECTED", "gate", "content_completeness.py", "the tab criterion counts populated tabs; a schema page-shape contract would prevent"),
  ("path-convention split degrades axis to CANNOT_RUN", "DETECTED", "gate", "reproduce_review.py", "single-sourced review_id->{object,protocol,evidence,page} resolver would prevent"),
  ("orphaned page (good page absent from index)", "NEITHER", "none", "", "generate the index from the corpus so it lists exactly what exists"),

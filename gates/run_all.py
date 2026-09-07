@@ -217,6 +217,10 @@ GATES = [
      "an 'external benchmark' whose trials are a subset of the pooled set is not independent", "slow"),
     ("gate_stub_with_object",
      "an object-backed review page must not be a stub below a review-sized floor", "slow"),
+    # ADDED 2026-09-07 (Codex wave 2). A retracted claim must not live on in a rendered field while the
+    # retraction sits in a parallel note -- the regeneration-resurrection class found tonight.
+    ("gate_correction_not_in_rendered_field",
+     "a claim a CLAIM_WITHDRAWN/superseded field retracts must not appear in a rendered field", "slow"),
 ]
 
 
