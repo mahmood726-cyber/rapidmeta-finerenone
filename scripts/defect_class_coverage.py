@@ -68,12 +68,12 @@ MATRIX = [
  ("planned duration shown as observed", "DETECTED", "gate", "gate12_planned_shown_as_observed.py", "schema follow_up_window.window {planned|observed}"),
  ("sentence contradicts its own number", "DETECTED", "gate", "gate11_one_statistic_one_value.py", ""),
  ("GRADE certainty not derived from a stated threshold", "NEITHER", "none", "", "schema grade.imprecision_threshold (a value inside the CI) + a gate"),
- ("RoB from registry fields not the publication", "NEITHER", "none", "", "schema risk_of_bias.source per domain + a gate that it is a publication"),
+ ("RoB from registry fields not the publication", "DETECTED", "gate", "gate_rob_source_is_publication.py", "schema risk_of_bias.source per domain would move to PREVENTED"),
  ("adherence is not risk-of-bias", "NEITHER", "none", "", "RoB domain vocabulary that has no 'adherence' domain"),
  ("absence of assessment is not a negative", "DETECTED", "gate", "gate_certainty_column_four_states_2026_08_23.py", ""),
  ("harms mandatory (declared absence, not omission)", "PREVENTED", "generator", "No harms outcome extracted", ""),  # gate21 also
  ("absolute effect / HR->ARR conversion", "PREVENTED", "generator", "1&minus;(1&minus;B)", ""),  # gate_hr also DETECTS
- ("composite endpoint decomposition", "NEITHER", "none", "", "schema estimand.components[] + a gate that a composite lists them"),
+ ("composite endpoint decomposition", "DETECTED", "gate", "gate_composite_lists_components.py", "schema estimand.components[] would move to PREVENTED"),
  ("disclosed unknown that was knowable", "PREVENTED", "schema", "answers_known_at_authoring", ""),
  ("exclusion reasons verified (not asserted)", "DETECTED", "gate", "gate_screening_row_has_registration_id_2026_08_26.py", "screener stores the verified reason + evidence"),
  ("exhaustiveness claim falsifiable", "NEITHER", "none", "", "schema search.records[] with a per-record decision, gate that the claim resolves to them"),

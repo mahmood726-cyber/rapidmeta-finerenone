@@ -200,6 +200,14 @@ GATES = [
     # 4.20% at B=0.20). Behaviour fixed to the proportional-hazards conversion; this makes it operative.
     ("gate_hr_absolute_effect_uses_ph",
      "an ARR from a hazard ratio uses 1-(1-B)^HR, never the risk-ratio form B*(1-HR)", "fast"),
+    # ADDED 2026-09-07 (Codex lanes, verified: controls hold + fires on a known instance). Corpus-wide
+    # scanners -> 'slow' (the fast pre-push discloses skipping them; CI runs them). They establish the
+    # pre-rebuild baseline the 40-review run reduces: 88 RoB-without-publication-source, 18 composites
+    # without a components list. Findings are findings, not thresholds to loosen.
+    ("gate_rob_source_is_publication",
+     "RoB verdicts carry per-domain judgments sourced from the publication, not registry fields", "slow"),
+    ("gate_composite_lists_components",
+     "a composite endpoint lists its components (no undecomposed composite)", "slow"),
 ]
 
 
