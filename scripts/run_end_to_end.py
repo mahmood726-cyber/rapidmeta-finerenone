@@ -122,11 +122,25 @@ def run_one(review_id):
         except Exception as e:
             rep["field_render"] = {"ok": False, "error": repr(e)[:120]}
 
-    # CLEARANCE to overwrite the served page: all three axes REPRODUCE, tab ok, retraction ok, AND every
-    # held field rendered-or-declared (no empty section over data the object holds).
+    # CLAIM-LEVEL CENSUS: every rendered claim identified by tuple (not value); the mortality-mislabel
+    # class (a real number under the wrong outcome) + debug prose + field coverage, all named.
+    if rep.get("paper_candidate"):
+        try:
+            cen = _load("claim_census", "claim_census.py")
+            c = cen.run(review_id, rep["paper_candidate"])
+            rep["census"] = {"mislabels": len(c["mislabels"]), "not_in_object": len(c["not_in_object"]),
+                             "prose": len(c["prose"]), "field_missing": len(c["field"]["missing"]),
+                             "rendered_estimates": len(c["claims"])}
+        except Exception as e:
+            rep["census"] = {"error": repr(e)[:120]}
+
+    # CLEARANCE to overwrite the served page: three axes REPRODUCE, tab ok, retraction ok, every held
+    # field rendered-or-declared, AND the claim census clean (no mislabel, no NOT_IN_OBJECT, no debug prose).
+    cen = rep.get("census", {})
     cleared = (all(axes.get(a, {}).get("detail") == "REPRODUCES" for a in ("RENDER", "PROTOCOL", "PIPELINE"))
                and rep.get("tab_criterion", {}).get("ok") and rep.get("retraction_diff", {}).get("ok")
-               and rep.get("field_render", {}).get("ok") and not rep.get("harness_fault"))
+               and rep.get("field_render", {}).get("ok") and not rep.get("harness_fault")
+               and cen.get("mislabels") == 0 and cen.get("not_in_object") == 0 and cen.get("prose") == 0)
     rep["cleared_to_serve"] = bool(cleared)
     return rep
 
