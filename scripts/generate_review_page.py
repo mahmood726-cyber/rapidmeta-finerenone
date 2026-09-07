@@ -160,6 +160,30 @@ def _completeness_disclosure(review_id, generated_html, archive_rel=None):
 _SUPERSEDED_KEY = re.compile(r"supersed|deprecated|legacy|withdrawn|_prev\b|previous_value|reproduction_of_the_previous", re.I)
 
 
+_NUM = re.compile(r"-?\d+\.?\d*")
+
+
+def _superseded_numbers(obj):
+    """Every number that appears under a superseded/deprecated/legacy/withdrawn KEY, anywhere in the
+    object. Free prose that quotes any of these is stale narrative and must not be served (gate 38)."""
+    nums = set()
+    def walk(x):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if _SUPERSEDED_KEY.search(k):
+                    nums.update(_NUM.findall(json.dumps(v)))
+                else:
+                    walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(obj)
+    # keep only DECIMAL numbers: statistical values (Q 7.1426, I2 72.0, tau2 9.52, effects 0.368949)
+    # all carry a decimal point, while dates in superseded keys ('2026-08-20') are bare integers that
+    # would otherwise false-match a year mentioned in clean current prose. Decimals only, >=3 chars.
+    return {n for n in nums if "." in n and len(n) >= 3}
+
+
 def _current_view(x):
     """A projection of the object carrying ONLY current truth -- every superseded/withdrawn/archive
     field removed. This is what the page embeds and regenerates from: the object retains its audit
@@ -237,6 +261,20 @@ def generate_page(review_id):
     het_line = ("Q = %s on %s df, I² %s%%, τ² %s"
                 % (_fmt(het.get("q"), 4), het.get("df", len(o["per_trial"]) - 1),
                    _fmt(het.get("i2"), 1), _fmt(het.get("tau2"), 4))) if het else ""
+    # GUARD (defense-in-depth vs stale prose): the free heterogeneity_status narrative is rendered
+    # verbatim, so if it quotes a SUPERSEDED number it drags a dead value onto the page beside the
+    # current structured het_line. Suppress it when it does, and say so -- never serve stale narrative.
+    # A superseded number that is ALSO a current structured value (I²=0.0, τ²=0.0 unchanged) is not
+    # stale -- exclude the current pooled+het numbers before flagging, exactly as gate 38 does with its
+    # livepool. Only a superseded number that is NOT current marks the prose as stale.
+    _cur_nums = set(_NUM.findall(json.dumps(pooled))) | set(_NUM.findall(json.dumps(het)))
+    _stale_nums = {n for n in _superseded_numbers(obj) if n not in _cur_nums}
+    _het_status_raw = o.get("heterogeneity_status") or ""
+    if _het_status_raw and any(n in _het_status_raw for n in _stale_nums):
+        het_status_safe = ("<em>Stored heterogeneity narrative withheld: it quotes a superseded value "
+                           "inconsistent with the current structured heterogeneity above.</em>")
+    else:
+        het_status_safe = _e(_het_status_raw[:600])
 
     body = """<!doctype html>
 <html lang="en" data-store="ssot/{slug}/{slug}.json" data-artefact="review" data-generated="object">
@@ -277,8 +315,7 @@ every value below is a function of that committed object. Primary outcome: <em>{
            k=len(o["per_trial"]), model=_e(declared_model),
            estimator=(" (%s)" % _e(pooled.get("estimator"))) if pooled.get("estimator") else "",
            hksj=hksj_line, het=het_line, forest=forest, trials=trials_rows, comp=comp_html, bench=bench_html,
-           supersede=supersede,
-           het_status=_e((o.get("heterogeneity_status") or "")[:600]))
+           supersede=supersede, het_status=het_status_safe)
 
     # ---- GRADE (from grade.by_outcome.<oid> or a flat grade) ----------------------------------
     grade = obj.get("grade") or o.get("grade")

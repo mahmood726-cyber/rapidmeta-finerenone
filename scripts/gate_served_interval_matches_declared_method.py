@@ -22,9 +22,12 @@ from __future__ import annotations
 import io, os, re, json, sys, glob
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_DASH = r"[‒–—−-]"                     # figure/en/em dash, minus, hyphen
-_HEADLINE = re.compile(r'class="headline"[^>]*>\s*[A-Za-z]+\s+([0-9.]+)\s*\(\s*([0-9.]+)\s*' + _DASH +
-                       r'\s*([0-9.]+)\s*\)', re.I)
+# The generator writes the CI separator as an EN-dash (or em-dash); negative bounds use a hyphen-minus.
+# Matching the separator as en/em-dash ONLY lets "-52.73–-48.38" parse as lo=-52.73, hi=-48.38 rather
+# than the minus being read as the separator. Point and both bounds may be negative (difference measures).
+_SEP = r"[–—]"                          # en-dash / em-dash separator (NOT the hyphen-minus of a negative)
+_HEADLINE = re.compile(r'class="headline"[^>]*>\s*[A-Za-z]+\s+(-?[0-9.]+)\s*\(\s*(-?[0-9.]+)\s*' + _SEP +
+                       r'\s*(-?[0-9.]+)\s*\)', re.I)
 _EMBED = re.compile(r'<script[^>]*id="ssot-current"[^>]*>(.*?)</script>', re.S | re.I)
 
 

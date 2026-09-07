@@ -122,7 +122,7 @@ HI_KEYS = ("hi", "high", "ci_high", "ci_hi", "upper", "ci95_hi", "ci90_hi", "u95
 LABEL_KEYS = ("node", "label", "name", "treatment", "comparison", "arm", "studlab",
               "trial", "id", "cohort", "test", "model")
 
-NUM = r"[0-9]+(?:\.[0-9]+)?"
+NUM = r"-?[0-9]+(?:\.[0-9]+)?"          # leading minus: difference measures (MD/SMD) are negative
 SEP = r"(?:to|–|—|-|,|\s+)"
 
 
