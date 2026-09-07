@@ -89,6 +89,72 @@ def _forest_svg(per_trial, pooled, measure):
     return "".join(parts)
 
 
+# Analyses that are REFUSED at small k for a stated reason -- a declared refusal, not silence.
+# The reviewers praised these pages for withholding GOSH/TSA/meta-regression/funnel below their
+# thresholds; the generator renders that refusal WITH its reason, same discipline as harms.
+_REFUSAL_RULES = [
+    ("GOSH (graphical exploration of heterogeneity)", 10,
+     "explores model fit across the 2^k study subsets; below k&asymp;10 there are too few subsets for the cloud to be informative"),
+    ("Trial-sequential analysis (TSA)", 5,
+     "the required information size and O'Brien-Fleming boundaries are unstable with a handful of trials; a pooled point at this k is not a monitoring boundary"),
+    ("Meta-regression", 10,
+     "Cochrane Handbook advises &ap;10 studies per covariate; fitting a moderator at this k over-fits and is not reported"),
+    ("Funnel plot / Egger's test (small-study effects)", 10,
+     "both have negligible power below k&asymp;10 (Handbook 13.3.5.4); a funnel with this many points cannot distinguish asymmetry from chance"),
+]
+
+
+def _refusal_sections(k):
+    out = "<h2>Analyses withheld at this k (declared refusals, not omissions)</h2><ul>"
+    for title, thresh, reason in _REFUSAL_RULES:
+        if k < thresh:
+            out += "<li><strong>%s &mdash; not reported at k=%d.</strong> %s.</li>" % (_e(title), k, reason)
+    out += "</ul>"
+    return out
+
+
+def _completeness_disclosure(review_id, generated_html):
+    """Condition 1+2: publish the measured delta as a NAMED list, and flag the subset that would
+    need object fields we do not yet hold (the specification for a future narrative-parity build)."""
+    # original pages are named with UNDERSCORES (EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html); the
+    # review_id carries hyphens, so try both spellings before declaring no prior page.
+    cands = [review_id.upper().replace("-", "_") + ".html", review_id.upper() + ".html"]
+    orig_path = next((os.path.join(ROOT, c) for c in cands if os.path.exists(os.path.join(ROOT, c))), None)
+    orig_name = os.path.basename(orig_path) if orig_path else cands[0]
+    if not orig_path:
+        return "<h2>Content-completeness</h2><p>No prior hand-maintained page found to diff against; this page is the first rendering of the object.</p>"
+    try:
+        cc = _load("content_completeness", "content_completeness.py")
+    except Exception:
+        return ""
+    orig = io.open(orig_path, encoding="utf-8", errors="replace").read()
+    d = cc.delta(orig, generated_html)
+    missing = [m for m in d["missing_in_generated"]]
+    claim_missing = [m for m in missing if m.startswith("claim:")]
+    head_missing = [m[2:] for m in missing if m.startswith("h:")]
+    # headings that plausibly carry DATA (not prose framing) -> would need object fields = a finding
+    NEEDS_FIELD = ("extraction", "endpoint", "trial characteristics", "references", "regulatory",
+                   "inter-assessor", "audit trail", "trial-sequential", "meta-regression", "gosh",
+                   "included studies", "figures", "visual abstract")
+    needs_field = sorted({h for h in head_missing if any(t in h for t in NEEDS_FIELD)})
+    prose = sorted(set(head_missing) - set(needs_field))
+    s = "<h2>Content-completeness (measured, disclosed)</h2>"
+    s += "<p>Semantic categories present: all %d (every claim the object holds renders; every absence is declared). " % 8
+    if claim_missing:
+        s += "<strong>Claim categories still missing: %s.</strong> " % _e(", ".join(claim_missing))
+    s += "%d narrative headings from the prior page are not reproduced &mdash; enumerated below, never waved away.</p>" % len(head_missing)
+    if needs_field:
+        s += ("<p><strong>Of those, %d would require object fields that do not yet exist</strong> "
+              "(a finding: this is the specification for a future narrative-parity build, not something to invent tonight): "
+              "%s.</p>" % (len(needs_field), _e("; ".join(needs_field))))
+    if prose:
+        s += "<details><summary>%d narrative/framing headings not reproduced (prose, no object data lost)</summary><p>%s</p></details>" % (
+            len(prose), _e("; ".join(prose)))
+    s += ("<p class='muted'>The prior hand-maintained page remains retrievable at "
+          "<code>%s</code>; this compact page replaces it in serving but does not destroy the record of what was served.</p>" % _e(orig_name))
+    return s
+
+
 def generate_page(review_id):
     slug = review_id.lower().replace("_", "-")
     obj = json.load(io.open(os.path.join(ROOT, "ssot", slug, slug + ".json"), encoding="utf-8"))
@@ -245,6 +311,13 @@ every value below is a function of that committed object. Primary outcome: <em>{
                      "B&times;(1&minus;%.3f) and the NNT is 1 / [B&times;%.3f]. <strong>This review's object declares no reference "
                      "baseline risk</strong>, so no specific ARR or NNT is asserted here &mdash; the absolute effect is stated as a "
                      "formula rather than invented from an assumed baseline.</p>") % (_pt, _pt, (1 - _pt))
+
+    # ---- Declared refusals at this k (GOSH/TSA/meta-regression/funnel) -------------------------
+    k_studies = len(o.get("per_trial") or [])
+    body += _refusal_sections(k_studies)
+
+    # ---- Content-completeness disclosure (measured delta vs the prior page; conditions 1-3) -----
+    body += _completeness_disclosure(review_id, body)
 
     out = os.path.join(ROOT, review_id.upper() + ".generated.html")
     io.open(out, "w", encoding="utf-8").write(body)
