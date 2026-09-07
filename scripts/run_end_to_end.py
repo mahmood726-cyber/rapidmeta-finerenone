@@ -108,10 +108,25 @@ def run_one(review_id):
                                       "dead_values_served": served_dead}
     rep["axes"] = axes
 
-    # CLEARANCE to overwrite the served page: all three axes RAN_RESULTS+REPRODUCES, tab ok, retraction ok
+    # FIELD-LEVEL RENDER: every field the object/protocol HOLDS must be rendered or declared-absent.
+    # A container measure (tabs populated) cannot see an empty protocol tab; this can. It is the check
+    # whose absence let a page with an empty protocol+search section clear and ship.
+    if rep.get("paper_candidate"):
+        try:
+            frc = _load("field_render_check", "field_render_check.py")
+            obj_f, proto_f, ev_f, _ = frc._resolve(review_id)
+            g = io.open(os.path.join(ROOT, rep["paper_candidate"]), encoding="utf-8", errors="replace").read()
+            fr = frc.check(obj_f, proto_f, ev_f, g)
+            rep["field_render"] = {"ok": not fr["missing"], "rendered": fr["rendered"], "held": fr["held"],
+                                   "missing": [m[0] for m in fr["missing"]], "declared_absent": len(fr["declared_absent"])}
+        except Exception as e:
+            rep["field_render"] = {"ok": False, "error": repr(e)[:120]}
+
+    # CLEARANCE to overwrite the served page: all three axes REPRODUCE, tab ok, retraction ok, AND every
+    # held field rendered-or-declared (no empty section over data the object holds).
     cleared = (all(axes.get(a, {}).get("detail") == "REPRODUCES" for a in ("RENDER", "PROTOCOL", "PIPELINE"))
                and rep.get("tab_criterion", {}).get("ok") and rep.get("retraction_diff", {}).get("ok")
-               and not rep.get("harness_fault"))
+               and rep.get("field_render", {}).get("ok") and not rep.get("harness_fault"))
     rep["cleared_to_serve"] = bool(cleared)
     return rep
 
