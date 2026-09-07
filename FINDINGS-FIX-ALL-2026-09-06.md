@@ -501,6 +501,46 @@ half-migration ends for all four AUTO_FULL pages at once.
 regeneration, and it is the single change that makes condition 5 pass rather than be disclosed-blocked.
 It must be built deliberately and acceptance-tested in both directions, not rushed.
 
+## THIRD AUDIT (SGLT2) + a critical correction to the generator plan (2026-09-07)
+
+**The generator plan was WRONG and de-risking caught it before a wasted build.** `generate_living_ma_v13.py`
+generates a DIFFERENT family — 26 `*_REVIEW.html` topic pages (PFA, WATCHMAN, VERICIGUAT…), none of them our
+five, none `*_AUTO_FULL_REVIEW.html`. So `generate_app` is NOT the AUTO_FULL generator, and "reuse it via an
+object→cfg adapter" does not apply. The AUTO_FULL family (empagliflozin/inclisiran/alirocumab) and SGLT2's
+3.9 MB hand-app have **no discoverable generator** — building one is a **from-scratch** reverse-engineering of
+the 29-table / 9-forest-SVG structure, larger than assessed. This is the deliberate build; it must not be
+rushed at a session's tail (a half-built generator producing an unregenerable page is the worst outcome).
+
+**Split #2: RESOLVED, not a path defect.** The reviewer saw a k=3 linked object; the page links to
+`ssot/sglt2-hf/sglt2-hf.json`, and the LIVE object at that exact path now returns 0.7738/k=4 (HTTP 200). The
+audit predated the b733d63 object push; Pages has rebuilt. No second object location.
+
+**HKSJ 0.6950–0.8616 independently confirmed by a third reviewer** — the floor-at-1 + t_{k-1} definition in
+`scripts/modified_hksj.py` is validated against two independent computations. Write it into the protocol.
+
+**SGLT2 object-correction backlog (object-only, NO banner — fold into the regeneration; some need sourcing):**
+- **three-component pool k=2→k=4**: add EMPEROR-Reduced and EMPEROR-Preserved prespecified three-component
+  analyses. Reviewer target 0.7754 (0.7276–0.8263), Q 1.466. My pool from assumed inputs (EMPEROR 0.76/0.77)
+  gave 0.7777, Q 1.228 — NOT a match, so the exact EMPEROR three-component per-trial values must be sourced
+  verbatim before serving. "The EMPEROR trials cannot join" is a FALSE reason (registry-absence ≠ data-absence,
+  7th instance). Do not serve until sourced.
+- **DELIVER provenance UPGRADE** (the mirror of an over-claim — an unnecessary self-downgrade): 0.80 (0.71–0.91)
+  is in the main Lancet forest plot AND a later direct DELIVER publication with event counts (475 vs 577), not
+  supplement-only. Upgrade JOURNAL_SUPPLEMENT → JOURNAL_FULL_TEXT; remove the retrieval-blocker caveat.
+- **Zannad 2020 relabel**: DAPA-HF's three-component was used as a PROXY for the EMPEROR two-component endpoint;
+  it is a useful comparison, NOT an exact harmonised benchmark.
+- **screening log**: DAPA ACT HF–TIMI 68 (2025) must be dispositioned (likely excluded acute HF), not absent.
+- **eligible-but-non-contributing** must list DEFINE-HF, PRESERVED-HF, EMPERIAL, DETERMINE.
+- **PICO boundary**: state "chronic HF" precisely (not "stable ambulatory") so the SOLOIST-WHF exclusion is
+  prespecified on that boundary.
+- **precision**: HRs were reported on the RATIO scale and transformed to log HRs — not "reported on the log scale".
+- confirmed components (for the regenerated page): HHF 0.721 (0.666–0.780), CV death 0.871 (0.794–0.955),
+  all-cause 0.927 (0.861–0.997).
+
+**Three reviewers, three pages, one unanimous verdict: complete rebuild, not another banner.** No further banners
+on any page. The page generator (from scratch, deliberately, acceptance-tested both directions) is the sole
+remaining path to a submittable page and it fixes all five at once.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,
