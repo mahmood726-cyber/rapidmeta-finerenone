@@ -189,6 +189,12 @@ GATES = [
     # zero findings where there are two.
     ("gate21_harms_promised_not_reported",
      "a PICO that names a harm must report it or refuse with a reason", "fast"),
+    # ADDED 2026-09-07, registered in the same commit that created it. The page generator imposed
+    # modified HKSJ on every ratio page (t(1)=12.706 at k=2 blew EMPAGLIFLOZIN to 0.413-1.44 over its
+    # own fixed-effect CI). Behaviour fixed; this makes the check operative -- a page's shown interval
+    # must equal its EMBEDDED object's pooled CI, or the page imposed a method its source does not back.
+    ("gate_served_interval_matches_declared_method",
+     "a page's shown interval equals its embedded object's pooled CI; no imposed method", "fast"),
 ]
 
 
