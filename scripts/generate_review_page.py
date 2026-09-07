@@ -214,7 +214,7 @@ _TABS = [
     ("screen", "3. Screening", ["screening"]),
     ("extract", "4. Extraction", ["contributing trials", "extraction"]),
     ("analysis", "5. Analysis Suite", ["primary result", "heterogeneity", "component", "absolute effect", "external benchmark", "forest", "reproducibility object"]),
-    ("report", "6. Scientific Output", ["certainty", "grade", "risk of bias"]),
+    ("report", "6. Scientific Output", ["certainty", "grade", "risk of bias", "declared data gaps"]),
     ("paper", "7. Paper Studio", ["comparison with published", "harms", "funding"]),
     ("hta", "8. HTA", ["hta"]),
     ("guideline", "9. Guideline", ["withheld", "guideline", "refusal"]),
@@ -481,6 +481,30 @@ every value below is a function of that committed object. Primary outcome: <em>{
                      "asserted &mdash; the relationship is stated as a formula, not invented from an assumed baseline, "
                      "and it is the conversion correct for a %s (not the risk-ratio form B&times;(1&minus;effect)).</p>"
                      % (str(measure).upper(), _fmt(_pt, 2), horizon, formula, str(measure).upper()))
+
+    # ---- DECLARED DATA GAPS: extractions this review OWES, named where a reader meets them --------
+    # A regeneration cannot invent data the object never held; the reviewer-named missing-data defects
+    # (mortality wording, harms, funding, references, EF-attenuation) must be stated as NAMED ABSENCES,
+    # never a blank that reads as "no harms occurred". Absence of assessment is not a negative assessment.
+    gaps = obj.get("declared_gaps") or []
+    # auto-detect the generic ones if the object did not declare them
+    _js = json.dumps(obj).lower()
+    auto = []
+    if not gaps:
+        if not re.search(r'"harms"\s*:\s*\[', _js):
+            auto.append({"item": "Harms", "state": "no harms outcome extracted for this review (owed). This is a declared absence, NOT a finding of 'no harms'."})
+        if not re.search(r"fund|sponsor", _js):
+            auto.append({"item": "Funding", "state": "no funding statement extracted (owed)."})
+    gaps = gaps + auto
+    if gaps:
+        body += ("<h2>Declared data gaps (named absences, not silence)</h2>"
+                 "<p class='muted'>These are extractions this review <strong>owes and does not yet contain</strong>. "
+                 "A regeneration renders what the object holds; it cannot invent data never extracted. A declared "
+                 "gap is an honest page &mdash; <strong>absence of assessment is not a negative assessment</strong>, "
+                 "and a blank here would read as a false 'nothing to report'.</p><ul>")
+        for g in gaps:
+            body += "<li><strong>%s</strong> &mdash; %s</li>" % (_e(g.get("item")), _e(g.get("state")))
+        body += "</ul>"
 
     # ---- Declared refusals at this k (GOSH/TSA/meta-regression/funnel) -------------------------
     k_studies = len(o.get("per_trial") or [])
