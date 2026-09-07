@@ -41,12 +41,18 @@ def _read_json(path):
 
 
 def run(review_id, want_measure="HR"):
-    protos = sorted(glob.glob(os.path.join(ROOT, "protocols", review_id.lower() + "_*.json")))
+    # protocols are named with UNDERSCORES; review_id may carry hyphens -> try both spellings.
+    protos = sorted(set(glob.glob(os.path.join(ROOT, "protocols", review_id.lower() + "_*.json"))) |
+                    set(glob.glob(os.path.join(ROOT, "protocols", review_id.lower().replace("-", "_") + "_*.json"))))
     if not protos:
         return {"error": "no protocol for %s" % review_id}
     proto = _read_json(protos[-1])
-    ev_path = os.path.join(ROOT, "evidence", review_id.lower(), "trials.json")
-    if not os.path.exists(ev_path):
+    # evidence dir may be named with hyphens (the ssot slug) or underscores -> try both.
+    ev_cands = [os.path.join(ROOT, "evidence", review_id.lower(), "trials.json"),
+                os.path.join(ROOT, "evidence", review_id.lower().replace("_", "-"), "trials.json"),
+                os.path.join(ROOT, "evidence", review_id.lower().replace("-", "_"), "trials.json")]
+    ev_path = next((c for c in ev_cands if os.path.exists(c)), None)
+    if not ev_path:
         return {"error": "no evidence set at evidence/%s/trials.json" % review_id.lower(),
                 "hint": "the autonomous rebuild needs a committed evidence set (trial effect statements + provenance)"}
     evidence = _read_json(ev_path)
