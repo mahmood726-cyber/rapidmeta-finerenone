@@ -61,7 +61,7 @@ MATRIX = [
  ("one pool per comparison", "DETECTED", "gate", "gate17_unpoolable_override.py", ""),
  ("harmonisation / follow-up window", "PREVENTED", "schema", "follow_up_window", ""),
  ("effect scale matches the trial estimand", "PREVENTED", "schema", "effect_measure", ""),   # gate59 also
- ("self-reference benchmark by trial-set overlap", "NEITHER", "none", "", "a gate: external_benchmark.trials must not be a subset of the pooled trials"),
+ ("self-reference benchmark by trial-set overlap", "DETECTED", "gate", "gate_self_reference_benchmark.py", "schema external_benchmark.independent + a check would move to PREVENTED"),
  ("stale panel / two live values for one statistic", "DETECTED", "gate", "gate11_one_statistic_one_value.py", ""),
  ("half-migration (superseded value served live)", "DETECTED", "gate", "gate38_superseded_cited_live.py", "generator embeds a current-view object; a schema single-value-per-stat would prevent"),
  ("boilerplate conditioned on k (GOSH/TSA/meta-reg)", "PREVENTED", "generator", "_refusal_sections", ""),
@@ -86,7 +86,7 @@ MATRIX = [
  ("path-convention split degrades axis to CANNOT_RUN", "DETECTED", "gate", "reproduce_review.py", "single-sourced review_id->{object,protocol,evidence,page} resolver would prevent"),
  ("orphaned page (good page absent from index)", "NEITHER", "none", "", "generate the index from the corpus so it lists exactly what exists"),
  ("dead index link (index promises a missing page)", "DETECTED", "gate", "gate_every_linked_target_resolves_2026_08_23.py", "same index generator prevents both directions"),
- ("stub-with-object (page too small for its object)", "NEITHER", "none", "", "a gate: an object-backed page below a byte/section floor is a stub"),
+ ("stub-with-object (page too small for its object)", "DETECTED", "gate", "gate_stub_with_object.py", "the page generator emitting only real pages would move to PREVENTED"),
  ("imposed method (modified HKSJ on every ratio)", "PREVENTED", "generator", "uses_hksj", ""),  # gate_served_interval DETECTS
  ("reader can check a trial in the registry", "DETECTED", "gate", "gate16_reader_can_check.py", ""),
  ("non-inferiority pooled as superiority", "DETECTED", "gate", "gate10_noninferiority_pooled_as_superiority.py", "schema estimand.hypothesis {superiority|non_inferiority} + margin"),

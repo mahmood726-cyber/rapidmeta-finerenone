@@ -212,6 +212,11 @@ GATES = [
     # threshold -> 6 findings; the scope is PROVEN, not a silent 0). Refuses (BROKEN) if it cannot scan.
     ("gate_grade_imprecision_needs_threshold",
      "a GRADE imprecision downgrade records the decision threshold inside the CI", "slow"),
+    # ADDED 2026-09-07 (Codex wave 2, verified from the main tree; both refuse BROKEN if they cannot scan).
+    ("gate_self_reference_benchmark",
+     "an 'external benchmark' whose trials are a subset of the pooled set is not independent", "slow"),
+    ("gate_stub_with_object",
+     "an object-backed review page must not be a stub below a review-sized floor", "slow"),
 ]
 
 
