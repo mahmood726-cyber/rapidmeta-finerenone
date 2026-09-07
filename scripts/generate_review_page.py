@@ -19,6 +19,7 @@ import io, os, re, json, math, sys, html, importlib.util
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 Z = 1.959963985
+_PRIOR_VERSION_DATE = "2026-09-06"  # the date the prior hand-maintained page was last authoritative
 
 
 def _load(mod, path):
@@ -113,7 +114,7 @@ def _refusal_sections(k):
     return out
 
 
-def _completeness_disclosure(review_id, generated_html):
+def _completeness_disclosure(review_id, generated_html, archive_rel=None):
     """Condition 1+2: publish the measured delta as a NAMED list, and flag the subset that would
     need object fields we do not yet hold (the specification for a future narrative-parity build)."""
     # original pages are named with UNDERSCORES (EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html); the
@@ -150,8 +151,9 @@ def _completeness_disclosure(review_id, generated_html):
     if prose:
         s += "<details><summary>%d narrative/framing headings not reproduced (prose, no object data lost)</summary><p>%s</p></details>" % (
             len(prose), _e("; ".join(prose)))
-    s += ("<p class='muted'>The prior hand-maintained page remains retrievable at "
-          "<code>%s</code>; this compact page replaces it in serving but does not destroy the record of what was served.</p>" % _e(orig_name))
+    retrievable = archive_rel or orig_name
+    s += ("<p class='muted'>The prior hand-maintained page remains retrievable, byte-unmodified, at "
+          "<code>%s</code>; this compact page replaces it at the canonical URL but does not destroy the record of what was served.</p>" % _e(retrievable))
     return s
 
 
@@ -226,6 +228,12 @@ def generate_page(review_id):
     forest = _forest_svg(o["per_trial"], pooled, measure)
     title = obj.get("title") or review_id
     question = obj.get("question") or ""
+    # This page takes the canonical URL; the prior version is retained, byte-unmodified, at an archive
+    # path and each page points at the other (a superseded page that does not say so is a search trap).
+    archive_rel = "archive/%s_%s.html" % (review_id.upper().replace("-", "_"), _PRIOR_VERSION_DATE)
+    supersede = ('<p class="muted" style="border-left:3px solid var(--accent);padding-left:.6rem">'
+                 'This page supersedes the prior version of %s, which remains available unmodified at '
+                 '<a href="%s">%s</a>.</p>') % (_PRIOR_VERSION_DATE, _e(archive_rel), _e(archive_rel))
     het_line = ("Q = %s on %s df, I² %s%%, τ² %s"
                 % (_fmt(het.get("q"), 4), het.get("df", len(o["per_trial"]) - 1),
                    _fmt(het.get("i2"), 1), _fmt(het.get("tau2"), 4))) if het else ""
@@ -246,6 +254,7 @@ def generate_page(review_id):
 <h1>{title}</h1>
 <p class="muted">This page is <strong>generated from its object</strong> (<code>ssot/{slug}/{slug}.json</code>);
 every value below is a function of that committed object. Primary outcome: <em>{outcome}</em>.</p>
+{supersede}
 <p>{question}</p>
 
 <h2>Primary result</h2>
@@ -268,6 +277,7 @@ every value below is a function of that committed object. Primary outcome: <em>{
            k=len(o["per_trial"]), model=_e(declared_model),
            estimator=(" (%s)" % _e(pooled.get("estimator"))) if pooled.get("estimator") else "",
            hksj=hksj_line, het=het_line, forest=forest, trials=trials_rows, comp=comp_html, bench=bench_html,
+           supersede=supersede,
            het_status=_e((o.get("heterogeneity_status") or "")[:600]))
 
     # ---- GRADE (from grade.by_outcome.<oid> or a flat grade) ----------------------------------
@@ -341,7 +351,7 @@ every value below is a function of that committed object. Primary outcome: <em>{
     body += _refusal_sections(k_studies)
 
     # ---- Content-completeness disclosure (measured delta vs the prior page; conditions 1-3) -----
-    body += _completeness_disclosure(review_id, body)
+    body += _completeness_disclosure(review_id, body, archive_rel=archive_rel)
 
     # ---- Embed the CURRENT-VIEW object so the page regenerates from itself (harness-in-the-page) --
     # gate_rendered_regenerates checks the rendered value against this block. A regeneration object needs

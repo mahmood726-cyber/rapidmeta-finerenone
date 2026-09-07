@@ -104,12 +104,38 @@ def resolve_paths(review_id):
     # protocols are named with UNDERSCORES; review_id may carry hyphens -> glob both spellings.
     proto = sorted(set(glob.glob(os.path.join(ROOT, "protocols", review_id.lower() + "_*.json"))) |
                    set(glob.glob(os.path.join(ROOT, "protocols", review_id.lower().replace("-", "_") + "_*.json"))))
-    page_candidates = [review_id.upper() + ".html", review_id.upper() + "_REVIEW.html",
-                       review_id.upper() + "_AUTO_FULL_REVIEW.html", slug + ".html"]
+    # pages are named with UNDERSCORES (SGLT2_HF_REVIEW.html); review_id.upper() keeps hyphens -> try both.
+    u, uu = review_id.upper(), review_id.upper().replace("-", "_")
+    page_candidates = []
+    for base in (u, uu):
+        page_candidates += [base + ".html", base + "_REVIEW.html", base + "_AUTO_FULL_REVIEW.html"]
+    page_candidates += [slug + ".html", slug.replace("-", "_") + ".html"]
     page = next((os.path.join(ROOT, c) for c in page_candidates if os.path.exists(os.path.join(ROOT, c))), None)
     return {"object": obj if os.path.exists(obj) else None,
             "protocol": proto[-1] if proto else None,
             "page": page, "slug": slug}
+
+def _harness_faults(has_page, has_proto, has_evidence, render_v, protocol_v, pipeline_v):
+    """The hard invariant, pure and testable: an axis whose inputs are present must not be CANNOT_RUN."""
+    f = []
+    if has_page and render_v == "CANNOT_RUN":
+        f.append("RENDER CANNOT_RUN though a page is present")
+    if has_proto and protocol_v == "CANNOT_RUN":
+        f.append("PROTOCOL CANNOT_RUN though a registered protocol is present")
+    if has_proto and has_evidence and pipeline_v == "CANNOT_RUN":
+        f.append("PIPELINE CANNOT_RUN though a protocol AND an evidence set are present")
+    return f
+
+
+def _evidence_path(review_id):
+    """The committed evidence set for the autonomous rebuild, trying both name spellings (the same
+    hyphen/underscore split that silently broke three lookups)."""
+    for c in (review_id.lower(), review_id.lower().replace("_", "-"), review_id.lower().replace("-", "_")):
+        p = os.path.join(ROOT, "evidence", c, "trials.json")
+        if os.path.exists(p):
+            return p
+    return None
+
 
 def registering_sha(protocol_relpath):
     try:
@@ -207,6 +233,11 @@ def _superseded_served_live(obj, served_bytes):
 def axis_render(obj, served_bytes, tol=5e-4):
     """RENDER: engine(object's per_trial) == object.pooled, object.pooled is on the page, AND no dead
     (superseded) object value is served LIVE on the page (the source-divergence / stale-narrative class)."""
+    # No page = nothing to render-check. Return CANNOT_RUN honestly, NOT DIFFERS: a missing page is
+    # unrunnable, not a disagreement. (A DIFFERS here read as 'the page is wrong' when there was no page
+    # -- masking the real cause, a page-lookup miss -- exactly the silent-degradation class.)
+    if served_bytes is None:
+        return "CANNOT_RUN", [], "no page found to check the rendered value against"
     rows = []
     for oid, eff, stored, meas in _outcomes_with_pool(obj):
         rp = pool_for_measure(eff, meas)[0]
@@ -327,8 +358,20 @@ def reproduce(review_id, page_override=None):
     plv, pdet = axis_pipeline(status, review_id, obj)
     rpt["PIPELINE"] = {"verdict": plv, "detail": pdet}
 
+    # HARD INVARIANT (the three-lookup-bug lesson): an axis whose INPUTS are present must never
+    # return CANNOT_RUN. CANNOT_RUN looks benign, so three silent hyphen/underscore path-lookup
+    # failures degraded all three axes at different times without the checker ever looking broken --
+    # a reproduction checker that was reproducing nothing. So: if the page is present, RENDER may not
+    # be CANNOT_RUN; if the protocol is present, PROTOCOL may not be; if BOTH protocol and evidence
+    # set are present, PIPELINE may not be. A violation is a HARNESS FAULT, surfaced LOUDLY, and it
+    # dominates the headline verdict -- silence is never an acceptable answer from a checker.
+    faults = _harness_faults(served is not None, proto is not None, _evidence_path(review_id) is not None,
+                             rpt["RENDER"]["verdict"], rpt["PROTOCOL"]["verdict"], rpt["PIPELINE"]["verdict"])
+    if faults:
+        rpt["HARNESS_FAULT"] = faults
+
     # headline verdict = does the served review conform to its registered protocol?
-    rpt["verdict"] = rpt["PROTOCOL"]["verdict"]
+    rpt["verdict"] = "HARNESS_FAULT" if faults else rpt["PROTOCOL"]["verdict"]
     return rpt
 
 # ---- self-test: prove the RENDER axis can return a NEGATIVE ------------------------------
@@ -345,6 +388,16 @@ def selftest():
     served = "the pooled HR is %s and that is the answer" % pooled
     v_clean, _, _ = axis_render(obj, served)
     chk("clean object REPRODUCES (engine==stored, shown on page)", v_clean == "REPRODUCES")
+    # HARD INVARIANT: the fault must FIRE when inputs are present but an axis is CANNOT_RUN, and stay
+    # silent when the axis is legitimately unrunnable (input absent). A checker that cannot report its
+    # own silent degradation is the very bug this closes.
+    chk("fault FIRES: protocol present but PROTOCOL CANNOT_RUN",
+        _harness_faults(True, True, True, "REPRODUCES", "CANNOT_RUN", "REPRODUCES"))
+    chk("fault FIRES: protocol+evidence present but PIPELINE CANNOT_RUN",
+        _harness_faults(True, True, True, "REPRODUCES", "REPRODUCES", "CANNOT_RUN"))
+    chk("fault SILENT when the input is genuinely absent (no evidence -> PIPELINE CANNOT_RUN ok)",
+        not _harness_faults(True, True, False, "REPRODUCES", "REPRODUCES", "CANNOT_RUN"))
+    chk("no fault when all three REPRODUCE", not _harness_faults(True, True, True, "REPRODUCES", "REPRODUCES", "REPRODUCES"))
     # PERTURB one input -> the engine result no longer equals the stored pooled -> DIFFERS
     import copy
     bad = copy.deepcopy(obj); bad["results"]["by_outcome"]["primary"]["per_trial"][0]["point"] = 0.60
@@ -416,6 +469,11 @@ def _print_report(r):
                 au = det["autonomous"]
                 print("    orchestrator SCREEN->EXTRACT->SYNTHESISE ran: k=%s pooled=%s  (stored %s, delta %s)"
                       % (au["k"], au["pooled"], det["stored"]["pooled"], det["delta"]))
+    if r.get("HARNESS_FAULT"):
+        print("\n  !!! HARNESS FAULT -- a checker whose inputs are present returned CANNOT_RUN:")
+        for f in r["HARNESS_FAULT"]:
+            print("      - %s" % f)
+        print("      (this is the silent-degradation class; the result above is NOT trustworthy)")
     print("\n  >>> VERDICT (protocol-conformance): %s <<<" % r.get("verdict"))
     print("=" * 78)
 
@@ -436,5 +494,6 @@ if __name__ == "__main__":
         i = args.index("--page")
         page_override = args[i + 1] if i + 1 < len(args) else None
     positional = [a for a in args if not a.startswith("--") and a != page_override]
-    _print_report(reproduce(positional[0], page_override=page_override))
-    raise SystemExit(0)
+    rep = reproduce(positional[0], page_override=page_override)
+    _print_report(rep)
+    raise SystemExit(3 if rep.get("HARNESS_FAULT") else 0)  # non-zero exit on a harness fault
