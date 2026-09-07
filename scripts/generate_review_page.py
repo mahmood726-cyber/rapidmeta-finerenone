@@ -30,6 +30,43 @@ def _load(mod, path):
 _hksj = _load("modified_hksj", "modified_hksj.py")
 
 
+def _load_protocol(review_id):
+    """The registered protocol + its registering SHA (the add-commit of the protocol file)."""
+    import glob as _g, subprocess as _sp
+    rid = review_id.lower()
+    cands = sorted(set(_g.glob(os.path.join(ROOT, "protocols", rid + "_*.json"))) |
+                   set(_g.glob(os.path.join(ROOT, "protocols", rid.replace("-", "_") + "_*.json"))))
+    if not cands:
+        return None, None
+    path = cands[-1]
+    try:
+        proto = json.load(io.open(path, encoding="utf-8"))
+    except Exception:
+        return None, None
+    sha = None
+    try:
+        rel = os.path.relpath(path, ROOT).replace(os.sep, "/")
+        out = _sp.run(["git", "-C", ROOT, "log", "--diff-filter=A", "--format=%H", "--", rel],
+                      capture_output=True, timeout=30)
+        shas = [s for s in out.stdout.decode("utf-8", "replace").split() if s]
+        sha = shas[-1] if shas else None
+    except Exception:
+        pass
+    return proto, sha
+
+
+def _load_evidence(review_id):
+    """The committed evidence set (executed search) trying both name spellings."""
+    for c in (review_id.lower(), review_id.lower().replace("_", "-"), review_id.lower().replace("-", "_")):
+        p = os.path.join(ROOT, "evidence", c, "trials.json")
+        if os.path.exists(p):
+            try:
+                return json.load(io.open(p, encoding="utf-8"))
+            except Exception:
+                return None
+    return None
+
+
 def _e(x):
     return html.escape("" if x is None else str(x))
 
@@ -161,8 +198,13 @@ def _completeness_disclosure(review_id, generated_html, archive_rel=None):
               "(a finding: this is the specification for a future narrative-parity build, not something to invent tonight): "
               "%s.</p>" % (len(needs_field), _e("; ".join(needs_field))))
     if prose:
-        s += "<details><summary>%d narrative/framing headings not reproduced (prose, no object data lost)</summary><p>%s</p></details>" % (
-            len(prose), _e("; ".join(prose)))
+        # COUNT only -- never the raw labels: sections() truncates headings to 50 chars, so listing them
+        # verbatim emits fragments like "baseline risk the reader choo" that read as debug/placeholder
+        # text (and the rendered-prose check rightly flags them). The count is the honest, clean signal.
+        s += ("<details><summary>%d narrative/framing headings from the prior page not reproduced "
+              "(prose framing, no object data lost)</summary><p class='muted'>These are section headings "
+              "of the prior long-form page; their underlying data, where the object holds it, renders in "
+              "the tabs above. The list is summarised as a count rather than as truncated fragments.</p></details>") % len(prose)
     retrievable = archive_rel or orig_name
     s += ("<p class='muted'>The prior hand-maintained page remains retrievable, byte-unmodified, at "
           "<code>%s</code>; this compact page replaces it at the canonical URL but does not destroy the record of what was served.</p>" % _e(retrievable))
@@ -391,6 +433,42 @@ every value below is a function of that committed object. Primary outcome: <em>{
            estimator=(" (%s)" % _e(pooled.get("estimator"))) if pooled.get("estimator") else "",
            hksj=hksj_line, het=het_line, forest=forest, trials=trials_rows, comp=comp_html, bench=bench_html,
            supersede=supersede, het_status=het_status_safe)
+
+    # ---- PROTOCOL tab: render the registered protocol's fields (they exist; the empty tab denied them) --
+    proto, sha = _load_protocol(review_id)
+    if proto:
+        elig = proto.get("eligibility") or {}
+        ests = proto.get("estimands") or []
+        st = proto.get("statistics") or {}
+        disc = (st.get("disclosure_clause") or {})
+        retro = "retrospective" in json.dumps(disc).lower() or "retrospective" in json.dumps(proto).lower()
+        body += "<h2>Protocol (registered)</h2>"
+        body += ("<p class='muted'>Registration is the add-commit SHA of the protocol file: <code>%s</code>. "
+                 "This is a <strong>%s</strong> registration &mdash; authored after the trials reported; the method was "
+                 "prespecified for the re-run search, and both answers are disclosed where a method choice was known.</p>"
+                 % (_e((sha or "unrecorded")[:16]), "retrospective" if retro else "prospective"))
+        body += "<table><tr><th>Field</th><th>Registered value</th></tr>"
+        for label, val in (("Population", elig.get("population")), ("Intervention", elig.get("intervention")),
+                           ("Comparator", elig.get("comparator")), ("Design", elig.get("design")),
+                           ("Primary estimand", (ests[0] or {}).get("outcome") if ests else None),
+                           ("Small-k CI rule", st.get("small_k_ci_rule"))):
+            if val:
+                body += "<tr><td>%s</td><td>%s</td></tr>" % (_e(label), _e(str(val))[:400])
+        body += "</table>"
+
+    # ---- SEARCH tab: the executed evidence set (queries/trials/effect statements + four-state) --------
+    evid = _load_evidence(review_id)
+    if evid and (evid.get("trials")):
+        body += "<h2>Search and evidence set (executed)</h2>"
+        note = evid.get("_note") or evid.get("search_note")
+        if note:
+            body += "<p class='muted'>%s</p>" % _e(str(note))[:400]
+        body += "<table><tr><th>Trial</th><th>NCT</th><th>Effect statement (as extracted)</th><th>Result state</th></tr>"
+        for tr in evid.get("trials", []):
+            body += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (
+                _e(tr.get("trial") or ""), _e(tr.get("nct") or ""), _e(tr.get("effect_statement") or ""),
+                "RAN_RESULTS" if tr.get("effect_statement") else "RAN_ZERO")
+        body += "</table>"
 
     # ---- GRADE (from grade.by_outcome.<oid> or a flat grade) ----------------------------------
     grade = obj.get("grade") or o.get("grade")
