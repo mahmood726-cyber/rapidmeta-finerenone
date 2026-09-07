@@ -541,6 +541,44 @@ audit predated the b733d63 object push; Pages has rebuilt. No second object loca
 on any page. The page generator (from scratch, deliberately, acceptance-tested both directions) is the sole
 remaining path to a submittable page and it fixes all five at once.
 
+## ROTAVIRUS_VACCINE_AFRICA — the unbiased generalisation test (a page we never touched)
+
+Chosen because we had NOT corrected or looked at it. Result: **the catalogue generalises. Every defect
+class it exhibits is already in the catalogue except two — and the two new ones are BOTH estimand
+defects.** The defect space is converging on estimand definition, which is exactly what the protocol
+schema's typed fields exist to catch. NOT corrected tonight (no more banners; it needs the generator);
+recorded, with two new gates and two new schema fields added.
+
+**NEW GATE 59 — effect scale must match the trials' own estimand.** Vaccine efficacy is 1-RR / 1-IRR /
+1-HR, NEVER 1-OR. The page converted cumulative counts to ODDS RATIOS, discarded person-time, and served
+1-OR as "~51% efficacy" -- a methodological error served as a headline. Built
+`scripts/gate59_effect_scale_matches_estimand.py` (synthetic controls pass; found 7 corpus candidates to
+review) AND added it to the SCHEMA: estimand now carries `trial_native_effect` (risk|rate|hazard|odds|mean)
+and validate() refuses an effect_measure that does not match it (log_OR from risk/rate trials refused).
+
+**NEW GATE 60 — follow-up windows must be harmonised before pooling cumulative counts.** Rotarix through
+age 1, RotaTeq median 527d (~21mo), RotaSIIL ~9.8mo -- cumulative odds across those is not a common
+estimand. This is the concrete form of "time horizon is part of the estimand" (apixaban prophylaxis).
+Built `scripts/gate60_followup_window_harmonised.py` (synthetic controls pass) AND added `follow_up_window`
+{harmonised, window} as a required estimand field; validate() refuses unharmonised-window cumulative pooling.
+
+**IT MANUFACTURED HETEROGENEITY AGAIN (4th instance).** Published first-year ratios 0.388/0.358/0.397 pool
+to I² 0%; the served I² 57.6% appears ONLY after mixing the longer waning RotaTeq window with two shorter
+ones. Same family as inclisiran (observed-vs-imputed) and empagliflozin (OR-vs-HR): heterogeneity
+manufactured by a non-estimand choice, dissolving when the estimand is fixed.
+
+**Correction well-established for whenever the rebuild reaches it (do NOT serve tonight):** pooled RR
+0.386 (0.307-0.486), VE 61.4% (51.4-69.3), tau2 0, I² 0%, Q 0.102; raw-count sensitivity RR 0.390; modified
+HKSJ 0.233-0.639 (still excludes 1); product- and time-stratified. Plus: gate 46 third instance (per-protocol
+counts with randomised denominators, Rotarix row cannot be reconciled -- num/denom population check is now
+HIGH priority); gate 9 (abstract "no heterogeneity" at I² 57.6% -- externally corroborates the validated
+list of 8); two-live-values (tau2 0.05718/0.0557); NCT00383903 unexplained.
+
+**The schema hard-invariant is now 15 refusals** (13 + gate 59 + gate 60), each fixtured. Extending the
+required estimand fields means the existing five protocols now need `trial_native_effect` + `follow_up_window`
+-- added during the regeneration, which is correct: the schema flags exactly the estimand gaps the reviewers
+found.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,

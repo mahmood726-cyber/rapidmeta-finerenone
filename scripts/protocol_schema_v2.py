@@ -14,7 +14,12 @@ import io, re, sys
 # ---- typed enumerations ------------------------------------------------------------------
 ANALYSIS_POPULATION = ("mITT", "ITT", "per_protocol", "as_randomised")
 ANALYSIS_VARIANT = ("ITT_IMPUTED", "OBSERVED_CASE", "COMPLETER")       # inclisiran -53.97 vs -50.54
-EFFECT_MEASURE = ("log_HR", "log_RR", "log_OR", "MD", "RD")            # CAB-LA HR-vs-RR; never "log effect scale"
+EFFECT_MEASURE = ("log_HR", "log_RR", "log_OR", "log_IRR", "MD", "RD")  # CAB-LA HR-vs-RR; never "log effect scale"
+# What the TRIALS themselves estimate. The effect_measure must match it (gate 59): reporting VE = 1-OR
+# from trials that estimate risks/rates (ROTAVIRUS) is a methodological error -- VE is 1-RR/1-IRR/1-HR.
+TRIAL_NATIVE_EFFECT = ("risk", "rate", "hazard", "odds", "mean")
+_MEASURE_FOR_NATIVE = {"risk": {"log_RR", "RD"}, "rate": {"log_IRR"}, "hazard": {"log_HR"},
+                       "odds": {"log_OR"}, "mean": {"MD"}}
 COMPARATOR_KIND = ("placebo", "active", "deferred_active")            # PLATFORM was placebo during PCI
 POOLABLE_INPUT = ("two_by_two_counts", "effect_ci_measure")           # cangrelor/bococizumab: effect+CI IS poolable
 ROB2_SOURCE = ("manuscript", "SAP", "regulatory")                     # never registry_design
@@ -39,7 +44,9 @@ def template(review_id):
     return {
         "review_id": review_id,
         "estimands": [{"outcome": None, "timepoint": None, "analysis_population": None,
-                       "missing_data_model": None, "analysis_variant": None, "effect_measure": None}],
+                       "missing_data_model": None, "analysis_variant": None, "effect_measure": None,
+                       "trial_native_effect": None,  # what the trials estimate: risk|rate|hazard|odds|mean
+                       "follow_up_window": {"harmonised": False, "window": None}}],
         "source_hierarchy": list(SOURCE_HIERARCHY),
         "primary_source_of_record": "primary_publication",
         "poolable_input_types": list(POOLABLE_INPUT),
@@ -74,6 +81,26 @@ def validate(p):
                      % (i, ANALYSIS_VARIANT))
         if es.get("analysis_population") not in ANALYSIS_POPULATION:
             e.append("estimand[%d].analysis_population %r not typed" % (i, es.get("analysis_population")))
+        # GATE 59: the effect measure must match what the trials estimate. VE from risk/rate trials
+        # is 1-RR/1-IRR/1-HR, NEVER 1-OR (ROTAVIRUS served 1-OR as "efficacy").
+        nat = es.get("trial_native_effect")
+        if nat not in TRIAL_NATIVE_EFFECT:
+            e.append("estimand[%d].trial_native_effect %r not typed -- must be one of %s (gate 59: the "
+                     "effect measure has to match what the trials estimate)" % (i, nat, TRIAL_NATIVE_EFFECT))
+        elif es.get("effect_measure") in EFFECT_MEASURE and es.get("effect_measure") not in _MEASURE_FOR_NATIVE[nat]:
+            e.append("estimand[%d]: effect_measure %r does not match trial_native_effect %r -- allowed %s "
+                     "(gate 59: VE is 1-RR/1-IRR/1-HR, not 1-OR; an OR from risk/rate trials with person-time "
+                     "discarded is a methodological error, not a display choice)"
+                     % (i, es.get("effect_measure"), nat, sorted(_MEASURE_FOR_NATIVE[nat])))
+        # GATE 60: follow-up windows must be harmonised before pooling cumulative counts (time horizon is
+        # part of the estimand). ROTAVIRUS pooled 12mo / 21mo / 9.8mo cumulative odds as one quantity.
+        fw = es.get("follow_up_window") or {}
+        if not isinstance(fw, dict) or not fw.get("window"):
+            e.append("estimand[%d].follow_up_window.window missing -- the time horizon is part of the "
+                     "estimand (gate 60)" % i)
+        elif fw.get("harmonised") is not True:
+            e.append("estimand[%d].follow_up_window.harmonised is not true -- cumulative-count pooling across "
+                     "unharmonised follow-up windows is not a common estimand (gate 60: ROTAVIRUS 12/21/9.8mo)" % i)
     if not (p.get("estimands")):
         e.append("no estimand defined")
     # SOURCE HIERARCHY
@@ -133,7 +160,8 @@ def _selftest():
     good = template("demo")
     good["estimands"] = [{"outcome": "MACE", "timepoint": "median 40.6mo", "analysis_population": "ITT",
                           "missing_data_model": "multiple imputation, Rubin", "analysis_variant": "ITT_IMPUTED",
-                          "effect_measure": "log_HR"}]
+                          "effect_measure": "log_HR", "trial_native_effect": "hazard",
+                          "follow_up_window": {"harmonised": True, "window": "median 40.6 months, common across trials"}}]
     good["eligibility"] = {"population": "adults with ASCVD", "intervention": "bempedoic acid",
                            "comparator": "placebo", "comparator_kind": "placebo",
                            "design": "randomised controlled trial", "reproduces_exclusions": True}
@@ -173,12 +201,14 @@ def _selftest():
         ("named harms required (not 'adverse events')", lambda b: b["mandatory_outputs"].__setitem__("harms", [])),
         ("backdated prospectiveness refused", lambda b: b["governance"].update({"prospective": True, "prospective_evidence": None})),
         ("content after freeze refused (bempedoic v1.1)", lambda b: b["governance"].update({"freeze_date": "2026-04-19", "dated_content": ["2026-04-20"]})),
+        ("gate 59: VE as 1-OR from risk trials refused (ROTAVIRUS)", lambda b: (b["estimands"][0].__setitem__("trial_native_effect", "risk"), b["estimands"][0].__setitem__("effect_measure", "log_OR"))),
+        ("gate 60: unharmonised follow-up window refused (ROTAVIRUS 12/21/9.8mo)", lambda b: b["estimands"][0].__setitem__("follow_up_window", {"harmonised": False, "window": "12mo/21mo/9.8mo mixed"})),
     ]
     PERMIT_FIXTURES = [
         ("'cardiovascular outcome trial' design PERMITTED", lambda b: b["eligibility"].__setitem__("design", "randomised, double-blind, placebo-controlled cardiovascular outcome trial")),
         ("'outcome-trial-eligible risk profile' population PERMITTED", lambda b: b["eligibility"].__setitem__("population", "adults with an outcome-trial-eligible risk profile")),
     ]
-    REQUIRED_REFUSALS = 13
+    REQUIRED_REFUSALS = 15   # 13 original + gate 59 (effect-scale) + gate 60 (follow-up window)
     REQUIRED_PERMITS = 2
 
     refusals_fired = 0
