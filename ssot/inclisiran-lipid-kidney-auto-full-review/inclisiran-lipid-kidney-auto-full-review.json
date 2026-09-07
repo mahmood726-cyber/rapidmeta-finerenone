@@ -652,7 +652,8 @@
             }
           ],
           "conclusion": "NO SINGLE TRIAL CARRIES THIS RESULT. Omitting each in turn gives -55.56 (-59.62 to -51.50), -52.18 (-55.85 to -48.51) and -53.90 (-61.84 to -45.97). All three exclude no effect and the pooled point moves by at most 1.8 percentage points on a scale of 54.",
-          "between_study_variance_method_comparison": {
+          "decision_under_test_superseded_2026_08_20": "Two decisions. First, whether the pooled reduction depends on any single trial. Second, whether it depends on the between-study variance estimator and interval method -- which at k=3, with the house rule against DerSimonian-Laird below k=10, is not a formality but the reason this table exists.",
+          "between_study_variance_method_comparison_OBSERVED_CASE_SUPERSEDED_2026_09_07": {
             "methods": [
               {
                 "between_study_variance_estimator": "DL",
@@ -710,7 +711,61 @@
             "estimator_kept_superseded_2026_08_20": "The published DerSimonian-Laird value is RETAINED as the headline. It reproduces exactly, and moving a correct published number by five hundredths of a percentage point would break every reader's record for no gain. Whether the corpus headline should move to REML everywhere is a display-change policy question for the whole corpus, not a finding about this topic, and it is parked as such.",
             "verdict_superseded_2026_08_20": "IT DID NOT. The point estimate spans -53.95 to -54.00 across all six combinations -- a range of five hundredths on a scale of fifty-four -- and every one of the six intervals excludes no effect, the widest by more than forty percentage points. THE INTERVAL, NOT THE POINT, IS WHAT THE METHOD CHANGES: Wald gives about -58 to -50 and Hartung-Knapp about -64 to -44, roughly twice the width. At k=3 with I-squared of 72 per cent, HARTUNG-KNAPP IS THE HONEST ONE, and the precision shown on the index card is optimistic even though its direction and magnitude are not in doubt."
           },
-          "decision_under_test_superseded_2026_08_20": "Two decisions. First, whether the pooled reduction depends on any single trial. Second, whether it depends on the between-study variance estimator and interval method -- which at k=3, with the house rule against DerSimonian-Laird below k=10, is not a formality but the reason this table exists."
+          "between_study_variance_method_comparison": {
+            "why": "Three between-study-variance estimators (REML/DL/PM), each with Wald and Hartung-Knapp intervals, on the ITT_IMPUTED published-primary inputs. Recomputed 2026-09-07 after the OBSERVED_CASE->ITT correction; the OBSERVED_CASE panel (which spanned -53.95 to -53.97) is archived beside this one.",
+            "methods": [
+              {
+                "interval": "Wald",
+                "point": -50.55,
+                "ci_low": -52.7339,
+                "ci_high": -48.3755,
+                "tau2": 0.0,
+                "between_study_variance_estimator": "REML"
+              },
+              {
+                "interval": "Hartung-Knapp",
+                "point": -50.55,
+                "ci_low": -53.19,
+                "ci_high": -47.92,
+                "tau2": 0.0,
+                "between_study_variance_estimator": "REML"
+              },
+              {
+                "interval": "Wald",
+                "point": -50.5544,
+                "ci_low": -52.7351,
+                "ci_high": -48.3737,
+                "tau2": 0.0046,
+                "between_study_variance_estimator": "DL"
+              },
+              {
+                "interval": "Hartung-Knapp",
+                "point": -50.5544,
+                "ci_low": -53.19,
+                "ci_high": -47.92,
+                "tau2": 0.0046,
+                "between_study_variance_estimator": "DL"
+              },
+              {
+                "interval": "Wald",
+                "point": -50.5544,
+                "ci_low": -52.7351,
+                "ci_high": -48.3736,
+                "tau2": 0.0047,
+                "between_study_variance_estimator": "PM"
+              },
+              {
+                "interval": "Hartung-Knapp",
+                "point": -50.5544,
+                "ci_low": -53.19,
+                "ci_high": -47.92,
+                "tau2": 0.0047,
+                "between_study_variance_estimator": "PM"
+              }
+            ],
+            "verdict": "THE CHOICE OF ESTIMATOR DOES NOT CHANGE THIS ANSWER. The point spans -50.5544 to -50.5547 across REML/DL/PM; the pool is homogeneous (I2 0%) so tau2 is ~0 under all three and the intervals nearly coincide. The published REML value -50.55 is retained as the headline.",
+            "estimator_kept": "REML, -50.55 (-52.73 to -48.38), consistent with DL and PM to two decimal places."
+          }
         },
         "single_study_ref": null,
         "per_trial": [
