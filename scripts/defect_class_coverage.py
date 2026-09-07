@@ -90,6 +90,8 @@ MATRIX = [
  ("imposed method (modified HKSJ on every ratio)", "PREVENTED", "generator", "uses_hksj", ""),  # gate_served_interval DETECTS
  ("reader can check a trial in the registry", "DETECTED", "gate", "gate16_reader_can_check.py", ""),
  ("non-inferiority pooled as superiority", "DETECTED", "gate", "gate10_noninferiority_pooled_as_superiority.py", "schema estimand.hypothesis {superiority|non_inferiority} + margin"),
+ ("I2 at small k read as homogeneity", "DETECTED", "gate", "gate_i2_small_k_power_caveat.py", "generator renders every small-k I2 with the caveat -> PREVENTED"),
+ ("superiority claimed over an identical trial set", "DETECTED", "gate", "gate_no_superiority_over_identical_trialset.py", "a standing defensible-claim template -> PREVENTED"),
 ]
 
 def evaluate():

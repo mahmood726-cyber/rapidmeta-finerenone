@@ -113,7 +113,7 @@ def run_one(review_id):
     # whose absence let a page with an empty protocol+search section clear and ship.
     if rep.get("paper_candidate"):
         try:
-            frc = _load("field_render_check", "field_render_check.py")
+            frc = _load("field_render", "field_render.py")
             obj_f, proto_f, ev_f, _ = frc._resolve(review_id)
             g = io.open(os.path.join(ROOT, rep["paper_candidate"]), encoding="utf-8", errors="replace").read()
             fr = frc.check(obj_f, proto_f, ev_f, g)

@@ -221,6 +221,12 @@ GATES = [
     # retraction sits in a parallel note -- the regeneration-resurrection class found tonight.
     ("gate_correction_not_in_rendered_field",
      "a claim a CLAIM_WITHDRAWN/superseded field retracts must not appear in a rendered field", "slow"),
+    # ADDED 2026-09-07 (external-review findings). I2 at small k is a power statement, not homogeneity;
+    # and matching a published synthesis on an identical trial set is arithmetic, never superiority.
+    ("gate_i2_small_k_power_caveat",
+     "I2 at small k renders with its power caveat, not as bare homogeneity", "slow"),
+    ("gate_no_superiority_over_identical_trialset",
+     "no page claims superiority over a published synthesis on an identical trial set", "slow"),
 ]
 
 

@@ -12,7 +12,7 @@ Three checks, each emitting NAMED items (never a rate):
   A. CLAIM IDENTITY  -- the same (point, CI) under two DIFFERENT outcome labels is an automatic FAIL
                         (the mortality mislabel). Enumerate every rendered estimate with its label.
   B. RENDERED PROSE  -- no truncated sentence, no repr/dict syntax, no stray [], no placeholder fragment.
-  C. (field coverage lives in field_render_check.py; this tool calls it so the census is one report.)
+  C. (field coverage lives in field_render.py; this tool calls it so the census is one report.)
 
 Fail closed: an estimate the tool cannot classify FAILS.
 """
@@ -104,7 +104,7 @@ def check_not_in_object(claims, obj):
 def run(review_id, page):
     html = io.open(page if os.path.isabs(page) else os.path.join(ROOT, page), encoding="utf-8", errors="replace").read()
     # C. field coverage via the existing tool
-    spec = importlib.util.spec_from_file_location("field_render_check", os.path.join(ROOT, "scripts", "field_render_check.py"))
+    spec = importlib.util.spec_from_file_location("field_render", os.path.join(ROOT, "scripts", "field_render.py"))
     frc = importlib.util.module_from_spec(spec); spec.loader.exec_module(frc)
     obj, protocol, ev, _ = frc._resolve(review_id)
     field = frc.check(obj, protocol, ev, html)
