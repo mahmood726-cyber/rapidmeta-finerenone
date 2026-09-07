@@ -67,7 +67,7 @@ MATRIX = [
  ("boilerplate conditioned on k (GOSH/TSA/meta-reg)", "PREVENTED", "generator", "_refusal_sections", ""),
  ("planned duration shown as observed", "DETECTED", "gate", "gate12_planned_shown_as_observed.py", "schema follow_up_window.window {planned|observed}"),
  ("sentence contradicts its own number", "DETECTED", "gate", "gate11_one_statistic_one_value.py", ""),
- ("GRADE certainty not derived from a stated threshold", "NEITHER", "none", "", "schema grade.imprecision_threshold (a value inside the CI) + a gate"),
+ ("GRADE certainty not derived from a stated threshold", "DETECTED", "gate", "gate_grade_imprecision_needs_threshold.py", "schema grade.imprecision_threshold would move to PREVENTED"),
  ("RoB from registry fields not the publication", "DETECTED", "gate", "gate_rob_source_is_publication.py", "schema risk_of_bias.source per domain would move to PREVENTED"),
  ("adherence is not risk-of-bias", "NEITHER", "none", "", "RoB domain vocabulary that has no 'adherence' domain"),
  ("absence of assessment is not a negative", "DETECTED", "gate", "gate_certainty_column_four_states_2026_08_23.py", ""),

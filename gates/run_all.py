@@ -208,6 +208,10 @@ GATES = [
      "RoB verdicts carry per-domain judgments sourced from the publication, not registry fields", "slow"),
     ("gate_composite_lists_components",
      "a composite endpoint lists its components (no undecomposed composite)", "slow"),
+    # ADDED 2026-09-07 (Codex, verified from the main tree: 23 imprecision downgrades examined, 6 lack a
+    # threshold -> 6 findings; the scope is PROVEN, not a silent 0). Refuses (BROKEN) if it cannot scan.
+    ("gate_grade_imprecision_needs_threshold",
+     "a GRADE imprecision downgrade records the decision threshold inside the CI", "slow"),
 ]
 
 
