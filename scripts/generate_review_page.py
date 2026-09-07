@@ -38,6 +38,18 @@ def _fmt(x, dp=4):
     return ("%.*f" % (dp, x)).rstrip("0").rstrip(".") if isinstance(x, float) else str(x)
 
 
+def _reader_num(x, measure):
+    """READER-facing precision. Four decimals on a pool of 0.75 and 0.79 imply precision the sources do
+    not carry: a ratio is shown to 2 dp (HR 0.77, CI 0.70-0.85, no trailing-zero trim so 0.70 stays
+    0.70). FULL precision stays in the embedded object for reproduction -- this is the text a reader
+    reads, not the value the engine checks."""
+    if not isinstance(x, (int, float)):
+        return str(x)
+    if str(measure).upper() in ("HR", "RR", "OR", "IRR", "LOG_HR", "LOG_RR", "LOG_OR"):
+        return "%.2f" % x                       # ratios: 2 dp, no trim
+    return ("%.2f" % x).rstrip("0").rstrip(".")  # differences: 2 dp, trim trailing zeros
+
+
 def _primary_outcome(obj):
     bo = (obj.get("results") or {}).get("by_outcome") or {}
     # the outcome with the most contributing trials is the primary pool
@@ -311,7 +323,8 @@ every value below is a function of that committed object. Primary outcome: <em>{
 <h2>Heterogeneity</h2>
 <p>{het}. {het_status}</p>
 """.format(slug=_e(slug), title=_e(title), outcome=_e(oid), question=_e(question),
-           measure=_e(measure), pt=_fmt(pooled["point"], 4), lo=_fmt(pooled["ci_low"], 4), hi=_fmt(pooled["ci_high"], 4),
+           measure=_e(measure), pt=_reader_num(pooled["point"], measure), lo=_reader_num(pooled["ci_low"], measure),
+           hi=_reader_num(pooled["ci_high"], measure),
            k=len(o["per_trial"]), model=_e(declared_model),
            estimator=(" (%s)" % _e(pooled.get("estimator"))) if pooled.get("estimator") else "",
            hksj=hksj_line, het=het_line, forest=forest, trials=trials_rows, comp=comp_html, bench=bench_html,
@@ -368,20 +381,44 @@ every value below is a function of that committed object. Primary outcome: <em>{
     if not re.search(r"fund|sponsor", json.dumps(obj), re.I):
         body += "<h2>Funding</h2><p><strong>No funding statement extracted</strong> (declared absence; owed).</p>"
 
-    # ---- Absolute effect: DERIVED transparently from the ratio; baseline is a declared absence ----
+    # ---- Absolute effect: CORRECT conversion for the effect MEASURE (an HR is not an RR) ----------
     _pt = pooled.get("point")
-    is_ratio = str(measure).lower() in ("or", "rr", "hr", "log_or", "log_rr", "log_hr") or "ratio" in str(measure).lower()
-    if is_ratio and isinstance(_pt, (int, float)):
+    meas_l = str(measure).lower()
+    if meas_l in ("hr", "rr", "or") and isinstance(_pt, (int, float)):
         body += "<h2>Absolute effect, at baseline risks you choose</h2>"
+        # Absolute benefit is undefined without a TIME HORIZON, and the contributing trials differ.
+        fups = [t.get("follow_up_months") for t in (o.get("per_trial") or []) if t.get("follow_up_months")]
+        horizon = (" over the trials' follow-up (which differ: %s months)"
+                   % ", ".join(str(f) for f in fups)) if fups else " at a stated time horizon"
+        # THE MATH, per measure. An HR is NOT an RR: under proportional hazards the treated risk at a
+        # horizon is 1-(1-B)^HR, so ARR = B - [1-(1-B)^HR]. Using B*(1-HR) treats the HR as a risk ratio
+        # and overstates the benefit (at B=0.20, HR=0.77: 4.58% wrong vs 4.20% correct).
+        if meas_l == "hr":
+            formula = ("under proportional hazards the treated risk is 1&minus;(1&minus;B)<sup>HR</sup>, so "
+                       "ARR = B &minus; [1&minus;(1&minus;B)<sup>HR</sup>] and NNT = 1/ARR")
+            arr_of = lambda b: b - (1 - (1 - b) ** _pt)
+        elif meas_l == "rr":
+            formula = "ARR = B&times;(1&minus;RR) and NNT = 1/ARR"
+            arr_of = lambda b: b * (1 - _pt)
+        else:  # or -- convert through the baseline ODDS, never B*(1-OR)
+            formula = ("convert through the baseline odds: with odds<sub>B</sub> = B/(1&minus;B), the "
+                       "treated risk is (odds<sub>B</sub>&times;OR)/(1+odds<sub>B</sub>&times;OR)")
+            arr_of = lambda b: b - ((b / (1 - b) * _pt) / (1 + b / (1 - b) * _pt))
+        body += ("<p class='muted'>Prefer Kaplan&ndash;Meier risks at a fixed time where the trials report them; "
+                 "the conversion below is the proportional-hazards approximation used only when they do not.</p>")
         baseline = obj.get("reference_baseline_risk") or o.get("reference_baseline_risk")
         if baseline:
-            b = float(baseline); arr = b * (1 - _pt)
-            body += "<p>At a baseline risk of %.1f%%, this %s of %.3f implies an absolute risk reduction of %.2f percentage points (NNT %.0f).</p>" % (b * 100, str(measure).upper(), _pt, arr * 100, (1 / arr if arr else float('inf')))
+            b = float(baseline); arr = arr_of(b)
+            body += ("<p>At a baseline risk of %.1f%%%s, this %s of %s implies an absolute risk reduction of "
+                     "%.2f percentage points (NNT %.0f), by the %s conversion.</p>"
+                     % (b * 100, horizon, str(measure).upper(), _fmt(_pt, 2), arr * 100,
+                        (1 / arr if arr else float('inf')), str(measure).upper()))
         else:
-            body += ("<p>An effect of <strong>%.3f</strong> means: at a baseline risk B, the absolute risk reduction is "
-                     "B&times;(1&minus;%.3f) and the NNT is 1 / [B&times;%.3f]. <strong>This review's object declares no reference "
-                     "baseline risk</strong>, so no specific ARR or NNT is asserted here &mdash; the absolute effect is stated as a "
-                     "formula rather than invented from an assumed baseline.</p>") % (_pt, _pt, (1 - _pt))
+            body += ("<p>A %s of <strong>%s</strong> implies, at a baseline risk B and%s: %s. "
+                     "<strong>This review declares no reference baseline risk</strong>, so no specific ARR or NNT is "
+                     "asserted &mdash; the relationship is stated as a formula, not invented from an assumed baseline, "
+                     "and it is the conversion correct for a %s (not the risk-ratio form B&times;(1&minus;effect)).</p>"
+                     % (str(measure).upper(), _fmt(_pt, 2), horizon, formula, str(measure).upper()))
 
     # ---- Declared refusals at this k (GOSH/TSA/meta-regression/funnel) -------------------------
     k_studies = len(o.get("per_trial") or [])

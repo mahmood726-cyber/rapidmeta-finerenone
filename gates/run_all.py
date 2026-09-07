@@ -195,6 +195,11 @@ GATES = [
     # must equal its EMBEDDED object's pooled CI, or the page imposed a method its source does not back.
     ("gate_served_interval_matches_declared_method",
      "a page's shown interval equals its embedded object's pooled CI; no imposed method", "fast"),
+    # ADDED 2026-09-07, registered in the same commit that created it. The generator derived an absolute
+    # risk reduction from a hazard ratio by B*(1-HR) -- treating an HR as an RR (4.58% vs the correct
+    # 4.20% at B=0.20). Behaviour fixed to the proportional-hazards conversion; this makes it operative.
+    ("gate_hr_absolute_effect_uses_ph",
+     "an ARR from a hazard ratio uses 1-(1-B)^HR, never the risk-ratio form B*(1-HR)", "fast"),
 ]
 
 
