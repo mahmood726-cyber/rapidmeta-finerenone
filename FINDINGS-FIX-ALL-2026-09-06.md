@@ -590,3 +590,41 @@ found.
   disease"; object `title` fixed at root.
 - **4–7** — index false claims; the 30 protocol-less reviews; the IRR pre-declared sensitivity;
   the six AE-organ outcomes. (In progress.)
+
+---
+
+## 2026-09-07 — path-convention split as a CLASS, and the structural answer
+
+**THE CLASS: a path convention split across subsystems produces "not found", and "not found"
+degrades to a benign-looking state.** Four instances, four subsystems, one cause — every one
+silently DISABLED a check rather than failing it:
+
+| # | subsystem | split | axis it silently killed |
+|---|---|---|---|
+| 1 | `reproduce_review` | `--page` ignored entirely | RENDER never tested a generated file |
+| 2 | `reproduce_review.resolve_paths` protocol glob | hyphens vs underscore protocol names | PROTOCOL → CANNOT_RUN |
+| 3 | `run_review` protocol + evidence lookup | hyphens vs underscore dir names | PIPELINE → CANNOT_RUN |
+| 4 | `reproduce_review.resolve_paths` page glob | hyphens vs underscore page names (`SGLT2-HF_REVIEW` vs `SGLT2_HF_REVIEW`) | RENDER → no page found → false DIFFERS |
+
+**THE STRUCTURAL ANSWER (not "remember to try both spellings"): `HARNESS_FAULT`.**
+`reproduce_review` now FAILS LOUDLY (verdict `HARNESS_FAULT`, exit 3) if any axis returns
+`CANNOT_RUN` while its inputs are present. A `CANNOT_RUN` proven to be genuine input-absence is a
+result; one that has not been proven is a fault in disguise. Silence is never an acceptable answer
+from a checker whose whole job is to answer.
+
+**CONVENTION RULE (owed, one line): review-id ↔ filename derivation must be SINGLE-SOURCED.**
+ARNI's page is `ARNI_HF_REVIEW.html` but its review-id is `arni-hfref` — the page name does not
+derive from the review-id AT ALL (`HF` ≠ `HFREF`). That is the same class wearing different clothes:
+every subsystem re-derives the filename from the id its own way, so they disagree. There must be ONE
+function `review_id -> {object, protocol, evidence, page}` that every subsystem calls, and irregular
+pages (like ARNI) must be recorded in an explicit map rather than pattern-derived.
+
+## 2026-09-07 — method-imposition gate (declared method vs served number)
+
+Defect (caught by reading a subtitle, not a check): the generator imposed modified HKSJ on every
+ratio page, recomputing `t_{k-1}`; at k=2 `t(1)=12.706` blew EMPAGLIFLOZIN's interval to 0.413–1.44,
+a second interval beside the object's own fixed-effect CI [0.700, 0.849]. Behaviour fixed AND made a
+standing gate: `scripts/gate_served_interval_matches_declared_method.py` — the page's shown interval
+must equal its EMBEDDED object's pooled CI (self-contained via `<script id="ssot-current">`); an
+imposed method makes them disagree and the gate fires. Synthetic positive control pinned in code
+(imposed 0.413–1.44 over fixed-effect CI) so it cannot self-retire.
