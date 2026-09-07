@@ -115,11 +115,18 @@ def resolve_paths(review_id):
             "protocol": proto[-1] if proto else None,
             "page": page, "slug": slug}
 
-def _harness_faults(has_page, has_proto, has_evidence, render_v, protocol_v, pipeline_v):
-    """The hard invariant, pure and testable: an axis whose inputs are present must not be CANNOT_RUN."""
+def _harness_faults(has_page, has_proto, has_evidence, render_v, protocol_v, pipeline_v, has_poolable=True):
+    """The hard invariant, pure and testable: an axis whose inputs are present must not be CANNOT_RUN.
+
+    RENDER's inputs are a page AND an object with a REPRODUCIBLE POOL (an outcome carrying per-trial
+    effects and a non-null pooled point). An object that legitimately does not pool -- a single-source
+    review with no per_trial, or one whose pooled estimate has been WITHDRAWN (null point) -- has no
+    reproducible pool, so RENDER CANNOT_RUN is genuine absence, not a fault. The fault is RENDER unable
+    to run when the object DOES carry a reproducible pool (the page-lookup / silent-degradation class).
+    Checking only `has_page` conflated the two and manufactured a fault on every non-pooling review."""
     f = []
-    if has_page and render_v == "CANNOT_RUN":
-        f.append("RENDER CANNOT_RUN though a page is present")
+    if has_poolable and render_v == "CANNOT_RUN":
+        f.append("RENDER CANNOT_RUN though the object carries a reproducible pool (page not loaded / lookup)")
     if has_proto and protocol_v == "CANNOT_RUN":
         f.append("PROTOCOL CANNOT_RUN though a registered protocol is present")
     if has_proto and has_evidence and pipeline_v == "CANNOT_RUN":
@@ -366,7 +373,8 @@ def reproduce(review_id, page_override=None):
     # set are present, PIPELINE may not be. A violation is a HARNESS FAULT, surfaced LOUDLY, and it
     # dominates the headline verdict -- silence is never an acceptable answer from a checker.
     faults = _harness_faults(served is not None, proto is not None, _evidence_path(review_id) is not None,
-                             rpt["RENDER"]["verdict"], rpt["PROTOCOL"]["verdict"], rpt["PIPELINE"]["verdict"])
+                             rpt["RENDER"]["verdict"], rpt["PROTOCOL"]["verdict"], rpt["PIPELINE"]["verdict"],
+                             has_poolable=bool(_outcomes_with_pool(obj)))
     if faults:
         rpt["HARNESS_FAULT"] = faults
 
@@ -398,6 +406,12 @@ def selftest():
     chk("fault SILENT when the input is genuinely absent (no evidence -> PIPELINE CANNOT_RUN ok)",
         not _harness_faults(True, True, False, "REPRODUCES", "REPRODUCES", "CANNOT_RUN"))
     chk("no fault when all three REPRODUCE", not _harness_faults(True, True, True, "REPRODUCES", "REPRODUCES", "REPRODUCES"))
+    # RENDER leg: faults only when a reproducible pool EXISTS but RENDER cannot run (lookup class),
+    # NOT when the object legitimately has no pool (no per_trial, or a withdrawn/null pooled point).
+    chk("RENDER fault FIRES when object has a pool but RENDER CANNOT_RUN",
+        _harness_faults(True, False, False, "CANNOT_RUN", "CANNOT_RUN", "CANNOT_RUN", has_poolable=True))
+    chk("RENDER fault SILENT when the object has NO reproducible pool (legitimate absence)",
+        not _harness_faults(True, False, False, "CANNOT_RUN", "CANNOT_RUN", "CANNOT_RUN", has_poolable=False))
     # PERTURB one input -> the engine result no longer equals the stored pooled -> DIFFERS
     import copy
     bad = copy.deepcopy(obj); bad["results"]["by_outcome"]["primary"]["per_trial"][0]["point"] = 0.60

@@ -689,3 +689,33 @@ non-commensurable and NOT pooled.
 **Owed (next, a real gate): a rendered field must not contain a claim that a CLAIM_WITHDRAWN/superseded
 field on the same object retracts.** Hard to generalise over free text, but the audit heuristic above
 (known retracted phrases in rendered fields) is the seed.
+
+---
+
+## 2026-09-07 — first reproduction census (16 reviews), and two findings it produced
+
+**Census (live pages, fetched; three axes each):**
+- **P/I/C 11**: RENDER 10 CANNOT_RUN + 1 DIFFERS (inclisiran); PROTOCOL 11 CANNOT_RUN; PIPELINE 11 CANNOT_RUN.
+- **+5 metas = 16**: RENDER 10 CANNOT_RUN / 4 DIFFERS / 1 REPRODUCES (arni); PROTOCOL & PIPELINE each
+  13 CANNOT_RUN / 2 REPRODUCES (empagliflozin, sglt2-hf). NO HARNESS_FAULT.
+- **The page/object divergence, measured**: of the 5 reviews with a renderable pool, 4 DIFFER and only
+  arni REPRODUCES -- 4 of 5 hand-maintained pages diverge from their own objects.
+- **All 10 P/I/C RENDER-CANNOT_RUNs are the SAME cause: the pooled estimate is WITHDRAWN (null point).**
+  These reviews have a question, criteria and per-trial rows but no standing pooled answer. And every one
+  of the 11 lacks a protocol and an evidence set -- so none can reproduce on PROTOCOL/PIPELINE either.
+  That sizes the remaining programme: 11 protocols + 11 evidence sets + a decision on each withdrawn pool.
+
+**FINDING A -- my own HARNESS_FAULT invariant had a false-positive mode.** It flagged "RENDER CANNOT_RUN
+though a page is present" on all 10 withdrawn-pool reviews. But RENDER's inputs are a page AND an object
+with a REPRODUCIBLE POOL; an object whose pool is withdrawn (null) or which has no per_trial legitimately
+cannot be rendered. The invariant checked only `has_page`, conflating legitimate no-pool absence with the
+lookup class it exists to catch. Fixed: the RENDER leg faults only when `_outcomes_with_pool(obj)` is
+non-empty (a pool exists to render) yet RENDER cannot run. Selftested both directions. An instrument
+built to catch "CANNOT_RUN that isn't genuine absence" was itself calling genuine absence a fault.
+
+**FINDING B -- stub-with-object is a CLASS with 5 instances, not the one found by accident.** A scan of
+root *_REVIEW.html pages under 8 KB that have a backing ssot object: PCSK9_REVIEW.html (3161 B),
+ERTAPENEM_INFECT_AUTO_FULL_REVIEW.html (2856), LENACAPAVIR_PREP_REVIEW.html (2875),
+LEFAMULIN_CAP_AUTO_FULL_REVIEW.html (2890), CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html (2950). A page too
+small to hold the review its object claims. (501 other sub-8 KB pages have NO object -- plain
+placeholders, a different and benign kind; enumerating the KINDS is what separates the 5 from the 501.)
