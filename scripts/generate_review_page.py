@@ -180,9 +180,71 @@ every value below is a function of that committed object. Primary outcome: <em>{
            hksj=hksj_line, het=het_line, forest=forest, trials=trials_rows, comp=comp_html, bench=bench_html,
            het_status=_e((o.get("heterogeneity_status") or "")[:600]))
 
+    # ---- GRADE (from grade.by_outcome.<oid> or a flat grade) ----------------------------------
     grade = obj.get("grade") or o.get("grade")
-    if isinstance(grade, dict) and grade.get("certainty"):
-        body += "<h2>GRADE</h2><p>Certainty: <strong>%s</strong>. %s</p>" % (_e(grade.get("certainty")), _e(grade.get("why", ""))[:500])
+    g_oc = (grade.get("by_outcome", {}).get(oid) if isinstance(grade, dict) else None) or (grade if isinstance(grade, dict) else {})
+    if g_oc.get("certainty"):
+        body += "<h2>Certainty of the evidence (GRADE)</h2><p>Certainty: <strong>%s</strong>." % _e(g_oc.get("certainty"))
+        if g_oc.get("why"):
+            body += " " + _e(g_oc["why"])[:400]
+        body += "</p>"
+        steps = g_oc.get("steps") or []
+        if steps:
+            body += "<ul>" + "".join("<li>%s: %s</li>" % (_e((s or {}).get("domain")), _e(json.dumps((s or {}).get("levels") or (s or {}).get("reason") or ""))[:160]) for s in steps) + "</ul>"
+
+    # ---- Risk of bias (RoB 2, per result) -----------------------------------------------------
+    rob = obj.get("risk_of_bias")
+    rob_oc = (rob.get("by_outcome", {}).get(oid) if isinstance(rob, dict) else None)
+    if isinstance(rob_oc, dict):
+        body += "<h2>Risk of bias (RoB 2, assessed per result)</h2><table><tr><th>Trial</th><th>Overall / domains</th></tr>"
+        for nct, r in rob_oc.items():
+            if isinstance(r, dict):
+                overall = r.get("overall") or r.get("judgement") or json.dumps({k: v for k, v in r.items() if k != "nct"})[:120]
+                body += "<tr><td>%s</td><td>%s</td></tr>" % (_e(nct), _e(overall)[:200])
+        body += "</table>"
+        body += "<p class='muted'>RoB 2 assesses bias in the trial RESULT, not deficiencies in this review's document retrieval.</p>"
+
+    # ---- Published comparison ----------------------------------------------------------------
+    pc = obj.get("published_comparison")
+    if isinstance(pc, dict) and pc.get("_why"):
+        body += "<h2>Comparison with published syntheses</h2><p>%s</p>" % _e(pc["_why"])[:600]
+
+    # ---- Screening (render the DECLARED ABSENCE honestly, not a blank) -------------------------
+    scr = obj.get("screening") or {}
+    if isinstance(scr, dict):
+        sn = scr.get("search_note"); recs = scr.get("records") or []
+        body += "<h2>Screening and search</h2>"
+        if not recs and (not sn or "not recorded" in str(sn).lower()):
+            body += "<p><strong>No search/screening record was extracted for this review</strong> (the source page did not carry one). This is a declared absence, not a completed PRISMA flow.</p>"
+        else:
+            body += "<p>%s</p>" % _e(sn or "")[:400]
+
+    # ---- Harms: a DECLARED ABSENCE is not the same as an omission (null + state) ---------------
+    harms = obj.get("harms") or (o.get("harms")) or (obj.get("mandatory_outputs") or {}).get("harms")
+    body += "<h2>Harms</h2>"
+    if harms:
+        body += "<ul>" + "".join("<li>%s</li>" % _e(h) for h in harms) + "</ul>"
+    else:
+        body += "<p><strong>No harms outcome extracted.</strong> The object holds no harms data for this review; this absence is declared explicitly rather than the section being silently dropped. (A harms extraction is owed.)</p>"
+
+    # ---- Funding: declared absence ------------------------------------------------------------
+    if not re.search(r"fund|sponsor", json.dumps(obj), re.I):
+        body += "<h2>Funding</h2><p><strong>No funding statement extracted</strong> (declared absence; owed).</p>"
+
+    # ---- Absolute effect: DERIVED transparently from the ratio; baseline is a declared absence ----
+    _pt = pooled.get("point")
+    is_ratio = str(measure).lower() in ("or", "rr", "hr", "log_or", "log_rr", "log_hr") or "ratio" in str(measure).lower()
+    if is_ratio and isinstance(_pt, (int, float)):
+        body += "<h2>Absolute effect, at baseline risks you choose</h2>"
+        baseline = obj.get("reference_baseline_risk") or o.get("reference_baseline_risk")
+        if baseline:
+            b = float(baseline); arr = b * (1 - _pt)
+            body += "<p>At a baseline risk of %.1f%%, this %s of %.3f implies an absolute risk reduction of %.2f percentage points (NNT %.0f).</p>" % (b * 100, str(measure).upper(), _pt, arr * 100, (1 / arr if arr else float('inf')))
+        else:
+            body += ("<p>An effect of <strong>%.3f</strong> means: at a baseline risk B, the absolute risk reduction is "
+                     "B&times;(1&minus;%.3f) and the NNT is 1 / [B&times;%.3f]. <strong>This review's object declares no reference "
+                     "baseline risk</strong>, so no specific ARR or NNT is asserted here &mdash; the absolute effect is stated as a "
+                     "formula rather than invented from an assumed baseline.</p>") % (_pt, _pt, (1 - _pt))
 
     out = os.path.join(ROOT, review_id.upper() + ".generated.html")
     io.open(out, "w", encoding="utf-8").write(body)

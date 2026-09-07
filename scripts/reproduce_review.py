@@ -292,11 +292,19 @@ def axis_pipeline(status, review_id, obj, tol=5e-4):
         "delta": round(auto["point"] - stored_pt, 4)}
 
 # ---- driver -----------------------------------------------------------------------------
-def reproduce(review_id):
+def reproduce(review_id, page_override=None):
     p = resolve_paths(review_id)
+    # --page <path>: check RENDER against a SPECIFIC page (the generated one), not the resolved original.
+    # Without this the checker always reads the hand-maintained page and can never test the generator.
+    if page_override:
+        pop = page_override if os.path.isabs(page_override) else os.path.join(ROOT, page_override)
+        p["page"] = pop if os.path.exists(pop) else None
     status = component_status()
     rpt = {"review_id": review_id, "paths": {k: (os.path.relpath(v, ROOT) if v else None)
                                              for k, v in p.items() if k != "slug"}}
+    if page_override and not p["page"]:
+        rpt["verdict"] = "CANNOT_RUN"; rpt["reason"] = "--page not found: %s" % page_override
+        return rpt
     if not p["object"]:
         rpt["verdict"] = "CANNOT_RUN"; rpt["reason"] = "no object found at ssot/%s/%s.json" % (p["slug"], p["slug"])
         return rpt
@@ -420,6 +428,11 @@ if __name__ == "__main__":
         print("\n%s" % ("ALL PASS" if ok else "FAILURES ABOVE"))
         raise SystemExit(0 if ok else 1)
     if not args:
-        print("usage: reproduce_review.py <review_id> [--selftest]"); raise SystemExit(2)
-    _print_report(reproduce(args[0]))
+        print("usage: reproduce_review.py <review_id> [--page <path>] [--selftest]"); raise SystemExit(2)
+    page_override = None
+    if "--page" in args:
+        i = args.index("--page")
+        page_override = args[i + 1] if i + 1 < len(args) else None
+    positional = [a for a in args if not a.startswith("--") and a != page_override]
+    _print_report(reproduce(positional[0], page_override=page_override))
     raise SystemExit(0)
