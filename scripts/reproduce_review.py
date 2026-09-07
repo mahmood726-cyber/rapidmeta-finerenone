@@ -27,15 +27,17 @@ import io, os, re, csv, glob, json, math, sys, subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 Z = 1.959963985
 
-# ---- pooling engine (REML, log scale) ---------------------------------------------------
+# ---- pooling engine (REML) --------------------------------------------------------------
+# RATIO measures (HR/RR/OR) pool on the LOG scale; DIFFERENCE measures (MD/RD) pool on the NATURAL
+# scale (their values can be negative -- LDL % change -50.54 -- so a log transform is invalid).
+_RATIO_MEASURES = {"HR", "RR", "OR", "log_HR", "log_RR", "log_OR"}
+
+
 def _ci_to_y_se(point, lo, hi):
     return math.log(point), (math.log(hi) - math.log(lo)) / (2 * Z)
 
-def reml_pool(effects):
-    """effects: list of (point, lo, hi) on the natural (ratio) scale. Returns (point, lo, hi, tau2, k)."""
-    ys, vs = [], []
-    for pt, lo, hi in effects:
-        y, se = _ci_to_y_se(pt, lo, hi); ys.append(y); vs.append(se * se)
+
+def _reml_core(ys, vs):
     k = len(ys); tau2 = 0.0
     for _ in range(1000):
         w = [1.0 / (v + tau2) for v in vs]; sw = sum(w)
@@ -48,7 +50,34 @@ def reml_pool(effects):
         tau2 = new
     w = [1.0 / (v + tau2) for v in vs]; sw = sum(w)
     mu = sum(a * b for a, b in zip(w, ys)) / sw; se = math.sqrt(1.0 / sw)
+    return mu, se, tau2, k
+
+
+def reml_pool(effects):
+    """RATIO-scale pool: effects are (point, lo, hi) on the natural (ratio) scale. Log-transform,
+    pool, back-transform. Returns (point, lo, hi, tau2, k)."""
+    ys, vs = [], []
+    for pt, lo, hi in effects:
+        y, se = _ci_to_y_se(pt, lo, hi); ys.append(y); vs.append(se * se)
+    mu, se, tau2, k = _reml_core(ys, vs)
     return math.exp(mu), math.exp(mu - Z * se), math.exp(mu + Z * se), tau2, k
+
+
+def reml_pool_natural(effects):
+    """DIFFERENCE-scale pool: effects are (point, lo, hi) on the natural scale, values may be negative
+    (MD/RD, e.g. LDL % change). No transform. Returns (point, lo, hi, tau2, k)."""
+    ys, vs = [], []
+    for pt, lo, hi in effects:
+        ys.append(pt); se = (hi - lo) / (2 * Z); vs.append(se * se)
+    mu, se, tau2, k = _reml_core(ys, vs)
+    return mu, mu - Z * se, mu + Z * se, tau2, k
+
+
+def pool_for_measure(effects, measure):
+    """Dispatch to the right pooler by measure. Ratio -> log scale; difference -> natural scale."""
+    if str(measure) in _RATIO_MEASURES:
+        return reml_pool(effects)
+    return reml_pool_natural(effects)
 
 # ---- component registry (gap-aware) -----------------------------------------------------
 # A stage is available iff a GENERIC, runnable component exists. Bespoke per-review scripts do
@@ -99,13 +128,21 @@ def _outcomes_with_pool(obj):
             continue
         pt = (o.get("per_trial") or [])
         pooled = o.get("pooled") or {}
+        measure = pooled.get("measure", "?")
+        is_ratio = str(measure) in _RATIO_MEASURES
         eff = []
         for t in pt:
             p, lo, hi = t.get("point"), t.get("ci_low"), t.get("ci_high")
-            if all(isinstance(x, (int, float)) for x in (p, lo, hi)) and p > 0 and lo > 0 and hi > 0:
-                eff.append((float(p), float(lo), float(hi)))
+            if not all(isinstance(x, (int, float)) for x in (p, lo, hi)):
+                continue
+            # ratio measures need positive values (log scale); difference measures may be negative
+            if is_ratio and not (p > 0 and lo > 0 and hi > 0):
+                continue
+            if lo > hi:
+                continue
+            eff.append((float(p), float(lo), float(hi)))
         if eff and isinstance(pooled.get("point"), (int, float)):
-            out.append((oid, eff, float(pooled["point"]), pooled.get("measure", "?")))
+            out.append((oid, eff, float(pooled["point"]), measure))
     return out
 
 _SUPERSEDED_KEY = re.compile(r"supersed|deprecat|legacy|withdrawn|_old\b|stale", re.I)
@@ -170,8 +207,10 @@ def axis_render(obj, served_bytes, tol=5e-4):
     (superseded) object value is served LIVE on the page (the source-divergence / stale-narrative class)."""
     rows = []
     for oid, eff, stored, meas in _outcomes_with_pool(obj):
-        rp = reml_pool(eff)[0]
-        engine_ok = abs(rp - stored) < tol
+        rp = pool_for_measure(eff, meas)[0]
+        # relative-aware tolerance: a stored 2-dp value (-53.97) differs from the full recompute
+        # (-53.9729) by rounding; 5e-4 absolute is right for ratios (~0.77) but too tight at ~54.
+        engine_ok = abs(rp - stored) < max(tol, 1e-3 * abs(stored))
         shown = _num_in_bytes(stored, served_bytes)
         rows.append({"outcome": oid, "k": len(eff), "recomputed": round(rp, 4),
                      "stored": round(stored, 4), "engine_match": engine_ok,
