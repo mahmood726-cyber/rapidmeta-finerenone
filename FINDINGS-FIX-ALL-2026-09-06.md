@@ -397,6 +397,71 @@ disclosed at its JOURNAL_SUPPLEMENT provenance tier, and CORROBORATED by de-pool
 DELIVER pool (0.78) against DAPA-HF (0.75) → ≈0.81. The benchmark was fetched from a source we own,
 not adopted from the reviewer's figure.
 
+## REVIEWER AUDIT of the live corrected pages — findings and rules (2026-09-07)
+
+External reviewers audited the five live pages. The corrections were confirmed against independent
+sources (INCLISIRAN −50.55 matched by five external estimates incl. the JACC patient-level pool −50.7;
+EMPAGLIFLOZIN components reproduced). But three defects were named, two of them created BY tonight's work:
+
+### DEPLOY RULE (new, non-negotiable): a page and the object it cites LAND TOGETHER, always
+My cherry-pick strategy deployed only the PAGE to `main` and left the corrected OBJECT on
+`harness-fixes`. Result: `main` carried a k=4 correction banner over a k=3 object (SGLT2 0.7636) — the
+two-live-values / object↔page-divergence defect we gate against, created by the deploy strategy itself.
+The banner's claim "generated from the current object" was FALSE as committed. Fixed by cherry-picking
+all five corrected objects to `main` (commit b733d63). **Rule: every page deploy carries its object in
+the same commit; verify `main`'s object matches the served page before calling a deploy done.**
+
+### THE PROTOCOL-TIMING WORDING, for all five: "retrospectively registered; prospectively fixed only for the re-run search"
+Anchoring a protocol SHA immediately before a re-run search is NOT prospective registration when the
+review object already existed (empagliflozin's was built 2026-08-17 with both trials and the pooled OR).
+The SHA proves WHEN the protocol was written; it does not prove the evidence was unseen. The honest label
+is *retrospectively registered review; prospectively fixed only for the re-run search* — apply verbatim
+to all five, and state what was known at authoring (the pooled answer, the external benchmark, both
+intervals).
+
+### RoB-2 gate description (add): assesses the trial, not our retrieval
+> RoB 2 assesses risk of bias IN THE TRIAL RESULT — not deficiencies in the reviewer's document
+> retrieval. Downgrading certainty because our assessors did not fetch a paper is invalid; a randomised,
+> double-blind, ITT trial with blinded adjudication and low balanced loss is low-RoB regardless of our
+> retrieval gaps.
+
+### The declared-method-vs-served-number defect (interval), unresolved value
+SGLT2's September protocol declares REML + modified HKSJ + t_{k-1} + floor 1; the page serves the Wald
+interval 0.7243–0.8268 while the abstract calls it HKSJ. The DEFECT is confirmed. The VALUE is not yet
+reconciled: metafor (`rma REML test="knha"`, tau²=0) gives modified HKSJ 0.7328–0.8171, NOT the reviewer's
+0.695–0.862 — a genuine discrepancy in the exact "modified HKSJ + floor 1" definition. Do NOT serve a
+number until the definition is pinned and metafor-reproduced; serving the wrong HKSJ is a fresh error.
+The conclusion survives either interval (excludes 1). Fix in the protocol first, then regenerate.
+
+### The banner route's cost, named by every reviewer: HALF-MIGRATION → the page generator is now top priority
+The banner fixes the headline and leaves the body contradicting it (SGLT2/INCLISIRAN/EMPAGLIFLOZIN bodies
+still say the old value, "the pool STANDS", "no heterogeneity" beside I² 74%). That is gate 38 on the
+served page — a DISCLOSED defect, right under the 14-hand-edits constraint but not a resolution. **The
+generic page generator is the ONLY route that ends this, and it fixes all five at once. It is now THE
+priority, above a fifth banner.** Until it exists, banners must say plainly that the body below is
+superseded in full, not merely that a correction exists.
+
+## MICRO-MODEL FOR SCREENING — design scope (Mahmood: scope, do not build tonight)
+
+Connecting a small model to the SCREENING stage, per Mahmood. Decisive argument is REPRODUCIBILITY, not
+cost.
+- **Committed weights make the protocol SHA pin the model.** An API model drifts; a rerun a year later
+  screens differently and `reproduce_review.py` can never be true for the screen stage. A few MB of
+  weights in the repo replays the run bit-identically forever. THIS is why it is local, not remote.
+- **Model class: TF-IDF + logistic regression or naive Bayes, ASReview-style relevance ranking** — NOT an
+  LLM. Auditable: it can name the features that drove a decision, which suits a corpus where every
+  exclusion carries a rule id.
+- **Gold standard already exists**: every trial the reviewers caught us excluding — CLEAR Wisdom,
+  PIONEER-HF, CHOICE I, CHOICE II, STEP-HFpEF DM, AVERT, APROPOS, ADAM VTE, Mokadem, Botticelli,
+  LEAP-China, DELIVER. Simulation mode measures recall against it directly.
+- **⛔ TRAINING TRAP**: training on our own PAST screening decisions teaches it to reproduce our errors.
+  Train on CORRECTED labels; validate on the reviewers' findings (held-out).
+- **⛔ Screening/ranking ONLY. Never extraction** — a small model fails silently at extraction, and silent
+  extraction errors are the family we spent the day finding.
+- Integration: the model RANKS candidates and the generic screener applies the rule-id verdicts
+  (every-outcome-rank, gate-53 three states, eligible-but-non-contributing, EXECUTED_UNRESOLVED); a human
+  adjudicates the boundary. The model never issues a terminal exclusion on its own.
+
 ## Item log
 
 - **1. Mark the 291** — 288 object-less pages marked (commit `ab026ad6`), disclosure only,
