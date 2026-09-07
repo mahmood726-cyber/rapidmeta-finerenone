@@ -719,3 +719,28 @@ ERTAPENEM_INFECT_AUTO_FULL_REVIEW.html (2856), LENACAPAVIR_PREP_REVIEW.html (287
 LEFAMULIN_CAP_AUTO_FULL_REVIEW.html (2890), CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html (2950). A page too
 small to hold the review its object claims. (501 other sub-8 KB pages have NO object -- plain
 placeholders, a different and benign kind; enumerating the KINDS is what separates the 5 from the 501.)
+
+---
+
+## 2026-09-07 — the index is wrong in BOTH directions (an index is a claim about a corpus)
+
+**AN INDEX IS A CLAIM ABOUT A CORPUS, AND OURS HAD NEVER BEEN CHECKED AGAINST IT.** We had measured
+one direction -- 368 index links vs 55 object-backed pages, 22 DEAD (the index promising pages that do
+not exist). We never asked the opposite: how many pages that DO exist are absent from the index.
+
+**Measured now: 39 of 54 substantial object-backed pages are ORPHANED** (the index links only 25). An
+orphaned good page is as damaging as a dead link -- the dead link wastes a reader's time; the orphan
+makes our best work unreachable by anyone who does not already know the URL, and it violates the
+standing rule that every review must display on the index. **10 of the 11 P/I/C reviews were orphaned**
+-- we wired criteria onto pages a reader could not reach (Mahmood could not find colchicine).
+
+**The index is HAND-MAINTAINED.** build_review_index.py writes audit_table.html and its docstring says
+it does NOT touch index.html, which "carries hand-injected specialty sections". So the index is the
+same drift class as the pages -- a document that drifts from the corpus it describes -- and it belongs
+in the generator work.
+
+**Fixed for the 11** (scoped, deployed, live-verified 11/11 reachable): 10 cards added into their
+specialty sections, honestly labelled, no stubs promised. The remaining 29 orphans + an index
+GENERATOR are owed with the tabbed shell. The right end state is an index generated from the corpus so
+it cannot orphan or dangle; add_cards_for_uncarded.py already exists but cards all 111 uncarded pages
+(stubs included) and is not a substitute for a generator that lists exactly what the site HAS.
