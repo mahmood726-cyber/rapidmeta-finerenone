@@ -628,3 +628,32 @@ standing gate: `scripts/gate_served_interval_matches_declared_method.py` — the
 must equal its EMBEDDED object's pooled CI (self-contained via `<script id="ssot-current">`); an
 imposed method makes them disagree and the gate fires. Synthetic positive control pinned in code
 (imposed 0.413–1.44 over fixed-effect CI) so it cannot self-retire.
+
+---
+
+## 2026-09-07 — a completeness test measures only what its author enumerated (NEW CLASS, sharp)
+
+**A COMPLETENESS TEST THAT MEASURES ONLY WHAT ITS AUTHOR THOUGHT TO ENUMERATE WILL PASS WHILE
+DESTROYING WHATEVER THEY DID NOT LIST.** The content-completeness test enumerated 8 semantic claim
+categories and reported **8/8** on a regenerated EMPAGLIFLOZIN page that had lost **all ten tabs** --
+the entire navigational shell (Protocol/Search/Screening/Extraction/Analysis/Output/Paper/HTA/
+Guideline/Statistics) that reviewers and the owner actually assess. The untabbed 16 KB page went live
+and the owner immediately saw it: "this has lost all its tabs."
+
+- **The tabbed FORMAT is the deliverable.** Structure is not separable from content for this product.
+  A leaner page that reproduces on all three axes is a DIFFERENT artefact, not a better one.
+- **Same family as every scope failure in this project: we measured the scope, not the artefact.**
+  It is the mirror of the stale-panel defect -- there we served something dead, here we served nothing
+  at all, and nothing is harder to notice in a diff of *categories*.
+- **The standing rule was already ours: "COUNT TABS WITH CONTENT, not tabs that exist."** Owning the
+  rule is not the rule firing (again).
+
+**FIX (defense the test now carries): `content_completeness.py` gained `populated_tabs()` and
+`tab_delta()` -- a FIRST-CLASS criterion that FAILS (exit 1) when the generated page has fewer
+populated tabs (panels with real content, not empty stubs) than the page it replaces. The fixture is
+this exact case: generated EMPAGLIFLOZIN vs the original FAILS before the generator learns the tabbed
+shell and PASSES after. The generator must emit the tabbed format before ANY further replacement.**
+
+**Live action taken: the untabbed EMPAGLIFLOZIN and INCLISIRAN canonical pages were ROLLED BACK to
+their tabbed originals (commit on main); the generated pages are preserved at preview/<name> so the
+three-axes milestone stays checkable. No further page replacements until the generator emits tabs.**
