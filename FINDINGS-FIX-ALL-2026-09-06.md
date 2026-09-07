@@ -657,3 +657,35 @@ shell and PASSES after. The generator must emit the tabbed format before ANY fur
 **Live action taken: the untabbed EMPAGLIFLOZIN and INCLISIRAN canonical pages were ROLLED BACK to
 their tabbed originals (commit on main); the generated pages are preserved at preview/<name> so the
 three-axes milestone stays checkable. No further page replacements until the generator emits tabs.**
+
+---
+
+## 2026-09-07 — a page-only correction is resurrected by regeneration (NEW CLASS, threatens the plan)
+
+**A REGENERATION CAN RESURRECT A CORRECTED DEFECT IF THE CORRECTION LIVED IN THE PAGE RATHER THAN THE
+OBJECT.** EMPAGLIFLOZIN's "NO PUBLISHED SYNTHESIS THAT POOLS THEM TOGETHER" was retracted this week --
+but the retraction was written into a *parallel note* (`CLAIM_WITHDRAWN_2026_08_21`,
+`display_change_announced[22]`) and the banner PAGE, while the field the generator actually renders
+(`published_comparison._why`) still carried the false claim. Regenerating from the object served the
+retracted claim again (sixth instance of this specific error). EMPEROR-Pooled is a prospectively
+planned participant-level analysis of exactly these ~9,718 patients -- the claim was always false.
+
+**Why it is dangerous for the whole regeneration plan:** every correction made as a banner edit, or as
+a note beside the stale field rather than IN it, is a landmine that the generator steps on. The fix is
+not per-instance; it is a rule: **a correction must edit the field that is rendered, not annotate it
+from the side.**
+
+**Audit run** (`the rendered free-text fields of every ssot object`): the exposure was
+EMPAGLIFLOZIN's `published_comparison._why` and `external_benchmark_2026_09_07.why` (both now edited
+IN PLACE, with the correction visible in the rendered text so it is self-documenting and cannot be
+lost again). `finerenone-cv` also carries an "exactly these two trials" phrasing in a rendered field
+and is flagged for review (not a current deploy target).
+
+**Also corrected in the same object edit:** the categorical "any empagliflozin-HF pool comprises
+exactly these two trials" was FALSE (EMPULSE ~530 acute HF hierarchical outcome; EMPA-RESPONSE-AHF ~80;
+EMPAG-HF exist) and is replaced by the estimand-narrowed statement, naming those trials as
+non-commensurable and NOT pooled.
+
+**Owed (next, a real gate): a rendered field must not contain a claim that a CLAIM_WITHDRAWN/superseded
+field on the same object retracts.** Hard to generalise over free text, but the audit heuristic above
+(known retracted phrases in rendered fields) is the seed.
