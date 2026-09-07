@@ -155,6 +155,21 @@ def _completeness_disclosure(review_id, generated_html):
     return s
 
 
+_SUPERSEDED_KEY = re.compile(r"supersed|deprecated|legacy|withdrawn|_prev\b|previous_value|reproduction_of_the_previous", re.I)
+
+
+def _current_view(x):
+    """A projection of the object carrying ONLY current truth -- every superseded/withdrawn/archive
+    field removed. This is what the page embeds and regenerates from: the object retains its audit
+    trail (retained-not-deleted), but the SERVED page must not carry a dead value beside a live one
+    (gate 38's rule). Recurses through dicts/lists; drops keys gate 38 treats as superseded."""
+    if isinstance(x, dict):
+        return {k: _current_view(v) for k, v in x.items() if not _SUPERSEDED_KEY.search(k)}
+    if isinstance(x, list):
+        return [_current_view(v) for v in x]
+    return x
+
+
 def generate_page(review_id):
     slug = review_id.lower().replace("_", "-")
     obj = json.load(io.open(os.path.join(ROOT, "ssot", slug, slug + ".json"), encoding="utf-8"))
@@ -327,6 +342,26 @@ every value below is a function of that committed object. Primary outcome: <em>{
 
     # ---- Content-completeness disclosure (measured delta vs the prior page; conditions 1-3) -----
     body += _completeness_disclosure(review_id, body)
+
+    # ---- Embed the CURRENT-VIEW object so the page regenerates from itself (harness-in-the-page) --
+    # gate_rendered_regenerates checks the rendered value against this block. A regeneration object needs
+    # the STRUCTURED current estimate, not the audit prose -- and audit-trail notes quote superseded
+    # numbers, which must never be served live (gate 38). So embed a FOCUSED whitelist of the current
+    # numeric/label data (which carries no superseded number), not the whole object with its history.
+    cur = {
+        "review_id": slug, "title": title, "question": question, "primary_outcome": oid,
+        "results": {"by_outcome": {oid: {
+            "pooled": _current_view(pooled),
+            "per_trial": _current_view(o.get("per_trial") or []),
+            "heterogeneity": _current_view(het),
+            "measure": measure, "model": declared_model,
+        }}},
+    }
+    body += ('\n<h2>Reproducibility object (embedded)</h2>'
+             '<p class="muted">This page carries its own source object; every value above is a function of it. '
+             'Superseded/withdrawn fields stay in the ssot record but are excluded from the served page.</p>'
+             '<script type="application/json" id="ssot-current">%s</script>'
+             % json.dumps(cur, ensure_ascii=False).replace("</", "<\\/"))
 
     out = os.path.join(ROOT, review_id.upper() + ".generated.html")
     io.open(out, "w", encoding="utf-8").write(body)
