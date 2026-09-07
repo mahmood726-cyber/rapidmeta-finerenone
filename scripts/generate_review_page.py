@@ -161,13 +161,21 @@ def generate_page(review_id):
     oid, o = _primary_outcome(obj)
     pooled = o["pooled"]; measure = pooled.get("measure", o.get("measure", "HR"))
     het = o.get("heterogeneity") or {}
-    # modified HKSJ from the pooled value + Q (ratio measures only; difference measures show Wald)
-    hksj_line = ""
-    if measure.upper() in ("HR", "RR", "OR", "IRR") and isinstance(het.get("q"), (int, float)):
+    declared_model = pooled.get("model") or o.get("model") or "random-effects"
+    declared_ci = pooled.get("ci_method") or ""
+    # ONE method, the one the OBJECT declares. Only render the modified-HKSJ interval when the object
+    # actually declares HKSJ -- imposing it universally recomputes t_{k-1} (=12.7 at k=2) and
+    # manufactures a SECOND interval that contradicts the served CI. The generator renders the object's
+    # served interval; it does not re-derive one by a method the object did not use.
+    uses_hksj = re.search(r"hksj|hartung", declared_model + " " + declared_ci, re.I)
+    if uses_hksj and measure.upper() in ("HR", "RR", "OR", "IRR") and isinstance(het.get("q"), (int, float)):
         se = _hksj.se_from_ci(pooled["point"], pooled["ci_low"], pooled["ci_high"])
         lo, hi, info = _hksj.modified_hksj(math.log(pooled["point"]), se, Q=het["q"], k=len(o["per_trial"]))
-        hksj_line = ("modified HKSJ (floor q=max(1,Q/(k−1)) at 1, t<sub>k−1</sub>): "
-                     "<strong>%s–%s</strong>" % (_fmt(lo, 3), _fmt(hi, 3)))
+        hksj_line = ("interval: modified HKSJ, floor q=max(1,Q/(k−1)) at 1, t<sub>k−1</sub> "
+                     "(<strong>%s–%s</strong>, matching the served CI)" % (_fmt(lo, 3), _fmt(hi, 3)))
+    else:
+        # if the object names a distinct CI method, state it once; otherwise the model line already has it
+        hksj_line = ("interval: %s" % _e(declared_ci)) if declared_ci else "interval as served by the object"
 
     def row(k, v):
         return "<tr><th scope='row'>%s</th><td>%s</td></tr>" % (_e(k), v)
@@ -227,7 +235,7 @@ every value below is a function of that committed object. Primary outcome: <em>{
 
 <h2>Primary result</h2>
 <p class="headline">{measure} {pt} ({lo}–{hi})</p>
-<p class="muted">{k} trials, {model} ({estimator}). {hksj}. {het}</p>
+<p class="muted">{k} trials, {model}{estimator}. {hksj}. {het}</p>
 {forest}
 
 <h2>Contributing trials</h2>
@@ -242,7 +250,8 @@ every value below is a function of that committed object. Primary outcome: <em>{
 <p>{het}. {het_status}</p>
 """.format(slug=_e(slug), title=_e(title), outcome=_e(oid), question=_e(question),
            measure=_e(measure), pt=_fmt(pooled["point"], 4), lo=_fmt(pooled["ci_low"], 4), hi=_fmt(pooled["ci_high"], 4),
-           k=len(o["per_trial"]), model=_e(o.get("model", "random-effects")), estimator=_e(o.get("estimator", "REML")),
+           k=len(o["per_trial"]), model=_e(declared_model),
+           estimator=(" (%s)" % _e(pooled.get("estimator"))) if pooled.get("estimator") else "",
            hksj=hksj_line, het=het_line, forest=forest, trials=trials_rows, comp=comp_html, bench=bench_html,
            het_status=_e((o.get("heterogeneity_status") or "")[:600]))
 
