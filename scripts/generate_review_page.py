@@ -475,11 +475,14 @@ every value below is a function of that committed object. Primary outcome: <em>{
     g_oc = (grade.get("by_outcome", {}).get(oid) if isinstance(grade, dict) else None) or (grade if isinstance(grade, dict) else {})
     if g_oc.get("certainty"):
         body += "<h2>Certainty of the evidence (GRADE)</h2><p>Certainty: <strong>%s</strong>." % _e(g_oc.get("certainty"))
-        if g_oc.get("why"):
-            body += " " + _e(g_oc["why"])[:400]
+        reason = g_oc.get("certainty_withdrawal_reason") or g_oc.get("why")
+        if reason:
+            body += " " + _e(reason)[:900]
         body += "</p>"
+        # render derivation steps ONLY when the rating stands -- a withdrawn rating must not show the
+        # (withdrawn) downgrade steps beside it as if they were live.
         steps = g_oc.get("steps") or []
-        if steps:
+        if steps and "withdraw" not in str(g_oc.get("certainty")).lower():
             body += "<ul>" + "".join("<li>%s: %s</li>" % (_e((s or {}).get("domain")), _e(json.dumps((s or {}).get("levels") or (s or {}).get("reason") or ""))[:160]) for s in steps) + "</ul>"
 
     # ---- Risk of bias (RoB 2, per result) -----------------------------------------------------
