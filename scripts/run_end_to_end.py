@@ -29,6 +29,44 @@ def _load(mod, path):
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m); return m
 
 
+# Every gate that can fire on a page/object MUST participate in that page's clearance -- a clearance
+# that consults a subset overstates the decision (the hole found 2026-09-07: gate_rob caught a defect
+# and the page still cleared). (module_path, takes_page) for each page/object-firing gate.
+_CLEARANCE_GATES = [
+    ("scripts/gate38_superseded_cited_live.py", False),
+    ("gates/gate_rob_source_is_publication.py", False),
+    ("gates/gate_grade_imprecision_needs_threshold.py", False),
+    ("gates/gate_composite_lists_components.py", False),
+    ("gates/gate_i2_small_k_power_caveat.py", False),
+    ("gates/gate_no_superiority_over_identical_trialset.py", False),
+    ("gates/gate_correction_not_in_rendered_field.py", False),
+    ("gates/gate_self_reference_benchmark.py", False),
+    ("gates/gate_stub_with_object.py", False),
+    ("gates/gate_served_interval_matches_declared_method.py", True),
+    ("gates/gate_hr_absolute_effect_uses_ph.py", True),
+]
+
+
+def _consult_gates(slug, candidate):
+    """Run every page/object-firing gate; report which FIRE on THIS review (its slug in a finding)."""
+    firing = []
+    for mod, takes_page in _CLEARANCE_GATES:
+        path = os.path.join(ROOT, mod)
+        if not os.path.exists(path):
+            firing.append((os.path.basename(mod), "MISSING_GATE")); continue
+        args = [sys.executable, path] + ([candidate] if takes_page and candidate else [])
+        try:
+            p = subprocess.run(args, cwd=ROOT, capture_output=True, timeout=180)
+            out = (p.stdout + p.stderr).decode("utf-8", "replace")
+        except Exception as e:
+            firing.append((os.path.basename(mod), "GATE_ERROR:%s" % str(e)[:40])); continue
+        # this review fires the gate if its slug appears in a finding line (not a control line)
+        for line in out.splitlines():
+            if slug in line and not any(t in line.lower() for t in ("control", "negative", "synthetic", "silent")):
+                firing.append((os.path.basename(mod), line.strip()[:100])); break
+    return firing
+
+
 def _axis_state(verdict, has_input):
     if verdict in ("REPRODUCES", "DIFFERS"):
         return "RAN_RESULTS", verdict
@@ -134,13 +172,19 @@ def run_one(review_id):
         except Exception as e:
             rep["census"] = {"error": repr(e)[:120]}
 
+    # GATE CONSULTATION: every page/object-firing gate participates in clearance (no opt-in gates).
+    if rep.get("paper_candidate"):
+        firing = _consult_gates(slug, rep["paper_candidate"])
+        rep["gates_firing"] = firing
+
     # CLEARANCE to overwrite the served page: three axes REPRODUCE, tab ok, retraction ok, every held
-    # field rendered-or-declared, AND the claim census clean (no mislabel, no NOT_IN_OBJECT, no debug prose).
+    # field rendered-or-declared, the claim census clean, AND no page/object-firing gate fires on it.
     cen = rep.get("census", {})
     cleared = (all(axes.get(a, {}).get("detail") == "REPRODUCES" for a in ("RENDER", "PROTOCOL", "PIPELINE"))
                and rep.get("tab_criterion", {}).get("ok") and rep.get("retraction_diff", {}).get("ok")
                and rep.get("field_render", {}).get("ok") and not rep.get("harness_fault")
-               and cen.get("mislabels") == 0 and cen.get("not_in_object") == 0 and cen.get("prose") == 0)
+               and cen.get("mislabels") == 0 and cen.get("not_in_object") == 0 and cen.get("prose") == 0
+               and not rep.get("gates_firing"))
     rep["cleared_to_serve"] = bool(cleared)
     return rep
 
