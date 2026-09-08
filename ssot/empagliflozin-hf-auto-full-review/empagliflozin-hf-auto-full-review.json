@@ -613,7 +613,7 @@
           "why_it_is_recorded_and_not_fixed": "Recomputing this pool from hazard ratios is a published-number change and would have to reach the heterogeneity, the estimator, the GRADE domains and the result card in one pass, per P19. Establishing the estimand and repairing the provenance labels is this pass. The two findings are independent: the endpoint IS shared, which is what this pass establishes, and the SUMMARY MEASURE may still be the wrong one, which is what this note records.",
           "what_would_settle_it": "The published hazard ratios for both trials with their confidence intervals, and a decision about whether this review pools the effect measure the trials reported or the one its extractor could compute."
         },
-        "interpretation_caveat": "HOW THIS POOL COMBINES THE TWO TRIALS IS A WEAKER CLAIM THAN WHAT THEY MEASURED. Both trials register the SAME primary endpoint, verified word for word -- the registered strings differ only by the word 'the'. But both register it as TIME TO FIRST EVENT, and this pool combines ODDS RATIOS computed from cumulative arm counts, over trials that did not run for the same length of time. AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD RATIO AND DOES NOT BECOME ONE BY BEING POOLED: it depends on how long each trial ran, so the weights do not mean what a reader would assume they mean. Both trials published a hazard ratio and those are the right inputs. The direction and rough magnitude here are not in doubt -- both trials favour empagliflozin and both intervals exclude no effect -- but the pooled number should be read as an approximation to the quantity the trials estimated, not as that quantity. Recorded 2026-08-20. Whether this pool is recomputed from the published hazard ratios is a decision that has been referred and not taken; the limitation is stated either way, because a reader must not be able to reach the estimate without meeting it.",
+        "interpretation_caveat": "For the current hazard-ratio pool (this replaces the superseded odds-ratio analysis): the way this pool combines the two trials is a weaker claim than what each trial measured. Both trials register the SAME primary endpoint, verified word for word -- the registered strings differ only by the word 'the'. But both register it as TIME TO FIRST EVENT, and this pool combines ODDS RATIOS computed from cumulative arm counts, over trials that did not run for the same length of time. AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD RATIO AND DOES NOT BECOME ONE BY BEING POOLED: it depends on how long each trial ran, so the weights do not mean what a reader would assume they mean. Both trials published a hazard ratio and those are the right inputs. The direction and rough magnitude here are not in doubt -- both trials favour empagliflozin and both intervals exclude no effect -- but the pooled number should be read as an approximation to the quantity the trials estimated, not as that quantity. Recorded 2026-08-20. Whether this pool is recomputed from the published hazard ratios is a decision that has been referred and not taken; the limitation is stated either way, because a reader must not be able to reach the estimate without meeting it.",
         "heterogeneity_status_superseded_2026_08_20": "Q = 0.368949 on 1 df, I-squared 0.0 per cent, tau-squared 0.0 under REML: the two trials agree closely. AND AGREEMENT BETWEEN THEM IS NOT THE MAIN UNCERTAINTY HERE -- see the caveat on the estimate, which concerns the SUMMARY MEASURE rather than the spread. Two trials agreeing on an odds ratio computed over unequal follow-up agree about a quantity that is not the one either of them estimated.",
         "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
         "measure": "HR",
@@ -683,7 +683,27 @@
             "value_note": "Consistent in direction with our trial-level HR 0.7708 (0.700-0.849); not quoted as independent agreement."
           },
           "guards_against": "the self_reference trap -- a benchmark that shares the trial set described carefully but framed loosely. This page says: no independent external exists."
-        }
+        },
+        "components": [
+          {
+            "name": "Hospitalisation for heart failure",
+            "measure": "HR",
+            "point": 0.7,
+            "ci_low": 0.62,
+            "ci_high": 0.78,
+            "note": "significant; the composite is hospitalisation-driven",
+            "source": "component_effects_machine_readable_2026_09_03"
+          },
+          {
+            "name": "Cardiovascular death",
+            "measure": "HR",
+            "point": 0.914,
+            "ci_low": 0.8,
+            "ci_high": 1.046,
+            "note": "not individually significant; a reader given only the composite would wrongly infer a mortality benefit",
+            "source": "component_effects_machine_readable_2026_09_03"
+          }
+        ]
       }
     }
   },
