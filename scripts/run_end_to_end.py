@@ -29,41 +29,52 @@ def _load(mod, path):
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m); return m
 
 
-# Every gate that can fire on a page/object MUST participate in that page's clearance -- a clearance
-# that consults a subset overstates the decision (the hole found 2026-09-07: gate_rob caught a defect
-# and the page still cleared). (module_path, takes_page) for each page/object-firing gate.
-_CLEARANCE_GATES = [
-    ("scripts/gate38_superseded_cited_live.py", False),
-    ("gates/gate_rob_source_is_publication.py", False),
-    ("gates/gate_grade_imprecision_needs_threshold.py", False),
-    ("gates/gate_composite_lists_components.py", False),
-    ("gates/gate_i2_small_k_power_caveat.py", False),
-    ("gates/gate_no_superiority_over_identical_trialset.py", False),
-    ("gates/gate_correction_not_in_rendered_field.py", False),
-    ("gates/gate_self_reference_benchmark.py", False),
-    ("gates/gate_stub_with_object.py", False),
-    ("gates/gate_served_interval_matches_declared_method.py", True),
-    ("gates/gate_hr_absolute_effect_uses_ph.py", True),
-]
+# Clearance DISCOVERS every gate rather than consulting a hand-list -- a hand-list is how gates ended
+# up outside clearance in the first place, and the next gate would do the same. A gate added next week
+# is consulted automatically. A gate that is deliberately non-blocking must be REGISTERED here with a
+# reason (rendered on the page), because an opt-in gate is not a gate.
+CLEARANCE_NONBLOCKING = {
+    # gate: reason it does not block a single page's promotion (still runs in CI)
+    "gate8_caller_and_wiring.py": "meta-gate on the gate suite's wiring, not a page property",
+    "gate9_shared_scratch.py": "lint on the shared-scratch convention, not a page property",
+    "gate13_nonraw_regex_escape.py": "static-analysis of .py source, not a page property",
+    "gate7_blast_radius.py": "a pre-edit precondition, not a served-page check",
+    "gate_kinds.py": "library/helper, not a standalone gate",
+    "gate_integrity.py": "suite-integrity meta-check, not a page property",
+    "gate_layer_vs_defect_layer_2026_08_26_audit.py": "a one-off audit, not a standing page gate",
+}
+
+
+def _discover_gates():
+    """Every gate file the harness owns (gates/ + scripts/gate*.py), minus the registered non-blocking."""
+    import glob as _g
+    found = sorted(set(_g.glob(os.path.join(ROOT, "gates", "gate*.py"))) |
+                   set(_g.glob(os.path.join(ROOT, "scripts", "gate*.py"))))
+    out = []
+    for p in found:
+        name = os.path.basename(p)
+        if name in ("gate_kinds.py",) or name in CLEARANCE_NONBLOCKING:
+            continue
+        out.append(p)
+    return out
 
 
 def _consult_gates(slug, candidate):
-    """Run every page/object-firing gate; report which FIRE on THIS review (its slug in a finding)."""
+    """DISCOVER every gate and report which FIRE on THIS review (slug in a finding). A gate that cannot
+    run at all is reported (fail-closed: an unrunnable gate on a page it should assess is not a pass)."""
     firing = []
-    for mod, takes_page in _CLEARANCE_GATES:
-        path = os.path.join(ROOT, mod)
-        if not os.path.exists(path):
-            firing.append((os.path.basename(mod), "MISSING_GATE")); continue
-        args = [sys.executable, path] + ([candidate] if takes_page and candidate else [])
-        try:
-            p = subprocess.run(args, cwd=ROOT, capture_output=True, timeout=180)
-            out = (p.stdout + p.stderr).decode("utf-8", "replace")
-        except Exception as e:
-            firing.append((os.path.basename(mod), "GATE_ERROR:%s" % str(e)[:40])); continue
-        # this review fires the gate if its slug appears in a finding line (not a control line)
-        for line in out.splitlines():
-            if slug in line and not any(t in line.lower() for t in ("control", "negative", "synthetic", "silent")):
-                firing.append((os.path.basename(mod), line.strip()[:100])); break
+    for path in _discover_gates():
+        name = os.path.basename(path)
+        # pass the candidate page as an arg: page-gates use it; corpus-scan gates ignore trailing args.
+        for args in ([sys.executable, path, candidate] if candidate else [sys.executable, path],):
+            try:
+                p = subprocess.run(args, cwd=ROOT, capture_output=True, timeout=180)
+                out = (p.stdout + p.stderr).decode("utf-8", "replace")
+            except Exception as e:
+                firing.append((name, "GATE_ERROR:%s" % str(e)[:40])); out = ""
+            for line in out.splitlines():
+                if slug in line and not any(t in line.lower() for t in ("control", "negative", "synthetic", "silent")):
+                    firing.append((name, line.strip()[:100])); break
     return firing
 
 

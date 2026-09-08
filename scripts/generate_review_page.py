@@ -260,7 +260,7 @@ _TABS = [
     ("paper", "7. Paper Studio", ["comparison with published", "harms", "funding"]),
     ("hta", "8. HTA", ["hta"]),
     ("guideline", "9. Guideline", ["withheld", "guideline", "refusal"]),
-    ("statistics", "Statistics", ["content-completeness", "statistics"]),
+    ("statistics", "Statistics", ["content-completeness", "statistics", "clearance surface"]),
 ]
 
 
@@ -310,6 +310,38 @@ def _tabbed_page(body_flat):
                        'this material it will render here.</p>' % (_e(name), _e(name.lower())))
         panels += '<section class="panel" id="pn-%s">%s</section>' % (k, content)
     return head_intro + '<div class="tabs">%s%s<div class="panels">%s</div></div></html>' % (radios, nav, panels)
+
+
+def _clearance_surface_block():
+    """Render the clearance surface: how many gates clearance DISCOVERS and consults at promotion, and
+    the gates deliberately registered NON-BLOCKING with their reasons. Clearance discovers every gate
+    file (it is not a hand-list), so a gate added later is consulted automatically; a reader can see
+    exactly which checks were capable of firing and which were, by name, excluded and why."""
+    import subprocess
+    try:
+        p = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", "clearance_surface_audit.py"), "--json"],
+                           cwd=ROOT, capture_output=True, timeout=90)
+        data = json.loads(p.stdout.decode("utf-8", "replace"))
+    except Exception as e:
+        return ("<h2>Clearance surface</h2><p class='muted'>clearance-surface audit did not run: %s</p>"
+                % _e(str(e)[:120]))
+    h = ("<h2>Clearance surface (every gate capable of firing was consulted)</h2>"
+         "<p class='muted'>Promotion clearance <strong>discovers</strong> gates rather than reading a hand-maintained "
+         "list &mdash; an opt-in gate is not a gate. Of <strong>%d</strong> gate files the harness owns, "
+         "<strong>%d</strong> are discovered and consulted at this page's clearance, <strong>%d</strong> are "
+         "registered <em>non-blocking</em> (below, with reasons), <strong>%d</strong> run only in CI, and "
+         "<strong>%d</strong> run nowhere. A check that never executes is indistinguishable from a clean "
+         "corpus, so the never-runs count is asserted to zero on every build.</p>"
+         % (data["n_total"], data["n_consulted"], data["n_non_blocking"],
+            data["n_ci_only"], data["n_never_runs"]))
+    h += ("<p class='muted'><strong>Registered non-blocking</strong> (deliberately outside a single page's "
+          "clearance, each with a stated reason):</p><ul>")
+    for nb in data["non_blocking"]:
+        h += "<li><strong>%s</strong> &mdash; %s</li>" % (_e(nb["gate"]), _e(nb["reason"]))
+    h += "</ul>"
+    if data["never_runs"]:
+        h += "<p class='muted'><strong>NEVER-RUNS (a gate nothing invokes):</strong> %s</p>" % _e(", ".join(data["never_runs"]))
+    return h
 
 
 def generate_page(review_id):
@@ -590,6 +622,9 @@ every value below is a function of that committed object. Primary outcome: <em>{
     # ---- Declared refusals at this k (GOSH/TSA/meta-regression/funnel) -------------------------
     k_studies = len(o.get("per_trial") or [])
     body += _refusal_sections(k_studies)
+
+    # ---- Clearance surface (which gates were CAPABLE of firing on this page) --------------------
+    body += _clearance_surface_block()
 
     # ---- Content-completeness disclosure (measured delta vs the prior page; conditions 1-3) -----
     body += _completeness_disclosure(review_id, body, archive_rel=archive_rel)
