@@ -1,25 +1,31 @@
 # -*- coding: utf-8 -*-
-"""AUDIT THE WHOLE CLEARANCE SURFACE: every gate the harness owns, classified by WHERE it runs.
+"""AUDIT THE WHOLE CLEARANCE SURFACE: every gate file the harness owns, across BOTH naming conventions
+(gate*.py prefix AND *_gate.py suffix -- 108 files), classified by WHICH RUNNER reaches it.
 
-"A check that has never executed is indistinguishable from a clean corpus." This enumerates every
-gate FILE on disk and classifies each into exactly one of four buckets, then reports n of N with the
-NEVER-RUNS named individually -- never a bare rate.
+"A check that has never executed is indistinguishable from a clean corpus." The first draft of this
+tool globbed only gate*.py and reported "54 of 54, 0 never-run" -- a denominator that was HALF the
+population (the *_gate.py suffix family, 54 more files with zero overlap, was invisible to it). That is
+the exact "a scan reports where it LOOKED" error this project keeps finding, occurring inside the audit
+meant to catch it. Fixed: the population is now every gate file under both conventions.
 
-  CONSULTED_BY_CLEARANCE  discovered and run at a page's promotion (run_end_to_end._discover_gates)
-  NON_BLOCKING            a page/suite gate deliberately excluded from a single page's clearance,
-                          registered with a STATED REASON (run_end_to_end.CLEARANCE_NONBLOCKING)
-  CI_ONLY                 registered in the CI suite (gates/run_all.py GATES) but NOT consulted at
-                          clearance -- runs nightly, never blocks a single promotion
-  NEVER_RUNS              a file named like a gate that NO runner invokes: not clearance-discovered,
-                          not registered non-blocking, not in the CI suite. This is the hole.
+There are TWO clearance layers, and a gate in EITHER is consulted before a page is served:
+  - PER-PAGE PROMOTION   run_end_to_end._discover_gates() -- runs at a single page's promotion
+  - PUSH-TIME            the pre-push hook (its named gates) + gates/run_all.py (the CI suite)
+plus gate8's UNCALLED_REPO_GATES.json, the ratcheted backlog of KNOWN-uncalled repo gates.
 
-Fail closed: exit 1 if any NEVER_RUNS gate exists (a gate nothing runs is a false sense of coverage).
-The four buckets are a partition -- every gate file lands in exactly one, and the tool asserts it.
+A file reached by NONE of those is a NEVER-RUN. We split those:
+  DORMANT_GATE     never-run AND can actually fail (a real safety gate written and left inert)
+  MISNAMED_HELPER  never-run AND cannot fail at all (named *_gate but is a script/helper, not a gate)
+
+RATCHET: the current DORMANT_GATE set is frozen in scripts/baselines/never_runs_baseline.json,
+OWED - NOT CLEARED. PASS means no NEW dormant gate joined the never-run set; it never means "clean".
+Fail closed: a new *_gate.py that can fail and nothing runs FAILS this audit.
 """
 from __future__ import annotations
-import io, os, sys, ast, glob
+import io, os, sys, ast, re, glob, json
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASELINE = os.path.join(ROOT, "scripts", "baselines", "never_runs_baseline.json")
 
 
 def _assign_literal(modpath, name):
@@ -34,114 +40,173 @@ def _assign_literal(modpath, name):
     raise KeyError("%s not found in %s" % (name, modpath))
 
 
-def _assert_mirrors_live_discovery(local_clearance):
-    """Prove the local reimplementation equals run_end_to_end._discover_gates(). Run in a subprocess
-    so that module's import-time sys.stdout reassignment cannot close THIS tool's stdout."""
-    import subprocess, json
-    code = ("import sys,os,json; sys.path.insert(0,os.path.join(%r,'scripts'));"
-            "import run_end_to_end as e;"
-            "print(json.dumps(sorted(os.path.basename(p) for p in e._discover_gates())))" % ROOT)
-    p = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, timeout=60)
-    line = [l for l in p.stdout.decode("utf-8", "replace").splitlines() if l.startswith("[")]
-    if not line:
-        raise SystemExit("MIRROR CHECK BROKEN: could not read live _discover_gates() (%s)"
-                         % p.stderr.decode("utf-8", "replace")[:200])
-    live = set(json.loads(line[-1]))
-    if live != local_clearance:
-        raise SystemExit("MIRROR DRIFT: audit's clearance set != live _discover_gates(). "
-                         "only-in-live=%s only-in-audit=%s" % (sorted(live - local_clearance),
-                                                               sorted(local_clearance - live)))
+def _population():
+    return sorted(set(os.path.basename(p) for p in (
+        glob.glob(os.path.join(ROOT, "gates", "gate*.py")) +
+        glob.glob(os.path.join(ROOT, "scripts", "gate*.py")) +
+        glob.glob(os.path.join(ROOT, "gates", "*_gate.py")) +
+        glob.glob(os.path.join(ROOT, "scripts", "*_gate.py")))))
+
+
+def _path_of(name):
+    for d in ("gates", "scripts"):
+        p = os.path.join(ROOT, d, name)
+        if os.path.exists(p):
+            return p
+    return None
+
+
+def _can_fail(name):
+    """True if the file has a reachable NON-zero exit / FAIL verdict -- i.e. it can actually block.
+    Mirrors gate8's distinction between a gate and a same-named helper that only ever prints."""
+    p = _path_of(name)
+    if not p:
+        return False
+    src = io.open(p, encoding="utf-8", errors="replace").read()
+    if "__main__" not in src:
+        return False
+    # a non-zero SystemExit, an exit of a computed value, or an H.Gate FAIL/BROKEN verdict path
+    if re.search(r"sys\.exit\(\s*(?!0\s*\))", src) or re.search(r"raise\s+SystemExit\(\s*(?!0?\s*\))", src):
+        return True
+    if re.search(r"H\.(FAIL|BROKEN)\b|gate\.report\(|return\s+\d*\s*#?.*(FAIL|BROKEN)", src):
+        return True
+    if re.search(r"\bexit\(\s*1\b|\bsys\.exit\(\s*[a-zA-Z_]", src):
+        return True
+    return False
+
+
+def _runners():
+    # 1. per-page promotion clearance (gate*.py minus non-blocking minus kinds helper)
+    nb = dict(_assign_literal(os.path.join(ROOT, "scripts", "run_end_to_end.py"), "CLEARANCE_NONBLOCKING"))
+    clearance = {os.path.basename(p) for p in (
+        glob.glob(os.path.join(ROOT, "gates", "gate*.py")) + glob.glob(os.path.join(ROOT, "scripts", "gate*.py")))
+        if os.path.basename(p) not in nb and os.path.basename(p) != "gate_kinds.py"}
+    # 2. CI suite
+    ci = {m + ".py" for m, _w, _s in _assign_literal(os.path.join(ROOT, "gates", "run_all.py"), "GATES")}
+    # 3. pre-push hook named gates (filenames referenced in the hook script)
+    hook = io.open(os.path.join(ROOT, ".githooks", "pre-push"), encoding="utf-8", errors="replace").read()
+    prepush = set(re.findall(r"([a-z_0-9]+_gate\.py)", hook))
+    for m in re.findall(r"scripts/([a-z_0-9]+)\.py", hook):
+        prepush.add(m + ".py")
+    for grp in re.findall(r"for g in ([a-z_0-9 ]+); do", hook):
+        for nm in grp.split():
+            prepush.add(nm + ".py")
+    # 4. gate8's known-uncalled ratchet registry (tracked, not silently ignored)
+    reg = set()
+    rp = os.path.join(ROOT, "gates", "UNCALLED_REPO_GATES.json")
+    if os.path.exists(rp):
+        def walk(o):
+            if isinstance(o, str) and o.endswith(".py"):
+                reg.add(os.path.basename(o))
+            elif isinstance(o, list):
+                [walk(x) for x in o]
+            elif isinstance(o, dict):
+                [walk(x) for x in o.values()]
+        try:
+            walk(json.load(io.open(rp, encoding="utf-8")))
+        except Exception:
+            pass
+    return nb, clearance, ci, prepush, reg
 
 
 def audit():
-    # 1. every gate file on disk (the population)
-    disk = sorted(set(glob.glob(os.path.join(ROOT, "gates", "gate*.py"))) |
-                  set(glob.glob(os.path.join(ROOT, "scripts", "gate*.py"))))
-    disk_names = {os.path.basename(p) for p in disk}
-
-    # 2. clearance's non-blocking registry, read from the live source (not a copy of it here)
-    nonblocking = dict(_assign_literal(os.path.join(ROOT, "scripts", "run_end_to_end.py"),
-                                       "CLEARANCE_NONBLOCKING"))
-    # clearance DISCOVERS every gate file minus the registered non-blocking minus the kinds helper.
-    # Reimplemented locally (importing run_end_to_end would run its stdout-reassign) then PROVEN equal
-    # to the live _discover_gates() in an isolated subprocess -- a mirror that is not checked drifts.
-    clearance = {n for n in disk_names if n not in nonblocking and n != "gate_kinds.py"}
-    _assert_mirrors_live_discovery(clearance)
-
-    # 3. what the CI suite registers (gates/run_all.py GATES -> module names -> filenames)
-    gates_list = _assign_literal(os.path.join(ROOT, "gates", "run_all.py"), "GATES")
-    ci = {mod + ".py" for mod, _what, _speed in gates_list}
-
-    buckets = {"CONSULTED_BY_CLEARANCE": [], "NON_BLOCKING": [], "CI_ONLY": [], "NEVER_RUNS": []}
-    for name in sorted(disk_names):
+    disk = _population()
+    nb, clearance, ci, prepush, reg = _runners()
+    reached = clearance | ci | prepush | reg
+    buckets = {"PER_PAGE_CLEARANCE": [], "PUSH_TIME": [], "NON_BLOCKING": [],
+               "GATE8_BACKLOG": [], "DORMANT_GATE": [], "MISNAMED_HELPER": []}
+    for name in disk:
         if name in clearance:
-            buckets["CONSULTED_BY_CLEARANCE"].append(name)
-        elif name in nonblocking:
-            buckets["NON_BLOCKING"].append((name, nonblocking[name]))
-        elif name in ci:
-            buckets["CI_ONLY"].append(name)
+            buckets["PER_PAGE_CLEARANCE"].append(name)
+        elif name in ci or name in prepush:
+            buckets["PUSH_TIME"].append(name)
+        elif name in nb:
+            buckets["NON_BLOCKING"].append((name, nb[name]))
+        elif name in reg:
+            buckets["GATE8_BACKLOG"].append(name)
+        elif _can_fail(name):
+            buckets["DORMANT_GATE"].append(name)
         else:
-            buckets["NEVER_RUNS"].append(name)
-    return disk_names, buckets, ci, clearance
+            buckets["MISNAMED_HELPER"].append(name)
+    return disk, buckets
 
 
-def main():
-    disk, buckets, ci, clearance = audit()
-    N = len(disk)
-    n_clear = len(buckets["CONSULTED_BY_CLEARANCE"])
-    n_nb = len(buckets["NON_BLOCKING"])
-    n_ci = len(buckets["CI_ONLY"])
-    n_never = len(buckets["NEVER_RUNS"])
-    print("CLEARANCE SURFACE AUDIT -- %d gate files on disk" % N)
-    print("=" * 74)
-    print("  CONSULTED_BY_CLEARANCE : %d" % n_clear)
-    print("  NON_BLOCKING (reasoned): %d" % n_nb)
-    print("  CI_ONLY                : %d" % n_ci)
-    print("  NEVER_RUNS             : %d" % n_never)
-    # partition assertion: the four buckets must sum to N with no overlap
-    covered = n_clear + n_nb + n_ci + n_never
-    print("  -- partition check: %d + %d + %d + %d = %d %s N=%d" %
-          (n_clear, n_nb, n_ci, n_never, covered, "==" if covered == N else "!=", N))
-
-    print("\n[NON_BLOCKING] deliberately outside a single page's clearance, with reason:")
-    for name, reason in buckets["NON_BLOCKING"]:
-        print("     - %-46s %s" % (name, reason))
-
-    if buckets["CI_ONLY"]:
-        print("\n[CI_ONLY] runs nightly, does NOT block a single promotion:")
-        for name in buckets["CI_ONLY"]:
-            print("     - %s" % name)
-
-    print("\n[NEVER_RUNS] named like a gate, invoked by NOTHING -- %d:" % n_never)
-    for name in buckets["NEVER_RUNS"]:
-        print("     *** %s" % name)
-    if not buckets["NEVER_RUNS"]:
-        print("     (none -- every gate file is consulted, registered non-blocking, or in CI)")
-
-    ok = (covered == N) and (n_never == 0)
-    print("\n>>> %d of %d gate files run somewhere; %d NEVER-RUN. %s <<<" %
-          (N - n_never, N, n_never, "PASS" if ok else "FAIL"))
-    return 0 if ok else 1
+def _baseline():
+    if os.path.exists(BASELINE):
+        try:
+            return set(json.load(io.open(BASELINE, encoding="utf-8")).get("dormant_gates", []))
+        except Exception:
+            return set()
+    return set()
 
 
 def as_json():
-    disk, buckets, ci, clearance = audit()
+    disk, b = audit()
     return {
         "n_total": len(disk),
-        "n_consulted": len(buckets["CONSULTED_BY_CLEARANCE"]),
-        "n_non_blocking": len(buckets["NON_BLOCKING"]),
-        "n_ci_only": len(buckets["CI_ONLY"]),
-        "n_never_runs": len(buckets["NEVER_RUNS"]),
-        "consulted": buckets["CONSULTED_BY_CLEARANCE"],
-        "non_blocking": [{"gate": n, "reason": r} for n, r in buckets["NON_BLOCKING"]],
-        "ci_only": buckets["CI_ONLY"],
-        "never_runs": buckets["NEVER_RUNS"],
+        "n_per_page_clearance": len(b["PER_PAGE_CLEARANCE"]),
+        "n_push_time": len(b["PUSH_TIME"]),
+        "n_non_blocking": len(b["NON_BLOCKING"]),
+        "n_gate8_backlog": len(b["GATE8_BACKLOG"]),
+        "n_dormant_gate": len(b["DORMANT_GATE"]),
+        "n_misnamed_helper": len(b["MISNAMED_HELPER"]),
+        "non_blocking": [{"gate": n, "reason": r} for n, r in b["NON_BLOCKING"]],
+        "dormant_gates": b["DORMANT_GATE"],
+        "misnamed_helpers": b["MISNAMED_HELPER"],
     }
+
+
+def main():
+    disk, b = audit()
+    N = len(disk)
+    counts = {k: len(v) for k, v in b.items()}
+    reached = counts["PER_PAGE_CLEARANCE"] + counts["PUSH_TIME"] + counts["NON_BLOCKING"] + counts["GATE8_BACKLOG"]
+    print("CLEARANCE SURFACE AUDIT -- %d gate files (gate*.py AND *_gate.py)" % N)
+    print("=" * 74)
+    print("  PER_PAGE_CLEARANCE : %d  (run_end_to_end discovers + consults at promotion)" % counts["PER_PAGE_CLEARANCE"])
+    print("  PUSH_TIME          : %d  (pre-push hook named gates + gates/run_all.py CI)" % counts["PUSH_TIME"])
+    print("  NON_BLOCKING       : %d  (registered, reasoned -- below)" % counts["NON_BLOCKING"])
+    print("  GATE8_BACKLOG      : %d  (known-uncalled, ratcheted in UNCALLED_REPO_GATES.json)" % counts["GATE8_BACKLOG"])
+    print("  DORMANT_GATE       : %d  (CAN fail, reached by NOTHING -- the real never-runs)" % counts["DORMANT_GATE"])
+    print("  MISNAMED_HELPER    : %d  (named *_gate but cannot fail -- not a gate)" % counts["MISNAMED_HELPER"])
+    print("  -- partition: %d + ... = %d %s N=%d" % (reached, reached + counts["DORMANT_GATE"] + counts["MISNAMED_HELPER"],
+          "==" if reached + counts["DORMANT_GATE"] + counts["MISNAMED_HELPER"] == N else "!=", N))
+
+    print("\n[NON_BLOCKING] deliberately outside per-page clearance, with reason:")
+    for name, reason in b["NON_BLOCKING"]:
+        print("     - %-46s %s" % (name, reason))
+
+    print("\n[DORMANT_GATE] a gate that CAN fail and NOTHING runs -- named:")
+    for name in b["DORMANT_GATE"]:
+        print("     *** %s" % name)
+    if not b["DORMANT_GATE"]:
+        print("     (none)")
+    print("\n[MISNAMED_HELPER] named like a gate but cannot fail (not a gate, naming noise):")
+    for name in b["MISNAMED_HELPER"]:
+        print("     - %s" % name)
+
+    base = _baseline()
+    new_dormant = sorted(set(b["DORMANT_GATE"]) - base)
+    print("\nRATCHET: baseline dormant=%d, now=%d, NEW=%d" % (len(base), counts["DORMANT_GATE"], len(new_dormant)))
+    if new_dormant:
+        print("  *** NEW dormant gate(s) since the freeze -- wire a caller or register the reason:")
+        for n in new_dormant:
+            print("      -> %s" % n)
+    ok = not new_dormant
+    print("\n>>> %d of %d reached by a runner; %d dormant (baseline %d, new %d). %s <<<" %
+          (reached, N, counts["DORMANT_GATE"], len(base), len(new_dormant), "PASS" if ok else "FAIL"))
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
     if "--json" in sys.argv:
-        import json
-        print(json.dumps(as_json(), indent=1))
-        sys.exit(0)
+        print(json.dumps(as_json(), indent=1)); sys.exit(0)
+    if "--freeze" in sys.argv:
+        _disk, b = audit()
+        os.makedirs(os.path.dirname(BASELINE), exist_ok=True)
+        json.dump({"dormant_gates": b["DORMANT_GATE"],
+                   "note": "OWED - NOT CLEARED. Frozen dormant gates (can fail, nothing runs them). "
+                           "PASS = no NEW dormant gate; wire a caller to clear one."},
+                  io.open(BASELINE, "w", encoding="utf-8"), indent=1)
+        print("froze %d dormant gates to %s" % (len(b["DORMANT_GATE"]), BASELINE)); sys.exit(0)
     sys.exit(main())

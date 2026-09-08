@@ -325,22 +325,27 @@ def _clearance_surface_block():
     except Exception as e:
         return ("<h2>Clearance surface</h2><p class='muted'>clearance-surface audit did not run: %s</p>"
                 % _e(str(e)[:120]))
-    h = ("<h2>Clearance surface (every gate capable of firing was consulted)</h2>"
+    h = ("<h2>Clearance surface (every gate the harness owns, and where it runs)</h2>"
          "<p class='muted'>Promotion clearance <strong>discovers</strong> gates rather than reading a hand-maintained "
-         "list &mdash; an opt-in gate is not a gate. Of <strong>%d</strong> gate files the harness owns, "
-         "<strong>%d</strong> are discovered and consulted at this page's clearance, <strong>%d</strong> are "
-         "registered <em>non-blocking</em> (below, with reasons), <strong>%d</strong> run only in CI, and "
-         "<strong>%d</strong> run nowhere. A check that never executes is indistinguishable from a clean "
-         "corpus, so the never-runs count is asserted to zero on every build.</p>"
-         % (data["n_total"], data["n_consulted"], data["n_non_blocking"],
-            data["n_ci_only"], data["n_never_runs"]))
-    h += ("<p class='muted'><strong>Registered non-blocking</strong> (deliberately outside a single page's "
-          "clearance, each with a stated reason):</p><ul>")
-    for nb in data["non_blocking"]:
-        h += "<li><strong>%s</strong> &mdash; %s</li>" % (_e(nb["gate"]), _e(nb["reason"]))
-    h += "</ul>"
-    if data["never_runs"]:
-        h += "<p class='muted'><strong>NEVER-RUNS (a gate nothing invokes):</strong> %s</p>" % _e(", ".join(data["never_runs"]))
+         "list &mdash; an opt-in gate is not a gate. The harness owns <strong>%d</strong> gate files across both "
+         "naming conventions; each is classified by which runner reaches it: <strong>%d</strong> discovered and "
+         "consulted at this page's promotion, <strong>%d</strong> at push-time (pre-push hook + CI suite), "
+         "<strong>%d</strong> registered non-blocking (below), <strong>%d</strong> in the ratcheted known-uncalled "
+         "backlog. A check that never executes is indistinguishable from a clean corpus, so the gates reached by "
+         "NOTHING are named, not hidden.</p>"
+         % (data["n_total"], data["n_per_page_clearance"], data["n_push_time"],
+            data["n_non_blocking"], data["n_gate8_backlog"]))
+    if data["non_blocking"]:
+        h += ("<p class='muted'><strong>Registered non-blocking</strong> (deliberately outside per-page clearance, "
+              "each with a stated reason):</p><ul>")
+        for nb in data["non_blocking"]:
+            h += "<li><strong>%s</strong> &mdash; %s</li>" % (_e(nb["gate"]), _e(nb["reason"]))
+        h += "</ul>"
+    dg = data.get("dormant_gates") or []
+    if dg:
+        h += ("<p class='muted'><strong>Dormant gates &mdash; can fail, nothing runs them (%d, OWED - NOT CLEARED):"
+              "</strong> these are real safety gates written and left inert; the audit names them and blocks any "
+              "NEW one. %s</p>" % (len(dg), _e(", ".join(dg))))
     return h
 
 
