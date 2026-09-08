@@ -227,6 +227,13 @@ GATES = [
      "I2 at small k renders with its power caveat, not as bare homogeneity", "slow"),
     ("gate_no_superiority_over_identical_trialset",
      "no page claims superiority over a published synthesis on an identical trial set", "slow"),
+    # ADDED 2026-09-08. A human found five reader-facing prose defects on the promoted page while the
+    # census reported clean -- the census searched html-ESCAPED bytes with an unescaped pattern, and its
+    # truncation test was a hardcoded snapshot. This gate uses served_prose_checks (tag-strip +
+    # html.unescape), is auto-discovered by per-page clearance (gate_ prefix), and its controls are
+    # synthetic+permanent. Registered here so the push-time/CI layer also runs it.
+    ("gate_served_prose",
+     "a served page carries no truncated clause, dict repr, false 'word for word', method mismatch, or duplicate absence", "fast"),
 ]
 
 

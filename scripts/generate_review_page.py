@@ -387,10 +387,24 @@ def generate_page(review_id):
     comp_html = ""
     if isinstance(comp, dict):
         comp_html = "<h2>Component decomposition</h2><p>%s</p><ul>" % _e(comp.get("why_this_is_on_the_page", ""))
-        for k, v in comp.items():
-            if k.startswith("why") or k.startswith("what"):
+        # the components live under a machine_readable dict-of-dicts {label: {hr, ci_low, ci_high}}.
+        # Render each as a reader effect line -- NEVER _e(a dict), which prints a Python repr, and NEVER
+        # any underscore-prefixed internal key (_why_this_is_here) to the reader.
+        mr = comp.get("machine_readable") if isinstance(comp.get("machine_readable"), dict) else comp
+        for k, v in mr.items():
+            if str(k).startswith("_") or str(k).startswith("why") or str(k).startswith("what"):
                 continue
-            comp_html += "<li><strong>%s:</strong> %s</li>" % (_e(k.replace("_", " ")), _e(v))
+            if isinstance(v, dict):
+                hr = v.get("hr") if v.get("hr") is not None else v.get("point")
+                lo, hi = v.get("ci_low"), v.get("ci_high")
+                if hr is not None and lo is not None and hi is not None:
+                    val = "HR %s (%s&ndash;%s)" % (_reader_num(hr, "HR"), _reader_num(lo, "HR"), _reader_num(hi, "HR"))
+                else:
+                    val = ", ".join("%s %s" % (_e(str(ik).replace("_", " ")), _e(iv))
+                                    for ik, iv in v.items() if not str(ik).startswith("_") and not isinstance(iv, (dict, list)))
+                comp_html += "<li><strong>%s:</strong> %s</li>" % (_e(str(k).replace("_", " ")), val)
+            elif not isinstance(v, list):
+                comp_html += "<li><strong>%s:</strong> %s</li>" % (_e(str(k).replace("_", " ")), _e(v))
         comp_html += "</ul>"
 
     bench = o.get("external_benchmark_2026_09_07") or o.get("external_benchmark")
@@ -537,13 +551,19 @@ every value below is a function of that committed object. Primary outcome: <em>{
     # ---- Published comparison ----------------------------------------------------------------
     pc = obj.get("published_comparison")
     if isinstance(pc, dict) and pc.get("_why"):
-        body += "<h2>Comparison with published syntheses</h2><p>%s</p>" % _e(pc["_why"])[:600]
+        # render the WHOLE field. A byte-slice (previously [:600], applied AFTER html-escaping so the
+        # cut point drifted with entity expansion) truncated this sentence mid-clause on the served page
+        # -- a reader-facing truncation the census did not catch. Never cut a sentence to fit a length.
+        body += "<h2>Comparison with published syntheses</h2><p>%s</p>" % _e(pc["_why"])
 
     # ---- Screening (render the DECLARED ABSENCE honestly, not a blank) -------------------------
     scr = obj.get("screening") or {}
     if isinstance(scr, dict):
         sn = scr.get("search_note"); recs = scr.get("records") or []
-        body += "<h2>Screening and search</h2>"
+        # title this "Screening" (not "Screening and search") so the tab router sends it to the SCREEN
+        # tab. When it contained "search" it routed to the SEARCH tab, leaving SCREEN empty -> the tab
+        # shell auto-generated a SECOND "Screening" absence block. Two near-identical absence blocks.
+        body += "<h2>Screening</h2>"
         if not recs and (not sn or "not recorded" in str(sn).lower()):
             body += "<p><strong>No search/screening record was extracted for this review</strong> (the source page did not carry one). This is a declared absence, not a completed PRISMA flow.</p>"
         else:

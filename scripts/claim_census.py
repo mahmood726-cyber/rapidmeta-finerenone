@@ -34,20 +34,20 @@ def _text(html):
 
 
 def check_prose(html):
-    """B. rendered-prose failures, named."""
-    t = _text(html)
-    fails = []
-    if re.search(r"\{\s*'[A-Za-z_]+'\s*:", t) or re.search(r"\}\s*,\s*\{", t):
-        fails.append(("repr/dict syntax in prose", re.search(r"\{\s*'[A-Za-z_]+'\s*:[^}]{0,40}", t).group(0)[:50]))
-    if re.search(r"\[\s*\]", t):
-        fails.append(("stray empty brackets []", "[]"))
-    # a sentence-ish fragment ending mid-word before an ellipsis or a hard cut on a word boundary
-    for m in re.finditer(r"[a-z]{3,}(…|\bchoo\b|\bpools these\b)", t):
-        fails.append(("truncated fragment", t[max(0, m.start() - 30):m.end() + 3].strip()[:60]))
-    for frag in ("REPLACE_ME", "__PLACEHOLDER__", "{{", "the reader choo", "baseline risk the reader choo"):
+    """B. rendered-prose failures, named. DELEGATES to served_prose_checks (the single definition shared
+    with gate_served_prose and the fixture), which reads the bytes a reader sees -- tag-strip AND
+    html.unescape. The old inline version searched html-ESCAPED bytes (a dict repr rendered as
+    {&#x27;k&#x27;:...}) with a literal-quote regex and a hardcoded truncation snapshot ('choo',
+    'pools these'); neither could fire on real rendered output, so a human found two defects this
+    returned clean on. Never search different bytes than the reader is shown."""
+    spec = importlib.util.spec_from_file_location("served_prose_checks", os.path.join(ROOT, "scripts", "served_prose_checks.py"))
+    spc = importlib.util.module_from_spec(spec); spec.loader.exec_module(spc)
+    t = spc.rendered_text(html)
+    fails = [(label, hits[0] if hits else "") for label, hits in spc.scan(html)]
+    # keep the cheap placeholder-fragment tripwires too (on the UNESCAPED reader text)
+    for frag in ("REPLACE_ME", "__PLACEHOLDER__", "{{"):
         if frag in t:
             fails.append(("placeholder fragment", frag))
-    # dedupe
     seen = set(); out = []
     for k, v in fails:
         if (k, v) not in seen:
