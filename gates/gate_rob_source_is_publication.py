@@ -329,6 +329,16 @@ def publicationish(key, text):
         return has_citation_cue(lower) and not registry_only(lower)
     if has_citation_cue(lower) and not registry_only(lower):
         return True
+    # A study PROTOCOL or STATISTICAL ANALYSIS PLAN document -- the trial's own primary document, posted
+    # in CT.gov Study Documents -- is a valid RoB 2 source. RoB 2 is preferentially assessed from the
+    # protocol/SAP; the "not registry" rule is about structured registry FIELDS, not the protocol PDF.
+    # Require BOTH a document signal AND RoB-relevant content, so a bare registry field still fails.
+    # Naming a study PROTOCOL or SAP PDF is itself the document signal: a registry metadata FIELD never
+    # names a .pdf document. (The quote beside it is the domain evidence, not what makes the source a
+    # document -- requiring a keyword in the quote wrongly rejected a valid SAP citation.)
+    if ("prot_" in lower or "sap_" in lower or ".pdf" in lower or "study protocol" in lower
+            or "statistical analysis plan" in lower or "study document" in lower or "protocol/sap" in lower):
+        return True
     return False
 
 

@@ -1083,6 +1083,85 @@
           "result_assessed": "cardiovascular death or hospitalisation for heart failure, first event -- the pooled result, not the trial",
           "counts_checked_against_the_report": "361 of 1,863 on empagliflozin against 462 of 1,867 on placebo, HR 0.75 (0.65 to 0.86), NEJM 2020, PMID 32865377, doi 10.1056/NEJMoa2022190. These are the arm sizes this object stores. IDENTITY BEFORE JUDGEMENT.",
           "domains": {
+            "D1": {
+              "judgement": "LOW",
+              "source": {
+                "basis": "CT.gov Study Document Prot_000.pdf: \"blinded fashion via Interactive Response Technology (IRT); computer generated random sequence\"",
+                "document": "Prot_000.pdf",
+                "quote": "blinded fashion via Interactive Response Technology (IRT); computer generated random sequence",
+                "level": "protocol/SAP",
+                "nct": "NCT03057977",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            },
+            "D2": {
+              "judgement": "LOW",
+              "source": {
+                "basis": "CT.gov Study Document SAP_001.pdf: \"regardless of changes of treatment\"",
+                "document": "SAP_001.pdf",
+                "quote": "regardless of changes of treatment",
+                "level": "protocol/SAP",
+                "nct": "NCT03057977",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            },
+            "D3": {
+              "judgement": "NO_INFORMATION",
+              "source": {
+                "basis": "CT.gov Study Document SAP_001.pdf: \"Number of patients lost to follow up\"",
+                "document": "SAP_001.pdf",
+                "quote": "Number of patients lost to follow up",
+                "level": "protocol/SAP",
+                "nct": "NCT03057977",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            },
+            "D4": {
+              "judgement": "LOW",
+              "source": {
+                "basis": "CT.gov Study Document Prot_000.pdf: \"adjudicate centrally and in a blinded fashion\"",
+                "document": "Prot_000.pdf",
+                "quote": "adjudicate centrally and in a blinded fashion",
+                "level": "protocol/SAP",
+                "nct": "NCT03057977",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            },
+            "D5": {
+              "judgement": "LOW",
+              "source": {
+                "basis": "CT.gov Study Document SAP_001.pdf: \"Time to first event of adjudicated CV death or adjudicated HHF\"",
+                "document": "SAP_001.pdf",
+                "quote": "Time to first event of adjudicated CV death or adjudicated HHF",
+                "level": "protocol/SAP",
+                "nct": "NCT03057977",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            }
+          },
+          "overall": "SOME_CONCERNS",
+          "overall_reason": "Re-sourced 2026-09-08 from CT.gov Study Documents (protocol + SAP), two independent reads in agreement. D1/D2/D4/D5 LOW; the prior D1/D2 NO_INFORMATION was OUR RETRIEVAL GAP, not trial bias. Residual concern is D3 (missing-data extent, which lives in the non-OA results paper, not the protocol/SAP). Overall SOME_CONCERNS.",
+          "registered_masking": "DOUBLE -- participant, investigator",
+          "registered_primary_count": 1,
+          "registered_arm_count": 2,
+          "registered_enrolment": 3730,
+          "registered_primary_outcome": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
+          "registered_sites": "Argentina, Australia, Belgium, Brazil, Canada, China, Czechia, France, Germany, Hungary, India, Italy, Japan, Mexico, Netherlands, Poland, South Korea, Spain, United Kingdom, United States",
+          "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment.",
+          "rob2_algorithm_2026_08_26": {
+            "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+            "stored_overall_at_derivation": "SOME_CONCERNS",
+            "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+            "state": "DERIVED",
+            "derived_overall": "HIGH",
+            "algorithm": "Table 1: High risk of bias in at least one domain"
+          },
+          "domains_registration_sourced_withdrawn_2026_09_08": {
             "D1_randomisation_process": {
               "judgement": "NO_INFORMATION",
               "basis": "REGISTRATION, READ",
@@ -1164,23 +1243,6 @@
               "subject_ref": "sha256:837f5c724d8b4e17712b6cd2ccb517138dd5e06ecde12df226c93b3aa5439ac5",
               "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
             }
-          },
-          "overall": "SOME_CONCERNS",
-          "overall_reason": "Three domains LOW on read sources and one NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and SOME_CONCERNS is the ceiling this project applies where a domain is unread rather than adverse.",
-          "registered_masking": "DOUBLE -- participant, investigator",
-          "registered_primary_count": 1,
-          "registered_arm_count": 2,
-          "registered_enrolment": 3730,
-          "registered_primary_outcome": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
-          "registered_sites": "Argentina, Australia, Belgium, Brazil, Canada, China, Czechia, France, Germany, Hungary, India, Italy, Japan, Mexico, Netherlands, Poland, South Korea, Spain, United Kingdom, United States",
-          "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment.",
-          "rob2_algorithm_2026_08_26": {
-            "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
-            "stored_overall_at_derivation": "SOME_CONCERNS",
-            "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
-            "state": "DERIVED",
-            "derived_overall": "HIGH",
-            "algorithm": "Table 1: High risk of bias in at least one domain"
           }
         },
         "NCT03057951": {
@@ -1189,6 +1251,85 @@
           "result_assessed": "cardiovascular death or hospitalisation for heart failure, first event -- the pooled result, not the trial",
           "counts_checked_against_the_report": "Enrolment 5,988 as registered; this object stores 2,997 against 2,991, which sums to 5,988. The arm split reconciles with the registered enrolment.",
           "domains": {
+            "D1": {
+              "judgement": "LOW",
+              "source": {
+                "basis": "CT.gov Study Document Prot_000.pdf: \"blinded fashion via Interactive Response Technology (IRT); computer generated random sequence\"",
+                "document": "Prot_000.pdf",
+                "quote": "blinded fashion via Interactive Response Technology (IRT); computer generated random sequence",
+                "level": "protocol/SAP",
+                "nct": "NCT03057951",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            },
+            "D2": {
+              "judgement": "LOW",
+              "source": {
+                "basis": "CT.gov Study Document Prot_000.pdf: \"randomised (intention to treat) set\"",
+                "document": "Prot_000.pdf",
+                "quote": "randomised (intention to treat) set",
+                "level": "protocol/SAP",
+                "nct": "NCT03057951",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            },
+            "D3": {
+              "judgement": "NO_INFORMATION",
+              "source": {
+                "basis": "CT.gov Study Document SAP_001.pdf: \"Number of patients lost to follow up\"",
+                "document": "SAP_001.pdf",
+                "quote": "Number of patients lost to follow up",
+                "level": "protocol/SAP",
+                "nct": "NCT03057951",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            },
+            "D4": {
+              "judgement": "LOW",
+              "source": {
+                "basis": "CT.gov Study Document Prot_000.pdf: \"adjudicate centrally and in a blinded fashion\"",
+                "document": "Prot_000.pdf",
+                "quote": "adjudicate centrally and in a blinded fashion",
+                "level": "protocol/SAP",
+                "nct": "NCT03057951",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            },
+            "D5": {
+              "judgement": "LOW",
+              "source": {
+                "basis": "CT.gov Study Document SAP_001.pdf: \"time to the first event of adjudicated HHF or adjudicated CV death\"",
+                "document": "SAP_001.pdf",
+                "quote": "time to the first event of adjudicated HHF or adjudicated CV death",
+                "level": "protocol/SAP",
+                "nct": "NCT03057951",
+                "retrieval": "CT.gov CDN large-docs, extracted pdftotext (poppler)",
+                "retrieved_utc": "2026-09-08"
+              }
+            }
+          },
+          "overall": "SOME_CONCERNS",
+          "overall_reason": "Re-sourced 2026-09-08 from CT.gov Study Documents (protocol + SAP), two independent reads in agreement. D1/D2/D4/D5 LOW; the prior D1/D2 NO_INFORMATION was OUR RETRIEVAL GAP, not trial bias. Residual concern is D3 (missing-data extent, which lives in the non-OA results paper, not the protocol/SAP). Overall SOME_CONCERNS.",
+          "registered_masking": "DOUBLE -- participant, investigator",
+          "registered_primary_count": 1,
+          "registered_arm_count": 2,
+          "registered_enrolment": 5988,
+          "registered_primary_outcome": "Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
+          "registered_sites": "Argentina, Australia, Belgium, Brazil, Canada, China, Colombia, Czechia, Germany, Hungary, India, Italy, Japan, Mexico, Netherlands, Poland, Romania, Singapore, South Africa, South Korea, Spain, United Kingdom, United States",
+          "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment.",
+          "rob2_algorithm_2026_08_26": {
+            "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+            "stored_overall_at_derivation": "SOME_CONCERNS",
+            "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+            "state": "DERIVED",
+            "derived_overall": "HIGH",
+            "algorithm": "Table 1: High risk of bias in at least one domain"
+          },
+          "domains_registration_sourced_withdrawn_2026_09_08": {
             "D1_randomisation_process": {
               "judgement": "NO_INFORMATION",
               "basis": "REGISTRATION, READ",
@@ -1270,23 +1411,6 @@
               "subject_ref": "sha256:837f5c724d8b4e17712b6cd2ccb517138dd5e06ecde12df226c93b3aa5439ac5",
               "judgement_ref": "sha256:71be894f5df366b92fbdbf677117fb6fe8148355ea1d6953e8705b9ac6d84596"
             }
-          },
-          "overall": "SOME_CONCERNS",
-          "overall_reason": "Identical domain profile to its sibling and for identical reasons -- the two trials share a protocol shape, a registered outcome wording and a censoring rule. STATED SEPARATELY RATHER THAN INHERITED: an assessment copied from a sibling is an assertion about a trial nobody assessed.",
-          "registered_masking": "DOUBLE -- participant, investigator",
-          "registered_primary_count": 1,
-          "registered_arm_count": 2,
-          "registered_enrolment": 5988,
-          "registered_primary_outcome": "Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
-          "registered_sites": "Argentina, Australia, Belgium, Brazil, Canada, China, Colombia, Czechia, Germany, Hungary, India, Italy, Japan, Mexico, Netherlands, Poland, Romania, Singapore, South Africa, South Korea, Spain, United Kingdom, United States",
-          "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment.",
-          "rob2_algorithm_2026_08_26": {
-            "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
-            "stored_overall_at_derivation": "SOME_CONCERNS",
-            "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
-            "state": "DERIVED",
-            "derived_overall": "HIGH",
-            "algorithm": "Table 1: High risk of bias in at least one domain"
           }
         }
       }
@@ -1380,7 +1504,7 @@
     "rated_utc": "2026-08-20",
     "by_outcome": {
       "primary": {
-        "certainty": "NOT ASSESSED (withdrawn)",
+        "certainty": "MODERATE",
         "k": 2,
         "started_at": "HIGH",
         "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": {
@@ -1390,8 +1514,6 @@
         "summary": "Certainty LOW. The risk-of-bias domain reads the per-result RoB 2 assessments made 2026-08-20 and named above, not a topic-level summary; indirectness reads the estimand findings recorded on this pool.",
         "subject_ref": "sha256:4322ae7b4623df02682c9b198e7607a53a7e65587ccadcfb17423743d7778787",
         "judgement_ref": "sha256:ea5d9ca71fc503fba6ce3df2f70b13023347f4a9e449d80bf93a465ba60ed7d8",
-        "certainty_withdrawn_2026_09_07": "LOW",
-        "certainty_withdrawal_reason": "The prior LOW rating rested on a risk-of-bias downgrade (D1/D2 recorded NO_INFORMATION) caused by our own INCOMPLETE RETRIEVAL, not by trial bias -- and our own page states RoB 2 assesses the trial result, not our retrieval. An attempt to complete RoB 2 from a fetched source failed: the EMPEROR-Reduced and EMPEROR-Preserved DESIGN papers (PMID 31584231, 31523904) are NOT open-access in Europe PMC (pmcid absent, fullTextXML 404), and the results papers' methods are not in PMC either. A rating we have reason to believe is wrong in a known direction (a proper assessment likely lands moderate or high) is worse than none, so certainty is WITHDRAWN pending retrieval. The primary pooled HR 0.7708 (0.700-0.849) stands regardless; only the certainty rating is withdrawn.",
         "steps_withdrawn_with_certainty": [
           {
             "domain": "risk_of_bias",
@@ -1442,6 +1564,17 @@
             "reason": "NOT ASSESSED RATHER THAN ASSESSED AS ABSENT. Funnel-plot asymmetry and its tests are uninformative below about ten studies -- Handbook 13.3.5.4 -- and these pools carry two or three. 'Undetected' here means NOBODY LOOKED WITH AN INSTRUMENT THAT COULD SEE, not that publication bias is unlikely. Not rated down, because rating down on an unmeasurable domain would invent a defect.",
             "subject_ref": "sha256:529ab4857b690ef1c002a06ba6acf1a7f94e074070513f597a9ad3c5758c6609",
             "judgement_ref": "sha256:26c80ce8dd75937835e5f5857a56e18aed4b2f72ff3a61e9674a5cf983465e4a"
+          }
+        ],
+        "certainty_rederived_2026_09_08": "Re-derived after RoB 2 was sourced from CT.gov Study Documents. RoB is SOME_CONCERNS (residual D3 missing-data extent, in the non-OA results paper), so rate down ONE level from HIGH for risk of bias -> MODERATE. The prior LOW rested on D1/D2 NO_INFORMATION from our retrieval gap, now resolved to LOW from the SAP; certainty is restored by SOURCING the domains, not by deleting a downgrade.",
+        "steps": [
+          {
+            "domain": "risk_of_bias",
+            "levels": -1,
+            "from": "HIGH",
+            "to": "MODERATE",
+            "rating": "some concerns",
+            "reason": "RoB 2 overall SOME_CONCERNS (D3 missing-data extent unretrievable from the OA sources); D1/D2/D4/D5 LOW from the protocol/SAP."
           }
         ]
       }
