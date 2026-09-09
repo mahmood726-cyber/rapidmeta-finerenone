@@ -1,0 +1,40 @@
+{
+ "queries": [
+  {
+   "label": "finerenone_ckd_dkd_t2d_randomised",
+   "rationale": "Primary registry query using molecule and brand/code aliases plus a widened condition axis, because the existing search record shows that a narrower condition phrase can miss a pivotal trial through registry indexing.",
+   "params": {
+    "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+    "query.cond": "chronic kidney disease OR diabetic kidney disease OR type 2 diabetes",
+    "query.intr": "finerenone OR BAY 94-8862 OR Kerendia",
+    "filter.advanced": "AREA[DesignAllocation]RANDOMIZED",
+    "pageSize": 200,
+    "countTotal": true
+   }
+  },
+  {
+   "label": "finerenone_free_text_kidney_diabetes_randomised",
+   "rationale": "Free-text backup for records where condition or intervention indexing is incomplete, while still naming finerenone, kidney/diabetes terms, and randomized allocation without seeding NCT identifiers.",
+   "params": {
+    "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+    "query.term": "(finerenone OR BAY 94-8862 OR Kerendia) AND (chronic kidney disease OR diabetic kidney disease OR type 2 diabetes OR T2DM)",
+    "filter.advanced": "AREA[DesignAllocation]RANDOMIZED",
+    "pageSize": 200,
+    "countTotal": true
+   }
+  },
+  {
+   "label": "mra_kidney_diabetes_randomised",
+   "rationale": "Mechanism/intervention-class backup for registrations that describe finerenone as a non-steroidal mineralocorticoid receptor antagonist; screening must still verify finerenone and placebo before inclusion.",
+   "params": {
+    "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+    "query.cond": "kidney disease OR diabetic kidney disease OR diabetes mellitus type 2",
+    "query.intr": "finerenone OR non-steroidal mineralocorticoid receptor antagonist OR mineralocorticoid receptor antagonist",
+    "filter.advanced": "AREA[DesignAllocation]RANDOMIZED",
+    "pageSize": 200,
+    "countTotal": true
+   }
+  }
+ ],
+ "known_limitation": "ONE REGISTRY AND NO BIBLIOGRAPHIC DATABASE. These queries search ClinicalTrials.gov API v2 only; any recall statement is recall of this search, not recall of the literature, and trials absent from or differently indexed in this registry can be missed."
+}

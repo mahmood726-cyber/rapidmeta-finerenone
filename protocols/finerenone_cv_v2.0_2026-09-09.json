@@ -1,0 +1,81 @@
+{
+ "review_id": "finerenone-cv",
+ "estimands": [
+  {
+   "outcome": "First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure",
+   "timepoint": "trial-defined time-to-first-event follow-up; exact CV-composite follow-up is not normalised in the object, which records the registered primary-outcome timeframes as an average 32 months for FIDELIO-DKD and average study duration 41 months for FIGARO-DKD",
+   "analysis_population": "ITT",
+   "missing_data_model": "trial-reported time-to-first-event analysis in all randomised participants as posted by the registry; censoring and any imputation follow the trial source and are not reconstructed by this protocol",
+   "analysis_variant": "ITT_IMPUTED",
+   "effect_measure": "log_HR"
+  }
+ ],
+ "source_hierarchy": [
+  "regulatory",
+  "primary_publication",
+  "supplement",
+  "registry"
+ ],
+ "primary_source_of_record": "regulatory",
+ "poolable_input_types": [
+  "two_by_two_counts",
+  "effect_ci_measure"
+ ],
+ "harmonisation_rule": {
+  "on_differing_definitions": "declare_harmonised",
+  "harmonised_endpoint": "Use the time-to-first-event cardiovascular composite with the same four components and order recorded for both trials: cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure. Do not silently pool kidney composites, all-cause mortality, all-cause hospitalisation, UACR, recurrent events, win ratios, or fixed-time dichotomous effects with this estimand.",
+  "source": "ssot/finerenone-cv/finerenone-cv.json $.outcomes[0].definition_note and $.inputs.trials[*].by_outcome.cv_composite_first.provenance.source_quotes"
+ },
+ "eligibility": {
+  "population": "adults with chronic kidney disease and type 2 diabetes",
+  "intervention": "finerenone",
+  "comparator": "placebo",
+  "comparator_kind": "placebo",
+  "design": "phase 3 randomised, double-blind, placebo-controlled, event-driven trial",
+  "reproduces_exclusions": false
+ },
+ "statistics": {
+  "tau2_estimator": "REML",
+  "small_k_ci_rule": "HKSJ t_{k-1}, floor 1, reported alongside the unadjusted Wald interval when k is small",
+  "disclosure_clause": {
+   "answers_known_at_authoring": true,
+   "text": "AUTHORED 2026-09-09, RETROSPECTIVE. The review answer was already knowable when these methods were chosen: a page on this topic had already been served, the canonical object records k = 2, and it records a pooled HR of 0.8655 with 95% CI 0.7877 to 0.951 for the cardiovascular composite. This is therefore an honest retrospective methods declaration for a rebuild, not a prospective pre-specification. REML and the small-k HKSJ sensitivity are declared because the existing object itself records REML, k = 2, and the small-k interval issue."
+  },
+  "zero_cell_rule": {
+   "double_zero_excluded_from_rr_or": true,
+   "continuity_correct_double_zero": false
+  }
+ },
+ "mandatory_outputs": {
+  "absolute_effect": {
+   "ARR": null,
+   "NNT": null,
+   "control_risk_source": "per-trial placebo-arm event counts and analysed denominators for cv_composite_first, with HR-based inference kept primary"
+  },
+  "harms": [
+   "hyperkalemia",
+   "hypotension",
+   "hyponatremia"
+  ],
+  "rob2_source": "regulatory"
+ },
+ "governance": {
+  "authored_utc": "2026-09-09T00:00:00+00:00",
+  "registering_commit_sha": null,
+  "retrospective": true,
+  "prospective": false,
+  "prospective_evidence": null,
+  "supersedes": "ssot/finerenone-cv/PROTOCOL.md at recorded protocol commit 3872817c06c92bad152cc4d076ea23b2f611012c, as a machine-readable schema-v2 replacement",
+  "supersedes_why": "The existing markdown protocol and search record are retained as historical evidence, but this schema-v2 declaration is authored after the served page and canonical object were available. It also keeps clinical eligibility separate from the reporting estimand, because schema_v2 refuses outcome screening in eligibility.",
+  "amendment_trail": [],
+  "method_declared_once": true,
+  "freeze_date": "2026-09-09",
+  "dated_content": [
+   "2026-08-17",
+   "2026-08-18",
+   "2026-08-20",
+   "2026-08-21",
+   "2026-08-26"
+  ]
+ }
+}

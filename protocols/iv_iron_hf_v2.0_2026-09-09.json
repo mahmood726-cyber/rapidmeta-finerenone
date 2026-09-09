@@ -1,0 +1,152 @@
+{
+ "review_id": "iv-iron-hf",
+ "estimands": [
+  {
+   "outcome": "hfh_cvd_recurrent: recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio",
+   "timepoint": "from randomisation to each contributing trial's own follow-up",
+   "analysis_population": "mITT",
+   "missing_data_model": "Use each trial's own analysis set as stored; some are smaller than the randomised total and others equal it. No rebuild-level imputation is imposed.",
+   "analysis_variant": "OBSERVED_CASE",
+   "effect_measure": "log_RR"
+  },
+  {
+   "outcome": "hfh_cvd_first: time to a first cardiovascular death or hospitalisation for heart failure, as a hazard ratio",
+   "timepoint": "from randomisation to each contributing trial's own follow-up",
+   "analysis_population": "mITT",
+   "missing_data_model": "Use each trial's own analysis set as stored; no conversion from recurrent-event estimates and no rebuild-level imputation.",
+   "analysis_variant": "OBSERVED_CASE",
+   "effect_measure": "log_HR"
+  },
+  {
+   "outcome": "hfh_recurrent: recurrent hospitalisations for heart failure alone, with no death component, as a rate ratio",
+   "timepoint": "from randomisation to each contributing trial's own follow-up",
+   "analysis_population": "mITT",
+   "missing_data_model": "Use each trial's own analysis set as stored; no rebuild-level imputation is imposed.",
+   "analysis_variant": "OBSERVED_CASE",
+   "effect_measure": "log_RR"
+  },
+  {
+   "outcome": "acm: time to death from any cause, as a hazard ratio",
+   "timepoint": "from randomisation to each contributing trial's own follow-up",
+   "analysis_population": "mITT",
+   "missing_data_model": "Use each trial's own analysis set as stored; no rebuild-level imputation is imposed.",
+   "analysis_variant": "OBSERVED_CASE",
+   "effect_measure": "log_HR"
+  },
+  {
+   "outcome": "six_min_walk_24w: change in six-minute walk distance at the primary timepoint, in metres",
+   "timepoint": "baseline to the trial primary timepoint; CONFIRM-HF contributes the week-24 value",
+   "analysis_population": "mITT",
+   "missing_data_model": "Use the trial's full-analysis-set mean-difference estimate; no rebuild-level imputation is imposed.",
+   "analysis_variant": "OBSERVED_CASE",
+   "effect_measure": "MD"
+  }
+ ],
+ "source_hierarchy": [
+  "primary_publication",
+  "supplement",
+  "regulatory",
+  "registry"
+ ],
+ "primary_source_of_record": "primary_publication",
+ "poolable_input_types": [
+  "effect_ci_measure",
+  "two_by_two_counts"
+ ],
+ "harmonisation_rule": {
+  "on_differing_definitions": "refuse",
+  "harmonised_endpoint": "None across outcome families. Pool only within the same outcome concept, effect measure and unit of analysis; keep recurrent rates, time-to-first hazards, mean differences and win-ratio reporting separate.",
+  "source": "$.outcomes[*].definition, $.outcomes[*].estimand and $._estimand_rule"
+ },
+ "eligibility": {
+  "population": "adults with heart failure and iron deficiency",
+  "intervention": "intravenous iron as ferric carboxymaltose or ferric derisomaltose",
+  "comparator": "placebo or usual care",
+  "comparator_kind": "placebo",
+  "reproduces_exclusions": false,
+  "design": "randomised interventional controlled trial",
+  "comparator_kind_note": "The object-level criterion is mixed placebo or usual care; protocol_schema_v2 has no mixed or usual-care enum, so the allowed typed value is paired with the explicit comparator text."
+ },
+ "statistics": {
+  "tau2_estimator": "REML",
+  "small_k_ci_rule": "Use generic inverse variance on the logged ratio scale where the effect is a ratio and REML for random-effects pools. For small k, report the HKSJ t_{k-1} interval with a variance-inflation floor of 1 alongside the ordinary interval, and do not present the narrower interval as the sole precision claim.",
+  "disclosure_clause": {
+   "answers_known_at_authoring": true,
+   "text": "This is a retrospective methods record. Before these methods were written, a page for this topic had already been served, and the headline recurrent-composite result was knowable as k=2 with pooled rate ratio 0.8066 and 95% CI 0.6856 to 0.9488. Writing this protocol now is disclosure for a rebuild, not pre-specification."
+  },
+  "zero_cell_rule": {
+   "double_zero_excluded_from_rr_or": true,
+   "continuity_correct_double_zero": false
+  }
+ },
+ "mandatory_outputs": {
+  "absolute_effect": {
+   "ARR": null,
+   "NNT": null,
+   "control_risk_source": "No absolute-effect control risk is recorded in the target object for these summary-effect estimands; do not infer one during registration."
+  },
+  "harms": [
+   "death due to infection",
+   "hospitalisation primarily for infection"
+  ],
+  "rob2_source": "manuscript"
+ },
+ "governance": {
+  "authored_utc": "2026-09-09T14:20:11+00:00",
+  "registering_commit_sha": null,
+  "registering_commit_sha_note": "git rev-parse HEAD did not resolve a commit in this checkout.",
+  "retrospective": true,
+  "prospective": false,
+  "prospective_evidence": null,
+  "supersedes": "$.protocol",
+  "supersedes_why": "The existing object protocol states that no prespecified protocol can be created retrospectively; this schema-v2 record is therefore explicitly retrospective and only governs a rebuild.",
+  "amendment_trail": [],
+  "method_declared_once": true,
+  "freeze_date": "2026-09-09",
+  "dated_content": [
+   "2026-08-10",
+   "2026-08-19",
+   "2026-09-04",
+   "2026-09-09"
+  ]
+ },
+ "schema_excluded_reporting_outcomes": [
+  {
+   "outcome": "hierarchical_primary: hierarchical composite of death, heart-failure hospitalisations and change in walk distance, as an unmatched win ratio",
+   "object_path": "$.outcomes[4]",
+   "reason": "The target object reports this as a single-study, non-pooled win-ratio outcome, but protocol_schema_v2 has no win-ratio effect_measure enum. It is retained as reporting-only here and must not be forced into HR, RR, OR or MD pooling."
+  }
+ ],
+ "trial_set_read_from_object": [
+  {
+   "name": "AFFIRM-AHF",
+   "nct": "NCT02937454",
+   "drug": "ferric carboxymaltose",
+   "comparator_type": "placebo"
+  },
+  {
+   "name": "IRONMAN",
+   "nct": "NCT02642562",
+   "drug": "ferric derisomaltose",
+   "comparator_type": "usual care"
+  },
+  {
+   "name": "FAIR-HF2",
+   "nct": "NCT03036462",
+   "drug": "ferric carboxymaltose",
+   "comparator_type": "placebo"
+  },
+  {
+   "name": "HEART-FID",
+   "nct": "NCT03037931",
+   "drug": "ferric carboxymaltose",
+   "comparator_type": "placebo"
+  },
+  {
+   "name": "CONFIRM-HF",
+   "nct": "NCT01453608",
+   "drug": "ferric carboxymaltose",
+   "comparator_type": "placebo"
+  }
+ ]
+}

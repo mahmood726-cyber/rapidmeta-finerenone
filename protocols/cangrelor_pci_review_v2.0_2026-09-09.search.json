@@ -1,0 +1,42 @@
+{
+ "queries": [
+  {
+   "label": "cangrelor_pci_acs_randomised",
+   "rationale": "Broad intervention plus PCI/ACS condition query intended to retrieve randomized cangrelor PCI trials without naming trial identifiers.",
+   "params": {
+    "query.cond": "acute coronary syndrome OR myocardial infarction OR percutaneous coronary intervention",
+    "query.intr": "cangrelor",
+    "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[DesignAllocation]RANDOMIZED",
+    "pageSize": "200",
+    "countTotal": "true",
+    "format": "json"
+   }
+  },
+  {
+   "label": "cangrelor_clopidogrel_pci_randomised",
+   "rationale": "Names both molecules and the PCI setting so the active-comparator contrast can be found before screening, without seeding NCT identifiers.",
+   "params": {
+    "query.cond": "percutaneous coronary intervention OR PCI",
+    "query.intr": "cangrelor OR clopidogrel",
+    "query.term": "cangrelor AND clopidogrel",
+    "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[DesignAllocation]RANDOMIZED",
+    "pageSize": "200",
+    "countTotal": "true",
+    "format": "json"
+   }
+  },
+  {
+   "label": "cangrelor_synonyms_coronary_randomised",
+   "rationale": "Adds cangrelor synonym and brand-style terms with coronary disease terms to catch registrations whose intervention naming differs from the generic drug name.",
+   "params": {
+    "query.cond": "atherosclerosis OR acute coronary syndrome OR coronary intervention",
+    "query.intr": "cangrelor OR Kengreal OR Kengrexal OR AR-C69931MX",
+    "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[DesignAllocation]RANDOMIZED",
+    "pageSize": "200",
+    "countTotal": "true",
+    "format": "json"
+   }
+  }
+ ],
+ "known_limitation": "This is one registry, ClinicalTrials.gov API v2, and no bibliographic database. Recall will be recall of this registry search, not recall of the literature; it may miss trials absent from ClinicalTrials.gov, miscoded registry records, or publication-only evidence."
+}

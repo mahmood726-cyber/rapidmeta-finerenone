@@ -1,0 +1,44 @@
+{
+ "queries": [
+  {
+   "label": "ctgov_broad_iv_iron_hf_randomized",
+   "rationale": "Broad registry query matching the object's successful condition/intervention strategy while avoiding the narrower chronic-heart-failure term that the object records as missing included trials; no NCT identifiers are used.",
+   "params": {
+    "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+    "query.cond": "heart failure",
+    "query.intr": "ferric carboxymaltose OR ferric derisomaltose OR iron isomaltoside OR intravenous iron OR iron sucrose",
+    "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[DesignAllocation]RANDOMIZED",
+    "pageSize": "200",
+    "countTotal": "true",
+    "format": "json"
+   }
+  },
+  {
+   "label": "ctgov_ferric_carboxymaltose_hf_randomized",
+   "rationale": "Molecule-focused query for the ferric carboxymaltose trials in heart failure and iron deficiency; brands and abbreviation are included to catch records not using the generic name in the intervention title.",
+   "params": {
+    "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+    "query.cond": "heart failure",
+    "query.intr": "ferric carboxymaltose OR Ferinject OR Injectafer OR FCM",
+    "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[DesignAllocation]RANDOMIZED",
+    "pageSize": "200",
+    "countTotal": "true",
+    "format": "json"
+   }
+  },
+  {
+   "label": "ctgov_ferric_derisomaltose_hf_randomized",
+   "rationale": "Molecule-focused query for the derisomaltose/isomaltoside terminology used by the usual-care trial; no comparator filter is applied because the object states that a placebo-only rule would miss that eligible contrast.",
+   "params": {
+    "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+    "query.cond": "heart failure",
+    "query.intr": "ferric derisomaltose OR iron isomaltoside OR Monofer OR Monoferric OR FDI",
+    "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[DesignAllocation]RANDOMIZED",
+    "pageSize": "200",
+    "countTotal": "true",
+    "format": "json"
+   }
+  }
+ ],
+ "known_limitation": "This is ONE REGISTRY AND NO BIBLIOGRAPHIC DATABASE: the recall claim is recall of these ClinicalTrials.gov API v2 searches and their screening, not recall of the published literature."
+}

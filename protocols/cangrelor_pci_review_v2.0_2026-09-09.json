@@ -1,0 +1,88 @@
+{
+ "review_id": "cangrelor-pci-review",
+ "estimands": [
+  {
+   "outcome": "all-cause mortality, myocardial infarction, or ischaemia-driven revascularisation",
+   "timepoint": "48 hours after randomisation",
+   "analysis_population": "mITT",
+   "missing_data_model": "No imputation; use source-posted aggregate event counts and analysed denominators exactly as extracted.",
+   "analysis_variant": "OBSERVED_CASE",
+   "effect_measure": "log_RR",
+   "object_result_path": "$.results.by_outcome.corrected_composite_3component",
+   "aggregate_pool_rule": "Pool only trials with the exact three-component composite available from aggregate records. CHAMPION-PHOENIX is not pooled in this aggregate-data estimand because its registered primary composite adds stent thrombosis and the three-component quantity is not recoverable from the object-held aggregate counts."
+  }
+ ],
+ "source_hierarchy": [
+  "primary_publication",
+  "supplement",
+  "regulatory",
+  "registry"
+ ],
+ "primary_source_of_record": "primary_publication",
+ "poolable_input_types": [
+  "two_by_two_counts",
+  "effect_ci_measure"
+ ],
+ "harmonisation_rule": {
+  "on_differing_definitions": "refuse",
+  "harmonised_endpoint": "No k=3 aggregate-data harmonisation is declared. Pool the exact three-component composite only where the source supplies that same three-component definition; otherwise report the trial narratively or require patient-level data.",
+  "source": "$.outcomes[0].definition; $.inputs.trials[*].by_outcome.primary.outcome_definition_source.components_as_the_registry_states_them"
+ },
+ "eligibility": {
+  "population": "Adults with coronary atherosclerosis amenable to PCI with or without stent implantation and an acute coronary syndrome or myocardial infarction presentation as described in the source records.",
+  "intervention": "cangrelor",
+  "comparator": "clopidogrel",
+  "comparator_kind": "active",
+  "design": "randomised interventional trial with concurrent cangrelor and clopidogrel arms in the PCI setting",
+  "reproduces_exclusions": false,
+  "derivation_note": "The page-level screening eligibility is absent. This clinical rule is derived from the registered eligibility text available for CHAMPION-PCI and CHAMPION-PLATFORM plus arm/intervention identity checks for all three trials. Outcomes are not used as eligibility criteria."
+ },
+ "statistics": {
+  "tau2_estimator": "REML",
+  "small_k_ci_rule": "Hartung-Knapp t_{k-1} with variance inflation floor of 1; show the unadjusted interval alongside it when reproducing the stored object.",
+  "disclosure_clause": {
+   "answers_known_at_authoring": true,
+   "text": "This is a retrospective protocol. When these methods were chosen, a page for this topic had already been served and the object already made the answer visible: the corrected three-component aggregate pool is k=2 with RR 0.9646 and 95% CI 0.8132 to 1.1442, while the withdrawn page value and the published patient-level analysis report OR 0.81. Registering this now is an honest rebuild contract, not pre-specification."
+  },
+  "zero_cell_rule": {
+   "double_zero_excluded_from_rr_or": true,
+   "continuity_correct_double_zero": false
+  },
+  "model": "random-effects",
+  "effect_scale": "log"
+ },
+ "mandatory_outputs": {
+  "absolute_effect": {
+   "ARR": "Report only if a control risk source is available from an eligible source record; do not fabricate a baseline risk.",
+   "NNT": "Report only when ARR is computed from a declared control risk source; otherwise state not computed.",
+   "control_risk_source": "Eligible source record, preferably primary publication or supplement; registry-posted comparator event risk may be used when explicitly identified."
+  },
+  "harms": [
+   "GUSTO severe or life-threatening bleeding",
+   "TIMI major bleeding",
+   "ACUITY major bleeding",
+   "major/minor non-CABG-related hemorrhage by clinically relevant GUSTO criteria"
+  ],
+  "rob2_source": "manuscript",
+  "rob2_source_note": "The object records no recoverable RoB 2 assessment; manuscript, SAP, or regulatory evidence must be read before making RoB 2 judgements. Registry design alone is not a RoB 2 source."
+ },
+ "governance": {
+  "authored_utc": "2026-09-09T00:00:00Z",
+  "registering_commit_sha": null,
+  "retrospective": true,
+  "prospective": false,
+  "prospective_evidence": null,
+  "supersedes": null,
+  "supersedes_why": null,
+  "amendment_trail": [],
+  "method_declared_once": true,
+  "freeze_date": "2026-09-09",
+  "dated_content": [
+   "2026-08-18",
+   "2026-08-20",
+   "2026-08-21",
+   "2026-08-24",
+   "2026-08-25"
+  ]
+ }
+}
