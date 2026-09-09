@@ -106,9 +106,45 @@ jobs:
           # reports is the payload that is uploaded.
           path: .
 
+  # ---------------------------------------------------------------------------
+  # THE GATE SUITE, AS A PROPERTY OF THE DESTINATION RATHER THAN OF THE ROUTE.
+  #
+  # WHY THIS JOB EXISTS. On 2026-09-09 commit 049f0c923 reached Pages main and its own
+  # message records how: "Deployed via git plumbing to Pages main." Plumbing does not run
+  # .githooks/pre-push, so the executable-rule block never asked. The commit asserted
+  # "47 gates 0 firing"; running gates/run_all.py on that exact tree returns FAIL, with
+  # gate18 naming EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html for a pinned correction phrase
+  # that is ABSENT, and gate16 failing at the same 147-of-1427 coverage it passes with
+  # one commit earlier.
+  #
+  #     A HOOK ONLY THE POLITE PATH INVOKES IS NOT A GUARD.
+  #     A DEPLOY ROUTE THAT SKIPS THE GATE MAKES EVERY GATE OPT-IN.
+  #
+  # executable-rule-gates.yml already runs this suite on every push to every branch. What
+  # it did NOT do is stop the deploy: two independent workflows, and Pages published
+  # regardless of the verdict. So the suite is bound to the deploy here. Any push to main,
+  # however it was produced -- porcelain, plumbing, the API, the web editor -- must satisfy
+  # it before an artefact is published, because the requirement now belongs to the
+  # destination and not to the path taken to reach it.
+  gates:
+    name: gate suite must pass before anything is published
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # gate 3 reads a pinned blob; a shallow clone cannot
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Every gate registered in run_all
+        run: python gates/run_all.py
+      - name: The gates can still fail
+        run: python gates/verify_gates_can_fail.py
+
   deploy:
     name: deploy to Pages
-    needs: build
+    needs: [build, gates]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment:
