@@ -21,3 +21,11 @@ gates/GATE16_C1_PINNED_STORE.json    -text
 gates/GATE16_NEG_PINNED.html         -text
 gates/GATE16_NEG_PINNED_STORE.json   -text
 removed/_new_SGLT2.html              -text
+
+# ARCHIVED WITHDRAWALS, added 2026-09-09 -- THE SAME DEFECT, A THIRD TIME.
+# Withdrawing SGLT2_MACE_CVOT_REVIEW.html archived the served page and the commit
+# normalised it: disk 1,742,860 B -> blob 1,741,954 B (-906, exactly its CRLF count).
+# The archive of a withdrawal exists so a reader can confirm WHAT WAS SERVED; a blob a
+# fresh clone cannot reproduce byte-for-byte defeats the only purpose it has. Same class
+# as the two fixtures above: identified by its bytes and nothing else.
+archive/*.html                       -text
