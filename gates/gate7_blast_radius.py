@@ -253,6 +253,16 @@ def main(argv):
     ackpath = os.path.join(repo, "gates", ACK)
     ack = H.load(ackpath) if os.path.exists(ackpath) else {}
 
+    # SELF-TEST FIX 2026-09-10: the --plant path plants a change to ssot/build_tabbed.py to
+    # simulate "an unacknowledged edit to a file 155 topics build through". But build_tabbed.py
+    # carries a STANDING acknowledgement at radius 155 (BLAST_RADIUS_ACK.json, 2026-08-30), so
+    # the plant was treated as acknowledged and DID NOT TRIP -- verify_gates_can_fail reported
+    # PLANT-DID-NOT-TRIP / VACUOUS, blocking every deploy. The plant means UNACKNOWLEDGED, so in
+    # plant mode drop the planted file's acknowledgement. This fixes the gate's ability to prove
+    # it can fail; it does NOT touch real detection (a real run loads the ack unchanged).
+    if "--plant" in argv:
+        ack = {k: v for k, v in ack.items() if k != "ssot/build_tabbed.py"}
+
     kinds["files in this change under ssot/"] = len(changed)
     gate.kinds(dict(kinds))
 
