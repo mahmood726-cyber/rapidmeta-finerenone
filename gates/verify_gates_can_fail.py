@@ -56,6 +56,17 @@ PLANTS = [
      "a new non-raw literal carrying a regex escape"),
     ("gate14_unanchored_authority", ["--plant"],
      "a new page asserting something through an authority with nothing to follow"),
+    # ADDED 2026-09-10 with the gate itself. The plant injects a NEW banner/body split not in
+    # the ratchet freeze; the gate must FAIL and then, unplanted, PASS (the four frozen splits
+    # are not NEW). Proven by hand three ways before this entry: PASS on the corpus, FAIL on
+    # --plant, PASS on restore.
+    ("gate_body_matches_banner", ["--plant"],
+     "a new rendered page whose correction banner and body declare different current pools"),
+    # ADDED 2026-09-10 with the gate. The plant injects a page whose efficacy % reconciles to
+    # 1-(pooled OR), not in the freeze; the gate must FAIL, then unplanted PASS. Proven by hand
+    # three ways before this entry.
+    ("gate_ve_not_from_odds_ratio", ["--plant"],
+     "a new page presenting an efficacy percentage computed as 1 - odds ratio"),
 ]
 
 # GATES WITH NO PLANT HERE, NAMED RATHER THAN OMITTED. gate5 is exercised through

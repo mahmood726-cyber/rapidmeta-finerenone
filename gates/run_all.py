@@ -234,6 +234,26 @@ GATES = [
     # synthetic+permanent. Registered here so the push-time/CI layer also runs it.
     ("gate_served_prose",
      "a served page carries no truncated clause, dict repr, false 'word for word', method mismatch, or duplicate absence", "fast"),
+    # ADDED 2026-09-10, registered in the same commit that created it. An external reviewer
+    # called SGLT2_HF "unpublishable because it carries two versions of its analysis": a
+    # correction banner declares the current pool while the body still presents the prior one
+    # as current. Every other consistency gate reads the object or ONE surface; this reads the
+    # RENDERED page and compares its banner against its own body. SLOW -- it reads all 1,427
+    # delivered pages (19s); the pre-push --fast SKIPS it and says so, CI runs the full set.
+    # Controls are SYNTHETIC and permanent (a live-page control retires the day the page is
+    # regenerated). Ratcheted at 4 (ALIROCUMAB_LIPID is another lane's, frozen by name not
+    # touched); a PASS means no NEW split, never clean.
+    ("gate_body_matches_banner",
+     "a page's correction banner and its own body must not declare two current pooled results", "slow"),
+    # ADDED 2026-09-10, registered in the same commit that created it. The rotavirus review
+    # pooled ODDS RATIOS and reported "~51% efficacy" as 1 - OR -- a category error (efficacy
+    # is 1-RR/IRR/HR, never 1-OR) that biased the figure and manufactured its own caveat. The
+    # page is withdrawn; this stops the class returning. FORWARD-LOOKING by design: controls
+    # are SYNTHETIC (1-OR fires, 1-RR does not, OR-without-a-percentage does not), so it can
+    # fail long after the corpus stops offering an instance -- gate 21's argument exactly.
+    # SLOW: reads all delivered pages. Ratcheted; a PASS means no NEW instance, never clean.
+    ("gate_ve_not_from_odds_ratio",
+     "a vaccine/treatment efficacy percentage is never computed as 1 - odds ratio", "slow"),
 ]
 
 
