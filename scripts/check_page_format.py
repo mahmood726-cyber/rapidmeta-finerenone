@@ -54,9 +54,22 @@ def navlabels_of(html):
 
 TOMBSTONE_RE = re.compile(r"has been retired|Retired review|retired, answered at", re.I)
 
+# AMENDMENT 2026-09-10: recognise the WITHDRAWN-POOL page as a fourth kind that is also
+# not a review. A page whose pooled estimate is withdrawn (topic NOT retired -- archive
+# preserved, trials named, a future pool possible) declares itself with this exact marker,
+# the same one the regression gate reads to enter its no-pool branch. Until now this checker
+# knew only the RETIRED spelling, so it scored a withdrawn-pool notice as a review at 0/8
+# tabs and refused a correct page -- the third latent blocker the SGLT2 withdrawal hit when
+# the plumbing bypass was closed. TWO gates held two independent detectors for one concept
+# ("this delivered page is not a review") and drifted; this aligns them. The fix does NOT put
+# "retired" language in the notice (that would be false -- the topic is not retired).
+NO_POOL_RE = re.compile(r'name="rapidmeta:pooled-estimate"\s+content="NONE"')
+
 
 def is_tombstone(html):
-    """A retired-review tombstone is a THIRD KIND OF PAGE -- not a review, not a defect.
+    """A retired-review tombstone is a THIRD KIND OF PAGE -- not a review, not a defect,
+    and a WITHDRAWN-POOL notice is a FOURTH (see AMENDMENT above). Both are excluded from
+    review-tab scoring; a real review is neither.
 
     ⛔ SCORING ONE AGAINST THE REVIEW FORMAT IS A CATEGORY ERROR. The first run of this
     checker reported 14 pages at 0/8 required tabs, which reads as 14 broken pages. They are
@@ -66,9 +79,13 @@ def is_tombstone(html):
 
     Counting them as review pages would have put 14 fabricated failures into a corpus
     number. Before reporting any count, the KINDS of item in the population have to be
-    enumerated -- reviews, tombstones, and whatever else -- not just the number.
+    enumerated -- reviews, tombstones, withdrawn-pool notices, and whatever else.
+
+    THE `< 20000` GUARD IS LOAD-BEARING and applies to BOTH markers: a large page claiming to
+    be a tombstone or a no-pool notice must still be scored, so a full review cannot escape
+    tab-scoring by merely carrying a marker. A withdrawn-pool notice is small by construction.
     """
-    return bool(TOMBSTONE_RE.search(html)) and len(html) < 20000
+    return bool(TOMBSTONE_RE.search(html) or NO_POOL_RE.search(html)) and len(html) < 20000
 
 
 def check(path, fmt):
@@ -184,6 +201,54 @@ def main(argv):
     if neg_fp:
         print("   CONTROL FAILED: the tombstone was scored as a review page. REFUSED.")
         return 1
+    print()
+
+    # AMENDMENT CONTROL 2026-09-10 -- PROVE THE WITHDRAWN-POOL RECOGNITION BOTH WAYS, fail
+    # closed. A gate change without a still-fails control is a weakening whatever its intent.
+    # On REAL bytes, with planted negatives:
+    #   A  the withdrawn-pool notice (carries the marker, < 20 KB) is EXCLUDED  -> it passes;
+    #   B  the SAME notice with the marker REMOVED is NOT excluded              -> it still
+    #      fails (reverts to a scored 0/8 review), so exclusion is gated on the DECLARATION,
+    #      not on shortness;
+    #   C  a real (large) review page with the marker INJECTED is STILL scored  -> the
+    #      < 20000 guard holds, so a full review cannot escape tab-scoring by carrying it.
+    NOPOOL_POS = "SGLT2_MACE_CVOT_REVIEW.html"
+    _pos = os.path.join(_ROOT, NOPOOL_POS)
+    print("AMENDMENT CONTROL (withdrawn-pool recognition, 2026-09-10):")
+    if not os.path.exists(_pos):
+        print("   UNMEASURED -- %s absent; a gate change with no exercised control is a"
+              % NOPOOL_POS)
+        print("   weakening. REFUSED.")
+        return 1
+    _pos_html = open(_pos, encoding="utf-8", errors="replace").read()
+    if not is_tombstone(_pos_html):
+        print("   CONTROL A FAILED: the withdrawn-pool notice is NOT excluded. REFUSED.")
+        return 1
+    if is_tombstone(NO_POOL_RE.sub("", _pos_html)):
+        print("   CONTROL B FAILED: the notice is still excluded with its marker removed --")
+        print("   exclusion is not gated on the declaration. REFUSED.")
+        return 1
+    # pick a REAL review page big enough to exercise the < 20000 guard (names already
+    # carry .html; resolve as the walk does, relative to _ROOT).
+    _rev, _rev_html = None, ""
+    for _n, _c, _m, _ek, _eu in rows:
+        _p = _n if os.path.isabs(_n) else os.path.join(_ROOT, _n)
+        if os.path.exists(_p):
+            _h = open(_p, encoding="utf-8", errors="replace").read()
+            if len(_h) >= 20000:
+                _rev, _rev_html = _n, _h
+                break
+    if not _rev:
+        print("   UNMEASURED -- no real review page over the guard size to plant the guard")
+        print("   control on. A gate change with no exercised guard control is a weakening."
+              " REFUSED.")
+        return 1
+    if is_tombstone('<meta name="rapidmeta:pooled-estimate" content="NONE">' + _rev_html):
+        print("   CONTROL C FAILED: a large review carrying the marker escaped scoring; the")
+        print("   < 20000 guard did not hold. REFUSED.")
+        return 1
+    print("   held: notice excluded (A); notice without its marker still scored (B);")
+    print("   marker-injected large review %s still scored (C). Guard is load-bearing." % _rev)
     print()
     print("PAGE MAP ENTRIES  : %d" % len(pages))
     print("  files found     : %d" % seen)
