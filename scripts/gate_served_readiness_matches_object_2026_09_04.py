@@ -58,6 +58,14 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# MEASURED PRECISION (gate 2 contract, added 2026-09-10). This check matches text -- a
+# limitation LABEL as a substring of served bytes (see main) -- so gate2_textmatch_control
+# requires its count to carry a known-negative control and print its rate. require_controls
+# is this repository's shared idiom: it refuses to print a count unless a real corpus
+# positive is reproduced AND a real corpus negative is not flagged.
+sys.path.insert(0, os.path.join(REPO, "scripts"))
+from instrument_controls import require_controls, ControlFailed  # noqa: E402
+
 # Pages KNOWN stale, with the build date the page declares. Removing an entry is
 # how a rebuild gets recorded. Adding one requires a reason on the line.
 BASELINE_STALE = {
@@ -118,6 +126,22 @@ def main():
 
     new = {p: v for p, v in drifted.items() if p not in BASELINE_STALE}
     healed = [p for p in BASELINE_STALE if p not in drifted]
+
+    # The count below is only trustworthy if the matcher both FIRES on a real drift and does
+    # NOT fire on a real page that carries all its limitations. Established independently of
+    # this instrument: PREVNAR15 is stale (built 2026-08-05, per the docstring) so it MUST be
+    # flagged; SGLT2_HF_REVIEW carries all its object's limitations so it must NOT. If either
+    # disagrees, no count is printed.
+    try:
+        require_controls(
+            "served-readiness-staleness",
+            positive=("PREVNAR15_PNEUMO_AUTO_FULL_REVIEW.html is flagged as drifted",
+                      "PREVNAR15_PNEUMO_AUTO_FULL_REVIEW.html" in drifted, True),
+            negative=("SGLT2_HF_REVIEW.html (carries all its limitations) is flagged",
+                      "SGLT2_HF_REVIEW.html" in drifted, True))
+    except ControlFailed as exc:
+        print(str(exc))
+        return 1
 
     print("pages with a readiness card, checked against their object: %d" % checked)
     print("pages whose served bytes are missing a limitation their object "
