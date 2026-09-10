@@ -146,7 +146,8 @@ def extract_titled(nct, outcome_key, tables, trt_terms=GLP1):
 
     def _title_is_composite(t):
         t = (t or "").lower()
-        return ("composite" in t or "first occurrence of a comp" in t or "\bmace\b" in t
+        return ("composite" in t or "first occurrence of a comp" in t
+                or re.search(r"\bmace\b", t) is not None
                 or sum(w in t for w in ("cardiovascular death", "myocardial infarction", "stroke")) >= 2)
 
     # An outcome whose title is a COMPOSITE must not answer a single-component key, and vice
