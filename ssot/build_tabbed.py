@@ -22,6 +22,7 @@ import projectors_sof as psof           # noqa: E402
 import projectors_generated as pgen        # noqa: E402
 import projectors_evidence as pev          # noqa: E402
 import screening_ledger as sled            # noqa: E402
+import registry_identifier_checks as _ric  # noqa: E402
 
 # The base generator carries its own fmt() and it is what renders the pooled
 # result card -- which is why "HR 0.8392 (0.7429 to 0.948)" survived rounding the
@@ -2220,6 +2221,7 @@ if __name__ == "__main__":
     pj.RASTER.update(browser=_fg.find_browser(), workdir=_rd, outdir=_rd)
     print("raster browser: %s" % (pj.RASTER["browser"] or "NONE -- vector only"))
     _html = build(obj)
+    _html = _ric.inject_registry_banner(_html, out)
     # Tokens reach the page through paths fill() never sees -- a figure title, a
     # note, any string interpolated straight into HTML. Checking fill()'s own
     # inputs therefore does not establish the claim that no placeholder reaches a
