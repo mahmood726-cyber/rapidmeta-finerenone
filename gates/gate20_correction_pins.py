@@ -81,11 +81,9 @@ def main(argv):
     broken = k.get("BROKEN", 0)
     absent = k.get("ABSENT", 0)
     nopin = k.get("NO_PIN", 0)
-    # NEITHER PASS NOR FAIL, and it MUST be in the sum. UNDETERMINABLE_NO_LANE_REFS means
-    # the detector could not read any known lane in this checkout, so nothing was consulted
-    # and nothing is judged. It does not occur in the worktree where the lane is checked
-    # out -- WHICH IS EXACTLY WHY OMITTING IT WOULD BE MISSED: the kinds would stop summing
-    # to the population the first time someone ran this in a clone without the lane refs.
+    # UNDETERMINABLE_NO_LANE_REFS means the detector could not read any known lane in this
+    # checkout, so the pinned bytes were not obtained here. It MUST be in the sum, and when
+    # it occurs on real records it is a named finding rather than a quiet pass.
     undet = k.get("UNDETERMINABLE_NO_LANE_REFS", 0)
     total = len(recs)
     if holds + ahead + broken + absent + nopin + undet != total:
@@ -118,11 +116,17 @@ def main(argv):
     if ahead:
         gate.note("%d record(s) await a merge and are NOT counted as verified." % ahead)
 
-    for kind, n in (("BROKEN", broken), ("ABSENT", absent), ("NO_PIN", nopin)):
+    def record_names(kind):
+        return ", ".join(r.get("record", "<unknown>") for r in recs
+                         if r.get("verdict") == kind)
+
+    for kind, n in (("BROKEN", broken), ("ABSENT", absent), ("NO_PIN", nopin),
+                    ("UNDETERMINABLE_NO_LANE_REFS", undet)):
         if n:
             gate.finding("CORRECTION-PIN-%s" % kind,
                          "%d correction record(s) are %s -- the record cannot be "
-                         "checked against any bytes we hold." % (n, kind))
+                         "checked against any bytes we hold: %s"
+                         % (n, kind, record_names(kind)))
     return gate.report(denominator="%d correction records; %d verifiable here, "
                                    "%d awaiting a merge" % (total, holds, ahead))
 

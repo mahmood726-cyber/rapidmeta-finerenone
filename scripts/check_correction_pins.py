@@ -66,7 +66,14 @@ def _sha(b):
     return hashlib.sha256(b).hexdigest()
 
 
-def classify(rel, pin):
+def _refs_for_lanes(lanes):
+    for lane in lanes:
+        yield lane
+        if not lane.startswith("origin/"):
+            yield "origin/" + lane
+
+
+def classify(rel, pin, refs=None):
     """Match on three bases and SAY WHICH ONE matched.
 
     A sha256 over a text file in a repo with line-ending translation does not
@@ -114,24 +121,23 @@ def classify(rel, pin):
     # FATAL in the worktree. They are not two spellings of one ref: they name DIFFERENT
     # TREES, 29 commits apart.
     readable = 0
-    for lane in KNOWN_LANES:
-        for ref in (lane, "origin/" + lane):
-            if subprocess.run(["git", "rev-parse", "--verify", "--quiet", ref + "^{commit}"],
-                              cwd=REPO, capture_output=True).returncode != 0:
-                continue
-            readable += 1
-            out = subprocess.run(["git", "show", "%s:%s" % (ref, rel)], cwd=REPO,
-                                 capture_output=True)
-            if out.returncode != 0:
-                continue                      # the ref is fine; this PATH is not in it
-            blob = out.stdout
-            # the lane's WORKING copy is what a pin taken on Windows would hash
-            if (_sha(blob) == pin or _sha(_norm(blob)) == pin
-                    or _sha(blob.replace(LF, CRLF)) == pin):
-                cmt = subprocess.run(["git", "log", "-1", "--format=%h %s", ref, "--", rel],
-                                     cwd=REPO, capture_output=True, text=True,
-                                     encoding="utf-8", errors="replace").stdout.strip()
-                return "AHEAD_OF_BRANCH", "%s carries these bytes: %s" % (ref, cmt[:80])
+    for ref in (refs if refs is not None else _refs_for_lanes(KNOWN_LANES)):
+        if subprocess.run(["git", "rev-parse", "--verify", "--quiet", ref + "^{commit}"],
+                          cwd=REPO, capture_output=True).returncode != 0:
+            continue
+        readable += 1
+        out = subprocess.run(["git", "show", "%s:%s" % (ref, rel)], cwd=REPO,
+                             capture_output=True)
+        if out.returncode != 0:
+            continue                          # the ref is fine; this PATH is not in it
+        blob = out.stdout
+        # the lane's WORKING copy is what a pin taken on Windows would hash
+        if (_sha(blob) == pin or _sha(_norm(blob)) == pin
+                or _sha(blob.replace(LF, CRLF)) == pin):
+            cmt = subprocess.run(["git", "log", "-1", "--format=%h %s", ref, "--", rel],
+                                 cwd=REPO, capture_output=True, text=True,
+                                 encoding="utf-8", errors="replace").stdout.strip()
+            return "AHEAD_OF_BRANCH", "%s carries these bytes: %s" % (ref, cmt[:80])
     if readable == 0:
         return ("UNDETERMINABLE_NO_LANE_REFS",
                 "none of the %d known lane(s) resolves here, in either form"
@@ -142,7 +148,8 @@ def classify(rel, pin):
 
 def controls():
     """A pin that must hold and a pin that must not. Both, or the run is blind."""
-    tmp = os.path.join(REPO, "corrections", "__control_probe.tmp")
+    tmp = os.path.join(REPO, "corrections",
+                       "__control_probe_%s.tmp" % os.getpid())
     ok = True
     lines = []
     with io.open(tmp, "w", encoding="utf-8") as fh:
@@ -150,9 +157,13 @@ def controls():
     good = sha_of(tmp)
     bad = "0" * 64
     rel = os.path.relpath(tmp, REPO).replace("\\", "/")
-    v1, _ = classify(rel, good)
-    v2, _ = classify(rel, bad)
-    os.remove(tmp)
+    # The negative probe must not depend on an external lane ref being present in
+    # this clone. HEAD is always readable, and the temp path is absent from it, so
+    # a bad pin reaches the "consulted bytes, no match" branch.
+    v1, _ = classify(rel, good, refs=("HEAD",))
+    v2, _ = classify(rel, bad, refs=("HEAD",))
+    if os.path.exists(tmp):
+        os.remove(tmp)
     lines.append("   control: a pin matching the bytes    -> %-16s expected HOLDS" % v1)
     lines.append("   control: a pin matching nothing      -> %-16s expected BROKEN" % v2)
     ok = (v1 == "HOLDS") and (v2 == "BROKEN")
@@ -190,17 +201,20 @@ def main():
     print("\n   kinds: %s" % ", ".join("%s %d" % (k, v) for k, v in sorted(tally.items())))
     print("   denominator: %d records in corrections/" % len(names))
     with io.open(os.path.join(REPO, "corrections", "PIN_STATUS.json"), "w",
-                 encoding="utf-8") as fh:
+                 encoding="utf-8", newline="\n") as fh:
         json.dump({"checked_utc": "2026-09-01", "kinds": tally, "records": rows,
                    "rule": "a pin is never amended; a changed artefact means the "
                            "record is about the old bytes and must be re-derived"},
                   fh, indent=1)
     # AHEAD_OF_BRANCH is not a pass and not a failure: it is a merge that has not
     # happened. It exits 1 so nothing can render these as verified, and names why.
-    hard = tally.get("BROKEN", 0) + tally.get("ABSENT", 0) + tally.get("NO_PIN", 0)
+    hard = (tally.get("BROKEN", 0) + tally.get("ABSENT", 0)
+            + tally.get("NO_PIN", 0)
+            + tally.get("UNDETERMINABLE_NO_LANE_REFS", 0))
     soft = tally.get("AHEAD_OF_BRANCH", 0)
     if hard:
-        print("\n   REFUSE: %d record(s) cannot be verified on any known branch." % hard)
+        print("\n   REFUSE: %d record(s) cannot be verified on any known branch or "
+              "lane here." % hard)
         return 1
     if soft:
         print("\n   HOLD: %d record(s) pin bytes that exist on another lane. They are "
