@@ -17,7 +17,7 @@ the rest of the portfolio can be checked for the same mistakes:
                      field is almost certainly holding an absolute value, not a
                      ratio (the DME Protocol-T 11.6 case).
   bad_pmid           pmid present but not 1-8 digits.
-  bad_nct            trial key is neither NCT\\d{8} nor LEGACY-*.
+  bad_nct            malformed NCT/LEGACY-like trial key (e.g. NCT with 7 digits).
 
 It also (optionally, --ground-truth) re-runs the curated published-MA comparison
 using a format-tolerant extractor (the old scripts/compare_to_published_mas.py
@@ -48,7 +48,10 @@ if (__name__ == "__main__" and "pytest" not in sys.modules
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-NCT_KEY_RE = re.compile(r"""["']?(NCT\d{8}|LEGACY-[A-Za-z0-9_-]+)["']?\s*:\s*\{""")
+# Match NCT-like CANDIDATES, including malformed IDs. Matching only NCT\d{8}
+# silently hid invalid keys from audit_app's bad_nct check. This intentionally
+# limits candidate discovery to NCT/LEGACY prefixes (not arbitrary JS objects).
+NCT_KEY_RE = re.compile(r"""["']?(NCT[A-Za-z0-9_-]*|LEGACY-[A-Za-z0-9_-]+)["']?\s*:\s*\{""", re.IGNORECASE)
 # JS number, or a corrupted/None token we want to catch. ORDER MATTERS: the
 # corruption token `nulle<digits>` (e.g. `tN:nulle4`, a `null` fused with an
 # exponent) MUST precede the plain `null` alternative, or the engine grabs `null`
