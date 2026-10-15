@@ -3,81 +3,153 @@ name: Peer-review findings harvester
 
 on:
   schedule:
-    - cron: '0 3 * * *'   # daily 03:00 UTC (after trial-accrual)
+    - cron: '0 3 * * *'
   workflow_dispatch:
   push:
     branches: [main]
     paths:
       - '*_REVIEW.html'
+      - 'scripts/workflow/diff_findings.py'
+      - 'scripts/workflow/harvest_findings.mjs'
+      - 'tests/test_diff_findings.py'
+      - 'tests/test_harvest_findings*.mjs'
+      - '.github/workflows/findings-harvester.yml'
+  pull_request:
+    paths:
+      - 'scripts/workflow/diff_findings.py'
+      - 'scripts/workflow/harvest_findings.mjs'
+      - 'tests/test_diff_findings.py'
+      - 'tests/test_harvest_findings*.mjs'
+      - '.github/workflows/findings-harvester.yml'
 
 permissions:
-  contents: write
-  issues: write
+  contents: read
+
+concurrency:
+  group: peer-review-harvester-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  harvest:
+  tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Schema and completeness regression tests
+        run: python -m unittest discover -s tests -p test_diff_findings.py -v
+      - name: Harvester unit tests
+        run: node --test tests/test_harvest_findings.mjs
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.58.2
+          npx playwright install --with-deps chromium --only-shell
+      - name: Browser regression tests
+        run: node --test tests/test_harvest_findings_browser.mjs
+
+  harvest:
+    if: github.event_name != 'pull_request'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+      issues: write
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # need history for diff
-
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
+          node-version: '22'
       - name: Install Playwright Chromium
         run: |
-          npm init -y
-          npm install --no-save playwright
-          npx playwright install --with-deps chromium
-
+          npm install --no-save --package-lock=false playwright@1.58.2
+          npx playwright install --with-deps chromium --only-shell
+      - name: Prepare isolated snapshot directory
+        id: snapshot
+        run: |
+          rm -f .workflow-state/findings_diff.md .workflow-state/findings_status.md
+          snapshot_dir="findings/$(date -u +%Y-%m-%dT%H-%M-%SZ)-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "directory=$snapshot_dir" >> "$GITHUB_OUTPUT"
       - name: Start local HTTP server
         run: |
-          python3 -m http.server 8080 &
-          sleep 2
-          echo "SMOKE_BASE=http://localhost:8080/" >> $GITHUB_ENV
-
+          python3 -m http.server 8080 --bind 127.0.0.1 &
+          for i in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8080/ >/dev/null; then break; fi
+            sleep 0.5
+          done
+          curl --fail --silent http://127.0.0.1:8080/ >/dev/null
       - name: Harvest peer-review findings from all apps
         run: node scripts/workflow/harvest_findings.mjs
         env:
-          SMOKE_BASE: ${{ env.SMOKE_BASE }}
-          OUT_DIR: findings/${{ github.run_started_at }}
-
-      - name: Diff vs previous harvest
+          SMOKE_BASE: http://127.0.0.1:8080/
+          OUT_DIR: ${{ steps.snapshot.outputs.directory }}
+      - name: Validate and compare complete harvests
+        if: always() && steps.snapshot.outcome == 'success'
         id: diff
         run: |
           python scripts/workflow/diff_findings.py \
-            --current "findings/${{ github.run_started_at }}" \
-            --report .workflow-state/findings_diff.md
-
-      - name: Commit snapshot
+            --current "${{ steps.snapshot.outputs.directory }}" \
+            --report .workflow-state/findings_diff.md \
+            --status-report .workflow-state/findings_status.md
+      - name: Preserve harvest evidence even on failure
+        if: always() && steps.snapshot.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: peer-review-harvest-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ steps.snapshot.outputs.directory }}
+            .workflow-state/findings_status.md
+            .workflow-state/findings_diff.md
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Summarize harvest coverage
+        if: always()
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add findings/ .workflow-state/
-          if git diff --cached --quiet; then
-            echo "no findings change"
+          if [ -f .workflow-state/findings_status.md ]; then
+            cat .workflow-state/findings_status.md >> "$GITHUB_STEP_SUMMARY"
           else
-            git commit -m "chore(workflow): harvest peer-review findings [skip ci]"
-            # Parallel-workflow-safe push: stash working tree, pull-rebase, pop, push
-            for i in 1 2 3 4 5; do
-              git stash push --include-untracked -m "workflow-retry-$i" || true
-              if git pull --rebase origin main; then
-                git stash pop || true
-                git push origin main && break
-              else
-                git stash pop || true
-              fi
-              echo "push attempt $i failed; sleeping $((i*3))s"
-              sleep $((i*3))
-            done
+            echo 'Harvest or validation did not finish. See the page manifest and job logs; no comparison was published.' >> "$GITHUB_STEP_SUMMARY"
           fi
-
-      - name: Open issue if new concerns emerged
-        if: hashFiles('.workflow-state/findings_diff.md') != ''
+      - name: Commit verified complete snapshot
+        if: success() && steps.diff.outputs.complete == 'true'
+        env:
+          SNAPSHOT_DIR: ${{ steps.snapshot.outputs.directory }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$SNAPSHOT_DIR" .workflow-state/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore(workflow): harvest peer-review findings [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep "$((i * 3))"
+          done
+          echo 'Snapshot push failed after five attempts' >&2
+          exit 1
+      - name: Open issue for verified material changes
+        if: success() && steps.diff.outputs.complete == 'true' && steps.diff.outputs.publish == 'true'
         uses: peter-evans/create-issue-from-file@v5
         with:
           title: "Peer-review findings diff - ${{ github.run_number }}"
           content-filepath: .workflow-state/findings_diff.md
           labels: peer-review, living-ma
+      - name: Require complete harvest
+        if: always()
+        env:
+          COMPLETE: ${{ steps.diff.outputs.complete }}
+        run: |
+          if [ "$COMPLETE" != true ]; then
+            echo 'Harvest incomplete or invalid. Evidence retained; comparison publication and baseline replacement blocked.' >&2
+            exit 1
+          fi
