@@ -9,6 +9,8 @@ Run: python validate_living_ma_portfolio.py [--json] [--strict]
 """
 import sys, io, os, re, math, json, glob
 
+from scripts.benchmark_provenance import assess_reference
+
 # Guard the stdout UTF-8 wrap so it only runs on direct CLI use.
 # Reassigning sys.stdout at module import-time breaks pytest's capture
 # (see ~/.claude/rules/lessons.md — "Module-level sys.stdout
@@ -517,7 +519,7 @@ def pool_dl(trials):
             logHR = math.log(hr)
             se = (math.log(hi) - math.log(lo)) / (2 * 1.96)
             if se > 0:
-                data.append((logHR, se, t.get('name', nct)))
+                data.append((logHR, se, t.get('name', nct), nct, 'published_ratio_ci'))
                 appended = True
         if not appended and t.get('tE') is not None and t.get('tN') and t.get('cN'):
             tE = int(t.get('tE', 0))
@@ -530,17 +532,19 @@ def pool_dl(trials):
                 if a > 0 and b > 0 and c > 0 and d2 > 0:
                     logOR = math.log((a / b) / (c / d2))
                     vi = 1 / a + 1 / b + 1 / c + 1 / d2
-                    data.append((logOR, math.sqrt(vi), t.get('name', '')))
+                    data.append((logOR, math.sqrt(vi), t.get('name', ''), nct, 'odds_ratio_from_counts'))
 
     if len(data) < 2:
         if len(data) == 1:
             return {'k': 1, 'est': round(math.exp(data[0][0]), 2),
-                    'lo': None, 'hi': None, 'i2': 0, 'single': True}
+                    'lo': None, 'hi': None, 'i2': 0, 'single': True,
+                    'trial_ids': [data[0][3]],
+                    'trial_inputs': [{'trial_id': data[0][3], 'effect_input': data[0][4]}]}
         return None
 
     k = len(data)
-    yi = [y for y, _, _ in data]
-    vi = [s ** 2 for _, s, _ in data]
+    yi = [row[0] for row in data]
+    vi = [row[1] ** 2 for row in data]
     df = k - 1
 
     # Heterogeneity (Q, I^2) from fixed-effect weights.
@@ -566,7 +570,10 @@ def pool_dl(trials):
     lo = math.exp(pooled_log - t * se)
     hi = math.exp(pooled_log + t * se)
 
-    return {'k': k, 'est': round(est, 2), 'lo': round(lo, 2), 'hi': round(hi, 2), 'i2': round(i2, 1)}
+    return {'k': k, 'est': round(est, 2), 'lo': round(lo, 2), 'hi': round(hi, 2),
+            'i2': round(i2, 1),
+            'trial_ids': [row[3] for row in data],
+            'trial_inputs': [{'trial_id': row[3], 'effect_input': row[4]} for row in data]}
 
 
 def check_dose_response(html):
@@ -631,6 +638,16 @@ if __name__ == '__main__':
             except ValueError:
                 pass
 
+    # Registry is evidence metadata, not proof of source-level reproducibility.
+    registry_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 "PUBLISHED_META_BENCHMARKS.json")
+    try:
+        with open(registry_path, encoding="utf-8") as handle:
+            registry = json.load(handle).get("benchmarks", {})
+            if not isinstance(registry, dict):
+                registry = {}
+    except (OSError, ValueError):
+        registry = {}  # missing/corrupt registry fails closed
     apps = find_all_apps(local_only=local_only)
     results = []
     benchmarked = 0
@@ -704,6 +721,16 @@ if __name__ == '__main__':
                 dr_str = 'DR' if has_dr else ''
                 print(f"{name:30s}   0  {'--':>7s} {f'{poolable}/{len(trials)} poolable':>16s} {'--':>5s}  {'--':>7s} {'--':>6s}  {'--':>6s}  {dr_str}")
 
+        source_record = registry.get(name + "_REVIEW.html")
+        source_review = assess_reference(bench, source_record, pool,
+                                         numeric_match=entry.get('match', False))
+        entry['published_benchmark_type'] = source_review['benchmark_type']
+        entry['external_verification_status'] = source_review['verification_status']
+        entry['external_verification_reasons'] = source_review['provenance_reasons']
+        entry['independently_validated'] = (
+            source_review['verification_status'] == 'EXTERNALLY_VERIFIED'
+        )
+
         # Gate-relevant per-app facts
         if gate:
             is_md = name in MD_OUTCOME_APPS
@@ -759,6 +786,9 @@ if __name__ == '__main__':
     # disabled by adding --json).
     unvalidated = len(results) - benchmarked
     cov_pct = (benchmarked / len(results) * 100) if results else 0.0
+    independently_validated = sum(bool(row.get('independently_validated')) for row in results)
+    independent_cov_pct = ((independently_validated / len(results) * 100)
+                           if results else 0.0)
 
     if output_json:
         print(json.dumps(results, indent=2))
@@ -772,10 +802,12 @@ if __name__ == '__main__':
         print(f"  Non-poolable:        {sum(1 for r in results if r.get('k', 0) == 0)}")
         print(f"  Dose-response:       {sum(1 for r in results if r.get('dose_response'))}")
         print(f"  Benchmarked:         {benchmarked}")
-        print(f"  Within 10%:          {matched}/{benchmarked}")
+        print(f"  Legacy numerical matches: {matched}/{benchmarked} (NOT source verification)")
         # Benchmark coverage: exit 0 under --strict means only that every
         # BENCHMARKED app matched — NOT that the whole portfolio is validated.
-        print(f"  Benchmark coverage:  {benchmarked}/{len(results)} apps ({cov_pct:.1f}%)")
+        print(f"  Legacy reference availability: {benchmarked}/{len(results)} apps ({cov_pct:.1f}%)")
+        print(f"  Independently externally validated: {independently_validated}/{len(results)} "
+              f"({independent_cov_pct:.2f}%) — source-level comparability required")
         print(f"  UNVALIDATED apps:    {unvalidated}  (no external benchmark — NOT checked for correctness)")
 
         if gate:
@@ -859,11 +891,12 @@ if __name__ == '__main__':
                     reasons.append(f"point diff {r.get('diff_pct', '?')}%>10%")
                 _fail(f"    FAIL  {r['name']:30s}  {'; '.join(reasons) or 'unmatched'}")
             sys.exit(1)
-        if require_coverage is not None and cov_pct < require_coverage:
-            _fail(f"[STRICT] Benchmark coverage {cov_pct:.1f}% < required {require_coverage:.1f}%. FAIL.")
+        if require_coverage is not None and independent_cov_pct < require_coverage:
+            _fail(f"[STRICT] Independently verified external benchmark coverage "
+                  f"{independent_cov_pct:.2f}% < required {require_coverage:.1f}%. FAIL.")
             sys.exit(1)
         if not output_json:
-            print(f"\n[STRICT] PASS: {matched}/{benchmarked} benchmarked apps within 10%; "
+            print(f"\n[STRICT] LEGACY NUMERIC CHECK ONLY: {matched}/{benchmarked} benchmarked apps within 10%; "
                   f"{unvalidated} of {len(results)} apps are UNVALIDATED (no benchmark).")
             print("[STRICT] NOTE: this is a benchmark-REGRESSION gate, not portfolio "
                   "readiness. --gate-strict (full k>=2 + provenance) is EXPECTED to fail "
