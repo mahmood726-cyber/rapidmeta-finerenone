@@ -17,7 +17,9 @@ the rest of the portfolio can be checked for the same mistakes:
                      field is almost certainly holding an absolute value, not a
                      ratio (the DME Protocol-T 11.6 case).
   bad_pmid           pmid present but not 1-8 digits.
-  bad_nct            trial key is neither NCT\\d{8} nor LEGACY-*.
+  bad_nct            malformed NCT/LEGACY-like trial key (e.g. NCT with 7 digits).
+  trial_row_alias    noncanonical internal NCT row key with arm/stratum suffix;
+                     report separately so shared-control dependencies are visible.
 
 It also (optionally, --ground-truth) re-runs the curated published-MA comparison
 using a format-tolerant extractor (the old scripts/compare_to_published_mas.py
@@ -48,7 +50,16 @@ if (__name__ == "__main__" and "pytest" not in sys.modules
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-NCT_KEY_RE = re.compile(r"""["']?(NCT\d{8}|LEGACY-[A-Za-z0-9_-]+)["']?\s*:\s*\{""")
+# Match NCT-like CANDIDATES, including malformed IDs. Matching only NCT\d{8}
+# silently hid invalid keys from audit_app's bad_nct check. This intentionally
+# limits candidate discovery to NCT/LEGACY prefixes (not arbitrary JS objects).
+NCT_KEY_RE = re.compile(r"""["']?(NCT[A-Za-z0-9_-]*|LEGACY-[A-Za-z0-9_-]+)["']?\s*:\s*\{""", re.IGNORECASE)
+# A row ID can disambiguate several comparisons/strata from ONE registered study
+# (e.g. NCT12345678B, NCT12345678_TDF). It is NOT a ClinicalTrials.gov ID.
+# Report these as reviewable aliases, not invalid/missing registry numbers.
+# Keep strict bad_nct detection for wrong-length numbers, wrong-case NCT,
+# unexpected suffix patterns, and arbitrary letters in the registry portion.
+NCT_ROW_ALIAS_RE = re.compile(r"NCT\d{8}(?:[A-Za-z]|_[A-Za-z][A-Za-z0-9_-]*)\Z")
 # JS number, or a corrupted/None token we want to catch. ORDER MATTERS: the
 # corruption token `nulle<digits>` (e.g. `tN:nulle4`, a `null` fused with an
 # exponent) MUST precede the plain `null` alternative, or the engine grabs `null`
@@ -149,7 +160,14 @@ def audit_app(path: str):
         findings.append({"app": name, "class": cls, "trial": key, "detail": detail})
 
     for key, obj in find_trial_objects(html):
-        if not re.fullmatch(r"NCT\d{8}|LEGACY-[A-Za-z0-9_-]+", key):
+        if re.fullmatch(r"NCT\d{8}|LEGACY-[A-Za-z0-9_-]+", key):
+            pass
+        elif NCT_ROW_ALIAS_RE.fullmatch(key):
+            add("trial_row_alias", key,
+                f"noncanonical comparison/stratum row key; parent registry ID {key[:11]!r}. "
+                "Not an independent registry study ID: check multi-arm, shared-control "
+                "or protocol-stratum dependencies against primary sources")
+        else:
             add("bad_nct", key, f"malformed trial key {key!r}")
 
         # 2x2 counts
