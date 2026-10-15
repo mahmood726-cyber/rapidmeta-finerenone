@@ -102,6 +102,8 @@ def test_bad_nct_gate_detects_malformed_trial_ids(tmp_path):
         '"NCT020480070":{tE:1,tN:10,cE:1,cN:10}',  # nine digits
         '"nct02048007":{tE:1,tN:10,cE:1,cN:10}',  # bad case
         '"NCTABC1234":{tE:1,tN:10,cE:1,cN:10}',  # letters
+        '"NCT02048007b":{tE:1,tN:10,cE:1,cN:10}',  # multi-arm row alias
+        '"NCT02048007_TDF":{tE:1,tN:10,cE:1,cN:10}',  # stratum row alias
     ]
     html = "<script>const x={realData:{" + ",".join(records) + "}};</script>"
     path = tmp_path / "NCT_REGRESSION_REVIEW.html"
@@ -111,6 +113,13 @@ def test_bad_nct_gate_detects_malformed_trial_ids(tmp_path):
         if finding["class"] == "bad_nct"
     }
     assert flagged == {"NCT0204800", "NCT020480070", "nct02048007", "NCTABC1234"}
+    aliases = {
+        finding["trial"]: finding["detail"] for finding in dia.audit_app(str(path))
+        if finding["class"] == "trial_row_alias"
+    }
+    assert set(aliases) == {"NCT02048007b", "NCT02048007_TDF"}
+    assert all("parent registry ID 'NCT02048007'" in x for x in aliases.values())
+
 
 def test_known_defects_do_not_grow():
     counts, _ = _audit_counts()
