@@ -125,8 +125,8 @@ def format_report(changes, by_nct):
         lines.extend([f"## {nct}",
                       f"- Type: {'newly tracked in portfolio' if old is None else 'status/date change'}",
                       f"- Apps: {', '.join(by_nct.get(nct, [])) or '(none)'}",
-                      f"- Previous: `json.dumps(old, sort_keys=True)`",
-                      f"- Current: `json.dumps(new, sort_keys=True)`",
+                      f"- Previous: `{json.dumps(old, sort_keys=True)}`",
+                      f"- Current: `{json.dumps(new, sort_keys=True)}`",
                       f"- Registry: https://clinicaltrials.gov/study/{nct}", ""])
     return "\n".join(lines)
 
