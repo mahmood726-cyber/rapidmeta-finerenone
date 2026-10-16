@@ -101,30 +101,42 @@ def diff_snapshots(prev, curr):
     if prev is None:
         return []
     validate_snapshot(prev)
-    # Missing many previously tracked IDs points to scanner/corpus regression.
+    # Preserve >=95% overlap precisely, without integer flooring: 1/2 and
+    # 177/3530 removals must NOT silently pass the census-integrity gate.
     retained = len(prev.keys() & curr.keys())
-    if retained < max(1, int(len(prev) * 0.95)):
+    if retained * 20 < len(prev) * 19:
         raise ValueError(f"NCT census collapsed: only {retained}/{len(prev)} previously monitored IDs remain")
     changed = []
-    for nct in sorted(curr):
+    # Compare the union. Disappearing portfolio references are provenance
+    # changes, NOT evidence that CT.gov deleted or withdrew a study.
+    for nct in sorted(prev.keys() | curr.keys()):
         old = prev.get(nct)
-        new = curr[nct]
-        if old is None or any(old[k] != new[k] for k in COMPARE_KEYS):
+        new = curr.get(nct)
+        if old is None or new is None or any(old[k] != new[k] for k in COMPARE_KEYS):
             changed.append((nct, old, new))
     return changed
 
 
 def format_report(changes, by_nct):
-    altered = sum(old is not None for _, old, _ in changes)
-    newly_tracked = len(changes) - altered
-    lines = ["# ClinicalTrials.gov status-change audit", "",
-             f"Verified previously-tracked record changes: **{altered}**", 
-             f"Newly tracked NCT IDs (not evidence of registry status change): **{newly_tracked}**", "",
-             "Changes below compare two completed polls; primary registry records must be reviewed before scientific claims.", ""]
+    altered = sum(old is not None and new is not None for _, old, new in changes)
+    newly_tracked = sum(old is None for _, old, _ in changes)
+    removed_from_portfolio = sum(new is None for _, _, new in changes)
+    lines = ["# ClinicalTrials.gov status-change and portfolio-coverage audit", "",
+             f"Previously tracked registry status/date changes: **{altered}**",
+             f"Newly tracked portfolio NCT IDs (not registry changes): **{newly_tracked}**",
+             f"No longer referenced by review pages (not CT.gov withdrawals): **{removed_from_portfolio}**", "",
+             "Changes compare two complete validated polls. Portfolio entry/exit does not establish a",
+             "new, withdrawn or deleted registry study. Verify primary records before clinical claims.", ""]
     for nct, old, new in changes:
+        if old is None:
+            kind = "new portfolio reference; NOT a newly registered or newly changed CT.gov trial"
+        elif new is None:
+            kind = "removed from local monitored pages; NOT an established registry withdrawal"
+        else:
+            kind = "status/date difference in two validated CT.gov observations"
         lines.extend([f"## {nct}",
-                      f"- Type: {'newly tracked in portfolio' if old is None else 'status/date change'}",
-                      f"- Apps: {', '.join(by_nct.get(nct, [])) or '(none)'}",
+                      f"- Type: {kind}",
+                      f"- Current app references: {', '.join(by_nct.get(nct, [])) or '(none; prior associations not preserved in this snapshot)'}",
                       f"- Previous: `{json.dumps(old, sort_keys=True)}`",
                       f"- Current: `{json.dumps(new, sort_keys=True)}`",
                       f"- Registry: https://clinicaltrials.gov/study/{nct}", ""])
@@ -164,7 +176,7 @@ def main(argv=None):
         print(f"First complete poll: established {len(current)}-trial baseline without a false change report")
     elif changes:
         atomic_write(report_path, format_report(changes, by_nct))
-        print(f"Detected {len(changes)} reviewed deltas or newly tracked IDs in two complete polls")
+        print(f"Detected {len(changes)} registry-record or portfolio-reference differences in two complete polls")
     else:
         print(f"No comparable changes across {len(current)} tracked trials")
     return 0
