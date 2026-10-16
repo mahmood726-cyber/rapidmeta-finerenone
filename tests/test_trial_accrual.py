@@ -66,8 +66,8 @@ class TrialAccrualTests(unittest.TestCase):
         self.assertEqual(changes[0][0], "NCT87654321")
         self.assertIsNone(changes[0][1])
         rep = monitor.format_report(changes, {})
-        self.assertIn("not evidence of registry status change", rep)
-        self.assertIn("Newly tracked NCT IDs", rep)
+        self.assertIn("Newly tracked portfolio NCT IDs (not registry changes): **1**", rep)
+        self.assertIn("NOT a newly registered or newly changed CT.gov trial", rep)
 
     def test_missing_majority_of_previous_ids_fails_closed(self):
         before = {f"NCT{x:08d}": record() for x in range(100)}
@@ -128,6 +128,66 @@ class TrialAccrualTests(unittest.TestCase):
                 with self.assertRaises(json.JSONDecodeError):
                     monitor.main(["--snapshot", "state/snap.json", "--report", "state/report.md"])
             self.assertEqual(state.read_text(), 'not json')
+
+
+    def test_exact_five_percent_exit_is_reported_not_registry_withdrawal(self):
+        prev = {f"NCT{x:08d}": record() for x in range(100)}
+        curr = {f"NCT{x:08d}": record() for x in range(95)}
+        changes = monitor.diff_snapshots(prev, curr)
+        self.assertEqual(len(changes), 5)
+        self.assertTrue(all(old is not None and new is None for _, old, new in changes))
+        report = monitor.format_report(changes, {})
+        self.assertIn("No longer referenced by review pages (not CT.gov withdrawals): **5**", report)
+        self.assertIn("NOT an established registry withdrawal", report)
+
+    def test_3530_to_3354_reports_176_portfolio_exits(self):
+        prev = {f"NCT{x:08d}": record() for x in range(3530)}
+        curr = {f"NCT{x:08d}": record() for x in range(3354)}
+        changes = monitor.diff_snapshots(prev, curr)
+        self.assertEqual(len(changes), 176)
+        self.assertTrue(all(new is None for _, _, new in changes))
+        self.assertIn("withdrawals): **176**", monitor.format_report(changes, {}))
+
+    def test_3530_to_3353_rejects_more_than_five_percent_loss(self):
+        prev = {f"NCT{x:08d}": record() for x in range(3530)}
+        curr = {f"NCT{x:08d}": record() for x in range(3353)}
+        with self.assertRaisesRegex(ValueError, "NCT census collapsed: only 3353/3530"):
+            monitor.diff_snapshots(prev, curr)
+
+    def test_small_census_two_to_one_fails_closed(self):
+        prev = {"NCT00000001": record(), "NCT00000002": record()}
+        curr = {"NCT00000001": record()}
+        with self.assertRaisesRegex(ValueError, "census collapsed"):
+            monitor.diff_snapshots(prev, curr)
+
+    def test_mixed_status_new_reference_and_exit_are_disjoint(self):
+        prev = {f"NCT{x:08d}": record() for x in range(20)}
+        curr = {k: dict(v) for k, v in prev.items() if k != "NCT00000019"}
+        curr["NCT00000001"]["status"] = "COMPLETED"
+        curr["NCT00000020"] = record()
+        changes = monitor.diff_snapshots(prev, curr)
+        self.assertEqual(len(changes), 3)
+        report = monitor.format_report(changes, {})
+        self.assertIn("Previously tracked registry status/date changes: **1**", report)
+        self.assertIn("Newly tracked portfolio NCT IDs (not registry changes): **1**", report)
+        self.assertIn("No longer referenced by review pages (not CT.gov withdrawals): **1**", report)
+
+    def test_rejected_census_does_not_replace_last_validated_baseline(self):
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            state = root / "state" / "snapshot.json"
+            state.parent.mkdir()
+            original = json.dumps({f"NCT{x:08d}": record() for x in range(100)}, sort_keys=True)
+            state.write_text(original, encoding="utf-8")
+            pages = {f"NCT{x:08d}": ["SOURCE_REVIEW.html"] for x in range(94)}
+            with patch.object(monitor, "ROOT", root), \
+                 patch.object(monitor, "extract_ncts", return_value=pages), \
+                 patch.object(monitor, "fetch_status", return_value=record()):
+                with self.assertRaisesRegex(ValueError, "census collapsed"):
+                    monitor.main(["--snapshot", "state/snapshot.json",
+                                  "--report", "state/report.md"])
+            self.assertEqual(state.read_text(encoding="utf-8"), original)
+            self.assertFalse((root / "state" / "report.md").exists())
 
 
 if __name__ == "__main__":
