@@ -1,0 +1,33 @@
+name: GLP-1 CVOT baseline provenance regression
+
+on:
+  pull_request:
+    paths:
+      - 'GLP1_CVOT_REVIEW.html'
+      - 'tests/test_glp1_cvot_baseline.py'
+      - '.github/workflows/glp1-cvot-baseline-regression.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'GLP1_CVOT_REVIEW.html'
+      - 'tests/test_glp1_cvot_baseline.py'
+      - '.github/workflows/glp1-cvot-baseline-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unique trial baselines and source-supported enrollment
+        run: python -m unittest discover -s tests -p 'test_glp1_cvot_baseline.py' -v
