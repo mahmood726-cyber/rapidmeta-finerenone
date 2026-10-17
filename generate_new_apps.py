@@ -1425,7 +1425,6 @@ def transform_template(template_html, app_config):
     # First handle occurrences inside JS regex literals where / in drug names would break the regex
     # Pattern: /bempedoic acid.../i  -> need to escape / in the replacement
     drug_lower_regex_safe = drug_lower.replace("/", "\\/")
-    drug_regex_safe = drug.replace("/", "\\/")
 
     # Replace occurrences that are inside JS regex patterns (preceded by / or | in a regex context)
     # These patterns match: /bempedoic acid|... or /\bbempedoic acid\b

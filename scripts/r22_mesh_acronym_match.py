@@ -198,7 +198,6 @@ ACRONYM_EXPAND = {
     "ANCA": ["anca", "vasculitis"],
     "PFIC": ["intrahepatic", "cholestasis"],
     "HEMOPHILIA": ["hemophilia"],
-    "BISPECIFIC_LYMPHOMA": ["lymphoma", "bispecific"],
     "OAB": ["overactive", "bladder"],
     "ENDOMETRIOSIS": ["endometriosis"],
     "GNRH": ["gnrh", "gonadotropin"],

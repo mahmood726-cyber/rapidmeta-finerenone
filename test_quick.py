@@ -172,7 +172,7 @@ def test_file(filename):
         results['fail'] += 1; results['details'].append(f'CRASH: {str(ex)[:80]}')
     finally:
         try: driver.quit()
-        except: pass
+        except Exception: pass
     return results
 
 def main():

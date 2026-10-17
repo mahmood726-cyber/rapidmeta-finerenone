@@ -84,9 +84,6 @@ def update_generator(approved_proposals, dry_run=False):
         new_block = m.group(1) + new_fields
         content = content.replace(old_block, new_block, 1)
 
-        # Add provenance comment in snippet
-        snippet_pattern = re.compile(rf'("name":\s*"[^"]*",\s*"phase":[^\n]*\n[^\n]*\n[^\n]*PENDING[^"]*"[^,]*,)', re.DOTALL)
-        # Just mark in changes
         changes.append({
             'nct': nct,
             'measure': measure,

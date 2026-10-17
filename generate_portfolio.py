@@ -15,7 +15,8 @@ _PORTFOLIO_DIR = os.environ.get(
     'LIVINGMA_PORTFOLIO_DIR',
     str(Path(__file__).resolve().parent.parent / 'LivingMA_Portfolio'),
 )
-inventory = json.load(open(os.path.join(_PORTFOLIO_DIR, 'app_inventory.json')))
+with open(os.path.join(_PORTFOLIO_DIR, 'app_inventory.json')) as f:
+    inventory = json.load(f)
 
 specialty_map = {
     'FINERENONE': 'Cardiology', 'ABLATION_AF': 'Cardiology', 'ARNI_HF': 'Cardiology',

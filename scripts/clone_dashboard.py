@@ -37,7 +37,7 @@ Config schema:
       "extra_replaces": [["old", "new"], ...]   # any file-specific tweaks
     }
 """
-import argparse, os, json, os, re, sys, shutil
+import argparse, os, json, re, sys, shutil
 
 ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

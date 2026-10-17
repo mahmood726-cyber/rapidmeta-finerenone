@@ -641,7 +641,8 @@ if __name__ == '__main__':
         print('-' * 105)
 
     for path, name in sorted(apps, key=lambda x: x[1]):
-        html = open(path, encoding='utf-8').read()
+        with open(path, encoding='utf-8') as f:
+            html = f.read()
         trials = extract_real_data(html)
         pool = pool_dl(trials)
         has_dr = check_dose_response(html)

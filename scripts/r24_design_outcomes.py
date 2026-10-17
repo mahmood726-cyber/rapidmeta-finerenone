@@ -124,7 +124,6 @@ for t in target:
 
 print(f"Estimand/outcome-type mismatches: {len(findings)}")
 # Counts by directional category
-from collections import Counter
 direction = Counter()
 for f in findings:
     direction[(f["estimandType"], f["aact_outcome_type"])] += 1
