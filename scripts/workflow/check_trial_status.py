@@ -150,6 +150,18 @@ def atomic_write(path, text):
     os.replace(temp, path)
 
 
+def load_unique_json(text):
+    """Reject ambiguous duplicate keys anywhere in a persisted snapshot."""
+    def reject_duplicates(pairs):
+        obj = {}
+        for key, value in pairs:
+            if key in obj:
+                raise ValueError(f"ambiguous duplicate JSON key: {key!r}")
+            obj[key] = value
+        return obj
+    return json.loads(text, object_pairs_hook=reject_duplicates)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--snapshot", required=True)
@@ -163,7 +175,7 @@ def main(argv=None):
         raise RuntimeError("No canonical NCTs found: refusing an empty snapshot")
     previous = None
     if snap_path.exists():
-        previous = validate_snapshot(json.loads(snap_path.read_text(encoding="utf-8")))
+        previous = validate_snapshot(load_unique_json(snap_path.read_text(encoding="utf-8")))
     current = {}
     for number, nct in enumerate(sorted(by_nct), 1):
         current[nct] = fetch_status(nct)
