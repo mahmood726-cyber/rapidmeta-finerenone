@@ -99,5 +99,46 @@ class GLP1CVOTBaselineTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stderr)
 
 
+    def test_real_chromium_evaluates_restored_enrollment(self):
+        """Exercise source-derived JS baseline literals in a headless browser."""
+        import tempfile
+        browser = next(
+            (exe for cmd in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser")
+             if (exe := shutil.which(cmd))), None,
+        )
+        self.assertIsNotNone(browser, "A real headless Chrome/Chromium browser is required")
+        trial_objects = []
+        for nct, (_, published_n) in EXPECTED.items():
+            baseline = self._baseline_body(nct)
+            self.assertNotIn("</script", baseline.lower())
+            trial_objects.append(
+                '{id:"' + nct + '",expected:' + str(published_n)
+                + ',baseline:{' + baseline + '}}'
+            )
+        browser_script = (
+            "const records=[" + ",".join(trial_objects) + "];"
+            "const priorBug={baseline:{n:123},baseline:{meanAge:60}};"
+            "const lastWins=priorBug.baseline.n===undefined;"
+            "const restored=records.length===10&&records.every(r=>"
+            "r.baseline.n===r.expected&&Number.isInteger(r.baseline.n)"
+            "&&typeof r.baseline.meanAge==='number');"
+            "document.querySelector('#result').textContent="
+            "(lastWins&&restored)?'GLP1_BROWSER_BASELINE_PASS':'GLP1_BROWSER_BASELINE_FAIL';"
+        )
+        page = ('<!doctype html><meta charset="utf-8"><div id="result"></div>'
+                '<script>' + browser_script + '</script>')
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "glp1-baseline.html"
+            path.write_text(page, encoding="utf-8")
+            run = subprocess.run(
+                [browser, "--headless", "--no-sandbox", "--disable-gpu",
+                 "--disable-dev-shm-usage", "--no-first-run", "--dump-dom", path.as_uri()],
+                capture_output=True, text=True, timeout=45, check=False,
+            )
+            self.assertEqual(run.returncode, 0, run.stderr[-1500:])
+            self.assertIn("GLP1_BROWSER_BASELINE_PASS", run.stdout)
+            self.assertNotIn("GLP1_BROWSER_BASELINE_FAIL", run.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
