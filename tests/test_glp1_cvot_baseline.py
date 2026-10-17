@@ -36,7 +36,9 @@ class GLP1CVOTBaselineTests(unittest.TestCase):
 
     def _trial_prefix(self, nct):
         needle = nct + ':{name:"'
-        self.assertEqual(self.realdata.count(needle), 1, nct)
+        # Other components on this page re-use the NCT key (e.g. Phase3CTgovData).
+        # The FIRST occurrence following realData:{ is the source trial object.
+        self.assertIn(needle, self.realdata)
         begin = self.realdata.index(needle)
         end = self.realdata.index("allOutcomes:[", begin)
         prefix = self.realdata[begin:end]
