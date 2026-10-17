@@ -136,8 +136,11 @@ class GLP1CVOTBaselineTests(unittest.TestCase):
                 capture_output=True, text=True, timeout=45, check=False,
             )
             self.assertEqual(run.returncode, 0, run.stderr[-1500:])
-            self.assertIn("GLP1_BROWSER_BASELINE_PASS", run.stdout)
-            self.assertNotIn("GLP1_BROWSER_BASELINE_FAIL", run.stdout)
+            # --dump-dom includes the script literal containing the word FAIL.
+            # Assert the rendered result element, not a page-wide substring.
+            rendered = re.search(r'<div id="result">([^<]*)</div>', run.stdout)
+            self.assertIsNotNone(rendered, "Browser did not render the result element")
+            self.assertEqual(rendered.group(1), "GLP1_BROWSER_BASELINE_PASS")
 
 
 if __name__ == "__main__":
