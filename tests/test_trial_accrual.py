@@ -190,5 +190,44 @@ class TrialAccrualTests(unittest.TestCase):
             self.assertFalse((root / "state" / "report.md").exists())
 
 
+    def test_unique_json_accepts_unambiguous_snapshot(self):
+        current = {"NCT01234567": record()}
+        self.assertEqual(monitor.load_unique_json(json.dumps(current)), current)
+
+    def test_unique_json_rejects_duplicate_top_level_trial(self):
+        entry = json.dumps(record())
+        ambiguous = f'{{"NCT01234567": {entry}, "NCT01234567": {entry}}}'
+        with self.assertRaisesRegex(ValueError, "ambiguous duplicate JSON key"):
+            monitor.load_unique_json(ambiguous)
+
+    def test_unique_json_rejects_duplicate_nested_status(self):
+        ambiguous = '{"NCT01234567": {"status": "RECRUITING", "status": "COMPLETED"}}'
+        with self.assertRaisesRegex(ValueError, "ambiguous duplicate JSON key"):
+            monitor.load_unique_json(ambiguous)
+
+    def test_unique_json_rejects_unicode_escaped_key_collision(self):
+        # JSON decodes \u0074 to 't': two spellings of the SAME key.
+        ambiguous = '{"status": "RECRUITING", "sta\\u0074us": "COMPLETED"}'
+        with self.assertRaisesRegex(ValueError, "ambiguous duplicate JSON key"):
+            monitor.load_unique_json(ambiguous)
+
+    def test_duplicate_prior_snapshot_preserved_without_registry_poll(self):
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            state = root / "state" / "snapshot.json"
+            state.parent.mkdir()
+            entry = json.dumps(record())
+            original = f'{{"NCT01234567": {entry}, "NCT01234567": {entry}}}'
+            state.write_text(original, encoding="utf-8")
+            with patch.object(monitor, "ROOT", root), \
+                 patch.object(monitor, "extract_ncts",
+                              return_value={"NCT01234567": ["a_REVIEW.html"]}), \
+                 patch.object(monitor, "fetch_status") as fetch:
+                with self.assertRaisesRegex(ValueError, "ambiguous duplicate JSON key"):
+                    monitor.main(["--snapshot", "state/snapshot.json",
+                                  "--report", "state/report.md"])
+                fetch.assert_not_called()
+            self.assertEqual(state.read_text(encoding="utf-8"), original)
+            self.assertFalse((root / "state" / "report.md").exists())
 if __name__ == "__main__":
     unittest.main()
