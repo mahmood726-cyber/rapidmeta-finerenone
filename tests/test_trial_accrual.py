@@ -229,5 +229,157 @@ class TrialAccrualTests(unittest.TestCase):
                 fetch.assert_not_called()
             self.assertEqual(state.read_text(encoding="utf-8"), original)
             self.assertFalse((root / "state" / "report.md").exists())
+class TrialAccrualPayloadIntegrityTests(unittest.TestCase):
+    """Synthetic corruption controls; only the named source replay is clinical data."""
+
+    NCT = "NCT00000001"  # Synthetic transport identity, not a clinical claim.
+    DATE_FIELDS = {
+        "lastUpdatePostDateStruct": "lastUpdatePost",
+        "resultsFirstPostDateStruct": "resultsPost",
+        "studyFirstPostDateStruct": "studyPost",
+        "completionDateStruct": "completion",
+    }
+
+    @staticmethod
+    def response(payload):
+        raw = payload if isinstance(payload, str) else json.dumps(payload)
+
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *args): return None
+            def read(self): return raw.encode("utf-8")
+
+        return Response()
+
+    def payload(self, status):
+        return {"protocolSection": {
+            "identificationModule": {"nctId": self.NCT},
+            "statusModule": status,
+        }}
+
+    def test_calendar_dates_preserve_source_precision(self):
+        for value in (None, "2024", "2024-02", "2024-02-29", "2000-02-29"):
+            with self.subTest(value=value):
+                self.assertEqual(monitor.validate_ctgov_date(value), value)
+
+    def test_calendar_dates_reject_malformed_or_impossible_values(self):
+        for value in ("", "2023-02-29", "1900-02-29", "2024-04-31", "2024-00",
+                      "2024-13", "0000", "2024-01-00", "2024-1-02", "24-01-02",
+                      "2024/01/02", "2024-01-02T00:00:00Z", " 2024-01-02",
+                      "2024-01-02 ", 2024, True, [], {}):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                monitor.validate_ctgov_date(value)
+
+    def test_api_absent_dates_remain_absent(self):
+        with patch.object(monitor.urllib.request, "urlopen",
+                          return_value=self.response(self.payload({"overallStatus": "RECRUITING"}))):
+            result = monitor.fetch_status(self.NCT)
+        self.assertTrue(all(result[key] is None for key in self.DATE_FIELDS.values()))
+
+    def test_api_preserves_each_date_field_precision(self):
+        for field, output in self.DATE_FIELDS.items():
+            for value in ("2024", "2024-02", "2024-02-29"):
+                with self.subTest(field=field, value=value):
+                    payload = self.payload({"overallStatus": "RECRUITING", field: {"date": value}})
+                    with patch.object(monitor.urllib.request, "urlopen",
+                                      return_value=self.response(payload)):
+                        result = monitor.fetch_status(self.NCT)
+                    self.assertEqual(result[output], value)
+
+    def test_api_rejects_each_malformed_present_date_struct(self):
+        for field in self.DATE_FIELDS:
+            for entry in (None, {}, [], "2024-01-01", 0, False, {"date": None},
+                          {"date": ""}, {"date": 2024}, {"date": "2023-02-29"},
+                          {"date": "2024-13"}, {"date": "2024-04-31"}):
+                with self.subTest(field=field, entry=entry):
+                    payload = self.payload({"overallStatus": "RECRUITING", field: entry})
+                    with patch.object(monitor.urllib.request, "urlopen",
+                                      return_value=self.response(payload)):
+                        with self.assertRaisesRegex(RuntimeError, "date"):
+                            monitor.fetch_status(self.NCT)
+
+    def test_invalid_prior_date_aborts_before_network_poll(self):
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            state = root / "snapshot.json"
+            original = json.dumps({self.NCT: record(last="2023-02-29")}).encode()
+            state.write_bytes(original)
+            with patch.object(monitor, "ROOT", root), \
+                 patch.object(monitor, "extract_ncts", return_value={self.NCT: []}), \
+                 patch.object(monitor.urllib.request, "urlopen") as fetch:
+                with self.assertRaisesRegex(ValueError, "calendar date"):
+                    monitor.main(["--snapshot", "snapshot.json", "--report", "report.md"])
+                fetch.assert_not_called()
+            self.assertEqual(state.read_bytes(), original)
+            self.assertFalse((root / "report.md").exists())
+
+    def assert_live_failure_preserves_baseline(self, payload, message):
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            state = root / "snapshot.json"
+            report = root / "report.md"
+            original = json.dumps({self.NCT: record()}).encode()
+            state.write_bytes(original)
+            report.write_text("Stale report must not be reused", encoding="utf-8")
+            with patch.object(monitor, "ROOT", root), \
+                 patch.object(monitor, "extract_ncts", return_value={self.NCT: []}), \
+                 patch.object(monitor.urllib.request, "urlopen",
+                              return_value=self.response(payload)):
+                with self.assertRaisesRegex(RuntimeError, message):
+                    monitor.main(["--snapshot", "snapshot.json", "--report", "report.md"])
+            self.assertEqual(state.read_bytes(), original)
+            self.assertFalse(report.exists())
+            self.assertFalse((root / "snapshot.json.tmp").exists())
+
+    def test_malformed_live_date_preserves_baseline_and_suppresses_report(self):
+        self.assert_live_failure_preserves_baseline(self.payload({
+            "overallStatus": "COMPLETED", "completionDateStruct": {"date": "2023-02-29"},
+        }), "calendar date")
+
+    def test_live_json_rejects_duplicate_identity_status_and_dates(self):
+        valid = json.dumps(self.payload({"overallStatus": "RECRUITING"}))
+        # Raw JSON is intentional: constructing a dict would erase the duplicates.
+        cases = (
+            '{"protocolSection": {},' + valid[1:],
+            valid.replace('"nctId": "NCT00000001"',
+                          '"nctId": "NCT00000002", "nctId": "NCT00000001"'),
+            valid.replace('"overallStatus": "RECRUITING"',
+                          '"overallStatus": "COMPLETED", "overallStatus": "RECRUITING"'),
+            valid.replace('"overallStatus": "RECRUITING"',
+                          '"overallStatus": "RECRUITING", "overallStatus": "RECRUITING"'),
+            valid.replace('"overallStatus": "RECRUITING"',
+                          '"overallStatus": "COMPLETED", "overallSta\\u0074us": "RECRUITING"'),
+            valid.replace('"overallStatus": "RECRUITING"',
+                          '"overallStatus": "RECRUITING", "completionDateStruct": '
+                          '{"date": "2023-02-29", "date": "2024-02-29"}'),
+        )
+        for payload in cases:
+            with self.subTest(payload=payload):
+                with patch.object(monitor.urllib.request, "urlopen",
+                                  return_value=self.response(payload)):
+                    with self.assertRaisesRegex(RuntimeError, "ambiguous duplicate JSON key"):
+                        monitor.fetch_status(self.NCT)
+
+    def test_duplicate_live_status_preserves_baseline_and_suppresses_report(self):
+        valid = json.dumps(self.payload({"overallStatus": "RECRUITING"}))
+        payload = valid.replace('"overallStatus": "RECRUITING"',
+                                '"overallStatus": "RECRUITING", "overallStatus": "COMPLETED"')
+        self.assert_live_failure_preserves_baseline(payload, "ambiguous duplicate JSON key")
+
+    def test_pinned_registry_source_replay_preserves_id_status_and_dates(self):
+        # Existing primary-source capture at PR base 0c953bf, independently checked
+        # against CT.gov NCT01035255 on 2026-10-18. No outcome/effect data are used.
+        source = SCRIPT.parents[2] / "ssot/arni-hfref/sources/NCT01035255.ctgov.json"
+        raw = source.read_text(encoding="utf-8")
+        self.assertEqual(json.loads(raw)["protocolSection"]["identificationModule"]["nctId"],
+                         "NCT01035255")
+        with patch.object(monitor.urllib.request, "urlopen", return_value=self.response(raw)):
+            result = monitor.fetch_status("NCT01035255")
+        self.assertEqual(result, {
+            "status": "TERMINATED", "completion": "2014-05", "studyPost": "2009-12-18",
+            "resultsPost": "2015-09-07", "lastUpdatePost": "2016-08-15",
+        })
+
+
 if __name__ == "__main__":
     unittest.main()
