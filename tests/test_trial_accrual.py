@@ -1,0 +1,385 @@
+"""Fail-closed trial-status baseline tests, fully offline and deterministic."""
+import importlib.util
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import unittest
+from unittest.mock import patch
+
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts/workflow/check_trial_status.py"
+spec = importlib.util.spec_from_file_location("trial_accrual", SCRIPT)
+monitor = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(monitor)
+
+
+def record(status="RECRUITING", last="2026-10-15", result=None):
+    return {"status": status, "lastUpdatePost": last, "resultsPost": result,
+            "studyPost": "2025-01-01", "completion": None}
+
+
+class TrialAccrualTests(unittest.TestCase):
+    def test_nct_extraction_canonical_and_alias_parent(self):
+        html = ('NCT01234567 NCT1234567 NCT012345678 "NCT87654321B" '
+                'NCT98765432_TDF NCT1234567x and wordNCT99999999')
+        self.assertEqual(set(monitor.NCT_RE.findall(html)),
+                         {"NCT01234567", "NCT87654321", "NCT98765432"})
+
+    def test_empty_snapshot_rejected(self):
+        with self.assertRaises(ValueError): monitor.validate_snapshot({})
+
+    def test_network_error_record_rejected(self):
+        with self.assertRaisesRegex(ValueError, "failed"):
+            monitor.validate_record("NCT01234567", {"error": "timeout"})
+
+    def test_missing_status_rejected(self):
+        with self.assertRaisesRegex(ValueError, "overallStatus"):
+            monitor.validate_record("NCT01234567", record(status=None))
+
+    def test_noncanonical_key_rejected(self):
+        with self.assertRaisesRegex(ValueError, "noncanonical"):
+            monitor.validate_record("NCT01234567a", record())
+
+    def test_absent_date_is_legal(self):
+        self.assertEqual(monitor.validate_record("NCT01234567", record()), record())
+
+    def test_unexpected_schema_rejected(self):
+        with self.assertRaisesRegex(ValueError, "unexpected"):
+            monitor.validate_record("NCT01234567", dict(record(), unexpected="x"))
+
+    def test_first_successful_poll_is_not_a_change(self):
+        current = {"NCT01234567": record(), "NCT87654321": record()}
+        self.assertEqual(monitor.diff_snapshots(None, current), [])
+
+    def test_actual_date_change_is_reported(self):
+        old = {"NCT01234567": record(last="2026-10-14")}
+        new = {"NCT01234567": record(last="2026-10-15")}
+        self.assertEqual(len(monitor.diff_snapshots(old, new)), 1)
+
+    def test_identical_polls_no_alert(self):
+        old = {"NCT01234567": record()}
+        self.assertEqual(monitor.diff_snapshots(old, old), [])
+
+    def test_newly_tracked_is_explicitly_different(self):
+        old = {"NCT01234567": record()}
+        new = dict(old, NCT87654321=record())
+        changes = monitor.diff_snapshots(old, new)
+        self.assertEqual(changes[0][0], "NCT87654321")
+        self.assertIsNone(changes[0][1])
+        rep = monitor.format_report(changes, {})
+        self.assertIn("Newly tracked portfolio NCT IDs (not registry changes): **1**", rep)
+        self.assertIn("NOT a newly registered or newly changed CT.gov trial", rep)
+
+    def test_missing_majority_of_previous_ids_fails_closed(self):
+        before = {f"NCT{x:08d}": record() for x in range(100)}
+        after = {f"NCT{x:08d}": record() for x in range(70)}
+        with self.assertRaisesRegex(ValueError, "census collapsed"):
+            monitor.diff_snapshots(before, after)
+
+    def test_inconsistent_study_payload_aborts(self):
+        fake = {"protocolSection": {"identificationModule": {"nctId": "NCT00000001"},
+                                    "statusModule": {"overallStatus": "COMPLETED"}}}
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *args): return None
+            def read(self): return json.dumps(fake).encode()
+        with patch.object(monitor.urllib.request, "urlopen", return_value=Response()):
+            with self.assertRaisesRegex(RuntimeError, "NCT ID missing"):
+                monitor.fetch_status("NCT00000002")
+
+    def test_api_status_decoded(self):
+        fake = {"protocolSection": {"identificationModule": {"nctId": "NCT00000001"},
+              "statusModule": {"overallStatus": "COMPLETED", "resultsFirstPostDateStruct": {"date":"2026-10-01"}}}}
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *args): return None
+            def read(self): return json.dumps(fake).encode()
+        with patch.object(monitor.urllib.request, "urlopen", return_value=Response()):
+            self.assertEqual(monitor.fetch_status("NCT00000001")["resultsPost"], "2026-10-01")
+
+    def test_first_full_run_persists_baseline_without_report(self):
+        with TemporaryDirectory() as dir:
+            root = Path(dir)
+            by_nct = {"NCT01234567": ["a_REVIEW.html"]}
+            with patch.object(monitor, "ROOT", root), patch.object(monitor, "extract_ncts", return_value=by_nct), patch.object(monitor, "fetch_status", return_value=record()):
+                self.assertEqual(monitor.main(["--snapshot", "state/snap.json", "--report", "state/report.md"]), 0)
+            self.assertTrue((root/"state/snap.json").exists())
+            self.assertFalse((root/"state/report.md").exists())
+
+    def test_failed_poll_preserves_previous_baseline(self):
+        with TemporaryDirectory() as dir:
+            root = Path(dir)
+            state = root/"state/snap.json"
+            state.parent.mkdir()
+            original = json.dumps({"NCT01234567": record()})
+            state.write_text(original)
+            with patch.object(monitor, "ROOT", root), patch.object(monitor, "extract_ncts", return_value={"NCT01234567": ["a_REVIEW.html"]}), patch.object(monitor, "fetch_status", side_effect=RuntimeError("CT.gov timeout")):
+                with self.assertRaisesRegex(RuntimeError,"CT.gov timeout"):
+                    monitor.main(["--snapshot", "state/snap.json", "--report", "state/report.md"])
+            self.assertEqual(state.read_text(), original)
+            self.assertFalse((root/"state/report.md").exists())
+
+    def test_corrupt_previous_snapshot_not_reset_to_blank(self):
+        with TemporaryDirectory() as dir:
+            root = Path(dir)
+            state = root/"state/snap.json"
+            state.parent.mkdir()
+            state.write_text('not json')
+            with patch.object(monitor,"ROOT",root), patch.object(monitor,"extract_ncts", return_value={"NCT01234567": []}):
+                with self.assertRaises(json.JSONDecodeError):
+                    monitor.main(["--snapshot", "state/snap.json", "--report", "state/report.md"])
+            self.assertEqual(state.read_text(), 'not json')
+
+
+    def test_exact_five_percent_exit_is_reported_not_registry_withdrawal(self):
+        prev = {f"NCT{x:08d}": record() for x in range(100)}
+        curr = {f"NCT{x:08d}": record() for x in range(95)}
+        changes = monitor.diff_snapshots(prev, curr)
+        self.assertEqual(len(changes), 5)
+        self.assertTrue(all(old is not None and new is None for _, old, new in changes))
+        report = monitor.format_report(changes, {})
+        self.assertIn("No longer referenced by review pages (not CT.gov withdrawals): **5**", report)
+        self.assertIn("NOT an established registry withdrawal", report)
+
+    def test_3530_to_3354_reports_176_portfolio_exits(self):
+        prev = {f"NCT{x:08d}": record() for x in range(3530)}
+        curr = {f"NCT{x:08d}": record() for x in range(3354)}
+        changes = monitor.diff_snapshots(prev, curr)
+        self.assertEqual(len(changes), 176)
+        self.assertTrue(all(new is None for _, _, new in changes))
+        self.assertIn("withdrawals): **176**", monitor.format_report(changes, {}))
+
+    def test_3530_to_3353_rejects_more_than_five_percent_loss(self):
+        prev = {f"NCT{x:08d}": record() for x in range(3530)}
+        curr = {f"NCT{x:08d}": record() for x in range(3353)}
+        with self.assertRaisesRegex(ValueError, "NCT census collapsed: only 3353/3530"):
+            monitor.diff_snapshots(prev, curr)
+
+    def test_small_census_two_to_one_fails_closed(self):
+        prev = {"NCT00000001": record(), "NCT00000002": record()}
+        curr = {"NCT00000001": record()}
+        with self.assertRaisesRegex(ValueError, "census collapsed"):
+            monitor.diff_snapshots(prev, curr)
+
+    def test_mixed_status_new_reference_and_exit_are_disjoint(self):
+        prev = {f"NCT{x:08d}": record() for x in range(20)}
+        curr = {k: dict(v) for k, v in prev.items() if k != "NCT00000019"}
+        curr["NCT00000001"]["status"] = "COMPLETED"
+        curr["NCT00000020"] = record()
+        changes = monitor.diff_snapshots(prev, curr)
+        self.assertEqual(len(changes), 3)
+        report = monitor.format_report(changes, {})
+        self.assertIn("Previously tracked registry status/date changes: **1**", report)
+        self.assertIn("Newly tracked portfolio NCT IDs (not registry changes): **1**", report)
+        self.assertIn("No longer referenced by review pages (not CT.gov withdrawals): **1**", report)
+
+    def test_rejected_census_does_not_replace_last_validated_baseline(self):
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            state = root / "state" / "snapshot.json"
+            state.parent.mkdir()
+            original = json.dumps({f"NCT{x:08d}": record() for x in range(100)}, sort_keys=True)
+            state.write_text(original, encoding="utf-8")
+            pages = {f"NCT{x:08d}": ["SOURCE_REVIEW.html"] for x in range(94)}
+            with patch.object(monitor, "ROOT", root), \
+                 patch.object(monitor, "extract_ncts", return_value=pages), \
+                 patch.object(monitor, "fetch_status", return_value=record()):
+                with self.assertRaisesRegex(ValueError, "census collapsed"):
+                    monitor.main(["--snapshot", "state/snapshot.json",
+                                  "--report", "state/report.md"])
+            self.assertEqual(state.read_text(encoding="utf-8"), original)
+            self.assertFalse((root / "state" / "report.md").exists())
+
+
+    def test_unique_json_accepts_unambiguous_snapshot(self):
+        current = {"NCT01234567": record()}
+        self.assertEqual(monitor.load_unique_json(json.dumps(current)), current)
+
+    def test_unique_json_rejects_duplicate_top_level_trial(self):
+        entry = json.dumps(record())
+        ambiguous = f'{{"NCT01234567": {entry}, "NCT01234567": {entry}}}'
+        with self.assertRaisesRegex(ValueError, "ambiguous duplicate JSON key"):
+            monitor.load_unique_json(ambiguous)
+
+    def test_unique_json_rejects_duplicate_nested_status(self):
+        ambiguous = '{"NCT01234567": {"status": "RECRUITING", "status": "COMPLETED"}}'
+        with self.assertRaisesRegex(ValueError, "ambiguous duplicate JSON key"):
+            monitor.load_unique_json(ambiguous)
+
+    def test_unique_json_rejects_unicode_escaped_key_collision(self):
+        # JSON decodes \u0074 to 't': two spellings of the SAME key.
+        ambiguous = '{"status": "RECRUITING", "sta\\u0074us": "COMPLETED"}'
+        with self.assertRaisesRegex(ValueError, "ambiguous duplicate JSON key"):
+            monitor.load_unique_json(ambiguous)
+
+    def test_duplicate_prior_snapshot_preserved_without_registry_poll(self):
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            state = root / "state" / "snapshot.json"
+            state.parent.mkdir()
+            entry = json.dumps(record())
+            original = f'{{"NCT01234567": {entry}, "NCT01234567": {entry}}}'
+            state.write_text(original, encoding="utf-8")
+            with patch.object(monitor, "ROOT", root), \
+                 patch.object(monitor, "extract_ncts",
+                              return_value={"NCT01234567": ["a_REVIEW.html"]}), \
+                 patch.object(monitor, "fetch_status") as fetch:
+                with self.assertRaisesRegex(ValueError, "ambiguous duplicate JSON key"):
+                    monitor.main(["--snapshot", "state/snapshot.json",
+                                  "--report", "state/report.md"])
+                fetch.assert_not_called()
+            self.assertEqual(state.read_text(encoding="utf-8"), original)
+            self.assertFalse((root / "state" / "report.md").exists())
+class TrialAccrualPayloadIntegrityTests(unittest.TestCase):
+    """Synthetic corruption controls; only the named source replay is clinical data."""
+
+    NCT = "NCT00000001"  # Synthetic transport identity, not a clinical claim.
+    DATE_FIELDS = {
+        "lastUpdatePostDateStruct": "lastUpdatePost",
+        "resultsFirstPostDateStruct": "resultsPost",
+        "studyFirstPostDateStruct": "studyPost",
+        "completionDateStruct": "completion",
+    }
+
+    @staticmethod
+    def response(payload):
+        raw = payload if isinstance(payload, str) else json.dumps(payload)
+
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *args): return None
+            def read(self): return raw.encode("utf-8")
+
+        return Response()
+
+    def payload(self, status):
+        return {"protocolSection": {
+            "identificationModule": {"nctId": self.NCT},
+            "statusModule": status,
+        }}
+
+    def test_calendar_dates_preserve_source_precision(self):
+        for value in (None, "2024", "2024-02", "2024-02-29", "2000-02-29"):
+            with self.subTest(value=value):
+                self.assertEqual(monitor.validate_ctgov_date(value), value)
+
+    def test_calendar_dates_reject_malformed_or_impossible_values(self):
+        for value in ("", "2023-02-29", "1900-02-29", "2024-04-31", "2024-00",
+                      "2024-13", "0000", "2024-01-00", "2024-1-02", "24-01-02",
+                      "2024/01/02", "2024-01-02T00:00:00Z", " 2024-01-02",
+                      "2024-01-02 ", 2024, True, [], {}):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                monitor.validate_ctgov_date(value)
+
+    def test_api_absent_dates_remain_absent(self):
+        with patch.object(monitor.urllib.request, "urlopen",
+                          return_value=self.response(self.payload({"overallStatus": "RECRUITING"}))):
+            result = monitor.fetch_status(self.NCT)
+        self.assertTrue(all(result[key] is None for key in self.DATE_FIELDS.values()))
+
+    def test_api_preserves_each_date_field_precision(self):
+        for field, output in self.DATE_FIELDS.items():
+            for value in ("2024", "2024-02", "2024-02-29"):
+                with self.subTest(field=field, value=value):
+                    payload = self.payload({"overallStatus": "RECRUITING", field: {"date": value}})
+                    with patch.object(monitor.urllib.request, "urlopen",
+                                      return_value=self.response(payload)):
+                        result = monitor.fetch_status(self.NCT)
+                    self.assertEqual(result[output], value)
+
+    def test_api_rejects_each_malformed_present_date_struct(self):
+        for field in self.DATE_FIELDS:
+            for entry in (None, {}, [], "2024-01-01", 0, False, {"date": None},
+                          {"date": ""}, {"date": 2024}, {"date": "2023-02-29"},
+                          {"date": "2024-13"}, {"date": "2024-04-31"}):
+                with self.subTest(field=field, entry=entry):
+                    payload = self.payload({"overallStatus": "RECRUITING", field: entry})
+                    with patch.object(monitor.urllib.request, "urlopen",
+                                      return_value=self.response(payload)):
+                        with self.assertRaisesRegex(RuntimeError, "date"):
+                            monitor.fetch_status(self.NCT)
+
+    def test_invalid_prior_date_aborts_before_network_poll(self):
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            state = root / "snapshot.json"
+            original = json.dumps({self.NCT: record(last="2023-02-29")}).encode()
+            state.write_bytes(original)
+            with patch.object(monitor, "ROOT", root), \
+                 patch.object(monitor, "extract_ncts", return_value={self.NCT: []}), \
+                 patch.object(monitor.urllib.request, "urlopen") as fetch:
+                with self.assertRaisesRegex(ValueError, "calendar date"):
+                    monitor.main(["--snapshot", "snapshot.json", "--report", "report.md"])
+                fetch.assert_not_called()
+            self.assertEqual(state.read_bytes(), original)
+            self.assertFalse((root / "report.md").exists())
+
+    def assert_live_failure_preserves_baseline(self, payload, message):
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            state = root / "snapshot.json"
+            report = root / "report.md"
+            original = json.dumps({self.NCT: record()}).encode()
+            state.write_bytes(original)
+            report.write_text("Stale report must not be reused", encoding="utf-8")
+            with patch.object(monitor, "ROOT", root), \
+                 patch.object(monitor, "extract_ncts", return_value={self.NCT: []}), \
+                 patch.object(monitor.urllib.request, "urlopen",
+                              return_value=self.response(payload)):
+                with self.assertRaisesRegex(RuntimeError, message):
+                    monitor.main(["--snapshot", "snapshot.json", "--report", "report.md"])
+            self.assertEqual(state.read_bytes(), original)
+            self.assertFalse(report.exists())
+            self.assertFalse((root / "snapshot.json.tmp").exists())
+
+    def test_malformed_live_date_preserves_baseline_and_suppresses_report(self):
+        self.assert_live_failure_preserves_baseline(self.payload({
+            "overallStatus": "COMPLETED", "completionDateStruct": {"date": "2023-02-29"},
+        }), "calendar date")
+
+    def test_live_json_rejects_duplicate_identity_status_and_dates(self):
+        valid = json.dumps(self.payload({"overallStatus": "RECRUITING"}))
+        # Raw JSON is intentional: constructing a dict would erase the duplicates.
+        cases = (
+            '{"protocolSection": {},' + valid[1:],
+            valid.replace('"nctId": "NCT00000001"',
+                          '"nctId": "NCT00000002", "nctId": "NCT00000001"'),
+            valid.replace('"overallStatus": "RECRUITING"',
+                          '"overallStatus": "COMPLETED", "overallStatus": "RECRUITING"'),
+            valid.replace('"overallStatus": "RECRUITING"',
+                          '"overallStatus": "RECRUITING", "overallStatus": "RECRUITING"'),
+            valid.replace('"overallStatus": "RECRUITING"',
+                          '"overallStatus": "COMPLETED", "overallSta\\u0074us": "RECRUITING"'),
+            valid.replace('"overallStatus": "RECRUITING"',
+                          '"overallStatus": "RECRUITING", "completionDateStruct": '
+                          '{"date": "2023-02-29", "date": "2024-02-29"}'),
+        )
+        for payload in cases:
+            with self.subTest(payload=payload):
+                with patch.object(monitor.urllib.request, "urlopen",
+                                  return_value=self.response(payload)):
+                    with self.assertRaisesRegex(RuntimeError, "ambiguous duplicate JSON key"):
+                        monitor.fetch_status(self.NCT)
+
+    def test_duplicate_live_status_preserves_baseline_and_suppresses_report(self):
+        valid = json.dumps(self.payload({"overallStatus": "RECRUITING"}))
+        payload = valid.replace('"overallStatus": "RECRUITING"',
+                                '"overallStatus": "RECRUITING", "overallStatus": "COMPLETED"')
+        self.assert_live_failure_preserves_baseline(payload, "ambiguous duplicate JSON key")
+
+    def test_pinned_registry_source_replay_preserves_id_status_and_dates(self):
+        # Existing primary-source capture at PR base 0c953bf, independently checked
+        # against CT.gov NCT01035255 on 2026-10-18. No outcome/effect data are used.
+        source = SCRIPT.parents[2] / "ssot/arni-hfref/sources/NCT01035255.ctgov.json"
+        raw = source.read_text(encoding="utf-8")
+        self.assertEqual(json.loads(raw)["protocolSection"]["identificationModule"]["nctId"],
+                         "NCT01035255")
+        with patch.object(monitor.urllib.request, "urlopen", return_value=self.response(raw)):
+            result = monitor.fetch_status("NCT01035255")
+        self.assertEqual(result, {
+            "status": "TERMINATED", "completion": "2014-05", "studyPost": "2009-12-18",
+            "resultsPost": "2015-09-07", "lastUpdatePost": "2016-08-15",
+        })
+
+
+if __name__ == "__main__":
+    unittest.main()

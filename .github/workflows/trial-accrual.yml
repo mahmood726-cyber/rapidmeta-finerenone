@@ -3,55 +3,71 @@ name: Trial accrual monitor
 
 on:
   schedule:
-    - cron: '0 2 * * *'   # daily 02:00 UTC
-  workflow_dispatch:      # manual trigger
+    - cron: '0 2 * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  actions: read
   issues: write
+
+concurrency:
+  group: trial-accrual-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   poll:
     runs-on: ubuntu-latest
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Poll CT.gov v2 for status changes on all tracked NCTs
+      - name: Validate snapshot integrity rules
+        run: python -m unittest discover -s tests -p 'test_trial_accrual.py' -v
+
+      - name: Locate most recent successful validated snapshot artifact
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .workflow-state
+          run_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=rapidmeta-trial-status-snapshot&per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false and .workflow_run.head_branch == "main") | .workflow_run.id] | first // empty')
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          if [ -z "$run_id" ]; then
+            echo 'No prior validated artifact: first successful full poll becomes the baseline.'
+          else
+            echo "Found previous artifact from run $run_id"
+          fi
+
+      - name: Restore prior validated snapshot
+        if: steps.baseline.outputs.run_id != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIOUS_RUN_ID: ${{ steps.baseline.outputs.run_id }}
+        run: |
+          gh run download "$PREVIOUS_RUN_ID" --name rapidmeta-trial-status-snapshot --dir .workflow-state
+          test -s .workflow-state/trial_status_snapshot.json
+
+      - name: Poll and validate all tracked NCTs
         run: |
           python scripts/workflow/check_trial_status.py \
             --snapshot .workflow-state/trial_status_snapshot.json \
             --report .workflow-state/trial_status_report.md
-        continue-on-error: false
 
-      - name: Commit snapshot
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .workflow-state/trial_status_snapshot.json
-          if git diff --cached --quiet; then
-            echo "no snapshot changes"
-          else
-            git commit -m "chore(workflow): update trial-status snapshot [skip ci]"
-            # Parallel-workflow-safe push: stash working tree, pull-rebase, pop, push
-            for i in 1 2 3 4 5; do
-              git stash push --include-untracked -m "workflow-retry-$i" || true
-              if git pull --rebase origin main; then
-                git stash pop || true
-                git push origin main && break
-              else
-                git stash pop || true
-              fi
-              echo "push attempt $i failed; sleeping $((i*3))s"
-              sleep $((i*3))
-            done
-          fi
+      - name: Retain complete snapshot as cross-run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapidmeta-trial-status-snapshot
+          path: .workflow-state/trial_status_snapshot.json
+          if-no-files-found: error
+          retention-days: 90
 
-      - name: Open issue if new changes
-        if: hashFiles('.workflow-state/trial_status_report.md') != ''
+      - name: Open issue only for changes between validated polls
+        if: steps.baseline.outputs.run_id != '' && hashFiles('.workflow-state/trial_status_report.md') != ''
         uses: peter-evans/create-issue-from-file@v5
         with:
           title: "Trial accrual report - ${{ github.run_number }}"
