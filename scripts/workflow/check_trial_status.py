@@ -86,7 +86,7 @@ def fetch_status(nct):
     req = urllib.request.Request(url, headers={"User-Agent": "rapidmeta-living-ma/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=15) as response:
-            data = json.loads(response.read().decode("utf-8"))
+            data = load_unique_json(response.read().decode("utf-8"))
         if not isinstance(data, dict):
             raise ValueError("non-object API response")
         ps = data.get("protocolSection")
@@ -173,7 +173,7 @@ def atomic_write(path, text):
 
 
 def load_unique_json(text):
-    """Reject ambiguous duplicate keys anywhere in a persisted snapshot."""
+    """Reject ambiguous duplicate keys in snapshots and live registry responses."""
     def reject_duplicates(pairs):
         obj = {}
         for key, value in pairs:
