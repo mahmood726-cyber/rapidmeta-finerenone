@@ -8,6 +8,7 @@ never overwrite the last validated baseline or trigger an alert.
 from __future__ import annotations
 
 import argparse
+from datetime import date as calendar_date
 import json
 import os
 from pathlib import Path
@@ -37,6 +38,21 @@ def extract_ncts():
     return by_nct
 
 
+def validate_ctgov_date(value):
+    """Validate calendar dates without inventing missing day/month precision."""
+    if value is None:
+        return None
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}(?:-\d{2}(?:-\d{2})?)?", value):
+        raise ValueError("invalid CT.gov date representation")
+    parts = [int(part) for part in value.split("-")]
+    try:
+        calendar_date(parts[0], parts[1] if len(parts) > 1 else 1,
+                      parts[2] if len(parts) > 2 else 1)
+    except ValueError as exc:
+        raise ValueError("invalid CT.gov calendar date") from exc
+    return value
+
+
 def validate_record(nct, record):
     if not CANONICAL_NCT_RE.fullmatch(nct):
         raise ValueError(f"noncanonical CT.gov identifier in status map: {nct!r}")
@@ -46,9 +62,11 @@ def validate_record(nct, record):
         raise ValueError(f"{nct}: unexpected status record keys: {sorted(record)}")
     if not isinstance(record["status"], str) or not record["status"].strip():
         raise ValueError(f"{nct}: overallStatus missing; cannot establish a reliable baseline")
-    if any(record[key] is not None and not isinstance(record[key], str)
-           for key in STATUS_KEYS[1:]):
-        raise ValueError(f"{nct}: a date field is not text/null")
+    for key in STATUS_KEYS[1:]:
+        try:
+            validate_ctgov_date(record[key])
+        except ValueError as exc:
+            raise ValueError(f"{nct}: invalid {key}: {exc}") from exc
     return record
 
 
@@ -81,8 +99,12 @@ def fetch_status(nct):
         if not isinstance(status, dict):
             raise ValueError("statusModule missing")
         def date(key):
-            entry = status.get(key)
-            return entry.get("date") if isinstance(entry, dict) else None
+            if key not in status:
+                return None
+            entry = status[key]
+            if not isinstance(entry, dict) or not isinstance(entry.get("date"), str):
+                raise ValueError(f"{key}: malformed present CT.gov dateStruct")
+            return validate_ctgov_date(entry["date"])
         record = {
             "status": status.get("overallStatus"),
             "lastUpdatePost": date("lastUpdatePostDateStruct"),
