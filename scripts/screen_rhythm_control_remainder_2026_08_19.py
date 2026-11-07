@@ -31,7 +31,7 @@ import os
 import re
 import sys
 
-REPO = "F:/rapidmeta-ssot-shell"
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO + "/ssot")
 os.environ.setdefault(
     "RM_CTGOV_CACHE",
