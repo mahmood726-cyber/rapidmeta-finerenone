@@ -66,6 +66,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.parse
 
@@ -82,6 +83,11 @@ GENERIC = set("""the a an of for in on and or to study trial phase safety effica
 effectiveness open label randomized randomised placebo controlled multicenter multicentre
 extension part cohort group arm versus vs adults adult patients children women men
 international national european american""".split())
+
+
+def default_report_path():
+    """Machine-independent default; set LABEL_AUDIT_OUT to keep the report elsewhere."""
+    return os.path.join(tempfile.gettempdir(), "label_audit.json")
 
 
 def _curl(url, tries=3):
@@ -388,7 +394,7 @@ def main():
     print("  ⚠️ 'not verified' is NOT 'wrong'. Trials carry sponsor codes, network codes")
     print("     and published acronyms the registry may not list. Only INVERTED is")
     print("     asserted as a defect; the rest are left for a person.")
-    out = os.environ.get("LABEL_AUDIT_OUT", "F:/claude-temp/rm-dapivirine-2026-08-31/label_audit.json")
+    out = os.environ.get("LABEL_AUDIT_OUT") or default_report_path()
     json.dump(a, open(out, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     print("  written to %s" % out)
 
