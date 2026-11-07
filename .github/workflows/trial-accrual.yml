@@ -37,11 +37,22 @@ jobs:
           run_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=rapidmeta-trial-status-snapshot&per_page=100" \
             --jq '[.artifacts[] | select(.expired == false and .workflow_run.head_branch == "main") | .workflow_run.id] | first // empty')
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          lapsed=false
           if [ -z "$run_id" ]; then
-            echo 'No prior validated artifact: first successful full poll becomes the baseline.'
+            # Distinguish first-ever from lapsed: a prior successful run on main
+            # means a baseline once existed and its artifact has expired/vanished.
+            prior=$(gh run list --workflow trial-accrual.yml --branch main --status success --limit 1 \
+              --json databaseId --jq '.[0].databaseId // empty')
+            if [ -n "$prior" ]; then
+              lapsed=true
+              echo "::warning::BASELINE LAPSED: run $prior succeeded on main but no unexpired snapshot artifact exists. This poll re-baselines and CANNOT report changes since then."
+            else
+              echo 'FIRST-EVER baseline: no prior successful run on main and no artifact.'
+            fi
           else
             echo "Found previous artifact from run $run_id"
           fi
+          echo "lapsed=$lapsed" >> "$GITHUB_OUTPUT"
 
       - name: Restore prior validated snapshot
         if: steps.baseline.outputs.run_id != ''
@@ -58,14 +69,6 @@ jobs:
             --snapshot .workflow-state/trial_status_snapshot.json \
             --report .workflow-state/trial_status_report.md
 
-      - name: Retain complete snapshot as cross-run artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: rapidmeta-trial-status-snapshot
-          path: .workflow-state/trial_status_snapshot.json
-          if-no-files-found: error
-          retention-days: 90
-
       - name: Open issue only for changes between validated polls
         if: steps.baseline.outputs.run_id != '' && hashFiles('.workflow-state/trial_status_report.md') != ''
         uses: peter-evans/create-issue-from-file@v5
@@ -73,3 +76,28 @@ jobs:
           title: "Trial accrual report - ${{ github.run_number }}"
           content-filepath: .workflow-state/trial_status_report.md
           labels: trial-accrual, living-ma
+
+      - name: Alert that the baseline lapsed (changes since expiry are unrecoverable)
+        if: steps.baseline.outputs.lapsed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create trial-accrual-lapsed --color B60205 --description "Trial accrual baseline artifact expired" 2>/dev/null || true
+          open=$(gh issue list --label trial-accrual-lapsed --state open --json number --jq '.[0].number // empty')
+          body="The snapshot artifact expired or was deleted although earlier runs succeeded on main. Run ${GITHUB_RUN_NUMBER} re-baselined silently: CT.gov changes since the last retained snapshot were NOT reported. Keep this issue open until reviewed; if it recurs, schedule runs more often than the artifact retention (90 days) or move the baseline to durable storage."
+          if [ -z "$open" ]; then
+            gh issue create --title "Trial accrual baseline lapsed" --label trial-accrual-lapsed --body "$body"
+          else
+            gh issue comment "$open" --body "Baseline lapsed again in run ${GITHUB_RUN_NUMBER}. $body"
+          fi
+
+      # Upload is LAST: if any issue step above fails, the baseline is not advanced.
+      - name: Retain complete snapshot as cross-run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapidmeta-trial-status-snapshot
+          path: |
+            .workflow-state/trial_status_snapshot.json
+            .workflow-state/trial_status_snapshot.json.ledger.json
+          if-no-files-found: error
+          retention-days: 90

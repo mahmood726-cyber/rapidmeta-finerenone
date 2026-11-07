@@ -381,5 +381,148 @@ class TrialAccrualPayloadIntegrityTests(unittest.TestCase):
         })
 
 
+
+class TrialAccrualResilienceTests(unittest.TestCase):
+    """Transient retry, permanent-failure ledger and alias handling (offline)."""
+
+    @staticmethod
+    def study(nct):
+        return {"protocolSection": {"identificationModule": {"nctId": nct},
+                                    "statusModule": {"overallStatus": "COMPLETED"}}}
+
+    @staticmethod
+    def response(payload, url=None):
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *args): return None
+            def read(self): return json.dumps(payload).encode()
+            def geturl(self): return url
+        return Response()
+
+    @staticmethod
+    def http_error(code):
+        return monitor.urllib.error.HTTPError("u", code, "x", {}, None)
+
+    def run_main(self, ncts, fetch, previous=None, extra=()):
+        with TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            snap = root / "snap.json"
+            if previous is not None:
+                snap.write_text(json.dumps(previous))
+            with patch.object(monitor, "ROOT", root), \
+                 patch.object(monitor, "extract_ncts", return_value={n: [] for n in ncts}), \
+                 patch.object(monitor, "fetch_status", side_effect=fetch), \
+                 patch.object(monitor.time, "sleep"):
+                try:
+                    code = monitor.main(["--snapshot", "snap.json", "--report", "r.md", *extra])
+                    error = None
+                except RuntimeError as exc:
+                    code, error = None, exc
+            ledger = root / "snap.json.ledger.json"
+            return (code, error, json.loads(ledger.read_text()) if ledger.exists() else None,
+                    snap.read_bytes() if snap.exists() else None)
+
+    def test_transient_errors_retry_then_succeed(self):
+        calls = []
+        def fetch(nct):
+            calls.append(nct)
+            if len(calls) < 3:
+                raise monitor.TransientFetchError("timeout")
+            return record()
+        sleeps = []
+        with patch.object(monitor, "fetch_status", side_effect=fetch):
+            result = monitor.fetch_with_retry("NCT01234567", {"left": 600.0}, sleep=sleeps.append)
+        self.assertEqual(result, record())
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(sleeps, [1, 2])
+
+    def test_transient_retries_are_bounded_and_fail_closed(self):
+        with patch.object(monitor, "fetch_status", side_effect=monitor.TransientFetchError("429")) as f:
+            with self.assertRaises(monitor.TransientFetchError):
+                monitor.fetch_with_retry("NCT01234567", {"left": 600.0}, sleep=lambda s: None)
+            self.assertEqual(f.call_count, 4)
+            f.reset_mock()
+            with self.assertRaises(monitor.TransientFetchError):  # budget spent
+                monitor.fetch_with_retry("NCT01234567", {"left": 0.5}, sleep=lambda s: None)
+            self.assertEqual(f.call_count, 1)
+
+    def test_http_status_classification(self):
+        for code, exc_type in ((404, monitor.PermanentFetchError), (429, monitor.TransientFetchError),
+                               (503, monitor.TransientFetchError), (400, RuntimeError)):
+            with patch.object(monitor.urllib.request, "urlopen", side_effect=self.http_error(code)):
+                with self.assertRaises(exc_type) as ctx:
+                    monitor.fetch_status("NCT00000001")
+            if code == 400:
+                self.assertNotIsInstance(ctx.exception, (monitor.PermanentFetchError, monitor.TransientFetchError))
+
+    def test_timeout_is_transient(self):
+        with patch.object(monitor.urllib.request, "urlopen", side_effect=TimeoutError("t")):
+            with self.assertRaises(monitor.TransientFetchError):
+                monitor.fetch_status("NCT00000001")
+
+    def test_404_under_threshold_recorded_in_ledger_not_dropped(self):
+        ncts = [f"NCT{x:08d}" for x in range(1, 201)]
+        def fetch(nct):
+            if nct == "NCT00000007":
+                raise monitor.PermanentFetchError(nct, "not_found")
+            return record()
+        code, error, ledger, snap = self.run_main(ncts, fetch)
+        self.assertEqual(code, 0)
+        self.assertEqual(ledger["NCT00000007"]["kind"], "not_found")
+        self.assertNotIn(b"NCT00000007", snap)  # first baseline: absent, but ledgered
+
+    def test_404_carries_previous_record_forward_and_is_ledgered(self):
+        ncts = [f"NCT{x:08d}" for x in range(1, 201)]
+        previous = {n: record() for n in ncts}
+        previous["NCT00000007"] = record(status="ACTIVE_NOT_RECRUITING")
+        def fetch(nct):
+            if nct == "NCT00000007":
+                raise monitor.PermanentFetchError(nct, "not_found")
+            return record()
+        code, error, ledger, snap = self.run_main(ncts, fetch, previous=previous)
+        self.assertEqual(code, 0)
+        self.assertTrue(ledger["NCT00000007"]["carried_forward"])
+        self.assertEqual(json.loads(snap)["NCT00000007"]["status"], "ACTIVE_NOT_RECRUITING")
+
+    def test_404_over_threshold_fails_closed_and_preserves_baseline(self):
+        ncts = [f"NCT{x:08d}" for x in range(1, 21)]
+        previous = {n: record() for n in ncts}
+        def fetch(nct):
+            if nct in ncts[:3]:
+                raise monitor.PermanentFetchError(nct, "not_found")
+            return record(last="2026-10-16")
+        code, error, ledger, snap = self.run_main(ncts, fetch, previous=previous)
+        self.assertIsNone(code)
+        self.assertRegex(str(error), "unresolved")
+        self.assertEqual(snap, json.dumps(previous).encode())
+        self.assertEqual(set(ledger), set(ncts[:3]))
+
+    def test_alias_redirect_recorded_not_aborted_and_never_overwrites_other_study(self):
+        canonical = self.study("NCT00000002")
+        url = "https://clinicaltrials.gov/api/v2/studies/NCT00000002?fields=x"
+        with patch.object(monitor.urllib.request, "urlopen",
+                          return_value=self.response(canonical, url)):
+            with self.assertRaises(monitor.PermanentFetchError) as ctx:
+                monitor.fetch_status("NCT00000001")
+        self.assertEqual((ctx.exception.kind, ctx.exception.canonical), ("alias", "NCT00000002"))
+        ncts = [f"NCT{x:08d}" for x in range(1, 201)]
+        def fetch(nct):
+            if nct == "NCT00000001":
+                raise monitor.PermanentFetchError(nct, "alias", canonical="NCT00000002")
+            return record(status="COMPLETED") if nct == "NCT00000002" else record()
+        code, error, ledger, snap = self.run_main(ncts, fetch)
+        self.assertEqual(code, 0)
+        self.assertEqual(ledger["NCT00000001"]["canonical"], "NCT00000002")
+        self.assertNotIn("NCT00000001", json.loads(snap))
+        self.assertEqual(json.loads(snap)["NCT00000002"]["status"], "COMPLETED")
+
+    def test_different_id_without_redirect_still_aborts(self):
+        for url in (None, "https://clinicaltrials.gov/api/v2/studies/NCT00000001"):
+            with patch.object(monitor.urllib.request, "urlopen",
+                              return_value=self.response(self.study("NCT00000002"), url)):
+                with self.assertRaisesRegex(RuntimeError, "NCT ID missing"):
+                    monitor.fetch_status("NCT00000001")
+
+
 if __name__ == "__main__":
     unittest.main()

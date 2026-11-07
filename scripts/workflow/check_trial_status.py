@@ -25,6 +25,7 @@ FIELDS = "NCTId,OverallStatus,LastUpdatePostDate,ResultsFirstPostDate,StudyFirst
 NCT_RE = re.compile(r"(?<![A-Za-z0-9_])NCT\d{8}(?!\d)")
 CANONICAL_NCT_RE = re.compile(r"NCT\d{8}\Z")
 STATUS_KEYS = ("status", "lastUpdatePost", "resultsPost", "studyPost", "completion")
+RETRY_BUDGET_SECONDS = 600.0
 COMPARE_KEYS = ("status", "lastUpdatePost", "resultsPost", "completion")
 
 
@@ -78,14 +79,37 @@ def validate_snapshot(snapshot):
     return snapshot
 
 
+class TransientFetchError(RuntimeError):
+    """Timeout, 429 or 5xx: worth a bounded retry; never a permanent verdict."""
+
+    def __init__(self, message, retry_after=None):
+        super().__init__(message)
+        self.retry_after = retry_after
+
+
+class PermanentFetchError(RuntimeError):
+    """Per-NCT outcome recorded in the ledger (kind: not_found | alias)."""
+
+    def __init__(self, nct, kind, canonical=None):
+        super().__init__(f"{nct}: {kind}" + (f" -> {canonical}" if canonical else ""))
+        self.nct, self.kind, self.canonical = nct, kind, canonical
+
+
 def fetch_status(nct):
-    """Fetch and validate one study, raising on transport/shape/ID mismatch."""
+    """Fetch and validate one study, raising on transport/shape/ID mismatch.
+
+    404/410 -> PermanentFetchError("not_found"); timeout/429/5xx ->
+    TransientFetchError; a payload for a DIFFERENT canonical nctId is accepted
+    only as an alias when the HTTP client was actually redirected to that
+    study (final URL ends with that id). Any other mismatch still aborts.
+    """
     if not CANONICAL_NCT_RE.fullmatch(nct):
         raise ValueError(f"Invalid registry identifier: {nct!r}")
     url = f"{CT_API}{urllib.parse.quote(nct)}?fields={FIELDS}&format=json"
     req = urllib.request.Request(url, headers={"User-Agent": "rapidmeta-living-ma/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=15) as response:
+            final_url = getattr(response, "geturl", lambda: None)()
             data = load_unique_json(response.read().decode("utf-8"))
         if not isinstance(data, dict):
             raise ValueError("non-object API response")
@@ -93,7 +117,13 @@ def fetch_status(nct):
         if not isinstance(ps, dict):
             raise ValueError("protocolSection missing")
         identifying = ps.get("identificationModule", {})
-        if not isinstance(identifying, dict) or identifying.get("nctId") != nct:
+        got = identifying.get("nctId") if isinstance(identifying, dict) else None
+        if got != nct:
+            redirected = (isinstance(final_url, str) and isinstance(got, str)
+                          and CANONICAL_NCT_RE.fullmatch(got) is not None
+                          and urllib.parse.urlparse(final_url).path.rstrip("/").rsplit("/", 1)[-1] == got)
+            if redirected:
+                raise PermanentFetchError(nct, "alias", canonical=got)
             raise ValueError("NCT ID missing or not equal to queried study")
         status = ps.get("statusModule")
         if not isinstance(status, dict):
@@ -113,8 +143,39 @@ def fetch_status(nct):
             "completion": date("completionDateStruct"),
         }
         return validate_record(nct, record)
-    except (ValueError, OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
+    except urllib.error.HTTPError as exc:
+        if exc.code in (404, 410):
+            raise PermanentFetchError(nct, "not_found") from exc
+        if exc.code == 429 or exc.code >= 500:
+            retry_after = None
+            try:
+                retry_after = float(exc.headers.get("Retry-After")) if exc.headers else None
+            except (TypeError, ValueError):
+                pass
+            raise TransientFetchError(f"{nct}: CT.gov HTTP {exc.code}", retry_after) from exc
+        raise RuntimeError(f"{nct}: CT.gov fetch/validation failed: HTTP {exc.code}") from exc
+    except (TimeoutError, urllib.error.URLError) as exc:
+        raise TransientFetchError(f"{nct}: CT.gov transport error: {exc}") from exc
+    except (ValueError, OSError, json.JSONDecodeError) as exc:
         raise RuntimeError(f"{nct}: CT.gov fetch/validation failed: {exc}") from exc
+
+
+def fetch_with_retry(nct, budget, sleep=time.sleep, attempts=4):
+    """Retry transient errors with capped exponential backoff.
+
+    `budget` is a shared {"left": seconds} dict so a bad API day cannot stall
+    the ~3,500-ID poll indefinitely; when spent, the transient error is raised
+    (fail closed). Permanent outcomes are never retried.
+    """
+    for attempt in range(attempts):
+        try:
+            return fetch_status(nct)
+        except TransientFetchError as exc:
+            delay = min(exc.retry_after if exc.retry_after is not None else 2 ** attempt, 30)
+            if attempt == attempts - 1 or delay > budget["left"]:
+                raise
+            budget["left"] -= delay
+            sleep(delay)
 
 
 def diff_snapshots(prev, curr):
@@ -188,8 +249,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--snapshot", required=True)
     parser.add_argument("--report", required=True)
+    parser.add_argument("--ledger", help="default: <snapshot>.ledger.json")
+    parser.add_argument("--max-unresolved-fraction", type=float, default=0.01)
     args = parser.parse_args(argv)
+    max_unresolved = args.max_unresolved_fraction
     snap_path = ROOT / args.snapshot
+    ledger_path = ROOT / (args.ledger or args.snapshot + ".ledger.json")
     report_path = ROOT / args.report
     report_path.unlink(missing_ok=True)
     by_nct = extract_ncts()
@@ -198,11 +263,28 @@ def main(argv=None):
     previous = None
     if snap_path.exists():
         previous = validate_snapshot(load_unique_json(snap_path.read_text(encoding="utf-8")))
-    current = {}
+    ledger_path.unlink(missing_ok=True)
+    current, ledger = {}, {}
+    budget = {"left": RETRY_BUDGET_SECONDS}
     for number, nct in enumerate(sorted(by_nct), 1):
-        current[nct] = fetch_status(nct)
+        try:
+            current[nct] = fetch_with_retry(nct, budget)
+        except PermanentFetchError as exc:
+            # Recorded, never dropped. An alias is NEVER stored under the
+            # canonical id (that would overwrite a different study's record).
+            ledger[nct] = {"kind": exc.kind, "canonical": exc.canonical,
+                           "carried_forward": bool(previous and nct in previous)}
+            if previous and nct in previous:
+                current[nct] = previous[nct]  # keep census; ledger says it is stale
         if number % 20 == 0:
             time.sleep(0.5)
+    atomic_write(ledger_path, json.dumps(ledger, indent=2, sort_keys=True) + "\n")
+    if len(ledger) > max_unresolved * len(by_nct):
+        raise RuntimeError(
+            f"{len(ledger)}/{len(by_nct)} NCTs unresolved (404/alias), above the "
+            f"{max_unresolved:.1%} threshold; baseline preserved: {sorted(ledger)[:20]}")
+    if ledger:
+        print(f"Ledger: {len(ledger)} unresolved NCTs recorded in {ledger_path.name}: {sorted(ledger)[:20]}")
     validate_snapshot(current)
     changes = diff_snapshots(previous, current)  # validates census BEFORE overwrite
     atomic_write(snap_path, json.dumps(current, indent=2, sort_keys=True) + "\n")
