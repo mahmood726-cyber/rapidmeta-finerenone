@@ -578,6 +578,36 @@ def check_dose_response(html):
 # MAIN
 # ═══════════════════════════════════════════════════════════
 
+LOST_NO_PAGE = 'no *_REVIEW.html at this name'
+LOST_EXCLUDED = 'name is in EXCLUDED_APPS'
+LOST_NO_TRIALS_IN_PAGE = 'page holds no trial data this parser reads (store-backed or retired page)'
+LOST_NOT_POOLABLE = 'trials parsed, none poolable'
+
+
+def lost_benchmarks(benchmarks, results, excluded):
+    """Each declared benchmark that did not count -> the reason it did not.
+
+    `benchmarked` increments only where a pool exists, so a benchmark can leave the
+    numerator with no line of output. This names the loss. It changes no count and no
+    floor: coverage is still benchmarked/len(results) against --require-coverage.
+    """
+    by_name = {r['name']: r for r in results}
+    lost = {}
+    for name in sorted(benchmarks):
+        entry = by_name.get(name)
+        if entry is not None and entry.get('benchmark') is not None:
+            continue
+        if name in excluded:
+            lost[name] = LOST_EXCLUDED
+        elif entry is None:
+            lost[name] = LOST_NO_PAGE
+        elif not entry.get('trial_count'):
+            lost[name] = LOST_NO_TRIALS_IN_PAGE
+        else:
+            lost[name] = LOST_NOT_POOLABLE
+    return lost
+
+
 def find_all_apps(local_only=False):
     """Find all living MA HTML files. If local_only, only the current directory.
     EXCLUDED_APPS (k<2 single-trial/empty apps) are filtered out."""
@@ -777,6 +807,10 @@ if __name__ == '__main__':
         # BENCHMARKED app matched — NOT that the whole portfolio is validated.
         print(f"  Benchmark coverage:  {benchmarked}/{len(results)} apps ({cov_pct:.1f}%)")
         print(f"  UNVALIDATED apps:    {unvalidated}  (no external benchmark — NOT checked for correctness)")
+        _lost = lost_benchmarks(BENCHMARKS, results, EXCLUDED_APPS)
+        print(f"  Declared benchmarks: {len(BENCHMARKS)}; not counted: {len(_lost)}")
+        for _name, _why in _lost.items():
+            print(f"    LOST {_name}: {_why}")
 
         if gate:
             print(f"\n{'=' * 60}")
