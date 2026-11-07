@@ -98,6 +98,10 @@ def invocations(hook_text):
     gate this runner covers. A runner carrying its own list drifts from the thing it
     claims to cover, and reports the drift as coverage.
     """
+    # A COMMENT IS NOT AN INVOCATION. pre-push line 16 quotes the OLD call, `python "$SCRIPT"
+    # 2>&1 | tail -15`; matching it ran a bare regression_check.py that no hook runs.
+    hook_text = "\n".join(line for line in hook_text.splitlines()
+                          if not line.lstrip().startswith("#"))
     found = []
     for m in re.finditer(r'python\s+"?\$\{?R\}?/(scripts/[A-Za-z0-9_]+\.py)"?([^\n|&]*)',
                          hook_text):
